@@ -5,10 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Project extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Project $project): void {
+            if (empty($project->slug)) {
+                $project->slug = Str::slug($project->name);
+            }
+        });
+    }
 
     protected $fillable = [
         'name',

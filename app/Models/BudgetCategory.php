@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class BudgetCategory extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'type',
@@ -18,10 +21,13 @@ class BudgetCategory extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'allocated_amount' => 'decimal:2',
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'allocated_amount' => 'decimal:2',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function allocations(): HasMany
     {
@@ -35,7 +41,7 @@ class BudgetCategory extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return '$' . number_format($this->allocated_amount, 2);
+        return 'UGX '.number_format($this->allocated_amount, 0);
     }
 
     public function scopeIncome($query)

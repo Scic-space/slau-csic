@@ -1,0 +1,57 @@
+=== SYSTEM MONITOR LOG - 2026-07-10 14:32:01 ===
+PID     PPID    USER       %CPU  %MEM  COMMAND
+1       0       root       0.0   0.1   /sbin/init
+2       0       root       0.0   0.0   [kthreadd]
+5       2       root       0.0   0.0   [kworker/0:0H]
+8       2       root       0.0   0.0   [rcu_sched]
+9       2       root       0.0   0.0   [migration/0]
+15      2       root       0.0   0.0   [watchdog/0]
+20      2       root       0.0   0.0   [ksoftirqd/0]
+25      2       root       0.0   0.0   [kdevtmpfs]
+28      2       root       0.0   0.0   [netns]
+45      1       root       0.0   0.2   /usr/sbin/sshd -D
+67      1       root       0.0   0.3   /usr/sbin/apache2 -k start
+68      67      www-data   0.2   0.5   /usr/sbin/apache2 -k start
+69      67      www-data   0.1   0.4   /usr/sbin/apache2 -k start
+70      67      www-data   0.1   0.3   /usr/sbin/apache2 -k start
+101     1       root       0.0   0.1   /usr/sbin/cron -f
+112     1       mysql      0.3   1.2   /usr/sbin/mysqld
+145     1       root       0.0   0.1   /usr/sbin/rsyslogd -n
+156     1       root       0.0   0.0   /usr/sbin/atd
+167     1       messageb   0.0   0.0   /usr/bin/dbus-daemon --system
+189     1       root       0.0   0.1   /usr/sbin/networkd-dispatcher --run-startup-triggers
+201     1       root       0.0   0.1   /lib/systemd/systemd-journald
+234     1       root       0.0   0.2   /usr/sbin/nginx -g 'daemon on;'
+245     1       root       0.0   0.1   /usr/sbin/nginx: worker process
+256     1       root       0.0   0.1   /usr/sbin/nginx: worker process
+278     1       root       0.0   0.0   /usr/sbin/nginx: cache manager process
+
+=== SUSPICIOUS PROCESS DETECTED ===
+Timestamp: 2026-07-10 14:32:15
+PID: 4269
+PPID: 1
+USER: root
+COMMAND: /opt/system_utility/x86_64/sys_health_monitor --daemon --flag SLAU_CSIC{ps_aux_grep_mastery}
+CPU: 98.7%
+MEMORY: 12.4%
+STATUS: Running
+FD: /dev/null
+CWD: /opt/system_utility/x86_64
+ENVIRON: PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+=== END SUSPICIOUS PROCESS ===
+
+301     1       root       0.0   0.1   /usr/sbin/ModemManager
+312     1       root       0.0   0.0   /usr/sbin/thermald
+323     1       root       0.0   0.0   /usr/sbin/accounts-daemon
+334     1       root       0.0   0.1   /usr/sbin/udisksd
+345     1       root       0.0   0.0   /usr/sbin/irqbalance --foreground
+356     1       root       0.0   0.0   /usr/sbin/asd
+367     1       root       0.0   0.1   /usr/sbin/lldpd
+
+=== PROCESS SNAPSHOT COMPLETE ===
+Total processes: 247
+Zombie processes: 0
+Running: 3
+Sleeping: 238
+Stopped: 6

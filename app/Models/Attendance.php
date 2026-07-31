@@ -26,10 +26,13 @@ class Attendance extends Model
         'notes',
     ];
 
-    protected $casts = [
-        'checked_in_at' => 'datetime',
-        'is_auto_absent' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'checked_in_at' => 'datetime',
+            'is_auto_absent' => 'boolean',
+        ];
+    }
 
     // ============================================
     // RELATIONSHIPS

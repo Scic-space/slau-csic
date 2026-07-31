@@ -6,9 +6,12 @@ use App\Http\Requests\CastElectionVoteRequest;
 use App\Http\Requests\UpdateClubResourceProgressRequest;
 use App\Models\ClubResource;
 use App\Models\ClubResourceProgress;
+use App\Models\CtfCompetition;
+use App\Models\CtfSubmission;
 use App\Models\Election;
 use App\Models\ElectionVote;
 use App\Models\Event;
+use App\Models\EventRegistration;
 use App\Models\Meeting;
 use App\Models\User;
 use App\Services\HtbProfileSyncService;
@@ -75,7 +78,7 @@ class ClubPortalController extends Controller
     public function voting(): View
     {
         $user = auth()->user();
-        $elections = Election::query()
+        $elections = Election::live()
             ->with(['candidates.votes', 'votes' => fn ($query) => $query->where('user_id', $user->id)])
             ->orderByDesc('starts_at')
             ->get();
@@ -90,12 +93,30 @@ class ClubPortalController extends Controller
     {
         $this->syncHtbIfNeeded();
 
+        $activeCompetitions = CtfCompetition::published()
+            ->public()
+            ->currentlyActive()
+            ->withCount('challenges')
+            ->orderBy('start_date')
+            ->get();
+
+        $userSolves = CtfSubmission::where('user_id', auth()->id())
+            ->where('is_correct', true)
+            ->count();
+
+        $userPoints = CtfSubmission::where('user_id', auth()->id())
+            ->where('is_correct', true)
+            ->sum('points_awarded');
+
         return view('pages.club.ctf', [
             'title' => 'CTF Arena',
             'resources' => $this->resourcesWithProgress()->where('category', 'ctf')->values(),
             'leaderboard' => $this->ctfLeaderboard(),
             'badges' => $this->memberBadges(),
             'htbData' => auth()->user()->htb_profile_data ?? [],
+            'activeCompetitions' => $activeCompetitions,
+            'userSolves' => $userSolves,
+            'userPoints' => $userPoints,
         ]);
     }
 
@@ -108,18 +129,61 @@ class ClubPortalController extends Controller
             ->with(['registrations'])
             ->get();
 
+        $userRegistrations = collect();
+        if (auth()->check()) {
+            $eventIds = $classes->pluck('id');
+            $userRegistrations = EventRegistration::whereIn('event_id', $eventIds)
+                ->where('user_id', auth()->id())
+                ->get()
+                ->keyBy('event_id');
+        }
+
         return view('pages.club.classes', [
             'title' => 'Internal Online Classes',
             'resources' => $this->resourcesWithProgress()->where('category', 'class')->values(),
             'classes' => $classes,
+            'userRegistrations' => $userRegistrations,
+        ]);
+    }
+
+    public function showResource(ClubResource $clubResource): View
+    {
+        $categoryConfig = match ($clubResource->category) {
+            'competition' => [
+                'back' => route('portal.competitions'),
+                'back_label' => 'Back to Competitions',
+                'heading' => 'Internal Competitions',
+            ],
+            'ctf' => [
+                'back' => route('portal.ctf'),
+                'back_label' => 'Back to CTF Arena',
+                'heading' => 'CTF Challenge',
+            ],
+            default => [
+                'back' => route('dashboard'),
+                'back_label' => 'Back to Portal',
+                'heading' => $clubResource->title,
+            ],
+        };
+
+        return view('pages.club.resource-show', [
+            'title' => $clubResource->title,
+            'resource' => $clubResource,
+            'categoryConfig' => $categoryConfig,
         ]);
     }
 
     public function castVote(CastElectionVoteRequest $request, Election $election): RedirectResponse
     {
-        abort_unless($election->isOpen(), 403);
+        abort_unless($request->user()->canVoteIn($election), 403);
+
+        if (! $election->allowsVoteChanges() && $request->user()->hasVotedIn($election)) {
+            abort(403, 'Vote changes are not allowed for this election.');
+        }
 
         $candidate = $election->candidates()->findOrFail($request->integer('candidate_id'));
+
+        $receiptCode = ElectionVote::generateReceiptCode();
 
         ElectionVote::query()->updateOrCreate(
             [
@@ -128,10 +192,23 @@ class ClubPortalController extends Controller
             ],
             [
                 'election_candidate_id' => $candidate->id,
+                'receipt_code' => $receiptCode,
             ],
         );
 
-        return back()->with('status', 'Your vote has been recorded.');
+        activity()
+            ->performedOn($election)
+            ->causedBy($request->user())
+            ->withProperties([
+                'candidate_id' => $candidate->id,
+                'candidate_name' => $candidate->name,
+                'election_title' => $election->title,
+            ])
+            ->log('vote_cast');
+
+        $request->user()->notify(new \App\Notifications\VoteReceiptNotification($election, $receiptCode));
+
+        return back()->with('status', 'Your vote has been recorded.')->with('receipt_code', $receiptCode);
     }
 
     public function updateProgress(UpdateClubResourceProgressRequest $request, ClubResource $clubResource): RedirectResponse

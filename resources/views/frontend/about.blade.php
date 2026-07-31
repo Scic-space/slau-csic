@@ -45,7 +45,7 @@
                     </p>
                     <div class="flex flex-wrap gap-3">
                         <a href="{{ route('register') }}" class="cyber-button">Join the Club</a>
-                        <a href="{{ route('events-out') }}" class="cyber-outline-button">See the Operating Model</a>
+                        <a href="{{ route('events.index') }}" class="cyber-outline-button">See the Operating Model</a>
                     </div>
                 </div>
 

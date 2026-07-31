@@ -10,7 +10,7 @@
     @livewireStyles
     @filamentStyles
     <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.tsx'])
 
     <script>
         (function () {
@@ -257,20 +257,19 @@
             });
 
             Alpine.store('sidebar', {
-                // Initialize based on screen size
-                isExpanded: window.innerWidth >= 1280, // true for desktop, false for mobile
+                isExpanded: window.innerWidth >= 1280,
                 isMobileOpen: false,
                 isHovered: false,
+                isOpen: window.innerWidth >= 1280,
+                collapsedGroups: {},
 
                 toggleExpanded() {
                     this.isExpanded = !this.isExpanded;
-                    // When toggling desktop sidebar, ensure mobile menu is closed
                     this.isMobileOpen = false;
                 },
 
                 toggleMobileOpen() {
                     this.isMobileOpen = !this.isMobileOpen;
-                    // Don't modify isExpanded when toggling mobile menu
                 },
 
                 setMobileOpen(val) {
@@ -278,10 +277,25 @@
                 },
 
                 setHovered(val) {
-                    // Only allow hover effects on desktop when sidebar is collapsed
                     if (window.innerWidth >= 1280 && !this.isExpanded) {
                         this.isHovered = val;
                     }
+                },
+
+                open() {
+                    this.isOpen = true;
+                },
+
+                close() {
+                    this.isOpen = false;
+                },
+
+                groupIsCollapsed(group) {
+                    return this.collapsedGroups[group] ?? false;
+                },
+
+                toggleCollapsedGroup(group) {
+                    this.collapsedGroups[group] = !(this.collapsedGroups[group] ?? false);
                 }
             });
         });

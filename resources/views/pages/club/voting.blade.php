@@ -72,28 +72,31 @@
                     </div>
 
                     <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                            @if ($userVote)
-                                Your current ballot: <span class="font-semibold text-gray-900 dark:text-white">{{ $userVote->candidate->name }}</span>
-                            @elseif ($election->isOpen())
-                                Voting is open.
-                            @else
-                                Voting is not currently open.
-                            @endif
-                        </div>
+                        @if ($userVote)
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Vote recorded</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">
+                                    Your pick: <span class="font-semibold text-gray-900 dark:text-white">{{ $userVote->candidate->name }}</span>
+                                </span>
+                            </div>
+                        @elseif ($election->isOpen())
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Voting is open.</span>
+                        @else
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Voting is not currently open.</span>
+                        @endif
 
-                        @if ($election->isOpen())
+                        @if ($election->isOpen() && ! $userVote)
                             <form method="POST" action="{{ route('portal.voting.cast', $election) }}" class="flex flex-wrap items-center gap-3">
                                 @csrf
                                 <select name="candidate_id" class="rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                                     <option value="">Select candidate</option>
                                     @foreach ($election->candidates as $candidate)
-                                        <option value="{{ $candidate->id }}" @selected(optional($userVote)->election_candidate_id === $candidate->id)>{{ $candidate->name }}</option>
+                                        <option value="{{ $candidate->id }}">{{ $candidate->name }}</option>
                                     @endforeach
                                 </select>
                                 <button type="submit" class="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950">Cast ballot</button>
                             </form>
-                        @elseif ($election->results_visible || $election->status === 'closed')
+                        @elseif (! $userVote && ($election->results_visible || $election->status === 'closed'))
                             <div class="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm dark:border-gray-800 dark:bg-gray-900/60">
                                 Total votes cast: <span class="font-semibold text-gray-900 dark:text-white">{{ $totalVotes }}</span>
                             </div>

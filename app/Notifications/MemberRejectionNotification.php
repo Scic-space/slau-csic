@@ -17,6 +17,11 @@ class MemberRejectionNotification extends Notification implements ShouldQueue
         public ?string $notes = null
     ) {}
 
+    public function getPreferenceType(): string
+    {
+        return 'membership_updates';
+    }
+
     public function via(object $notifiable): array
     {
         return ['mail', 'database'];
@@ -26,10 +31,10 @@ class MemberRejectionNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Update on Your Club Membership Application')
-            ->greeting('Dear ' . $notifiable->name . ',')
+            ->greeting('Dear '.$notifiable->name.',')
             ->line('We regret to inform you that your membership application to the Cybersecurity & Innovations Club has been reviewed and could not be approved at this time.')
             ->when($this->notes, function ($message) {
-                $message->line('**Reason:** ' . $this->notes);
+                $message->line('**Reason:** '.$this->notes);
             })
             ->line('If you believe this decision was made in error or would like to understand more about the decision, please feel free to reach out to the club administration.')
             ->line('You may reapply in the future if circumstances change.')

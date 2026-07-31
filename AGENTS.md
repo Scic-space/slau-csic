@@ -435,3 +435,257 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
 </laravel-boost-guidelines>
+
+<!-- GSD:project-start source:PROJECT.md -->
+## Project
+
+**PROJECT.md — SLAU CSIC Event Enhancements**
+
+Enhance the existing SLAU CSIC club management system's event module with: RSVP management, improved calendar views, recurring events, and event organization with categories/filtering/search.
+<!-- GSD:project-end -->
+
+<!-- GSD:stack-start source:codebase/STACK.md -->
+## Technology Stack
+
+## Languages
+- PHP 8.2+ - Core application logic
+- JavaScript (ES Modules) - Frontend interactivity
+## Runtime
+- PHP 8.2+ (minimum from composer.json)
+- Node.js (via Vite for frontend bundling)
+- Composer (PHP): ^2.x
+- npm: For frontend dependencies
+- Lockfile: `composer.lock` present
+## Frameworks
+- Laravel Framework ^12.0 - Application framework
+- Livewire ^3.7 - Full-stack framework for dynamic UIs
+- Filament ^4.0 - Admin panel framework
+- Pest ^4.0 - Testing framework
+- PHPUnit ^12.0 - Underlying test runner
+- Laravel Pint ^1.24 - Code formatter
+- Vite ^7.0.4 - Frontend build tool
+- Laravel Vite Plugin ^2.0.0 - Vite integration
+- Tailwind CSS ^4.1.12 - CSS framework
+## Key Dependencies
+- `laravel/framework` ^12.0 - Core framework
+- `livewire/livewire` ^3.7 - Dynamic UI components
+- `filament/filament` ^4.0 - Admin panel
+- `laravel/sanctum` ^4.0 - API authentication
+- `filament/actions` ^4.0
+- `filament/forms` ^4.0
+- `filament/notifications` ^4.0
+- `filament/tables` ^4.0
+- `asantibanez/livewire-calendar` - Calendar component
+- `maatwebsite/excel` ^3.1 - Excel export
+- `barryvdh/laravel-dompdf` ^3.1 - PDF generation
+- `simplesoftwareio/simple-qrcode` ^4.2 - QR code generation
+- `spatie/laravel-permission` ^6.23 - Role-based permissions
+- `spatie/laravel-activitylog` ^4.10 - Activity logging
+- `lab404/laravel-impersonate` ^1.7 - User impersonation
+- `laravel/boost` ^1.8 - Laravel Boost MCP
+- `barryvdh/laravel-debugbar` ^3.16 - Debug bar
+## Frontend Packages
+- `alpinejs` ^3.14.9 - JS framework
+- `@floating-ui/dom` ^1.7.4 - Floating UI
+- `@popperjs/core` ^2.11.8 - Popper.js
+- `@preline/theme-switch` ^4.1.3 - Theme switcher
+- `apexcharts` ^5.3.5 - Charts
+- `flatpickr` ^4.6.13 - Date picker
+- `jsvectormap` ^1.7.0 - Maps
+- `preline` ^4.1.3 - UI components
+- `prismjs` ^1.30.0 - Syntax highlighting
+- `swiper` ^12.0.3 - Carousel
+- `tailwindcss` ^4.1.12
+- `@tailwindcss/vite` ^4.1.12
+- `@tailwindcss/forms` ^0.5.11
+- `axios` ^1.11.0
+- `vite` ^7.0.4
+## Configuration
+- Configured via `.env` file
+- Key configs: `config/app.php`, `config/database.php`, `config/mail.php`
+- Vite config via Laravel plugin
+- Tailwind v4 uses CSS-first config via `@theme` directive
+## Platform Requirements
+- PHP 8.2+
+- Composer
+- Node.js/npm for frontend
+- Web server with PHP support (Apache/Nginx)
+- Database: SQLite (default), MySQL, MariaDB, PostgreSQL supported
+- Redis (optional, for queues/cache)
+<!-- GSD:stack-end -->
+
+<!-- GSD:conventions-start source:CONVENTIONS.md -->
+## Conventions
+
+## Code Formatter
+## Naming Patterns
+### Files
+- **Controllers**: `PascalCase` + `Controller` suffix
+- **Models**: `PascalCase` singular noun
+- **Livewire Components**: `PascalCase` with namespace path
+- **Form Requests**: `PascalCase` + `Request` suffix
+- **Test files**: Same as class or feature description
+- **Blade templates**: `kebab-case`
+### Directories
+- Use **kebab-case** for view directories under `resources/views/`
+- Use **PascalCase** for PHP namespace directories
+### Variables and Functions
+- **CamelCase** for local variables and method names
+- **snake_case** for database columns and model attributes
+- **SCREAMING_SNAKE_CASE** for constants
+- **is/has/can** prefix for boolean methods
+### Types (Models, Enums)
+- **PascalCase** for model property names
+- **snake_case** for database columns
+- **PascalCase** for relationship method names
+## Code Style
+### PHP
+- PHP 8.2+ required
+- **Curly braces always used** for control structures, even single-line
+- **Constructor property promotion** used throughout:
+- **Explicit return types** on all methods:
+- **Named parameters** used where applicable:
+- **No empty `__construct()`** — use property promotion or leave absent
+- **PHPDoc blocks** for complex methods; inline comments for non-obvious logic only
+- **Faker** uses `fake()` function ( Pest style ):
+### Blade Templates
+- **Kebab-case** for component names:
+- **Single root element** for Livewire components
+- **`wire:key`** on loop items:
+- **`wire:model.live`** for real-time reactivity (Livewire v3)
+- **`wire:loading` and `wire:dirty`** for loading states
+- Dark mode support via `dark:` Tailwind classes
+### Models
+- **`$fillable`** for mass assignment:
+- **`casts()` method** (Laravel 12 style) over `$casts` property:
+- **Scopes as methods** (no `scope` prefix in usage):
+- **Accessors/mutators as `getXAttribute`/`setXAttribute`**:
+- **Relationships as methods** with explicit return types:
+- **Activity logging** via `Spatie\Activitylog\Traits\LogsActivity`
+### Controllers
+- **Constructor injection** with property promotion
+- **Form Request classes** for validation (not inline `validate()` calls)
+- **Return type hints**: `View`, `RedirectResponse`, `JsonResponse`
+- **Auth via `auth()` helper** or `$request->user()`
+- **Route model binding** with type hints
+### Form Requests
+- `authorize()` returns `bool`
+- `rules()` returns `array` with explicit types
+- Custom error messages when needed
+## Import Organization
+### Order
+### No path aliases in use statements — use full namespace
+## Error Handling
+- **`abort_unless()`** for authorization checks:
+- **`findOrFail()`** for model lookups that should 404
+- **`updateOrCreate()`** for upsert patterns
+- **`try/catch`** in model workflow methods with return value:
+## Logging
+- No direct `Log::` facade usage detected
+- Activity logging via `spatie/laravel-activitylog` on models
+- No manual `Log::info()` / `Log::error()` calls in application code
+## Comments
+- PHPDoc on complex model methods and relationships
+- Section dividers in large files:
+- Inline comments only for non-obvious business logic
+## Function Design
+- **Single responsibility** — methods do one thing
+- **Small, focused methods** — helper methods extracted to `protected` controller methods
+- **Method chaining** on query builders:
+- **Callback in query** for complex filtering:
+## Module Design
+### Exports
+- Single class per file
+- No barrel index files
+- Models exported via autoloading under `App\Models` namespace
+### Services
+- Located in `app/Services/`
+- Stateless, injected via constructor
+- Example: `BudgetAlertService.php`, `HtbProfileSyncService.php`
+<!-- GSD:conventions-end -->
+
+<!-- GSD:architecture-start source:ARCHITECTURE.md -->
+## Architecture
+
+## Pattern Overview
+- Livewire components handle most user-facing pages (admin dashboard, member areas, events)
+- Traditional controllers used for API routes (mobile app support)
+- Filament admin panel for backend administration
+- Spatie for role-based access control (RBAC)
+## Layers
+### HTTP Layer (Routes)
+- Location: `routes/web.php`, `routes/api.php`, `routes/auth.php`, `routes/console.php`
+- Routing configured in `bootstrap/app.php`
+- Route groups use middleware for auth, verification, permission gates
+### Controller Layer
+- Location: `app/Http/Controllers/`
+- Standard HTTP controllers for API (`app/Http/Controllers/Api/`)
+- Auth controllers in `app/Http/Controllers/Auth/`
+- Settings controllers in `app/Http/Controllers/Settings/`
+- Frontend controllers in `app/Http/Controllers/Frontend/`
+- Admin controllers in `app/Http/Controllers/Admin/`
+### Livewire Layer
+- Location: `app/Livewire/`
+- Organized by namespace: `App\Livewire\Admin\`, `App\Livewire\Teaching\`, `App\Livewire\Super\`
+- Components handle full page lifecycle with state on server
+- Example components: `App\Livewire\Admin\Dashboard`, `App\Livewire\EventDetails`
+### Model Layer
+- Location: `app/Models/`
+- Eloquent models with relationships
+- Examples: `User`, `Event`, `Meeting`, `Attendance`, `Election`
+## Data Flow
+## Service Providers
+- `App\Providers\AppServiceProvider` - General app services
+- `App\Providers\Filament\AdminPanelProvider` - Admin panel configuration
+## Middleware Registration
+```php
+```
+- `Route::middleware(['auth', 'role:admin|super-admin'])->prefix('admin')`
+- Permission gates in route definitions: `->middleware('can:content.view')`
+## Key Abstractions
+- Model: `app/Models/Event.php`
+- Livewire: `app/Livewire/EventDetails.php`, `app/Livewire/EventRegistration.php`
+- Pattern: Slug-based routing (`/events/{event:slug}`)
+- Model: `app/Models/User.php`
+- Controllers: `app/Http/Controllers/Auth/`
+- Livewire: `app/Livewire/UserProfile.php`
+- Livewire: `app/Livewire/Admin/Dashboard.php`
+- Widgets: `app/Livewire/Admin/Widgets/`
+## Entry Points
+- `routes/web.php` - Main application routes (141 lines)
+- `routes/auth.php` - Authentication routes (44 lines)
+- `routes/console.php` - Artisan commands (12 lines)
+- `routes/api.php` - Mobile app API (45 lines)
+- `/admin` - Admin dashboard (Livewire)
+- Filament panel at `/admin` ( Filament provider)
+## Error Handling
+```php
+```
+## Cross-Cutting Concerns
+<!-- GSD:architecture-end -->
+
+<!-- GSD:skills-start source:skills/ -->
+## Project Skills
+
+No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, or `.github/skills/` with a `SKILL.md` index file.
+<!-- GSD:skills-end -->
+
+<!-- GSD:workflow-start source:GSD defaults -->
+## GSD Workflow Enforcement
+
+Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
+
+Use these entry points:
+- `/gsd-quick` for small fixes, doc updates, and ad-hoc tasks
+- `/gsd-debug` for investigation and bug fixing
+- `/gsd-execute-phase` for planned phase work
+
+Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
+<!-- GSD:workflow-end -->
+
+<!-- GSD:profile-start -->
+## Developer Profile
+
+> Profile not yet configured. Run `/gsd-profile-user` to generate your developer profile.
+> This section is managed by `generate-claude-profile` -- do not edit manually.
+<!-- GSD:profile-end -->

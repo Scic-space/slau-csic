@@ -162,7 +162,7 @@ class BudgetAlertServiceTest extends TestCase
         $alerts = BudgetAlertService::getBudgetStatus();
 
         $this->assertCount(2, $alerts);
-        
+
         // Check over budget alert
         $overBudgetAlert = $alerts[0];
         $this->assertEquals('Over Budget Category', $overBudgetAlert['category']);

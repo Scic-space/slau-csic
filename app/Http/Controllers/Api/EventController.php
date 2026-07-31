@@ -1,170 +1,301 @@
 <?php
 
-// ============================================
-// API Event Controller
-// app/Http/Controllers/Api/EventController.php
-// ============================================
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CancelEventRequest;
+use App\Http\Requests\StoreEventFeedbackRequest;
+use App\Http\Requests\StoreEventPrerequisiteRequest;
 use App\Models\Event;
-use App\Models\EventRegistration;
+use App\Models\EventFeedback;
+use App\Models\EventPrerequisite;
+use App\Services\EventService;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected EventService $eventService,
+    ) {}
+
+    public function index(Request $request)
     {
-        $events = Event::where('is_public', true)
+        $query = Event::where('is_public', true)
             ->whereIn('status', ['published', 'scheduled'])
-            ->where('start_date', '>=', now()->subMonths(1)) // Include past events from last month
-            ->orderBy('start_date')
-            ->get()
-            ->map(function ($event) {
-                return [
-                    'id' => $event->id,
-                    'title' => $event->title,
-                    'description' => $event->description,
-                    'type' => $event->type,
-                    'start_date' => $event->start_date->toISOString(),
-                    'end_date' => $event->end_date ? $event->end_date->toISOString() : null,
-                    'location' => $event->location,
-                    'banner_image' => $event->banner_image,
-                    'max_participants' => $event->max_participants,
-                    'registration_required' => $event->registration_required,
-                    'registration_deadline' => $event->registration_deadline,
-                ];
+            ->with(['organizer', 'categories', 'instructor']);
+
+        if ($status = $request->status) {
+            $query->where('status', $status);
+        }
+
+        if ($category = $request->category) {
+            $query->whereHas('categories', fn ($q) => $q->where('slug', $category));
+        }
+
+        if ($search = $request->search) {
+            $searchTerm = str_replace(['%', '_'], ['\\%', '\\_'], $search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', "%{$searchTerm}%")
+                    ->orWhere('description', 'like', "%{$searchTerm}%");
             });
+        }
+
+        if ($instructorId = $request->instructor_id) {
+            $query->where('instructor_id', $instructorId);
+        }
+
+        $sort = match ($request->sort) {
+            'date_desc' => ['start_date', 'desc'],
+            'capacity' => ['max_participants', 'desc'],
+            'attendees' => ['created_at', 'desc'],
+            default => ['start_date', 'asc'],
+        };
+
+        $events = $query->orderBy(...$sort)
+            ->paginate($request->per_page ?? 20)
+            ->through(fn ($event) => $this->eventService->formatEventList($event));
+
+        return response()->json($events);
+    }
+
+    public function show(Event $event)
+    {
+        if (! in_array($event->status, ['published', 'scheduled', 'ongoing']) && ! auth()->user()?->can('view_events')) {
+            return response()->json(['error' => 'Event not found'], 404);
+        }
+
+        $event->load(['organizer', 'instructor', 'categories', 'recurrence']);
 
         return response()->json([
-            'data' => $events,
+            'data' => $this->eventService->formatEventDetail($event),
         ]);
     }
 
     public function store(Request $request)
     {
+        if (! $request->user()->can('create_events')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_date' => 'required|date',
+            'start_date' => 'required|date|after:now',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'location' => 'nullable|string|max:255',
-            'type' => 'required|in:workshop,seminar,meeting,social,competition',
-            'is_public' => 'boolean',
+            'virtual_link' => 'nullable|url|max:2048',
+            'type' => 'required|in:workshop,competition,ctf,bootcamp,awareness_campaign,talk,social,hackathon',
+            'max_participants' => 'nullable|integer|min:1',
             'registration_required' => 'boolean',
+            'waitlist_enabled' => 'boolean',
+            'is_public' => 'boolean',
+            'visibility' => 'nullable|in:public,members_only,invited_only',
+            'registration_type' => 'nullable|in:first_come,approval_required,open',
+            'registration_deadline' => 'nullable|date|before:start_date|after:now',
             'status' => 'required|in:draft,scheduled,published,cancelled',
+            'instructor_id' => 'nullable|integer|exists:users,id',
+            'requirements' => 'nullable|string',
+            'learning_objectives' => 'nullable|string',
+            'skill_level' => 'nullable|in:beginner,intermediate,advanced',
+            'registration_fee' => 'nullable|numeric|min:0',
+            'external_link' => 'nullable|url|max:2048',
         ]);
 
-        $event = Event::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'] ?? '',
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'] ?? $validated['start_date'],
-            'location' => $validated['location'] ?? '',
-            'type' => $validated['type'],
-            'organizer_id' => $request->user()->id,
-            'is_public' => $validated['is_public'] ?? true,
-            'registration_required' => $validated['registration_required'] ?? true,
-            'status' => $validated['status'],
-        ]);
+        $event = $this->eventService->createEvent($validated, $request->user());
 
         return response()->json([
             'success' => true,
             'message' => 'Event created successfully',
-            'event' => $event
+            'event' => $this->eventService->formatEventList($event),
         ], 201);
     }
 
     public function update(Request $request, Event $event)
     {
-        // Check if user can edit this event
-        if ($event->organizer_id !== $request->user()->id && !$request->user()->hasRole('admin')) {
-            return response()->json([
-                'error' => 'You can only edit your own events'
-            ], 403);
+        if ($event->organizer_id !== $request->user()->id && ! $request->user()->can('edit_events')) {
+            return response()->json(['error' => 'You can only edit your own events'], 403);
+        }
+
+        if ($event->start_date && $event->start_date->isPast()) {
+            return response()->json(['error' => 'Cannot edit past events'], 400);
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'start_date' => 'required|date',
+            'start_date' => 'sometimes|required|date|after:now',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'location' => 'nullable|string|max:255',
-            'type' => 'required|in:workshop,seminar,meeting,social,competition',
+            'virtual_link' => 'nullable|url|max:2048',
+            'type' => 'sometimes|required|in:workshop,competition,ctf,bootcamp,awareness_campaign,talk,social,hackathon',
+            'max_participants' => 'nullable|integer|min:1',
+            'registration_required' => 'boolean',
+            'waitlist_enabled' => 'boolean',
+            'is_public' => 'boolean',
+            'visibility' => 'nullable|in:public,members_only,invited_only',
+            'registration_type' => 'nullable|in:first_come,approval_required,open',
+            'registration_deadline' => 'nullable|date|before:start_date',
+            'status' => 'sometimes|required|in:draft,scheduled,published,cancelled',
+            'instructor_id' => 'nullable|integer|exists:users,id',
+            'requirements' => 'nullable|string',
+            'learning_objectives' => 'nullable|string',
+            'skill_level' => 'nullable|in:beginner,intermediate,advanced',
+            'registration_fee' => 'nullable|numeric|min:0',
+            'external_link' => 'nullable|url|max:2048',
         ]);
 
-        $event->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'] ?? '',
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'] ?? $validated['start_date'],
-            'location' => $validated['location'] ?? '',
-            'type' => $validated['type'],
-        ]);
+        $event = $this->eventService->updateEvent($event, $validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Event updated successfully',
-            'event' => $event
+            'event' => $this->eventService->formatEventList($event),
+        ]);
+    }
+
+    public function destroy(Event $event)
+    {
+        if ($event->organizer_id !== auth()->id() && ! auth()->user()->can('delete_events')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $event->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event deleted successfully',
+        ]);
+    }
+
+    public function publish(Event $event)
+    {
+        if ($event->organizer_id !== auth()->id() && ! auth()->user()->can('publish_events')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if (empty($event->title) || empty($event->start_date)) {
+            return response()->json(['error' => 'Cannot publish event without required fields (title, date)'], 400);
+        }
+
+        $event->update(['status' => 'published']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event published successfully',
+        ]);
+    }
+
+    public function cancel(CancelEventRequest $request, Event $event)
+    {
+        if ($event->organizer_id !== auth()->id() && ! auth()->user()->can('cancel_events')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $this->eventService->cancelEvent($event, $request->reason);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event cancelled successfully. All registered members have been notified.',
         ]);
     }
 
     public function editPermission(Request $request, Event $event)
     {
-        $canEdit = $event->organizer_id === $request->user()->id || 
-                   $request->user()->hasRole('admin');
+        $canEdit = $this->eventService->canEdit($event, $request->user());
+
+        return response()->json(['canEdit' => $canEdit]);
+    }
+
+    public function prerequisites(Event $event)
+    {
+        $event->load('prerequisites.prerequisiteEvent', 'prerequisites.requiredBadge');
 
         return response()->json([
-            'canEdit' => $canEdit
+            'data' => $event->prerequisites->map(fn ($p) => [
+                'id' => $p->id,
+                'prerequisite_event' => $p->prerequisiteEvent ? [
+                    'id' => $p->prerequisiteEvent->id,
+                    'title' => $p->prerequisiteEvent->title,
+                ] : null,
+                'required_badge' => $p->requiredBadge ? [
+                    'id' => $p->requiredBadge->id,
+                    'name' => $p->requiredBadge->name,
+                ] : null,
+                'required_skill_level' => $p->required_skill_level,
+            ]),
         ]);
     }
 
-    public function register(Request $request, Event $event)
+    public function storePrerequisite(StoreEventPrerequisiteRequest $request, Event $event)
     {
-        // Check if registration is required
-        if (! $event->registration_required) {
-            return response()->json([
-                'error' => 'Registration is not required for this event',
-            ], 400);
-        }
-
-        // Check if already registered
-        $existing = EventRegistration::where('event_id', $event->id)
-            ->where('user_id', $request->user()->id)
-            ->first();
-
-        if ($existing) {
-            return response()->json([
-                'error' => 'You are already registered for this event',
-            ], 409);
-        }
-
-        // Check if event is full
-        if ($event->max_participants) {
-            $registrationCount = EventRegistration::where('event_id', $event->id)
-                ->where('status', '!=', 'cancelled')
-                ->count();
-
-            if ($registrationCount >= $event->max_participants) {
-                return response()->json([
-                    'error' => 'This event is full',
-                ], 400);
-            }
-        }
-
-        // Register user
-        $registration = EventRegistration::create([
+        $prerequisite = EventPrerequisite::create([
             'event_id' => $event->id,
-            'user_id' => $request->user()->id,
-            'registered_at' => now(),
-            'status' => 'registered',
+            'prerequisite_event_id' => $request->prerequisite_event_id,
+            'required_badge_id' => $request->required_badge_id,
+            'required_skill_level' => $request->required_skill_level,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Successfully registered for the event',
-            'registration' => $registration,
+            'message' => 'Prerequisite added',
+            'prerequisite' => $prerequisite,
+        ], 201);
+    }
+
+    public function storeFeedback(StoreEventFeedbackRequest $request, Event $event)
+    {
+        $feedback = EventFeedback::create([
+            'event_id' => $event->id,
+            'user_id' => $request->user()->id,
+            'rating' => $request->integer('rating'),
+            'content_quality' => $request->filled('content_quality') ? $request->integer('content_quality') : null,
+            'instructor_rating' => $request->filled('instructor_rating') ? $request->integer('instructor_rating') : null,
+            'pace_rating' => $request->filled('pace_rating') ? $request->integer('pace_rating') : null,
+            'feedback_text' => $request->input('feedback_text'),
+            'suggestions' => $request->input('suggestions'),
+            'is_anonymous' => $request->boolean('is_anonymous'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback submitted',
+            'feedback' => $feedback,
+        ], 201);
+    }
+
+    public function feedback(Request $request, Event $event)
+    {
+        if (! $request->user()->can('view_event_feedback') && $event->organizer_id !== $request->user()->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $feedback = $event->feedback()
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn ($f) => [
+                'id' => $f->id,
+                'member' => $f->is_anonymous ? null : ['id' => $f->user->id, 'name' => $f->user->name],
+                'rating' => $f->rating,
+                'content_quality' => $f->content_quality,
+                'instructor_rating' => $f->instructor_rating,
+                'feedback_text' => $f->feedback_text,
+                'suggestions' => $f->suggestions,
+                'created_at' => $f->created_at,
+            ]);
+
+        $aggregate = [
+            'average_rating' => round($event->feedback()->avg('rating'), 1),
+            'total_responses' => $event->feedback()->count(),
+            'rating_distribution' => EventFeedback::where('event_id', $event->id)
+                ->selectRaw('rating, COUNT(*) as count')
+                ->groupBy('rating')
+                ->pluck('count', 'rating'),
+        ];
+
+        return response()->json([
+            'data' => $feedback,
+            'aggregate' => $aggregate,
         ]);
     }
 }

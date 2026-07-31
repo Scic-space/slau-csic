@@ -4,12 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Meeting extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -20,6 +25,7 @@ class Meeting extends Model
         'ended_at',
         'location',
         'meeting_code',
+        'meeting_link',
         'code_expires_minutes',
         'attendance_open',
         'duration_minutes',
@@ -28,18 +34,34 @@ class Meeting extends Model
         'agenda',
         'minutes',
         'late_threshold_minutes',
+        'is_recurring',
+        'parent_meeting_id',
+        'cancelled_at',
+        'cancellation_reason',
+        'minutes_status',
+        'training_id',
     ];
 
-    protected $casts = [
-        'scheduled_at' => 'datetime',
-        'started_at' => 'datetime',
-        'ended_at' => 'datetime',
-        'attendance_open' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'scheduled_at' => 'datetime',
+            'started_at' => 'datetime',
+            'ended_at' => 'datetime',
+            'attendance_open' => 'boolean',
+            'is_recurring' => 'boolean',
+            'cancelled_at' => 'datetime',
+        ];
+    }
 
-    // ============================================
-    // BOOT METHOD - Auto-generate meeting code
-    // ============================================
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'type', 'scheduled_at', 'location', 'status', 'attendance_open', 'minutes_status'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -51,51 +73,112 @@ class Meeting extends Model
         });
     }
 
-    // ============================================
-    // RELATIONSHIPS
-    // ============================================
-
-    public function creator()
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function attendance()
+    public function training(): BelongsTo
+    {
+        return $this->belongsTo(Training::class);
+    }
+
+    public function attendance(): HasMany
     {
         return $this->hasMany(Attendance::class);
     }
 
-    public function attendees()
+    public function attendees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'attendance')
             ->withPivot('checked_in_at', 'check_in_method')
             ->withTimestamps();
     }
 
-    // ============================================
-    // SCOPES
-    // ============================================
+    public function allowedAttendees(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'meeting_allowed_attendees');
+    }
+
+    public function agendaItems(): HasMany
+    {
+        return $this->hasMany(MeetingAgendaItem::class)->orderBy('sort_order');
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(MeetingAttachment::class);
+    }
+
+    public function recurrence(): HasMany
+    {
+        return $this->hasMany(MeetingRecurrence::class);
+    }
+
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(MeetingFeedback::class);
+    }
+
+    public function masterMeeting(): BelongsTo
+    {
+        return $this->belongsTo(Meeting::class, 'parent_meeting_id');
+    }
+
+    public function occurrences(): HasMany
+    {
+        return $this->hasMany(Meeting::class, 'parent_meeting_id');
+    }
+
+    public function canUserAttend(User $user): bool
+    {
+        if (! $this->allowedAttendees()->exists()) {
+            return true;
+        }
+
+        return $this->allowedAttendees()->where('user_id', $user->id)->exists();
+    }
 
     public function scopeUpcoming($query)
     {
-        return $query->where('scheduled_at', '>', now())
+        return $query->whereNull('cancelled_at')->where('scheduled_at', '>', now())
             ->orderBy('scheduled_at', 'asc');
     }
 
     public function scopePast($query)
     {
-        return $query->where('scheduled_at', '<=', now())
+        return $query->whereNull('cancelled_at')->where('scheduled_at', '<=', now())
             ->orderBy('scheduled_at', 'desc');
     }
 
     public function scopeToday($query)
     {
-        return $query->whereDate('scheduled_at', today());
+        return $query->whereNull('cancelled_at')->whereDate('scheduled_at', today());
     }
 
     public function scopeByType($query, $type)
     {
         return $query->where('type', $type);
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->whereNotNull('cancelled_at');
+    }
+
+    public function scopeNotCancelled($query)
+    {
+        return $query->whereNull('cancelled_at');
+    }
+
+    public function scopeRecurring($query)
+    {
+        return $query->where('is_recurring', true);
+    }
+
+    public function scopeOccurrences($query)
+    {
+        return $query->whereNotNull('parent_meeting_id');
     }
 
     public function scopeTeachingSessions($query)
@@ -115,14 +198,9 @@ class Meeting extends Model
             ->where('attendance_open', true);
     }
 
-    // ============================================
-    // HELPER METHODS
-    // ============================================
-
     public static function generateUniqueMeetingCode(): string
     {
         do {
-            // Generate 8-character alphanumeric code
             $code = strtoupper(Str::random(8));
         } while (self::where('meeting_code', $code)->exists());
 
@@ -148,6 +226,35 @@ class Meeting extends Model
             'attendance_open' => false,
             'ended_at' => $this->ended_at ?? now(),
         ]);
+    }
+
+    public function cancel(?string $reason = null): void
+    {
+        $this->update([
+            'cancelled_at' => now(),
+            'cancellation_reason' => $reason,
+            'attendance_open' => false,
+        ]);
+    }
+
+    public function reschedule(\Carbon\Carbon $newDateTime): void
+    {
+        $this->update([
+            'scheduled_at' => $newDateTime,
+            'started_at' => null,
+            'ended_at' => null,
+            'attendance_open' => false,
+        ]);
+    }
+
+    public function finalizeMinutes(): void
+    {
+        $this->update(['minutes_status' => 'finalized']);
+    }
+
+    public function publishMinutes(): void
+    {
+        $this->update(['minutes_status' => 'published']);
     }
 
     public function getAttendanceCount(): int
@@ -189,8 +296,27 @@ class Meeting extends Model
         return $this->scheduled_at <= now();
     }
 
+    public function isCancelled(): bool
+    {
+        return $this->cancelled_at !== null;
+    }
+
+    public function isMasterMeeting(): bool
+    {
+        return $this->is_recurring && ! $this->parent_meeting_id;
+    }
+
+    public function isOccurrence(): bool
+    {
+        return $this->parent_meeting_id !== null;
+    }
+
     public function getStatusAttribute(): string
     {
+        if ($this->isCancelled()) {
+            return 'cancelled';
+        }
+
         if ($this->hasEnded()) {
             return 'completed';
         }
@@ -210,9 +336,9 @@ class Meeting extends Model
     {
         return match ($this->status) {
             'completed' => 'gray',
-            'ongoing' => 'green',
-            'scheduled' => 'blue',
-            'past' => 'gray',
+            'ongoing' => 'success',
+            'scheduled' => 'info',
+            'cancelled' => 'danger',
             default => 'gray',
         };
     }
@@ -237,10 +363,6 @@ class Meeting extends Model
             'check_in_method' => $method,
         ], $additionalData));
     }
-
-    // ============================================
-    // TEACHING SESSION HELPERS
-    // ============================================
 
     public function isTeachingSession(): bool
     {
@@ -288,6 +410,28 @@ class Meeting extends Model
             ->count();
     }
 
+    public function hasMeetingLink(): bool
+    {
+        return ! empty($this->meeting_link);
+    }
+
+    public function isJoinable(): bool
+    {
+        if ($this->hasEnded() || $this->isCancelled()) {
+            return false;
+        }
+
+        if ($this->attendance_open) {
+            return true;
+        }
+
+        if ($this->scheduled_at && $this->scheduled_at->lte(now()->addMinutes(15))) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function isEligibleForCheckIn(): bool
     {
         if (! $this->isTeachingSession()) {
@@ -298,10 +442,49 @@ class Meeting extends Model
             return false;
         }
 
-        if ($this->hasEnded()) {
+        if ($this->hasEnded() || $this->isCancelled()) {
             return false;
         }
 
         return true;
+    }
+
+    public function getFutureOccurrences()
+    {
+        $query = Meeting::where(function ($q) {
+            $q->where('parent_meeting_id', $this->id)
+                ->orWhere('id', $this->id);
+        })
+            ->whereNull('cancelled_at')
+            ->where('scheduled_at', '>=', now())
+            ->orderBy('scheduled_at', 'asc');
+
+        return $query;
+    }
+
+    public function syncOccurrences(): void
+    {
+        if (! $this->is_recurring) {
+            return;
+        }
+
+        $fieldsToSync = [
+            'description',
+            'location',
+            'meeting_link',
+            'duration_minutes',
+            'expected_attendees',
+            'late_threshold_minutes',
+        ];
+
+        $this->occurrences()
+            ->whereNull('cancelled_at')
+            ->where('scheduled_at', '>', now())
+            ->update($this->only($fieldsToSync));
+    }
+
+    public function skipOccurrence(Meeting $occurrence): void
+    {
+        $occurrence->cancel('Skipped occurrence');
     }
 }

@@ -7,7 +7,7 @@
     <title>{{ $title ?? 'Cybersecurity & Innovations Club - SLAU' }}</title>
     <meta name="description" content="Cybersecurity and Innovations Club at St. Lawrence University, Uganda - A student-led community for practical cybersecurity learning, responsible innovation, and visible campus participation.">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.tsx', 'resources/js/app.js'])
 
     <script>
         (function () {
@@ -746,7 +746,5 @@
     </main>
 
     @include('frontend.components.footer')
-
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </body>
 </html>

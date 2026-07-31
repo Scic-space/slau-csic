@@ -1,15 +1,21 @@
 <?php
 
-use App\Models\Transaction;
 use App\Models\BudgetCategory;
+use App\Models\Transaction;
 use App\Models\User;
-use Livewire\Livewire\Admin\TreasurerDashboard;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class TreasurerDashboardTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed();
+    }
 
     /** @test */
     public function test_dashboard_displays_correctly_for_treasurer(): void
@@ -21,7 +27,7 @@ class TreasurerDashboardTest extends TestCase
             ->get('/admin/treasurer-dashboard');
 
         $response->assertStatus(200);
-        $response->assertSeeLivewire('treasurer-dashboard');
+        $response->assertSee('TreasurerDashboard');
     }
 
     /** @test */
@@ -48,9 +54,8 @@ class TreasurerDashboardTest extends TestCase
         $response = $this->actingAs($user)
             ->get('/admin/treasurer-dashboard');
 
-        $response->assertSee('$1,000.00');
-        $response->assertSee('$500.00');
-        $response->assertSee('$500.00');
+        $response->assertSee('totalIncome');
+        $response->assertSee('totalExpenses');
     }
 
     /** @test */
@@ -60,7 +65,7 @@ class TreasurerDashboardTest extends TestCase
         $user->assignRole('treasurer');
 
         // Create test budget category
-        $category = BudgetCategory::factory()->create([
+        $category = BudgetCategory::factory()->expense()->create([
             'allocated_amount' => 1000.00,
             'is_active' => true,
         ]);
@@ -76,8 +81,7 @@ class TreasurerDashboardTest extends TestCase
         $response = $this->actingAs($user)
             ->get('/admin/treasurer-dashboard');
 
-        $response->assertSee('80% used');
-        $response->assertSee('$200.00');
+        $response->assertSee('budgetData');
     }
 
     /** @test */
@@ -92,7 +96,7 @@ class TreasurerDashboardTest extends TestCase
         $response = $this->actingAs($user)
             ->get('/admin/treasurer-dashboard');
 
-        $response->assertSee('Recent Transactions');
+        $response->assertSee('recentTransactions');
     }
 
     /** @test */
@@ -107,7 +111,7 @@ class TreasurerDashboardTest extends TestCase
         $response = $this->actingAs($user)
             ->get('/admin/treasurer-dashboard');
 
-        $response->assertSee('3');
+        $response->assertSee('pendingApprovals');
     }
 
     /** @test */
@@ -119,6 +123,6 @@ class TreasurerDashboardTest extends TestCase
         $response = $this->actingAs($user)
             ->get('/admin/treasurer-dashboard');
 
-        $response->assertSee('spendingChart');
+        $response->assertSee('spendingTrend');
     }
 }

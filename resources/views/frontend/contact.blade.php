@@ -30,7 +30,15 @@
     <section class="reveal-fade py-18">
         <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div class="grid gap-8 md:grid-cols-[minmax(0,_3fr)_minmax(0,_2fr)] items-start">
-                <form class="dossier-card rounded-md p-6 sm:p-8 space-y-5">
+                <form method="POST" action="{{ route('contact') }}" class="dossier-card rounded-md p-6 sm:p-8 space-y-5">
+                    @csrf
+
+                    @if (session('success'))
+                        <div class="rounded-sm border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
                     <div>
                         <p class="eyebrow">Message Route</p>
                         <h2 class="dossier-title">Questions, collaboration, or membership interest</h2>
@@ -39,34 +47,39 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <label for="name" class="mb-2 block text-sm font-medium" style="color: var(--page-text-soft);">Full name</label>
-                            <input id="name" type="text" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);" placeholder="Your name">
+                            <input id="name" name="name" type="text" value="{{ old('name') }}" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);" placeholder="Your name">
+                            @error('name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label for="email" class="mb-2 block text-sm font-medium" style="color: var(--page-text-soft);">Email</label>
-                            <input id="email" type="email" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);" placeholder="you@example.com">
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);" placeholder="you@example.com">
+                            @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <div>
                         <label for="topic" class="mb-2 block text-sm font-medium" style="color: var(--page-text-soft);">Topic</label>
-                        <select id="topic" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);">
-                            <option>Membership and joining</option>
-                            <option>Event attendance or inquiry</option>
-                            <option>Collaboration or partnership</option>
-                            <option>Speaker invitation</option>
+                        <select id="topic" name="topic" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);">
+                            <option value="">Select a topic</option>
+                            <option value="Membership and joining" @selected(old('topic') === 'Membership and joining')>Membership and joining</option>
+                            <option value="Event attendance or inquiry" @selected(old('topic') === 'Event attendance or inquiry')>Event attendance or inquiry</option>
+                            <option value="Collaboration or partnership" @selected(old('topic') === 'Collaboration or partnership')>Collaboration or partnership</option>
+                            <option value="Speaker invitation" @selected(old('topic') === 'Speaker invitation')>Speaker invitation</option>
                         </select>
+                        @error('topic') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label for="message" class="mb-2 block text-sm font-medium" style="color: var(--page-text-soft);">Message</label>
-                        <textarea id="message" rows="5" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);" placeholder="Tell the club how it can help"></textarea>
+                        <textarea id="message" name="message" rows="5" class="w-full rounded-sm border px-4 py-3 text-sm" style="border-color: var(--page-border); background: var(--page-surface-strong); color: var(--page-text);" placeholder="Tell the club how it can help">{{ old('message') }}</textarea>
+                        @error('message') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     <p class="body-copy">
                         This form structure supports membership questions, event inquiries, collaboration requests, partnership ideas, and general communication.
                     </p>
 
-                    <button type="button" class="cyber-button">Send Message</button>
+                    <button type="submit" class="cyber-button">Send Message</button>
                 </form>
 
                 <aside class="space-y-5">

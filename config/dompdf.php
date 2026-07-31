@@ -92,7 +92,6 @@ return [
          */
         'allowed_protocols' => [
             'data://' => ['rules' => []],
-            'file://' => ['rules' => []],
             'http://' => ['rules' => []],
             'https://' => ['rules' => []],
         ],
@@ -245,7 +244,7 @@ return [
          *
          * @var bool
          */
-        'enable_javascript' => true,
+        'enable_javascript' => false,
 
         /**
          * Enable remote file access
@@ -267,7 +266,7 @@ return [
          *
          * @var bool
          */
-        'enable_remote' => true,
+        'enable_remote' => false,
 
         /**
          * List of allowed remote hosts

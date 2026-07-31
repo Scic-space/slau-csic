@@ -16,8 +16,18 @@ class ElectionVoteFactory extends Factory
      */
     public function definition(): array
     {
+        $candidate = \App\Models\ElectionCandidate::factory()->create();
+
         return [
-            //
+            'election_id' => $candidate->election_id,
+            'election_candidate_id' => $candidate->id,
+            'user_id' => \App\Models\User::factory(),
+            'receipt_code' => \App\Models\ElectionVote::generateReceiptCode(),
         ];
+    }
+
+    public function withoutReceipt(): static
+    {
+        return $this->state(fn () => ['receipt_code' => null]);
     }
 }

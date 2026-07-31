@@ -26,7 +26,7 @@ class RegistrationController extends Controller
         $validated['privacy_settings'] = [
             'show_email' => false,
             'show_phone' => false,
-            'show_discord' => true,
+            'show_discord' => false,
             'show_attendance' => false,
             'show_program' => true,
             'show_year' => true,

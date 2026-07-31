@@ -30,6 +30,16 @@
             </div>
         </div>
 
+        @if($meeting->hasMeetingLink())
+        <a href="{{ $meeting->meeting_link }}" target="_blank" rel="noopener noreferrer"
+           class="w-full flex items-center justify-center bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 transition font-medium mb-3">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            Join Google Meet
+        </a>
+        @endif
+
         <button
             id="checkInBtn"
             type="button"

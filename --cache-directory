@@ -1,0 +1,12 @@
+[00:00:00.066394695 / 00:00:00.066394695] [10890824 bytes] PHPUnit Started (PHPUnit 12.4.4 using PHP 8.4.22 (cli) on Linux)
+[00:00:00.074012711 / 00:00:00.007618016] [11246648 bytes] Test Runner Configured
+[00:00:00.074777229 / 00:00:00.000764518] [11246648 bytes] Bootstrap Finished (/home/kevin/Projects/slau-csic/vendor/autoload.php)
+[00:00:00.095354282 / 00:00:00.020577053] [11965696 bytes] Event Facade Sealed
+[00:00:00.098575355 / 00:00:00.003221073] [12146800 bytes] Test Suite Loaded (0 tests)
+[00:00:00.100719885 / 00:00:00.002144530] [12226224 bytes] Test Runner Started
+[00:00:00.131620028 / 00:00:00.030900143] [12226224 bytes] Test Suite Sorted
+[00:00:00.132455794 / 00:00:00.000835766] [12226224 bytes] Test Suite Filtered (0 tests)
+[00:00:00.132594339 / 00:00:00.000138545] [12226224 bytes] Test Runner Execution Started (0 tests)
+[00:00:00.132689325 / 00:00:00.000094986] [12226224 bytes] Test Runner Execution Finished
+[00:00:00.134196614 / 00:00:00.001507289] [12362192 bytes] Test Runner Finished
+[00:00:00.134972160 / 00:00:00.000775546] [12362192 bytes] PHPUnit Finished (Shell Exit Code: 0)

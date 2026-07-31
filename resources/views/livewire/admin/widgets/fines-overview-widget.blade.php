@@ -1,3 +1,0 @@
-<div>
-    {{ $this->getStats() }}
-</div>

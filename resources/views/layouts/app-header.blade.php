@@ -50,8 +50,8 @@
 
             <!-- Logo (mobile only) -->
             <a href="/" class="xl:hidden">
-                <img class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-                <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+                <img class="dark:hidden" src="/images/logo/logo.svg" alt="SLAU CSIC" width="120" height="32" />
+                <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="SLAU CSIC" width="120" height="32" />
             </a>
 
             <!-- Application Menu Toggle (mobile only) -->
@@ -112,8 +112,8 @@
                     </svg>
                 </button>
 
-                <!-- Notification Dropdown -->
-                <x-header.notification-dropdown />
+                <!-- Notification Dropdown (Livewire - real-time) -->
+                @livewire('notification-bell')
             </div>
 
             <!-- User Dropdown -->

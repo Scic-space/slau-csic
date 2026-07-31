@@ -1,0 +1,8 @@
+#!/bin/bash
+# Dev server with increased upload limits for video uploads.
+# Usage: ./dev (instead of php artisan serve)
+php -d upload_max_filesize=1000M \
+    -d post_max_size=1000M \
+    -d max_execution_time=300 \
+    -d memory_limit=512M \
+    artisan serve "$@"

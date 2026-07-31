@@ -17,7 +17,7 @@ class BudgetCategoryFactory extends Factory
     public function definition(): array
     {
         $type = fake()->randomElement(['income', 'expense']);
-        $categories = $type === 'income' 
+        $categories = $type === 'income'
             ? ['Membership Dues', 'Donations', 'Sponsorships', 'Fundraising', 'Other Income']
             : ['Events', 'Equipment', 'Prizes', 'Refreshments', 'Printing', 'Travel', 'Other Expense'];
 

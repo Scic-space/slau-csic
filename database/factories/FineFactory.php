@@ -27,7 +27,6 @@ class FineFactory extends Factory
             'due_date' => fake()->dateTimeBetween('now', '+14 days'),
             'status' => fake()->randomElement(['pending', 'paid', 'partially_paid', 'waived']),
             'amount_paid' => 0,
-            'balance' => fn (array $attributes) => $attributes['amount'],
             'issued_by' => User::factory(),
             'waived_by' => null,
             'waived_reason' => null,
@@ -39,7 +38,6 @@ class FineFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'pending',
             'amount_paid' => 0,
-            'balance' => $attributes['amount'],
         ]);
     }
 
@@ -48,7 +46,6 @@ class FineFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'paid',
             'amount_paid' => $attributes['amount'],
-            'balance' => 0,
         ]);
     }
 
@@ -57,7 +54,6 @@ class FineFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'partially_paid',
             'amount_paid' => fake()->randomFloat(2, 1, $attributes['amount'] - 1),
-            'balance' => fn (array $attributes) => $attributes['amount'] - $attributes['amount_paid'],
         ]);
     }
 

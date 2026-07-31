@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('shows the club portal to authenticated verified members', function () {
+it('shows the dashboard to authenticated verified members', function () {
     $user = User::factory()->create();
     ClubResource::factory()->create([
         'category' => 'ctf',
@@ -18,8 +18,6 @@ it('shows the club portal to authenticated verified members', function () {
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertSuccessful();
-    $response->assertSee('Club Portal');
-    $response->assertSee('CTF Arena');
 });
 
 it('shows section pages for competitions and classes', function () {

@@ -1,340 +1,258 @@
-<div>
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div class="custom-calendar">
-            <div id="calendar" class="min-h-screen" wire:ignore></div>
+<div class="py-6" x-data="eventCalendar()">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Event Calendar</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Browse and discover club events</p>
+            </div>
+            <div class="flex gap-2">
+                <button @click="viewMode = 'month'" class="rounded-lg px-3 py-1.5 text-xs font-medium transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
+                    :class="viewMode === 'month' ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'">Month</button>
+                <button @click="viewMode = 'agenda'" class="rounded-lg px-3 py-1.5 text-xs font-medium transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
+                    :class="viewMode === 'agenda' ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'">Agenda</button>
+            </div>
         </div>
-    </div>
 
-    @push('scripts')
-    <script>
-        document.addEventListener('livewire:initialized', () => {
-            const calendarEl = document.getElementById('calendar');
-
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today addEventButton',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                customButtons: {
-                    addEventButton: {
-                        text: 'Add Event +',
-                        click: function() {
-                            @this.dispatch('open-create-modal');
-                        }
-                    }
-                },
-                events: @json($events),
-                editable: false,
-                selectable: true,
-                selectMirror: true,
-                dayMaxEvents: true,
-                weekends: true,
-                navLinks: true,
-                eventClick: function(info) {
-                    info.jsEvent.preventDefault();
-                    if (info.event.url) {
-                        window.open(info.event.url, '_blank');
-                    }
-                    @this.dispatch('event-click', { id: info.event.id });
-                },
-                dateClick: function(info) {
-                    @this.dispatch('date-click', { date: info.dateStr });
-                },
-                eventDidMount: function(info) {
-                    // Add custom styling to events
-                    const eventEl = info.el;
-
-                    // Add color based on event type
-                    if (info.event.extendedProps.type) {
-                        eventEl.style.backgroundColor = info.event.backgroundColor;
-                        eventEl.style.borderColor = info.event.backgroundColor;
-                    }
-
-                    // Add tooltip
-                    if (info.event.extendedProps.description) {
-                        eventEl.title = info.event.extendedProps.description;
-                    }
-                },
-                loading: function(isLoading) {
-                    if (isLoading) {
-                        // Show loading indicator
-                    } else {
-                        // Hide loading indicator
-                    }
-                }
-            });
-
-            calendar.render();
-
-            // Listen for Livewire events
-            Livewire.on('calendar-refreshed', () => {
-                calendar.refetchEvents();
-            });
-
-            Livewire.on('open-create-modal', (data) => {
-                // Open your create event modal
-                const modal = document.getElementById('eventModal');
-                if (modal) {
-                    modal.classList.remove('hidden');
-
-                    // If date is provided, set it in form
-                    if (data && data.date) {
-                        const startDateInput = document.getElementById('event-start-date');
-                        if (startDateInput) {
-                            startDateInput.value = data.date;
-                        }
-                    }
-                }
-            });
-        });
-
-        // Initialize modal functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('eventModal');
-            const closeButtons = document.querySelectorAll('.modal-close-btn');
-            const addEventBtn = document.querySelector('.btn-add-event');
-            const updateEventBtn = document.querySelector('.btn-update-event');
-
-            if (modal) {
-                closeButtons.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        modal.classList.add('hidden');
-                        resetForm();
-                    });
-                });
-
-                // Close modal when clicking outside
-                modal.addEventListener('click', function(e) {
-                    if (e.target === modal) {
-                        modal.classList.add('hidden');
-                        resetForm();
-                    }
-                });
-
-                // Add event button
-                if (addEventBtn) {
-                    addEventBtn.addEventListener('click', function() {
-                        const eventData = collectEventData();
-                        @this.call('createEvent', eventData);
-                        modal.classList.add('hidden');
-                        resetForm();
-                    });
-                }
-
-                // Update event button
-                if (updateEventBtn) {
-                    updateEventBtn.addEventListener('click', function() {
-                        const eventId = updateEventBtn.dataset.eventId;
-                        const eventData = collectEventData();
-                        @this.call('updateEvent', eventId, eventData);
-                        modal.classList.add('hidden');
-                        resetForm();
-                    });
-                }
-            }
-
-            function collectEventData() {
-                return {
-                    title: document.getElementById('event-title').value,
-                    color: document.querySelector('input[name="event-level"]:checked')?.value || 'primary',
-                    start_date: document.getElementById('event-start-date').value,
-                    end_date: document.getElementById('event-end-date').value,
-                    description: document.getElementById('event-description')?.value || '',
-                    location: document.getElementById('event-location')?.value || '',
-                };
-            }
-
-            function resetForm() {
-                document.getElementById('event-title').value = '';
-                document.getElementById('event-start-date').value = '';
-                document.getElementById('event-end-date').value = '';
-                document.getElementById('event-description')?.value = '';
-                document.getElementById('event-location')?.value = '';
-                document.querySelector('.btn-update-event').style.display = 'none';
-                document.querySelector('.btn-add-event').style.display = 'block';
-            }
-        });
-    </script>
-    
-    @if(!$canCreateEvent)
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const addEventBtn = document.querySelector('.fc-addEventButton-button');
-                if (addEventBtn) {
-                    addEventBtn.style.display = 'none';
-                }
-            }, 100);
-        });
-    </script>
-    @endif
-    @endpush
-
-    <!-- Your existing modal HTML here -->
-    <div class="fixed inset-0 items-center justify-center hidden p-5 overflow-y-auto modal z-99999" id="eventModal">
-        <div class="modal-close-btn fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"></div>
-        <div class="modal-dialog relative flex w-full max-w-[700px] flex-col overflow-y-auto rounded-3xl bg-white p-6 lg:p-11 dark:bg-gray-900">
-
-            <!-- Close Button -->
-            <button class="modal-close-btn transition-color absolute top-5 right-5 z-999 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 sm:h-11 sm:w-11 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
-                <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z" fill="" />
-                </svg>
-            </button>
-
-            <div class="flex flex-col px-2 overflow-y-auto modal-content custom-scrollbar">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl lg:text-2xl dark:text-white/90" id="eventModalLabel">
-                        Add Event
-                    </h5>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Plan your next big moment: schedule or edit an event to stay on track
-                    </p>
-                </div>
-
-                <!-- Modal Body -->
-                <div class="mt-8 modal-body">
-
-                    <!-- Event Title -->
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Event Title
-                        </label>
-                        <input id="event-title" type="text" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Enter event title" />
+        <div class="flex flex-col gap-6 lg:flex-row">
+            <div class="w-full shrink-0 space-y-4 lg:w-64">
+                <div class="dashboard-card rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="mb-3 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Categories</h3>
+                        <button x-show="selectedCategories.length > 0" @click="selectedCategories = []" class="text-xs text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">Clear</button>
                     </div>
+                    <div class="space-y-2">
+                        @foreach ($categories as $cat)
+                            <label class="flex cursor-pointer items-center gap-2 group">
+                                <input type="checkbox" value="{{ $cat['id'] }}" x-model="selectedCategories" class="rounded border-gray-300 text-gray-900 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-white">
+                                <span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {{ $cat['color'] }}"></span>
+                                <span class="text-sm text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">{{ $cat['name'] }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="dashboard-card rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <h3 class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Legend</h3>
+                    <div class="space-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+                        <p><span class="inline-block h-2.5 w-2.5 rounded-full bg-green-500 mr-1"></span> You're registered</p>
+                        <p>Click an event to view details</p>
+                        <p>Events are colored by category</p>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- Event Color -->
-                    <div class="mt-6">
-                        <label class="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Event Color
-                        </label>
-                        <div class="flex flex-wrap items-center gap-4 sm:gap-5">
-
-                            <!-- Danger -->
-                            <div class="n-chk">
-                                <div class="form-check form-check-danger form-check-inline">
-                                    <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400" for="modalDanger">
-                                        <span class="relative">
-                                            <input class="sr-only form-check-input" type="radio" name="event-level" value="Danger" id="modalDanger" />
-                                            <span class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                                            </span>
-                                        </span>
-                                        Danger
-                                    </label>
+            <div class="min-w-0 flex-1">
+                {{-- Month View --}}
+                <div x-show="viewMode === 'month'">
+                    <div class="dashboard-card overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="p-4">
+                            <div class="mb-4 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <button @click="prevMonth" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                    </button>
+                                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="monthYear"></h2>
+                                    <button @click="nextMonth" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
                                 </div>
+                                <button @click="goToToday" class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">Today</button>
                             </div>
 
-                            <!-- Success -->
-                            <div class="n-chk">
-                                <div class="form-check form-check-success form-check-inline">
-                                    <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400" for="modalSuccess">
-                                        <span class="relative">
-                                            <input class="sr-only form-check-input" type="radio" name="event-level" value="Success" id="modalSuccess" />
-                                            <span class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                                            </span>
-                                        </span>
-                                        Success
-                                    </label>
-                                </div>
+                            <div class="grid grid-cols-7 gap-px text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-px">
+                                <template x-for="day in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="day">
+                                    <div class="py-2" x-text="day"></div>
+                                </template>
                             </div>
 
-                            <!-- Primary -->
-                            <div class="n-chk">
-                                <div class="form-check form-check-primary form-check-inline">
-                                    <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400" for="modalPrimary">
-                                        <span class="relative">
-                                            <input class="sr-only form-check-input" type="radio" name="event-level" value="Primary" id="modalPrimary" checked />
-                                            <span class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                                            </span>
-                                        </span>
-                                        Primary
-                                    </label>
-                                </div>
+                            <div class="grid grid-cols-7 gap-px">
+                                <template x-for="(day, idx) in calendarDays" :key="idx">
+                                    <div
+                                        class="min-h-[80px] p-1 text-sm transition"
+                                        :class="{
+                                            'bg-gray-50 dark:bg-gray-900/50': !day.isCurrentMonth,
+                                            'bg-white dark:bg-gray-800': day.isCurrentMonth,
+                                            'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700': day.events.length > 0
+                                        }"
+                                    >
+                                        <div class="mb-1 text-xs font-medium"
+                                            :class="{
+                                                'text-gray-400 dark:text-gray-600': !day.isCurrentMonth,
+                                                'text-gray-900 dark:text-white': day.isCurrentMonth && !day.isToday,
+                                                'text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-full w-6 h-6 flex items-center justify-center': day.isToday
+                                            }"
+                                            x-text="day.date"></div>
+                                        <template x-for="evt in day.events.slice(0, 2)" :key="evt.id">
+                                            <div
+                                                @click="openDetail(evt)"
+                                                class="mb-0.5 truncate rounded px-1 py-0.5 text-[10px] font-medium text-white cursor-pointer hover:opacity-80 flex items-center gap-1"
+                                                :style="{ backgroundColor: evt.color }"
+                                            >
+                                                <span x-show="evt.is_registered" class="shrink-0">&#10003;</span>
+                                                <span x-text="evt.title"></span>
+                                            </div>
+                                        </template>
+                                        <div x-show="day.events.length > 2" class="text-[10px] text-gray-400 dark:text-gray-500 px-1" x-text="'+' + (day.events.length - 2) + ' more'"></div>
+                                    </div>
+                                </template>
                             </div>
-
-                            <!-- Warning -->
-                            <div class="n-chk">
-                                <div class="form-check form-check-warning form-check-inline">
-                                    <label class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400" for="modalWarning">
-                                        <span class="relative">
-                                            <input class="sr-only form-check-input" type="radio" name="event-level" value="Warning" id="modalWarning" />
-                                            <span class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                                            </span>
-                                        </span>
-                                        Warning
-                                    </label>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
-
-                    <!-- Start Date -->
-                    <div class="mt-6">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Enter Start Date
-                        </label>
-                        <div class="relative">
-                            <input id="event-start-date" type="date" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" onclick="this.showPicker()" />
-                            <span class="absolute top-1/2 right-3.5 -translate-y-1/2 pointer-events-none">
-                                <svg class="fill-gray-700 dark:fill-gray-400" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M4.33317 0.0830078C4.74738 0.0830078 5.08317 0.418794 5.08317 0.833008V1.24967H8.9165V0.833008C8.9165 0.418794 9.25229 0.0830078 9.6665 0.0830078C10.0807 0.0830078 10.4165 0.418794 10.4165 0.833008V1.24967L11.3332 1.24967C12.2997 1.24967 13.0832 2.03318 13.0832 2.99967V4.99967V11.6663C13.0832 12.6328 12.2997 13.4163 11.3332 13.4163H2.6665C1.70001 13.4163 0.916504 12.6328 0.916504 11.6663V4.99967V2.99967C0.916504 2.03318 1.70001 1.24967 2.6665 1.24967L3.58317 1.24967V0.833008C3.58317 0.418794 3.91896 0.0830078 4.33317 0.0830078ZM4.33317 2.74967H2.6665C2.52843 2.74967 2.4165 2.8616 2.4165 2.99967V4.24967H11.5832V2.99967C11.5832 2.8616 11.4712 2.74967 11.3332 2.74967H9.6665H4.33317ZM11.5832 5.74967H2.4165V11.6663C2.4165 11.8044 2.52843 11.9163 2.6665 11.9163H11.3332C11.4712 11.9163 11.5832 11.8044 11.5832 11.6663V5.74967Z" fill="" />
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- End Date -->
-                    <div class="mt-6">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Enter End Date
-                        </label>
-                        <div class="relative">
-                            <input id="event-end-date" type="date" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" onclick="this.showPicker()" />
-                            <span class="absolute top-1/2 right-3.5 -translate-y-1/2 pointer-events-none">
-                                <svg class="fill-gray-700 dark:fill-gray-400" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M4.33317 0.0830078C4.74738 0.0830078 5.08317 0.418794 5.08317 0.833008V1.24967H8.9165V0.833008C8.9165 0.418794 9.25229 0.0830078 9.6665 0.0830078C10.0807 0.0830078 10.4165 0.418794 10.4165 0.833008V1.24967L11.3332 1.24967C12.2997 1.24967 13.0832 2.03318 13.0832 2.99967V4.99967V11.6663C13.0832 12.6328 12.2997 13.4163 11.3332 13.4163H2.6665C1.70001 13.4163 0.916504 12.6328 0.916504 11.6663V4.99967V2.99967C0.916504 2.03318 1.70001 1.24967 2.6665 1.24967L3.58317 1.24967V0.833008C3.58317 0.418794 3.91896 0.0830078 4.33317 0.0830078ZM4.33317 2.74967H2.6665C2.52843 2.74967 2.4165 2.8616 2.4165 2.99967V4.24967H11.5832V2.99967C11.5832 2.8616 11.4712 2.74967 11.3332 2.74967H9.6665H4.33317ZM11.5832 5.74967H2.4165V11.6663C2.4165 11.8044 2.52843 11.9163 2.6665 11.9163H11.3332C11.4712 11.9163 11.5832 11.8044 11.5832 11.6663V5.74967Z" fill="" />
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Event Description -->
-                    <div class="mt-6">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Description
-                        </label>
-                        <textarea id="event-description" rows="3" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Enter event description"></textarea>
-                    </div>
-
-                    <!-- Event Location -->
-                    <div class="mt-6">
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Location
-                        </label>
-                        <input id="event-location" type="text" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Enter event location" />
-                    </div>
-
                 </div>
 
-                <!-- Modal Footer -->
-                <div class="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
-                    <button type="button" class="modal-close-btn flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:w-auto dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]">
-                        Close
-                    </button>
-                    <button type="button" class="btn btn-update-event bg-brand-500 hover:bg-brand-600 flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white sm:w-auto" style="display: none;" data-fc-event-public-id="">
-                        Update Changes
-                    </button>
-                    <button type="button" class="btn btn-add-event bg-brand-500 hover:bg-brand-600 flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white sm:w-auto">
-                        Add Event
-                    </button>
+                {{-- Agenda View --}}
+                <div x-show="viewMode === 'agenda'">
+                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="p-4">
+                            <div class="mb-4 flex items-center justify-between">
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Upcoming Events</h2>
+                                <button @click="goToToday" class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">Today</button>
+                            </div>
+                            <div class="space-y-2">
+                                <template x-for="evt in agendaEvents" :key="evt.id">
+                                    <div @click="openDetail(evt)" class="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-100 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                                        <div class="w-14 shrink-0 text-center">
+                                            <p class="text-lg font-bold text-gray-900 dark:text-white" x-text="new Date(evt.start).getDate()"></p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="new Date(evt.start).toLocaleDateString('en', { month: 'short' })"></p>
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="h-2.5 w-2.5 shrink-0 rounded-full" :style="{ backgroundColor: evt.color }"></span>
+                                                <p class="truncate text-sm font-semibold text-gray-900 dark:text-white" x-text="evt.title"></p>
+                                                <span x-show="evt.is_registered" class="shrink-0 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">Registered</span>
+                                            </div>
+                                            <div class="mt-1 flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-400">
+                                                <span x-text="formatDate(evt.start)"></span>
+                                                <span x-show="evt.location" x-text="evt.location"></span>
+                                                <span x-show="evt.is_recurring" class="text-purple-600 dark:text-purple-400">Recurring</span>
+                                            </div>
+                                        </div>
+                                        <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </div>
+                                </template>
+                                <div x-show="agendaEvents.length === 0" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No upcoming events found.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
 
+        {{-- Detail Modal --}}
+        <div x-show="detailEvent" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
+            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="detailEvent = null"></div>
+            <div class="relative w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
+                <button @click="detailEvent = null" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span class="h-4 w-4 shrink-0 rounded-full" :style="{ backgroundColor: detailEvent?.color }"></span>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white" x-text="detailEvent?.title"></h2>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div class="flex items-center gap-2">
+                            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span x-text="detailEvent?.start ? formatDate(detailEvent.start) : ''"></span>
+                        </div>
+                        <div x-show="detailEvent?.end" class="flex items-center gap-2">
+                            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span x-text="detailEvent?.end ? 'Until ' + formatDate(detailEvent.end) : ''"></span>
+                        </div>
+                        <div x-show="detailEvent?.location" class="flex items-center gap-2">
+                            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span x-text="detailEvent?.location"></span>
+                        </div>
+                        <span x-show="detailEvent?.is_recurring" class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">Recurring</span>
+                        <span x-show="detailEvent?.is_registered" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">You're Registered</span>
+                    </div>
+                    <p x-show="detailEvent?.description" class="text-sm text-gray-700 dark:text-gray-300" x-html="detailEvent?.description?.substring(0, 300)"></p>
+                    <div class="flex gap-3 pt-2">
+                        <a :href="detailEvent?.url" class="flex-1 rounded-lg bg-gray-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-gray-800 transition focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">View Event</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function eventCalendar() {
+            return {
+                currentMonth: new Date().getMonth(),
+                currentYear: new Date().getFullYear(),
+                selectedCategories: [],
+                detailEvent: null,
+                viewMode: 'month',
+                events: @js($events),
+
+                get filteredEvents() {
+                    if (this.selectedCategories.length === 0) return this.events;
+                    return this.events.filter(e =>
+                        e.categoryIds.some(id => this.selectedCategories.includes(id))
+                    );
+                },
+
+                get monthYear() {
+                    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                    return months[this.currentMonth] + ' ' + this.currentYear;
+                },
+
+                get calendarDays() {
+                    const days = [];
+                    const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
+                    const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+                    const daysInPrev = new Date(this.currentYear, this.currentMonth, 0).getDate();
+                    const today = new Date();
+
+                    for (let i = firstDay - 1; i >= 0; i--) {
+                        const d = daysInPrev - i;
+                        days.push({ date: d, isCurrentMonth: false, isToday: false, events: [] });
+                    }
+                    for (let d = 1; d <= daysInMonth; d++) {
+                        const isToday = d === today.getDate() && this.currentMonth === today.getMonth() && this.currentYear === today.getFullYear();
+                        const dateStr = this.currentYear + '-' + String(this.currentMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                        const events = this.filteredEvents.filter(e => e.start.startsWith(dateStr));
+                        days.push({ date: d, isCurrentMonth: true, isToday, events });
+                    }
+                    const remaining = 42 - days.length;
+                    for (let d = 1; d <= remaining; d++) {
+                        days.push({ date: d, isCurrentMonth: false, isToday: false, events: [] });
+                    }
+                    return days;
+                },
+
+                get agendaEvents() {
+                    return this.filteredEvents
+                        .filter(e => new Date(e.start) >= new Date())
+                        .slice(0, 20);
+                },
+
+                goToToday() {
+                    const today = new Date();
+                    this.currentMonth = today.getMonth();
+                    this.currentYear = today.getFullYear();
+                },
+
+                prevMonth() {
+                    if (this.currentMonth === 0) { this.currentMonth = 11; this.currentYear--; }
+                    else { this.currentMonth--; }
+                },
+
+                nextMonth() {
+                    if (this.currentMonth === 11) { this.currentMonth = 0; this.currentYear++; }
+                    else { this.currentMonth++; }
+                },
+
+                formatDate(dateStr) {
+                    return new Date(dateStr).toLocaleDateString('en-US', {
+                        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                },
+
+                openDetail(evt) {
+                    this.detailEvent = evt;
+                }
+            }
+        }
+    </script>
 </div>

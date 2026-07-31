@@ -71,9 +71,7 @@
                     </div>
 
                     <div class="mt-5 flex flex-wrap gap-3">
-                        @if ($resource->external_url && $resource->external_url !== '#')
-                            <a href="{{ $resource->external_url }}" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950">{{ $resource->cta_label ?: 'Open Resource' }}</a>
-                        @endif
+                        <a href="{{ route('portal.resources.show', $resource) }}" class="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition">{{ $resource->cta_label ?: 'Open Resource' }}</a>
                     </div>
 
                     <form method="POST" action="{{ route('portal.progress.update', $resource) }}" class="mt-6 space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">

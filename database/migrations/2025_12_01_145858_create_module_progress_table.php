@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('module_progress', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('training_module_id')->constrained()->cascadeOnDelete();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->boolean('completed')->default(false);
-    $table->dateTime('completed_at')->nullable();
-    $table->timestamps();
+            $table->id();
+            $table->foreignId('training_module_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->boolean('completed')->default(false);
+            $table->dateTime('completed_at')->nullable();
+            $table->timestamps();
 
-    $table->unique(['training_module_id', 'user_id']);
-});
+            $table->unique(['training_module_id', 'user_id']);
+        });
     }
 
     /**

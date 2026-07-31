@@ -40,6 +40,7 @@ class AutoSuspendAlumniCommand extends Command
 
         if ($usersToConvert->isEmpty()) {
             $this->info('No users need to be converted to alumni.');
+
             return 0;
         }
 
@@ -52,6 +53,7 @@ class AutoSuspendAlumniCommand extends Command
 
         if ($this->option('dry-run')) {
             $this->warn('DRY RUN: No users were actually converted.');
+
             return 0;
         }
 
@@ -69,7 +71,7 @@ class AutoSuspendAlumniCommand extends Command
                         $failedCount++;
                     }
                 } catch (\Exception $e) {
-                    $this->error("✗ Error converting {$user->name}: " . $e->getMessage());
+                    $this->error("✗ Error converting {$user->name}: ".$e->getMessage());
                     $failedCount++;
                     Log::error('Failed to convert user to alumni', [
                         'user_id' => $user->id,
@@ -79,7 +81,7 @@ class AutoSuspendAlumniCommand extends Command
             }
 
             $this->info("Conversion complete: {$convertedCount} converted, {$failedCount} failed");
-            
+
             // Log summary
             Log::info('Auto-suspend alumni command completed', [
                 'converted' => $convertedCount,
@@ -91,6 +93,7 @@ class AutoSuspendAlumniCommand extends Command
         }
 
         $this->info('Operation cancelled.');
+
         return 0;
     }
 }

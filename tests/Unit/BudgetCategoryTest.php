@@ -51,7 +51,7 @@ class BudgetCategoryTest extends TestCase
     public function it_can_deactivate_category(): void
     {
         $category = BudgetCategory::factory()->create(['is_active' => true]);
-        
+
         $category->update(['is_active' => false]);
 
         $this->assertFalse($category->is_active);

@@ -2,6 +2,14 @@
 
 @section('content')
     <div class="space-y-6">
+        @if ($flash = session('flash'))
+            <div class="rounded-lg border p-4 shadow-sm {{ $flash['error'] ?? false ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20' : 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20' }}">
+                <p class="text-sm font-medium {{ $flash['error'] ?? false ? 'text-red-700 dark:text-red-300' : 'text-emerald-700 dark:text-emerald-300' }}">
+                    {{ $flash['error'] ?? $flash['success'] }}
+                </p>
+            </div>
+        @endif
+
         <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
             <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-500">Internal Online Classes</p>
             <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">Access class links, schedules, registrations, and attendance-ready sessions.</h1>
@@ -38,7 +46,25 @@
                                     <a href="{{ $class->external_link }}" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-slate-950">Join link</a>
                                 @endif
                                 @auth
-                                    <a href="{{ route('events.register', $class->slug) }}" class="inline-flex items-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white dark:bg-white dark:text-slate-900">Registration</a>
+                                    @php $registration = $userRegistrations[$class->id] ?? null; @endphp
+                                    @if ($registration && $registration->status === 'registered')
+                                        <span class="inline-flex items-center rounded-md bg-emerald-100 px-3 py-2 text-sm font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Registered</span>
+                                        <form method="POST" action="{{ route('events.unregister', $class->slug) }}">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center rounded-md border border-red-300 px-3 py-2 text-sm font-medium text-red-700 dark:border-red-700 dark:text-red-300">Unregister</button>
+                                        </form>
+                                    @elseif ($registration && $registration->status === 'waitlist')
+                                        <span class="inline-flex items-center rounded-md bg-amber-100 px-3 py-2 text-sm font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">Waitlisted</span>
+                                        <form method="POST" action="{{ route('events.unregister', $class->slug) }}">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center rounded-md border border-red-300 px-3 py-2 text-sm font-medium text-red-700 dark:border-red-700 dark:text-red-300">Unregister</button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('events.register', $class->slug) }}">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white dark:bg-white dark:text-slate-900">Registration</button>
+                                        </form>
+                                    @endif
                                 @endauth
                             </div>
                         </article>

@@ -4,7 +4,8 @@
     <x-common.page-breadcrumb pageTitle="Profile">
         <x-slot:breadcrumbs>
             <li>
-                <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-500">Dashboard</a>
+                <a href="{{ route('dashboard') }}"
+                    class="text-gray-700 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-500">Dashboard</a>
             </li>
             <li>
                 <span class="text-gray-700 dark:text-gray-400">Profile</span>
@@ -25,25 +26,12 @@
 
             <!-- Name Input -->
             <div>
-                <x-forms.input
-                    name="name"
-                    label="Name"
-                    type="text"
-                    :value="$user->name"
-                    required
-                    autofocus
-                />
+                <x-form.input name="name" label="Name" type="text" :value="$user->name" required autofocus />
             </div>
 
             <!-- Email Input -->
             <div>
-                <x-forms.input
-                    name="email"
-                    label="Email"
-                    type="email"
-                    :value="$user->email"
-                    required
-                />
+                <x-form.input name="email" label="Email" type="email" :value="$user->email" required />
             </div>
 
             <!-- Save Button -->
@@ -60,14 +48,11 @@
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Delete your account and all of its resources</p>
 
             <form method="POST" action="{{ route('settings.profile.destroy') }}" class="mt-4"
-                  onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
                 @csrf
                 @method('DELETE')
-                <x-ui.button
-                    type="submit"
-                    variant="primary"
-                    className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
-                >
+                <x-ui.button type="submit" variant="primary"
+                    className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800">
                     Delete account
                 </x-ui.button>
             </form>

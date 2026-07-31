@@ -1,7 +1,0 @@
-<div class="grid grid-cols-12 gap-4 md:gap-6">
-    <div class="col-span-12 space-y-6 xl:col-span-12">
-        <div class="w-full max-w-full overflow-x-auto">
-            {{ $this->table }}
-        </div>
-    </div>
-</div>

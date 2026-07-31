@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceService
 {
+    public function __construct(
+        protected GamificationService $gamification,
+    ) {}
+
     public function checkInViaQr(string $meetingCode, User $user, ?string $ipAddress = null, ?string $deviceInfo = null): array
     {
         $meeting = Meeting::where('meeting_code', $meetingCode)->first();
@@ -25,6 +29,13 @@ class AttendanceService
             return [
                 'success' => false,
                 'error' => 'Attendance is not open for this session',
+            ];
+        }
+
+        if (! $meeting->canUserAttend($user)) {
+            return [
+                'success' => false,
+                'error' => 'You are not in the allowed attendees list for this session',
             ];
         }
 
@@ -64,6 +75,16 @@ class AttendanceService
             ]);
         }
 
+        $this->updateStreak($user, $meeting);
+
+        $this->gamification->awardPoints(
+            $user,
+            20,
+            "Checked in: {$meeting->title}",
+            Meeting::class,
+            $meeting->id,
+        );
+
         return [
             'success' => true,
             'message' => $status === 'late' ? 'Checked in successfully (Late)' : 'Checked in successfully',
@@ -76,6 +97,10 @@ class AttendanceService
 
     public function markManually(Meeting $session, User $user, string $status, User $markedBy): Attendance
     {
+        if (! $session->canUserAttend($user)) {
+            throw new \InvalidArgumentException('User is not in the allowed attendees list for this session.');
+        }
+
         $existingAttendance = $this->getAttendance($session, $user);
 
         if ($existingAttendance) {
@@ -101,7 +126,14 @@ class AttendanceService
 
     public function finalizeAbsences(Meeting $session): int
     {
-        $allActiveMembers = User::activeMembers()->get();
+        $members = User::activeMembers();
+
+        if ($session->allowedAttendees()->exists()) {
+            $allowedIds = $session->allowedAttendees()->pluck('user_id');
+            $members = $members->whereIn('id', $allowedIds);
+        }
+
+        $allActiveMembers = $members->get();
         $attendedUserIds = $session->attendance()->pluck('user_id');
 
         $absentCount = 0;

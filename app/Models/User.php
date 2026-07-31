@@ -2,20 +2,30 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Events\MemberApproved;
+use App\Events\MemberRejected;
+use App\Events\MemberSuspended;
+use App\Notifications\MemberSuspendedNotification;
 use Carbon\Carbon;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Lab404\Impersonate\Models\Impersonate;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Impersonate, Notifiable;
@@ -32,6 +42,7 @@ class User extends Authenticatable
         'email',
         'password',
         'student_id',
+        'registration_number',
         'phone',
         'program',
         'faculty',
@@ -54,6 +65,9 @@ class User extends Authenticatable
         'emergency_contact_phone',
         'github_username',
         'linkedin_url',
+        'personal_website',
+        'portfolio_slug',
+        'portfolio_is_public',
         'htb_profile_url',
         'htb_username',
         'htb_profile_data',
@@ -61,8 +75,11 @@ class User extends Authenticatable
         'profile_photo',
         'privacy_settings',
         'approval_notes',
+        'admin_notes',
         'approved_by',
         'approved_at',
+        'membership_expires_at',
+        'membership_renewed_at',
         'suspension_reason',
         'suspended_until',
         'suspended_by',
@@ -72,6 +89,7 @@ class User extends Authenticatable
         'longest_streak',
         'bonus_points',
         'score',
+        'rank',
     ];
 
     /**
@@ -102,7 +120,10 @@ class User extends Authenticatable
             'htb_profile_data' => 'array',
             'htb_last_synced_at' => 'datetime',
             'approved_at' => 'datetime',
+            'membership_expires_at' => 'date',
+            'membership_renewed_at' => 'datetime',
             'suspended_until' => 'datetime',
+            'rank_changed_at' => 'datetime',
         ];
     }
 
@@ -111,7 +132,8 @@ class User extends Authenticatable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'email']);
+            ->logOnly(['name', 'email', 'membership_status', 'membership_type'])
+            ->logOnlyDirty();
     }
 
     public function canImpersonate(): bool
@@ -122,6 +144,16 @@ class User extends Authenticatable
     public function canBeImpersonated(): bool
     {
         return ! $this->hasRole('super-admin');
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'admin', 'treasurer', 'president']);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasAnyRole(['super-admin', 'admin']);
     }
 
     public function meetings()
@@ -139,14 +171,78 @@ class User extends Authenticatable
         return $this->hasMany(Event::class, 'organizer_id');
     }
 
+    public function instructedEvents()
+    {
+        return $this->hasMany(Event::class, 'instructor_id');
+    }
+
     public function eventRegistrations()
     {
         return $this->hasMany(EventRegistration::class);
     }
 
+    public function registeredEvents()
+    {
+        return $this->belongsToMany(Event::class, 'event_registrations')
+            ->withPivot(['status', 'registered_at', 'attended_at'])
+            ->withTimestamps();
+    }
+
+    public function eventAttendance()
+    {
+        return $this->hasMany(EventAttendance::class, 'member_id');
+    }
+
+    public function attendedEvents()
+    {
+        return $this->belongsToMany(Event::class, 'event_attendance', 'member_id')
+            ->withPivot(['status', 'checked_in_at'])
+            ->withTimestamps();
+    }
+
+    public function favoriteEvents()
+    {
+        return $this->belongsToMany(Event::class, 'event_favorites')->withTimestamps();
+    }
+
     public function projects()
     {
         return $this->hasMany(Project::class, 'lead_id');
+    }
+
+    public function memberProfile(): HasOne
+    {
+        return $this->hasOne(MemberProfile::class);
+    }
+
+    public function membership(): HasOne
+    {
+        return $this->hasOne(Membership::class);
+    }
+
+    public function socialLinks(): HasOne
+    {
+        return $this->hasOne(SocialLink::class);
+    }
+
+    public function privacy(): HasOne
+    {
+        return $this->hasOne(UserPrivacy::class);
+    }
+
+    public function notificationPreferences(): HasOne
+    {
+        return $this->hasOne(UserNotificationPreference::class);
+    }
+
+    public function actions(): MorphMany
+    {
+        return $this->morphMany(Activity::class, 'subject');
+    }
+
+    public function gamificationStats(): HasOne
+    {
+        return $this->hasOne(GamificationStat::class);
     }
 
     public function projectMemberships()
@@ -166,6 +262,11 @@ class User extends Authenticatable
         return $this->hasMany(CompetitionParticipants::class);
     }
 
+    public function testimonials(): HasMany
+    {
+        return $this->hasMany(Testimonial::class);
+    }
+
     public function competitions()
     {
         return $this->belongsToMany(Competition::class, 'competition_participants')
@@ -176,6 +277,43 @@ class User extends Authenticatable
     public function electionVotes(): HasMany
     {
         return $this->hasMany(ElectionVote::class);
+    }
+
+    public function electionNominations(): HasMany
+    {
+        return $this->hasMany(ElectionNomination::class);
+    }
+
+    public function hasVotedIn(Election $election): bool
+    {
+        return $this->electionVotes()
+            ->where('election_id', $election->id)
+            ->exists();
+    }
+
+    public function canVoteIn(Election $election): bool
+    {
+        if (! $election->isOpen()) {
+            return false;
+        }
+
+        if ($election->is_test_ballot) {
+            return $this->hasAnyRole(['admin', 'super-admin']);
+        }
+
+        if ($election->hasEligibilityOverrideFor($this)) {
+            return $election->isExplicitlyEligible($this);
+        }
+
+        return $this->isActiveMember()
+            && $this->hasPermissionTo('vote_in_elections');
+    }
+
+    public function hasNominatedFor(Election $election): bool
+    {
+        return $this->electionNominations()
+            ->where('election_id', $election->id)
+            ->exists();
     }
 
     public function clubResourceProgress(): HasMany
@@ -313,12 +451,8 @@ class User extends Authenticatable
                 return $this->profile_photo;
             }
 
-            if (Storage::exists('public/'.$this->profile_photo)) {
-                return Storage::url($this->profile_photo);
-            }
-
-            if (file_exists(public_path('storage/'.$this->profile_photo))) {
-                return asset('storage/'.$this->profile_photo);
+            if (Storage::disk('public')->exists($this->profile_photo)) {
+                return url('storage/'.$this->profile_photo);
             }
         }
 
@@ -394,10 +528,12 @@ class User extends Authenticatable
     // Privacy Settings Methods
     public function getPrivacySettingsAttribute($value): array
     {
+        $knownKeys = ['show_email', 'show_phone', 'show_discord', 'show_attendance', 'show_program', 'show_year', 'allow_contact', 'show_profile'];
+
         $defaults = [
             'show_email' => false,
             'show_phone' => false,
-            'show_discord' => true,
+            'show_discord' => false,
             'show_attendance' => false,
             'show_program' => true,
             'show_year' => true,
@@ -405,11 +541,26 @@ class User extends Authenticatable
             'show_profile' => true,
         ];
 
-        return array_merge($defaults, $value ? json_decode($value, true) : []);
+        $stored = $value ? json_decode($value, true) : [];
+
+        $stored = array_intersect_key($stored, array_flip($knownKeys));
+
+        return array_merge($defaults, $stored);
     }
 
-    public function setPrivacySettingsAttribute($value)
+    public function setPrivacySettingsAttribute(array|string|null $value): void
     {
+        if (is_array($value) && array_is_list($value)) {
+            $keys = ['show_email', 'show_phone', 'show_discord', 'show_attendance', 'show_program', 'show_year', 'allow_contact', 'show_profile'];
+            $normalized = [];
+            foreach ($keys as $key) {
+                $normalized[$key] = in_array($key, $value, true);
+            }
+            $this->attributes['privacy_settings'] = json_encode($normalized);
+
+            return;
+        }
+
         $this->attributes['privacy_settings'] = is_array($value) ? json_encode($value) : $value;
     }
 
@@ -437,12 +588,12 @@ class User extends Authenticatable
 
     public function isApproved(): bool
     {
-        return ! is_null($this->approved_at) && $this->membership_status !== 'rejected';
+        return ! is_null($this->approved_at) && $this->membership_status !== 'inactive';
     }
 
-    public function isRejected(): bool
+    public function isInactive(): bool
     {
-        return $this->membership_status === 'rejected';
+        return $this->membership_status === 'inactive';
     }
 
     public function approve(?User $approver = null, ?string $notes = null): bool
@@ -457,14 +608,9 @@ class User extends Authenticatable
 
             $this->assignRole('member');
 
-            // $this->logActivity('member_approved', 'User', $this->id, null, [
-            //     'approved_by' => $approver?->name,
-            //     'approved_at' => now()->toDateTimeString(),
-            //     'notes' => $notes,
-            // ]);
-
-            // Send approval notification
             $this->notify(new \App\Notifications\MemberApprovalNotification($approver, $notes));
+
+            MemberApproved::dispatch($this, $this->membership, $approver ?? $this);
 
             return true;
         } catch (\Exception $e) {
@@ -476,19 +622,14 @@ class User extends Authenticatable
     {
         try {
             $this->update([
-                'membership_status' => 'rejected',
+                'membership_status' => 'inactive',
                 'approved_by' => $rejecter?->id,
                 'approval_notes' => $notes,
             ]);
 
-            // $this->logActivity('member_rejected', 'User', $this->id, null, [
-            //     'rejected_by' => $rejecter?->name,
-            //     'rejected_at' => now()->toDateTimeString(),
-            //     'notes' => $notes,
-            // ]);
-
-            // Send rejection notification
             $this->notify(new \App\Notifications\MemberRejectionNotification($rejecter, $notes));
+
+            MemberRejected::dispatch($this, $this->membership, $rejecter ?? $this);
 
             return true;
         } catch (\Exception $e) {
@@ -506,11 +647,9 @@ class User extends Authenticatable
                 'suspended_by' => $suspender?->id,
             ]);
 
-            // $this->logActivity('member_suspended', 'User', $this->id, null, [
-            //     'suspended_by' => $suspender?->name,
-            //     'reason' => $reason,
-            //     'suspended_until' => $until ? $until->format('Y-m-d H:i:s') : null,
-            // ]);
+            $this->notify(new MemberSuspendedNotification($reason, $until));
+
+            MemberSuspended::dispatch($this, $this->membership, $suspender ?? $this);
 
             return true;
         } catch (\Exception $e) {
@@ -541,9 +680,43 @@ class User extends Authenticatable
                 'membership_status' => 'active',
             ]);
 
-            // $this->logActivity('member_converted_to_alumni', 'User', $this->id, null, [
-            //     'converted_at' => now()->toDateTimeString(),
-            // ]);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function leave(): bool
+    {
+        try {
+            $this->update([
+                'membership_status' => 'inactive',
+            ]);
+
+            activity()
+                ->performedOn($this)
+                ->causedBy($this)
+                ->log("Member {$this->name} voluntarily left the club");
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function renew(int $durationMonths = 12): bool
+    {
+        try {
+            $this->update([
+                'membership_status' => 'active',
+                'membership_expires_at' => now()->addMonths($durationMonths),
+                'membership_renewed_at' => now(),
+            ]);
+
+            activity()
+                ->performedOn($this)
+                ->causedBy($this)
+                ->log("Member {$this->name} renewed their membership");
 
             return true;
         } catch (\Exception $e) {
@@ -571,7 +744,7 @@ class User extends Authenticatable
             'trainings_completed' => $this->trainingEnrollments()->where('status', 'completed')->count(),
             'meetings_this_semester' => $this->meetingsThisSemester(),
             'is_active_this_semester' => $this->isActiveThisSemester(),
-            'membership_duration' => $this->joined_at ? now()->diffInMonths($this->joined_at) : 0,
+            'membership_duration' => $this->joined_at ? (int) abs(now()->diffInMonths($this->joined_at)) : 0,
         ];
     }
 
@@ -579,12 +752,12 @@ class User extends Authenticatable
     public function scopeApproved($query)
     {
         return $query->whereNotNull('approved_at')
-            ->where('membership_status', '!=', 'rejected');
+            ->where('membership_status', '!=', 'inactive');
     }
 
-    public function scopeRejected($query)
+    public function scopeInactive($query)
     {
-        return $query->where('membership_status', 'rejected');
+        return $query->where('membership_status', 'inactive');
     }
 
     public function scopeSuspended($query)
@@ -595,6 +768,13 @@ class User extends Authenticatable
     public function scopeAlumni($query)
     {
         return $query->where('membership_type', 'alumni');
+    }
+
+    public function scopeExpiringSoon($query, int $days = 30)
+    {
+        return $query->where('membership_status', 'active')
+            ->whereDate('membership_expires_at', '<=', now()->addDays($days))
+            ->whereDate('membership_expires_at', '>', now());
     }
 
     public function scopePubliclyVisible($query)
@@ -661,6 +841,11 @@ class User extends Authenticatable
         return $this->hasMany(FineAppeal::class, 'reviewed_by');
     }
 
+    public function ctfSubmissions(): HasMany
+    {
+        return $this->hasMany(CtfSubmission::class);
+    }
+
     // Accessors for public display
     public function getShowEmailAttribute(): bool
     {
@@ -700,6 +885,26 @@ class User extends Authenticatable
     public function getCanBeContactedAttribute(): bool
     {
         return $this->canBeContacted();
+    }
+
+    public function shouldNotify(string $type): bool
+    {
+        $preferences = $this->notificationPreferences;
+
+        if (! $preferences) {
+            return true;
+        }
+
+        return match ($type) {
+            'event_reminders' => $preferences->event_reminders,
+            'event_cancellations' => $preferences->event_cancellations,
+            'challenge_solved' => $preferences->challenge_solved,
+            'membership_updates' => $preferences->membership_updates,
+            'broadcast_messages' => $preferences->broadcast_messages,
+            'fine_notifications' => $preferences->fine_notifications,
+            'weekly_digest' => $preferences->weekly_digest,
+            default => true,
+        };
     }
 
     // ============================================
@@ -765,5 +970,105 @@ class User extends Authenticatable
     public function getAttendanceRank(): int
     {
         return User::where('score', '>', $this->score)->count() + 1;
+    }
+
+    // ============================================
+    // GAMIFICATION METHODS
+    // ============================================
+
+    /**
+     * Rank thresholds for automatic rank upgrades.
+     */
+    public const RANK_THRESHOLDS = [
+        'bronze' => 0,
+        'silver' => 200,
+        'gold' => 500,
+        'platinum' => 1000,
+    ];
+
+    /**
+     * Get the user's point transactions.
+     */
+    public function pointTransactions(): HasMany
+    {
+        return $this->hasMany(PointTransaction::class);
+    }
+
+    public function challengeSubmissions(): HasMany
+    {
+        return $this->hasMany(ChallengeSubmission::class);
+    }
+
+    /**
+     * Get badges earned by this user.
+     */
+    public function earnedBadges(): BelongsToMany
+    {
+        return $this->belongsToMany(Badge::class, 'user_badges')
+            ->withPivot('earned_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the total points earned by this user.
+     */
+    public function getTotalPointsAttribute(): int
+    {
+        return $this->pointTransactions()->sum('points') ?? 0;
+    }
+
+    /**
+     * Get the current rank based on total points.
+     */
+    public function getCurrentRankAttribute(): string
+    {
+        $points = $this->total_points;
+
+        if ($points >= self::RANK_THRESHOLDS['platinum']) {
+            return 'platinum';
+        }
+        if ($points >= self::RANK_THRESHOLDS['gold']) {
+            return 'gold';
+        }
+        if ($points >= self::RANK_THRESHOLDS['silver']) {
+            return 'silver';
+        }
+
+        return 'bronze';
+    }
+
+    /**
+     * Sync the user's rank based on their current total points.
+     */
+    public function syncRank(): void
+    {
+        $newRank = $this->current_rank;
+
+        if ($this->rank !== $newRank) {
+            $this->update([
+                'rank' => $newRank,
+                'rank_changed_at' => now(),
+            ]);
+        }
+    }
+
+    public function portfolioSkills(): HasMany
+    {
+        return $this->hasMany(PortfolioSkill::class)->orderBy('sort_order');
+    }
+
+    public function portfolioCertifications(): HasMany
+    {
+        return $this->hasMany(PortfolioCertification::class)->orderByDesc('date_earned');
+    }
+
+    public function portfolioExperiences(): HasMany
+    {
+        return $this->hasMany(PortfolioExperience::class)->orderByDesc('start_date');
+    }
+
+    public function portfolioEntries(): HasMany
+    {
+        return $this->hasMany(StudentPortfolio::class, 'student_id')->where('is_published', true)->orderByDesc('created_at');
     }
 }

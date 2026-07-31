@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('training_modules', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('training_id')->constrained()->cascadeOnDelete();
-    $table->string('title');
-    $table->text('content')->nullable();
-    $table->integer('order')->default(0);
-    $table->integer('duration_minutes')->nullable();
-    $table->json('resources')->nullable();
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('training_id')->constrained()->cascadeOnDelete();
+            $table->string('title');
+            $table->text('content')->nullable();
+            $table->integer('order')->default(0);
+            $table->integer('duration_minutes')->nullable();
+            $table->json('resources')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

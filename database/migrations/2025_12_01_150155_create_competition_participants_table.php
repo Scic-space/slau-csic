@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('competition_participants', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('competition_id')->constrained()->cascadeOnDelete();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->string('team_name')->nullable();
-    $table->enum('role', ['leader', 'member'])->default('member');
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('competition_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('team_name')->nullable();
+            $table->enum('role', ['leader', 'member'])->default('member');
+            $table->timestamps();
+        });
     }
 
     /**

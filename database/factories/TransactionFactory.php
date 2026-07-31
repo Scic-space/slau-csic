@@ -18,8 +18,8 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         $type = fake()->randomElement(['income', 'expense']);
-        $categories = $type === 'income' 
-            ? BudgetCategory::getIncomeCategories() 
+        $categories = $type === 'income'
+            ? BudgetCategory::getIncomeCategories()
             : BudgetCategory::getExpenseCategories();
 
         return [
@@ -28,7 +28,7 @@ class TransactionFactory extends Factory
             'amount' => fake()->randomFloat(2, 10, 1000),
             'date' => fake()->dateTimeBetween('-6 months', 'now'),
             'description' => fake()->sentence(),
-            'receipt_path' => 'receipts/' . fake()->uuid() . '.pdf',
+            'receipt_path' => 'receipts/'.fake()->uuid().'.pdf',
             'paid_to_from' => fake()->name(),
             'payment_method' => fake()->randomElement(['cash', 'check', 'card', 'transfer', 'other']),
             'status' => fake()->randomElement(['pending', 'approved', 'rejected']),

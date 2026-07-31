@@ -47,7 +47,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit_events',
             'delete_events',
             'publish_events',
+            'cancel_events',
             'manage_registrations',
+            'manage_attendance',
+            'view_event_feedback',
+            'view_event_analytics',
+            'view_member_history',
 
             // Project Management
             'view_projects',
@@ -111,6 +116,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_audit_logs',
             'manage_settings',
 
+            // Assignments
+            'view_assignments',
+            'manage_assignments',
+
             // Content & Course Materials
             'content.view',
             'content.create',
@@ -152,7 +161,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $superAdmin->givePermissionTo(Permission::all());
 
-        User::where('email', '=', 'super@gmail.com')->first()->assignRole($superAdmin);
+        User::where('email', '=', 'admin@slau-csic.org')?->first()?->assignRole($admin, $superAdmin);
 
         // 2. PRESIDENT - High-level management
         $president = Role::firstOrCreate(['name' => 'president']);
@@ -168,6 +177,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'send_announcements', 'send_club_wide_emails',
             'view_reports', 'export_reports', 'view_analytics',
             'access_admin_panel', 'view_audit_logs',
+            'view_assignments',
             'vote_in_elections', // President can vote as an active member
             // Content & Course Materials
             'content.view', 'content.create', 'content.edit', 'content.delete',
@@ -192,6 +202,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'send_announcements',
             'view_reports', 'view_analytics',
             'access_admin_panel',
+            'view_assignments',
             'vote_in_elections',
             // Teaching Sessions
             'mark attendance', 'create teaching session', 'edit teaching session',

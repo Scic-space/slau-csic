@@ -1,199 +1,169 @@
-# Cybersecurity & Innovations Club Website
+# SLAU Cybersecurity & Innovations Club
 
-This repository contains the source code for the **SLAU Cybersecurity & Innovations Club** website.
-It is built on top of Laravel, Tailwind CSS, Alpine.js (and optionally Livewire later) and is
-meant to be easy for contributors to clone, run locally, and improve – especially on the
-frontend.
+Website for the **St. Lawrence University Cybersecurity & Innovations Club (SLAU-CSIC)** — a full-stack Laravel application for managing club operations, events, CTF competitions, elections, polls, exams, attendance, fines, finances, and member management.
+
+Built with **Laravel 12**, **Livewire 3**, **Filament 4**, **Inertia.js (React)**, **Tailwind CSS v4**, and **Alpine.js**.
 
 ---
 
-## 1. Cloning the project from GitHub
+## Tech Stack
 
+| Layer       | Technology                                                    |
+|-------------|---------------------------------------------------------------|
+| Backend     | PHP 8.2+, Laravel 12, Livewire 3                              |
+| Admin Panel | Filament 4 (custom pages, resources, widgets)                 |
+| Frontend    | Tailwind CSS v4, Alpine.js 3, Inertia.js (React), Vite 7     |
+| Database    | SQLite / MySQL / PostgreSQL                                   |
+| Auth        | Laravel Sanctum, Spatie Permissions                           |
+| Testing     | Pest 4 / PHPUnit 12                                           |
+| Tooling     | Laravel Pint, Laravel Boost (MCP)                             |
+
+---
+
+## Quick Start
 
 ```bash
 git clone https://github.com/Mr-Righteousdev/slau-csic.git
 cd slau-csic
+
+cp .env.example .env
+php artisan key:generate
+
+composer install
+npm install
+
+php artisan migrate --seed
+
+composer run dev
 ```
 
-If you already have a local clone, just pull the latest changes:
-
-```bash
-git pull origin main
-```
+Visit `http://localhost:8000`. Default admin credentials are seeded.
 
 ---
 
-## 2. Minimal backend setup (Laravel)
+## Development
 
-You only need this section if you want to run the full Laravel app locally.
+### Setup
 
-Requirements (recommended):
-
-- PHP 8.2+
-- Composer
-- Node.js 18+ and npm
-
-### 2.1 Install dependencies
+**Requirements:** PHP 8.2+, Composer, Node.js 18+, npm.
 
 ```bash
 composer install
 npm install
+php artisan migrate --seed
 ```
 
-### 2.2 Configure environment
+### Run locally
 
 ```bash
-cp .env.example .env
-php artisan key:generate
+composer run dev    # starts both Laravel (php artisan serve) & Vite HMR
 ```
 
-If you are just working on the frontend views and styles, you can usually
-leave the default SQLite or simple local config in `.env` as-is.
-
-### 2.3 Run the app
-
-In one terminal:
+### Code formatting
 
 ```bash
-composer run dev
+vendor/bin/pint
 ```
 
+### Testing
 
-
-Visit the app at `http://localhost:8000`.
-
----
-
-## 3. Frontend-only contribution workflow (easier path)
-
-If you mostly want to work on the **public website UI** (no heavy Laravel/PHP work),
-this is the recommended flow.
-
-### 3.1 Where the frontend lives
-
-- Public site layout: `resources/views/layouts/frontend.blade.php`
-- Public pages: `resources/views/frontend/`
-  - `home.blade.php` – landing page
-  - `about.blade.php` – about the club
-  - `events.blade.php` – events overview
-  - `team.blade.php` – organizing team
-  - `contact.blade.php` – contact form + info
-- Shared frontend components: `resources/views/frontend/components/`
-  - `navbar.blade.php` – top navigation
-  - `footer.blade.php` – footer
-- Tailwind entry CSS: `resources/css/app.css`
-- JS / Alpine init & dynamic imports: `resources/js/app.js`
-
-You can do a lot of frontend work by editing only the Blade templates and Tailwind
-classes, without touching controllers, models, or database code.
-
-### 3.2 Steps for frontend contributors
-
-1. **Fork** this repository on GitHub.
-2. **Clone** your fork and install Node dependencies:
-   ```bash
-   npm install
-   ```
-3. **Run the frontend dev server** (Vite) together with the Laravel server:
-   ```bash
-   composer run dev
-   ```
-4. **Edit frontend files** under `resources/views/frontend` and `resources/views/layouts/frontend.blade.php`.
-5. Use Tailwind utility classes directly in Blade for styling.
-6. When ready, **commit** your changes, **push** a feature branch to your fork,
-   and open a **Pull Request (PR)** against the main repo.
-
-If you are unsure whether a change belongs in frontend-only or needs Laravel changes,
-open an issue or PR draft and ask.
+```bash
+php artisan test
+```
 
 ---
 
-## 4. Technology & documentation links
+## Project Structure
 
-You do not need to be an expert in all of these, but these docs are useful
-references while contributing.
-
-### Laravel (backend framework)
-- Official docs: https://laravel.com/docs
-- Blade templating: https://laravel.com/docs/blade
-
-### Tailwind CSS (styling)
-- Official docs: https://tailwindcss.com/docs
-- Utility reference: https://tailwindcss.com/docs/utility-first
-
-### Alpine.js (lightweight JavaScript)
-- Official docs: https://alpinejs.dev
-
-### Livewire (optional, for interactive components)
-The project does not require Livewire for basic frontend work, but we may
-use it for more interactive pieces.
-
-- Official docs: https://livewire.laravel.com
-
-Before adding Livewire-based components, please discuss it in an issue or PR
-so we keep the stack consistent.
-
----
-
-## 5. How to contribute
-
-We welcome contributions from people at all levels – especially students who
-are learning Laravel, Tailwind, and general web development.
-
-### 5.1 General contribution steps
-
-1. **Open an issue** (optional but recommended) describing what you want to change or add.
-2. **Fork** the repo and create a branch for your work:
-   ```bash
-   git checkout -b feature/short-description
-   ```
-3. Make your changes (prefer small, focused commits).
-4. Run the dev servers and manually check the pages you touched.
-5. Push your branch and open a **Pull Request** with a clear description
-   (what you changed, why, and any screenshots for UI changes).
-
-### 5.2 Frontend best practices
-
-- Prefer Tailwind utility classes instead of custom CSS when possible.
-- Keep Blade templates readable; extract repeated chunks into Blade components.
-- Use semantic HTML (`<section>`, `<nav>`, `<header>`, etc.) for accessibility.
-- Avoid adding large JS dependencies; use Alpine or Laravel/Livewire when needed.
-
-### 5.3 Backend / Laravel contributions
-
-If you want to work on backend features (admin panel, events management, etc.):
-
-- Follow standard Laravel conventions for routes, controllers, and models.
-- Add or update tests when you change backend logic.
-- Document any new environment variables or commands in this README.
-
----
-
-## 6. Project structure (high level)
-
-```text
-cyber-web-app/
-├── app/                    # Laravel application code (controllers, models, etc.)
-├── public/                 # Public entry point (index.php, built assets)
+```
+├── app/
+│   ├── Filament/               # Admin panel (Filament 4)
+│   │   ├── Pages/              # Custom dashboard & analytics pages
+│   │   ├── Resources/          # CRUD resources (Users, Events, CTFs, etc.)
+│   │   └── Widgets/            # Dashboard widgets & charts
+│   ├── Http/
+│   │   ├── Controllers/        # API controllers, Auth, frontend controllers
+│   │   └── Requests/           # Form request validation
+│   ├── Livewire/               # Livewire 3 components
+│   │   ├── Admin/              # Admin dashboard widgets
+│   │   └── Election, Event, Poll, Exam, etc.
+│   └── Models/                 # Eloquent models
 ├── resources/
-│   ├── css/                # Tailwind entry (app.css)
-│   ├── js/                 # JavaScript / Alpine bootstrapping
+│   ├── js/                     # React (Inertia) pages & components
+│   │   ├── components/         # Shared UI components
+│   │   └── pages/              # Public pages (Home, CTF Arena, etc.)
 │   └── views/
-│       ├── layouts/        # Layouts, including frontend layout
-│       ├── frontend/       # Public website pages & components
-│       └── pages/          # Admin/dashboard pages from the TailAdmin base
-├── routes/                 # Laravel routes (web.php, api.php, etc.)
-├── tests/                  # Automated tests
-├── composer.json           # PHP dependencies
-├── package.json            # Node dependencies
-└── vite.config.js          # Vite/Tailwind build config
+│       ├── filament/           # Filament custom page views
+│       ├── frontend/           # Blade public website pages
+│       └── livewire/           # Livewire component views
+├── routes/
+│   ├── api.php                 # Mobile app API (Sanctum)
+│   ├── inertia.php             # Web routes (Livewire + Inertia)
+│   ├── auth.php                # Authentication routes
+│   └── console.php             # Artisan commands
+└── tests/
+    ├── Feature/                # Feature tests (Pest)
+    └── Unit/                   # Unit tests (Pest)
 ```
 
 ---
 
-## 7. License
+## Features
 
-This project is currently based on the TailAdmin Laravel template.
-Check the included `LICENSE` file for details before reusing or
-redistributing this code outside the SLAU Cybersecurity & Innovations
-Club context.
+### Site Frontend
+- Landing page with animated hero, event cards, announcements, and CTA
+- CTF Arena portal with competition stats and testimonials
+- Workshop listings, leaderboard, member directory
+- Public events calendar and news/articles
+
+### Member Dashboard
+- Profile management with social links, photo, bio
+- Privacy controls (show/hide email, phone, Discord, attendance stats, etc.)
+- Notification preferences
+- My events, grades, attendance, transactions
+- Membership card, fines & appeals
+
+### Admin Panel (Filament `/admin`)
+- **Membership** — Users, pending approvals, alumni, badges
+- **Events** — Calendar, CRUD, categories, registrations, attendance, analytics
+- **Meetings** — CRUD, attendance, agenda items, analytics
+- **Finance** — Transactions, budget categories
+- **Fines** — Manage fines, fine types, appeals
+- **Exams** — Exam bank, attempts, certificates
+- **CTF** — Dashboard, competitions, categories, submissions, writeups
+- **Elections** — Manage elections, candidates, nominations, votes
+- **Assignments** — Role templates & assignment wizard
+- **Projects** — Club project management
+- **System** — Overview, roles/permissions, announcements, news, settings, audit log
+
+### Events
+- Public event listing with categories, date, location, skill level
+- RSVP and registration with waitlist
+- Event certificates and check-in (QR code)
+- Feedback collection
+- Recurring event support
+
+### Competitions / CTF
+- Competition listing with type (CTF/Hackathon/Coding/Cybersecurity), date range, filtering
+- CTF dashboard, flag submissions, writeups
+- Club rankings and achievements
+
+### Elections & Polls
+- Election management with nominations, candidates, voting
+- Allow vote changes, voter eligibility
+- Polls with single/multiple choice
+
+### Fines & Finance
+- Fine types, member fines with partial payment
+- Appeals workflow
+- Transaction tracking, budget categories, financial reports (PDF/Excel export)
+
+### Notifications
+- Event reminders, cancellations, membership updates, fine notices
+- Broadcast announcements
+
+---
+
+## License
+
+This project is based on the TailAdmin Laravel template. See `LICENSE` file for details.

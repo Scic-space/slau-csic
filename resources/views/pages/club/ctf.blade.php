@@ -8,7 +8,7 @@
                     <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-500">CTF Arena</p>
                     <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">Practice harder, track progress, earn badges, and watch rankings move.</h1>
                     <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
-                        This arena combines internal challenge tracks with connected Hack The Box profile data. Members can update their progress per track while the portal calculates badges and internal leaderboard standings.
+                        This arena combines internal CTF competitions, challenge tracks, and connected Hack The Box profile data.
                     </p>
                 </div>
 
@@ -34,6 +34,47 @@
                 </div>
             </div>
         </section>
+
+        {{-- Active CTF Competitions --}}
+        @if (isset($activeCompetitions) && $activeCompetitions->count() > 0)
+        <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Active Competitions</h2>
+                <a href="{{ route('ctf.index') }}" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400">View All →</a>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                @foreach ($activeCompetitions as $comp)
+                <a href="{{ route('ctf.competition', $comp) }}" class="rounded-lg border border-gray-200 bg-gray-50 p-4 hover:border-emerald-300 dark:border-gray-800 dark:bg-gray-900/60 dark:hover:border-emerald-700 transition">
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ $comp->title }}</h3>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $comp->challenges_count }} challenges</p>
+                    @if ($comp->end_date)
+                    <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">Ends {{ $comp->end_date->format('M d, H:i') }}</p>
+                    @endif
+                </a>
+                @endforeach
+            </div>
+        </section>
+        @endif
+
+        {{-- Stats summary --}}
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Active CTFs</p>
+                <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $activeCompetitions?->count() ?? 0 }}</p>
+            </div>
+            <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">My Solves</p>
+                <p class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ $userSolves ?? 0 }}</p>
+            </div>
+            <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">My Points</p>
+                <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $userPoints ?? 0 }}</p>
+            </div>
+            <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Tracks</p>
+                <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $resources->count() }}</p>
+            </div>
+        </div>
 
         <section class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
             <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">

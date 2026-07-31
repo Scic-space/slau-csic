@@ -28,7 +28,9 @@ class LoginController extends Controller
 
         $this->ensureIsNotRateLimited($request);
 
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        $authenticated = Auth::validate($request->only('email', 'password'));
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey($request));
 
             throw ValidationException::withMessages([
@@ -36,11 +38,23 @@ class LoginController extends Controller
             ]);
         }
 
+        $user = User::where('email', $request->email)->first();
+
+        if ($user && $user->hasAnyRole(['super-admin', 'admin', 'treasurer', 'president'])) {
+            RateLimiter::hit($this->throttleKey($request));
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        Auth::login($user, $request->boolean('remember'));
+
         RateLimiter::clear($this->throttleKey($request));
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route('dashboard', absolute: false);
     }
 
     public function destroy(Request $request): RedirectResponse

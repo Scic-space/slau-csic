@@ -17,6 +17,11 @@ class MemberApprovalNotification extends Notification implements ShouldQueue
         public ?string $notes = null
     ) {}
 
+    public function getPreferenceType(): string
+    {
+        return 'membership_updates';
+    }
+
     public function via(object $notifiable): array
     {
         return ['mail', 'database'];
@@ -26,11 +31,11 @@ class MemberApprovalNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Welcome to Cybersecurity & Innovations Club!')
-            ->greeting('Congratulations, ' . $notifiable->name . '!')
-            ->line('Your membership application has been approved by ' . $this->approvedBy->name . '.')
+            ->greeting('Congratulations, '.$notifiable->name.'!')
+            ->line('Your membership application has been approved by '.$this->approvedBy->name.'.')
             ->line('You now have full access to all club features and benefits.')
             ->when($this->notes, function ($message) {
-                $message->line('**Additional Notes:** ' . $this->notes);
+                $message->line('**Additional Notes:** '.$this->notes);
             })
             ->action('View Your Profile', route('user-profile'))
             ->line('Welcome to our community! We look forward to your active participation.')
@@ -49,5 +54,3 @@ class MemberApprovalNotification extends Notification implements ShouldQueue
         ];
     }
 }
-
-  

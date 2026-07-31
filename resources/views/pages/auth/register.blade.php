@@ -55,8 +55,17 @@
 
                                 <div>
                                     <label for="student_id" class="portal-copy mb-2 block text-sm font-medium">Student ID <span style="color: var(--portal-primary);">*</span></label>
-                                    <input type="text" id="student_id" name="student_id" value="{{ old('student_id') }}" placeholder="SLAU registration number" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('student_id') border-error-500 @enderror" />
+                                    <input type="text" id="student_id" name="student_id" value="{{ old('student_id') }}" placeholder="SLAU issued student number" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('student_id') border-error-500 @enderror" />
                                     @error('student_id')
+                                        <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label for="registration_number" class="portal-copy mb-2 block text-sm font-medium">Registration Number <span style="color: var(--portal-primary);">*</span></label>
+                                    <input type="text" id="registration_number" name="registration_number" value="{{ old('registration_number') }}" placeholder="BACS/24D/U/A0160" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('registration_number') border-error-500 @enderror" />
+                                    <p class="portal-muted mt-2 text-xs">Format: Course/Year+Mode/Country/Intake+Number (e.g. BACS/24D/U/A0160)</p>
+                                    @error('registration_number')
                                         <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
                                     @enderror
                                 </div>

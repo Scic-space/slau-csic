@@ -63,12 +63,18 @@ class FineAppeal extends Model
 
     public function approve(?User $reviewer = null, ?string $notes = null): bool
     {
-        return $this->update([
+        $updated = $this->update([
             'status' => 'approved',
             'reviewed_at' => now(),
             'reviewed_by' => $reviewer?->id ?? auth()->id(),
             'decision_notes' => $notes,
         ]);
+
+        if ($updated) {
+            $this->fine->waive($reviewer, $notes ?? 'Fine waived via appeal approval');
+        }
+
+        return $updated;
     }
 
     public function reject(?User $reviewer = null, ?string $notes = null): bool

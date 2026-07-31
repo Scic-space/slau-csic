@@ -1,6 +1,0 @@
-<div>
-    {{-- Success Message --}}
-
-
-
-</div>

@@ -12,21 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('activity_logs', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-    $table->string('action'); // created, updated, deleted, logged_in, etc.
-    $table->string('model'); // Meeting, Event, User, etc.
-    $table->unsignedBigInteger('model_id')->nullable();
-    $table->text('description');
-    $table->json('old_values')->nullable();
-    $table->json('new_values')->nullable();
-    $table->string('ip_address')->nullable();
-    $table->text('user_agent')->nullable();
-    $table->timestamps();
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('action'); // created, updated, deleted, logged_in, etc.
+            $table->string('model'); // Meeting, Event, User, etc.
+            $table->unsignedBigInteger('model_id')->nullable();
+            $table->text('description');
+            $table->json('old_values')->nullable();
+            $table->json('new_values')->nullable();
+            $table->string('ip_address')->nullable();
+            $table->text('user_agent')->nullable();
+            $table->timestamps();
 
-    $table->index(['user_id', 'created_at']);
-    $table->index(['model', 'model_id']);
-});
+            $table->index(['user_id', 'created_at']);
+            $table->index(['model', 'model_id']);
+        });
     }
 
     /**

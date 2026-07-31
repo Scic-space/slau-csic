@@ -4,16 +4,27 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
-use Illuminate\Contracts\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ProjectsPageController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
         $projects = Project::query()
             ->with(['lead', 'members'])
             ->latest()
-            ->get();
+            ->get()
+            ->map(fn (Project $project) => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'description' => $project->description,
+                'type' => $project->type,
+                'status' => $project->status,
+                'repository_url' => $project->repository_url,
+                'lead' => $project->lead?->only(['id', 'name']),
+                'members' => $project->members->map(fn ($m) => $m->only(['id', 'name'])),
+            ]);
 
         $deliveryPillars = [
             [
@@ -45,8 +56,7 @@ class ProjectsPageController extends Controller
             ],
         ];
 
-        return view('frontend.projects', [
-            'title' => 'Projects - Cybersecurity & Innovations Club',
+        return Inertia::render('public/Projects', [
             'projects' => $projects,
             'deliveryPillars' => $deliveryPillars,
             'projectTracks' => $projectTracks,

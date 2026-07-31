@@ -21,11 +21,14 @@ class FineType extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'default_amount' => 'decimal:2',
-        'auto_apply_threshold' => 'integer',
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'default_amount' => 'decimal:2',
+            'auto_apply_threshold' => 'integer',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function fines(): HasMany
     {
@@ -42,7 +45,7 @@ class FineType extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return '$'.number_format($this->default_amount, 2);
+        return 'UGX '.number_format($this->default_amount, 0);
     }
 
     public function scopeActive($query)

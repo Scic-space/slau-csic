@@ -15,6 +15,8 @@ class ElectionVote extends Model
         'election_id',
         'election_candidate_id',
         'user_id',
+        'receipt_code',
+        'receipt_token',
     ];
 
     public function election(): BelongsTo
@@ -30,5 +32,27 @@ class ElectionVote extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public static function generateReceiptCode(): string
+    {
+        return strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 12));
+    }
+
+    public static function receiptHash(string $code): string
+    {
+        return hash('sha256', $code);
+    }
+
+    public static function findByReceipt(string $receiptCode): ?self
+    {
+        return static::where('receipt_code', $receiptCode)->first();
+    }
+
+    public static function findByReceiptHash(string $receiptCode): ?self
+    {
+        $hash = static::receiptHash($receiptCode);
+
+        return static::where('receipt_code', $hash)->first();
     }
 }

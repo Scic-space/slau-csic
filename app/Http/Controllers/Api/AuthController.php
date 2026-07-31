@@ -34,8 +34,8 @@ class AuthController extends Controller
             Auth::logout();
 
             return response()->json([
-                'message' => 'Your membership is not active. Please contact admin.',
-            ], 403);
+                'message' => 'Invalid credentials',
+            ], 401);
         }
 
         $token = $user->createToken('mobile-app')->plainTextToken;
@@ -47,24 +47,42 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'student_id' => $user->student_id,
-                'phone' => $user->phone,
                 'program' => $user->program,
                 'year_of_study' => $user->year_of_study,
                 'membership_type' => $user->membership_type,
                 'membership_status' => $user->membership_status,
-                'attendance_count' => $user->attendance_count,
-                'events_attended' => $user->events_attended,
-                'discord_username' => $user->discord_username,
-                'github_username' => $user->github_username,
                 'bio' => $user->bio,
                 'joined_at' => $user->joined_at,
             ],
         ]);
     }
 
+    public function refreshToken(Request $request)
+    {
+        $user = $request->user();
+
+        if (! $user || ! $user->currentAccessToken()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $user->currentAccessToken()->delete();
+
+        $newToken = $user->createToken('mobile-app')->plainTextToken;
+
+        return response()->json([
+            'token' => $newToken,
+            'expires_in' => config('sanctum.expiration') * 60,
+        ]);
+    }
+
     public function logout(Request $request)
     {
+        if (! $request->user() || ! $request->user()->currentAccessToken()) {
+            return response()->json([
+                'message' => 'Already logged out',
+            ]);
+        }
+
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
@@ -80,17 +98,10 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'student_id' => $user->student_id,
-            'phone' => $user->phone,
             'program' => $user->program,
             'year_of_study' => $user->year_of_study,
             'membership_type' => $user->membership_type,
             'membership_status' => $user->membership_status,
-            'attendance_count' => $user->attendance_count,
-            'events_attended' => $user->events_attended,
-            'discord_username' => $user->discord_username,
-            'github_username' => $user->github_username,
-            'linkedin_url' => $user->linkedin_url,
             'bio' => $user->bio,
             'joined_at' => $user->joined_at,
         ]);

@@ -25,11 +25,6 @@ class StaffNotification extends Model
         'read_at' => 'datetime',
     ];
 
-    public function staff(): BelongsTo
-    {
-        return $this->belongsTo(Staff::class);
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'staff_id');

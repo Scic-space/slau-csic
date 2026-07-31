@@ -22,19 +22,21 @@ class Fine extends Model
         'due_date',
         'status',
         'amount_paid',
-        'balance',
         'issued_by',
         'waived_by',
         'waived_reason',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-        'amount_paid' => 'decimal:2',
-        'balance' => 'decimal:2',
-        'issue_date' => 'date',
-        'due_date' => 'date',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+            'amount_paid' => 'decimal:2',
+            'balance' => 'decimal:2',
+            'issue_date' => 'date',
+            'due_date' => 'date',
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -69,24 +71,24 @@ class Fine extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'amount_paid', 'balance', 'waived_by'])
+            ->logOnly(['status', 'amount_paid', 'waived_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
 
     public function getFormattedAmountAttribute(): string
     {
-        return '$'.number_format($this->amount, 2);
+        return 'UGX '.number_format($this->amount, 0);
     }
 
     public function getFormattedAmountPaidAttribute(): string
     {
-        return '$'.number_format($this->amount_paid, 2);
+        return 'UGX '.number_format($this->amount_paid, 0);
     }
 
     public function getFormattedBalanceAttribute(): string
     {
-        return '$'.number_format($this->balance, 2);
+        return 'UGX '.number_format($this->balance, 0);
     }
 
     public function getIsOverdueAttribute(): bool
@@ -143,10 +145,10 @@ class Fine extends Model
             'notes' => $notes,
         ]);
 
+        $newAmountPaid = $this->amount_paid + $amount;
         $this->update([
-            'amount_paid' => $this->amount_paid + $amount,
-            'balance' => $this->balance - $amount,
-            'status' => $this->balance - $amount <= 0 ? 'paid' : 'partially_paid',
+            'amount_paid' => $newAmountPaid,
+            'status' => $newAmountPaid >= $this->amount ? 'paid' : 'partially_paid',
         ]);
 
         return $payment;

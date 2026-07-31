@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BudgetAllocation extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'budget_category_id',
         'amount',
@@ -32,7 +35,7 @@ class BudgetAllocation extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return '$' . number_format($this->amount, 2);
+        return 'UGX '.number_format($this->amount, 0);
     }
 
     public function getSpentAmountAttribute(): float
@@ -47,7 +50,10 @@ class BudgetAllocation extends Model
 
     public function getUsagePercentageAttribute(): float
     {
-        if ($this->amount == 0) return 0;
+        if ($this->amount == 0) {
+            return 0;
+        }
+
         return ($this->spent_amount / $this->amount) * 100;
     }
 }

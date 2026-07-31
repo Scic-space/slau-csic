@@ -23,7 +23,7 @@ class EventFactory extends Factory
             'title' => $this->faker->sentence(3),
             'slug' => $this->faker->slug(),
             'description' => $this->faker->paragraph(3),
-            'type' => $this->faker->randomElement(['workshop', 'competition', 'social', 'meeting', 'guest_speaker', 'hackathon']),
+            'type' => $this->faker->randomElement(['workshop', 'competition', 'social', 'talk', 'hackathon', 'bootcamp']),
             'start_date' => $startDate,
             'end_date' => $endDate,
             'location' => $this->faker->address(),

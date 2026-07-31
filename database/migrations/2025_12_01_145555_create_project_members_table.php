@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('project_members', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('project_id')->constrained()->cascadeOnDelete();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->enum('role', ['lead', 'member', 'mentor', 'contributor'])->default('member');
-    $table->date('joined_at');
-    $table->date('left_at')->nullable();
-    $table->text('contribution')->nullable();
-    $table->timestamps();
+            $table->id();
+            $table->foreignId('project_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->enum('role', ['lead', 'member', 'mentor', 'contributor'])->default('member');
+            $table->date('joined_at');
+            $table->date('left_at')->nullable();
+            $table->text('contribution')->nullable();
+            $table->timestamps();
 
-    $table->unique(['project_id', 'user_id']);
-});
+            $table->unique(['project_id', 'user_id']);
+        });
     }
 
     /**

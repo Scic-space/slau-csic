@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('approval_notes')->nullable()->after('privacy_settings');
             $table->foreignId('approved_by')->nullable()->after('approval_notes')->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable()->after('approved_by');
-            
+
             // Indexes for performance
             $table->index('approved_at');
             $table->index('approved_by');
