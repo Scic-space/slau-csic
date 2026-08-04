@@ -16,7 +16,7 @@ class MembersImport implements ToModel, WithHeadingRow, WithValidation
             'name' => $row['name'],
             'email' => $row['email'],
             'password' => bcrypt(Str::password(12)),
-            'student_id' => $row['student_id'] ?? null,
+            'registration_number' => $row['registration_number'] ?? null,
             'phone' => $row['phone'] ?? null,
             'program' => $row['program'] ?? null,
             'faculty' => $row['faculty'] ?? null,
@@ -32,7 +32,7 @@ class MembersImport implements ToModel, WithHeadingRow, WithValidation
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email', 'max:255'],
-            'student_id' => ['nullable', 'string', 'max:50'],
+            'registration_number' => ['nullable', 'string', 'max:50'],
             'phone' => ['nullable', 'string', 'max:20'],
             'program' => ['nullable', 'string', 'max:100'],
             'faculty' => ['nullable', 'string', 'max:100'],

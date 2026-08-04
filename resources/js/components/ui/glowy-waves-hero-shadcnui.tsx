@@ -186,7 +186,7 @@ export function GlowyWavesBackground({ children }: GlowyWavesProps) {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-gray-50 dark:bg-[#0f172a]">
+    <div ref={containerRef} className="relative min-h-[100dvh] w-full overflow-x-hidden bg-gray-50 dark:bg-[#0f172a]">
       <canvas ref={canvasRef} className="fixed inset-0 h-full w-full" aria-hidden="true" />
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute left-1/2 top-0 h-[300px] w-[300px] sm:h-[520px] sm:w-[520px] -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[140px]" />

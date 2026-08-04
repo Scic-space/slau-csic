@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Title('Attendance Calendar')]
 class AttendanceCalendar extends Component
 {
+    use GuardsPendingMembers;
+
     public function render()
     {
         $user = auth()->user()->load('attendance.meeting');

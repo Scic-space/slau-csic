@@ -1,10 +1,14 @@
 import { Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { GlowyWavesBackground } from '@/components/ui/glowy-waves-hero-shadcnui';
-import { RegisterForm } from '@/components/ui/register-form';
+import { RegisterForm, type Faculty } from '@/components/ui/register-form';
 import { FormEventHandler } from 'react';
 
-export default function Register() {
+interface RegisterProps {
+    faculties: Faculty[];
+}
+
+export default function Register({ faculties }: RegisterProps) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -13,6 +17,8 @@ export default function Register() {
         program: '',
         faculty: '',
         year_of_study: '',
+        intake: '',
+        intake_year: '',
         password: '',
         password_confirmation: '',
         terms: false,
@@ -38,6 +44,7 @@ export default function Register() {
 
                 <RegisterForm
                     onSubmit={submit}
+                    faculties={faculties}
                     name={data.name}
                     email={data.email}
                     registration_number={data.registration_number}
@@ -45,6 +52,8 @@ export default function Register() {
                     program={data.program}
                     faculty={data.faculty}
                     year_of_study={data.year_of_study}
+                    intake={data.intake}
+                    intake_year={data.intake_year}
                     password={data.password}
                     password_confirmation={data.password_confirmation}
                     terms={data.terms}
@@ -55,6 +64,8 @@ export default function Register() {
                     onProgramChange={(value) => setData('program', value)}
                     onFacultyChange={(value) => setData('faculty', value)}
                     onYearOfStudyChange={(value) => setData('year_of_study', value)}
+                    onIntakeChange={(value) => setData('intake', value)}
+                    onIntakeYearChange={(value) => setData('intake_year', value)}
                     onPasswordChange={(value) => setData('password', value)}
                     onPasswordConfirmationChange={(value) => setData('password_confirmation', value)}
                     onTermsChange={(value) => setData('terms', value)}

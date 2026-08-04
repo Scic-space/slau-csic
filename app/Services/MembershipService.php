@@ -22,6 +22,12 @@ class MembershipService
                 'joined_at' => now(),
             ]);
 
+            $user->update([
+                'membership_type' => 'active',
+                'membership_status' => 'pending',
+                'approved_at' => null,
+            ]);
+
             MemberRegistered::dispatch($user, $membership);
 
             return $membership;
@@ -44,6 +50,7 @@ class MembershipService
                 'approved_by' => $approver->id,
                 'approved_at' => now(),
                 'approval_notes' => $notes,
+                'membership_expires_at' => $user->membershipExpiryDate(),
             ]);
             $user->assignRole('member');
 

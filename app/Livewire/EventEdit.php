@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventRecurrence;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 class EventEdit extends Component
 {
+    use GuardsPendingMembers;
+
     public Event $event;
 
     public string $title = '';

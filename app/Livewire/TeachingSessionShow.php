@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Meeting;
 use App\Models\MeetingFeedback;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 class TeachingSessionShow extends Component
 {
+    use GuardsPendingMembers;
+
     public Meeting $meeting;
 
     public bool $hasAttended = false;

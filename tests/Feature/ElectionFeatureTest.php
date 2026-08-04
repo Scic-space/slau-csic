@@ -100,19 +100,15 @@ it('prevents duplicate voting', function () {
         ->assertSee('You voted for');
 });
 
-it('prevents voting by non-active members', function () {
+it('redirects pending members away from voting', function () {
     $inactiveUser = User::factory()->create(['membership_status' => 'pending']);
     $inactiveUser->assignRole('member');
 
     $election = Election::factory()->open()->create();
-    $candidate = $election->candidates()->create(['name' => 'Alice']);
 
     Livewire::actingAs($inactiveUser)
         ->test(\App\Livewire\ElectionShow::class, ['slug' => $election->slug])
-        ->set("selectedCandidates.{$election->id}", $candidate->id)
-        ->call('requestConfirm', $election->id)
-        ->call('castVote')
-        ->assertSee('You are not eligible');
+        ->assertRedirect(route('dashboard'));
 });
 
 it('shows admin election management page', function () {
@@ -906,6 +902,124 @@ it('withdraws an active application via Livewire', function () {
     $nom = ElectionNomination::where('user_id', $this->user->id)->first();
     expect($nom->status)->toBe('withdrawn');
     expect($nom->isWithdrawn())->toBeTrue();
+});
+
+it('submits an application from the my applications page', function () {
+    $election = Election::factory()->draft()->create([
+        'applications_starts_at' => now()->subDay(),
+        'applications_ends_at' => now()->addDays(7),
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(\App\Livewire\ElectionMyApplications::class)
+        ->call('openApplicationForm')
+        ->assertSet('showForm', true)
+        ->set('selectedElectionId', $election->id)
+        ->set('statement', 'My inline statement')
+        ->set('manifesto', 'My inline manifesto')
+        ->set('agenda', 'My inline agenda')
+        ->call('submitApplication');
+
+    $nom = ElectionNomination::where('user_id', $this->user->id)->first();
+
+    expect($nom)->not->toBeNull();
+    expect($nom->election_id)->toBe($election->id);
+    expect($nom->statement)->toBe('My inline statement');
+    expect($nom->manifesto)->toBe('My inline manifesto');
+    expect($nom->agenda)->toBe('My inline agenda');
+    expect($nom->status)->toBe('submitted');
+});
+
+it('rejects submission from my applications when election is not accepting applications', function () {
+    $election = Election::factory()->draft()->create([
+        'applications_starts_at' => now()->addDay(),
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(\App\Livewire\ElectionMyApplications::class)
+        ->set('selectedElectionId', $election->id)
+        ->set('statement', 'Too early')
+        ->call('submitApplication')
+        ->assertStatus(403);
+
+    expect(ElectionNomination::count())->toBe(0);
+});
+
+it('prevents a duplicate active application from my applications page', function () {
+    $election = Election::factory()->draft()->create([
+        'applications_starts_at' => now()->subDay(),
+    ]);
+
+    ElectionNomination::create([
+        'election_id' => $election->id,
+        'user_id' => $this->user->id,
+        'statement' => 'Already applied',
+        'status' => 'submitted',
+        'submitted_at' => now(),
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(\App\Livewire\ElectionMyApplications::class)
+        ->set('selectedElectionId', $election->id)
+        ->set('statement', 'Trying again')
+        ->call('submitApplication')
+        ->assertHasErrors('selectedElectionId');
+
+    expect(ElectionNomination::where('user_id', $this->user->id)->first()->statement)->toBe('Already applied');
+});
+
+it('reapplies after rejection from the my applications page', function () {
+    $election = Election::factory()->draft()->create([
+        'applications_starts_at' => now()->subDay(),
+    ]);
+
+    ElectionNomination::create([
+        'election_id' => $election->id,
+        'user_id' => $this->user->id,
+        'statement' => 'First attempt',
+        'status' => 'rejected',
+        'submitted_at' => now()->subDays(5),
+        'reviewed_at' => now()->subDays(3),
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(\App\Livewire\ElectionMyApplications::class)
+        ->set('selectedElectionId', $election->id)
+        ->set('statement', 'Re-applying inline')
+        ->call('submitApplication');
+
+    $nom = ElectionNomination::where('user_id', $this->user->id)->first();
+
+    expect($nom->status)->toBe('submitted');
+    expect($nom->statement)->toBe('Re-applying inline');
+    expect($nom->reviewed_at)->toBeNull();
+});
+
+it('stores photo and documents with an application from my applications page', function () {
+    Storage::fake('public');
+
+    $election = Election::factory()->draft()->create([
+        'applications_starts_at' => now()->subDay(),
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(\App\Livewire\ElectionMyApplications::class)
+        ->set('selectedElectionId', $election->id)
+        ->set('photo', UploadedFile::fake()->image('photo.jpg'))
+        ->set('documentFiles', [
+            UploadedFile::fake()->create('cv.pdf', 100),
+            UploadedFile::fake()->create('portfolio.pdf', 100),
+        ])
+        ->call('submitApplication');
+
+    $nom = ElectionNomination::where('user_id', $this->user->id)->first();
+
+    expect($nom->photo)->not->toBeNull();
+    expect($nom->documents)->toHaveCount(2);
+    Storage::disk('public')->assertExists($nom->photo);
+    foreach ($nom->documents as $path) {
+        Storage::disk('public')->assertExists($path);
+    }
 });
 
 it('prevents withdrawing non-active application via Livewire', function () {

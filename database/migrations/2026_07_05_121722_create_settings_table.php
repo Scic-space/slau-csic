@@ -23,7 +23,7 @@ return new class extends Migration
                 'site_name' => ['value' => 'SLAU CSIC', 'type' => 'string', 'description' => 'Club/site name'],
                 'club_description' => ['value' => 'Strathmore University Cybersecurity Club', 'type' => 'text', 'description' => 'Brief club description'],
                 'academic_year' => ['value' => '2025/2026', 'type' => 'string', 'description' => 'Current academic year'],
-                'contact_email' => ['value' => 'admin@slau-csic.org', 'type' => 'string', 'description' => 'Public contact email'],
+                'contact_email' => ['value' => 'kevinssali23@gmail.com', 'type' => 'string', 'description' => 'Public contact email'],
             ],
             'membership' => [
                 'membership_fee_amount' => ['value' => '500', 'type' => 'integer', 'description' => 'Membership fee in local currency'],

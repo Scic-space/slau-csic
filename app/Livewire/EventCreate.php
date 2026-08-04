@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Event;
 use App\Models\EventCategory;
 use Livewire\Component;
 
 class EventCreate extends Component
 {
+    use GuardsPendingMembers;
+
     public string $title = '';
 
     public string $description = '';

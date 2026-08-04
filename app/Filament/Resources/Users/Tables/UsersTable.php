@@ -25,7 +25,7 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(User::query()->with(['roles']))
+            ->query(User::query()->with(['roles', 'memberProfile']))
             ->columns([
                 ImageColumn::make('avatar')
                     ->label('')
@@ -42,27 +42,42 @@ class UsersTable
                     ->copyable()
                     ->copyMessage('Email copied'),
 
-                TextColumn::make('student_id')
-                    ->label('Student ID')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('registration_number')
                     ->label('Reg. Number')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('program')
+                TextColumn::make('memberProfile.program')
                     ->label('Program')
-                    ->searchable()
-                    ->sortable()
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas('memberProfile', fn (Builder $q): Builder => $q->where('program', 'like', "%{$search}%")))
                     ->limit(20)
-                    ->tooltip(fn ($record): string => $record->program),
+                    ->tooltip(fn (User $record): string => (string) ($record->memberProfile?->program ?? '')),
 
-                TextColumn::make('year_of_study')
+                TextColumn::make('memberProfile.year_of_study')
                     ->label('Year')
-                    ->sortable()
                     ->formatStateUsing(fn ($state) => $state ? "Year {$state}" : '-'),
+
+                TextColumn::make('memberProfile.faculty')
+                    ->label('Faculty')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas('memberProfile', fn (Builder $q): Builder => $q->where('faculty', 'like', "%{$search}%"))),
+
+                TextColumn::make('memberProfile.phone')
+                    ->label('Phone')
+                    ->copyable()
+                    ->copyMessage('Phone copied')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas('memberProfile', fn (Builder $q): Builder => $q->where('phone', 'like', "%{$search}%"))),
+
+                TextColumn::make('intake')
+                    ->label('Intake')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (?string $state): string => $state === 'january' ? 'info' : 'gray')
+                    ->formatStateUsing(fn (?string $state): string => $state ? ucfirst($state) : '-'),
+
+                TextColumn::make('intake_year')
+                    ->label('Intake Year')
+                    ->sortable()
+                    ->placeholder('-'),
 
                 TextColumn::make('membership_type')
                     ->badge()
@@ -132,7 +147,24 @@ class UsersTable
                         4 => 'Year 4',
                         5 => 'Year 5',
                     ])
-                    ->label('Year of Study'),
+                    ->label('Year of Study')
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        filled($data['value']),
+                        fn (Builder $q): Builder => $q->whereHas('memberProfile', fn (Builder $p): Builder => $p->where('year_of_study', $data['value']))
+                    )),
+
+                SelectFilter::make('intake')
+                    ->options([
+                        'august' => 'August',
+                        'january' => 'January',
+                    ])
+                    ->label('Intake'),
+
+                SelectFilter::make('intake_year')
+                    ->options(fn (): array => collect(range(now()->year - 5, now()->year))
+                        ->mapWithKeys(fn (int $year): array => [$year => (string) $year])
+                        ->all())
+                    ->label('Intake Year'),
 
                 SelectFilter::make('roles')
                     ->relationship('roles', 'name')

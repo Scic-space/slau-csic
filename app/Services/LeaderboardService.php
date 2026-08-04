@@ -45,7 +45,7 @@ class LeaderboardService
                 'rank' => $index + 1,
                 'user_id' => $user->id,
                 'name' => $user->name,
-                'student_id' => $user->student_id,
+                'registration_number' => $user->registration_number,
                 'avatar_url' => $user->avatar_url,
                 'total_sessions_attended' => $user->total_sessions_attended,
                 'current_streak' => $user->current_streak,

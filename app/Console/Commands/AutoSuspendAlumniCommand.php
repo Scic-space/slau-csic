@@ -32,7 +32,10 @@ class AutoSuspendAlumniCommand extends Command
         // Get users who should be alumni but aren't marked as such
         $usersToConvert = User::where('membership_status', 'active')
             ->where('membership_type', '!=', 'alumni')
-            ->whereNotNull('year_of_study')
+            ->where(function ($query) {
+                $query->whereNotNull('year_of_study')
+                    ->orWhereNotNull('intake_year');
+            })
             ->get()
             ->filter(function ($user) {
                 return $user->shouldBeAlumni();
@@ -47,8 +50,8 @@ class AutoSuspendAlumniCommand extends Command
         $this->info("Found {$usersToConvert->count()} users to convert to alumni:");
 
         foreach ($usersToConvert as $user) {
-            $expectedGraduationYear = now()->year + (4 - $user->year_of_study);
-            $this->line("- {$user->name} (Year {$user->year_of_study}, Expected Graduation: {$expectedGraduationYear})");
+            $yearLabel = $user->year_of_study ?? '—';
+            $this->line("- {$user->name} (Year {$yearLabel}, Expected Graduation: {$user->graduationYear()})");
         }
 
         if ($this->option('dry-run')) {

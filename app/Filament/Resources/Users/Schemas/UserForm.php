@@ -14,11 +14,27 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\StateCasts\Contracts\StateCast;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 
 class UserForm
 {
+    private static function programOptions(string $faculty): array
+    {
+        $programs = collect(config('academics.faculties'))
+            ->firstWhere('name', $faculty)['programs'] ?? [];
+
+        return array_combine($programs, $programs);
+    }
+
+    private static function facultyOptions(): array
+    {
+        $faculties = config('academics.facultyNames');
+
+        return array_combine($faculties, $faculties);
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -92,36 +108,29 @@ class UserForm
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
-                        TextInput::make('student_id')
-                            ->label('Student ID')
-                            ->required()
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(50),
-
                         TextInput::make('registration_number')
                             ->label('Registration Number')
-                            ->helperText('e.g. BACS/24D/U/A0160')
+                            ->required()
+                            ->helperText('e.g. BACS/26D/U/A0000')
                             ->unique(ignoreRecord: true)
                             ->maxLength(50)
                             ->regex('/^[A-Za-z]+\/\d{2}[DW]\/[A-Za-z]\/[A-Za-z]\d+$/'),
 
-                        TextInput::make('phone')
-                            ->tel()
-                            ->maxLength(20),
-
-                        TextInput::make('program')
-                            ->label('Program/Course')
-                            ->maxLength(100),
-
-                        Select::make('year_of_study')
-                            ->label('Year of Study')
+                        Select::make('intake')
+                            ->label('Intake')
                             ->options([
-                                1 => 'Year 1',
-                                2 => 'Year 2',
-                                3 => 'Year 3',
-                                4 => 'Year 4',
-                                5 => 'Year 5',
-                            ]),
+                                'august' => 'August',
+                                'january' => 'January',
+                                'may' => 'May',
+                            ])
+                            ->placeholder('Select intake'),
+
+                        Select::make('intake_year')
+                            ->label('Intake Year')
+                            ->options(fn (): array => collect(range(now()->year - 5, now()->year))
+                                ->mapWithKeys(fn (int $year): array => [$year => (string) $year])
+                                ->all())
+                            ->placeholder('Select intake year'),
 
                         Select::make('membership_type')
                             ->label('Membership Type')
@@ -162,14 +171,64 @@ class UserForm
                             ->revealable(),
                     ]),
 
-                Grid::make(2)
+                Section::make('Personal & Academic Details')
+                    ->relationship('memberProfile')
+                    ->columns(2)
                     ->schema([
-                        TextInput::make('faculty')
-                            ->maxLength(100),
+                        TextInput::make('phone')
+                            ->tel()
+                            ->maxLength(20),
+
+                        Select::make('faculty')
+                            ->live()
+                            ->options(fn (): array => self::facultyOptions())
+                            ->searchable()
+                            ->placeholder('Select faculty'),
+
+                        Select::make('program')
+                            ->label('Program/Course')
+                            ->options(fn (Get $get): array => self::programOptions((string) $get('faculty')))
+                            ->searchable()
+                            ->placeholder('Select a faculty first'),
+
+                        Select::make('year_of_study')
+                            ->label('Year of Study')
+                            ->options([
+                                1 => 'Year 1',
+                                2 => 'Year 2',
+                                3 => 'Year 3',
+                                4 => 'Year 4',
+                                5 => 'Year 5',
+                            ]),
+
+                        DatePicker::make('date_of_birth')
+                            ->label('Date of Birth'),
+
+                        TextInput::make('gender')
+                            ->maxLength(30),
 
                         TextInput::make('residence')
                             ->maxLength(255),
 
+                        TextInput::make('emergency_contact_name')
+                            ->label('Emergency Contact Name')
+                            ->maxLength(255),
+
+                        TextInput::make('emergency_contact_phone')
+                            ->label('Emergency Contact Phone')
+                            ->tel()
+                            ->maxLength(20),
+
+                        TextInput::make('headline')
+                            ->maxLength(255),
+
+                        Textarea::make('bio')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ]),
+
+                Grid::make(2)
+                    ->schema([
                         TextInput::make('github_username')
                             ->maxLength(255),
 
@@ -179,13 +238,7 @@ class UserForm
 
                         TextInput::make('discord_username')
                             ->maxLength(255),
-
-                        TextInput::make('headline')
-                            ->maxLength(255),
                     ]),
-
-                Textarea::make('bio')
-                    ->rows(3),
 
                 Textarea::make('approval_notes')
                     ->label('Approval/Rejection Notes')

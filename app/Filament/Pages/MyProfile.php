@@ -37,7 +37,7 @@ class MyProfile extends Page
         $this->form->fill([
             'name' => $user->name,
             'email' => $user->email,
-            'student_id' => $user->memberProfile?->student_id ?? $user->student_id,
+            'registration_number' => $user->registration_number,
             'phone' => $user->memberProfile?->phone ?? $user->phone,
             'program' => $user->memberProfile?->program ?? $user->program,
             'faculty' => $user->memberProfile?->faculty,
@@ -76,7 +76,7 @@ class MyProfile extends Page
                             ->email()
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('student_id')
+                        TextInput::make('registration_number')
                             ->maxLength(50),
                         TextInput::make('phone')
                             ->tel()
@@ -159,6 +159,7 @@ class MyProfile extends Page
         $user->fill([
             'name' => $data['name'],
             'email' => $data['email'],
+            'registration_number' => $data['registration_number'] ?? null,
             'discord_username' => $data['discord_username'] ?? null,
             'is_discord_member' => $data['is_discord_member'] ?? false,
         ]);
@@ -188,7 +189,6 @@ class MyProfile extends Page
         $user->memberProfile()->updateOrCreate(
             ['user_id' => $user->id],
             [
-                'student_id' => $data['student_id'] ?? null,
                 'phone' => $data['phone'] ?? null,
                 'program' => $data['program'] ?? null,
                 'faculty' => $data['faculty'] ?? null,

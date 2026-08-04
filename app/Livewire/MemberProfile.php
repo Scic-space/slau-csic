@@ -19,8 +19,6 @@ class MemberProfile extends Component
 
     public $email;
 
-    public $student_id;
-
     public $registration_number;
 
     public $phone;
@@ -30,6 +28,10 @@ class MemberProfile extends Component
     public $faculty;
 
     public $year_of_study;
+
+    public $intake;
+
+    public $intake_year;
 
     public $bio;
 
@@ -91,12 +93,13 @@ class MemberProfile extends Component
 
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->student_id = $user->memberProfile?->student_id;
         $this->registration_number = $user->registration_number;
         $this->phone = $user->memberProfile?->phone;
         $this->program = $user->memberProfile?->program;
         $this->faculty = $user->memberProfile?->faculty;
         $this->year_of_study = $user->memberProfile?->year_of_study;
+        $this->intake = $user->intake;
+        $this->intake_year = $user->intake_year;
         $this->bio = $user->memberProfile?->bio;
         $this->headline = $user->memberProfile?->headline;
         $this->github_username = $user->socialLinks?->github_username;
@@ -126,12 +129,13 @@ class MemberProfile extends Component
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'student_id' => ['nullable', 'string', 'max:50'],
             'registration_number' => ['nullable', 'string', 'max:50', Rule::unique('users')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:30'],
             'program' => ['nullable', 'string', 'max:255'],
             'faculty' => ['nullable', 'string', 'max:255'],
             'year_of_study' => ['nullable', 'integer', 'min:1', 'max:6'],
+            'intake' => ['nullable', 'string', 'in:january,may,august'],
+            'intake_year' => ['nullable', 'integer', 'min:1990', 'max:'.now()->year],
             'bio' => ['nullable', 'string', 'max:1000'],
             'headline' => ['nullable', 'string', 'max:255'],
             'github_username' => ['nullable', 'string', 'max:255'],
@@ -144,6 +148,8 @@ class MemberProfile extends Component
             'email' => $validated['email'],
             'registration_number' => $validated['registration_number'] ?? null,
             'discord_username' => $validated['discord_username'] ?? null,
+            'intake' => $validated['intake'] ?? null,
+            'intake_year' => $validated['intake_year'] ?? null,
         ]);
 
         $user->save();
@@ -151,7 +157,6 @@ class MemberProfile extends Component
         $user->memberProfile()->updateOrCreate(
             ['user_id' => $user->id],
             [
-                'student_id' => $validated['student_id'] ?? null,
                 'phone' => $validated['phone'] ?? null,
                 'program' => $validated['program'] ?? null,
                 'faculty' => $validated['faculty'] ?? null,
@@ -171,6 +176,11 @@ class MemberProfile extends Component
         );
 
         $this->dispatch('toast-show', message: 'Profile updated successfully.', type: 'success');
+    }
+
+    public function updatedFaculty(): void
+    {
+        $this->program = null;
     }
 
     public function updatePassword(): void
@@ -214,6 +224,11 @@ class MemberProfile extends Component
 
             $this->dispatch('toast-show', message: 'Profile photo updated successfully.', type: 'success');
         }
+    }
+
+    public function updatedProfilePhoto(): void
+    {
+        $this->updatePhoto();
     }
 
     public function updatePrivacy(): void
@@ -335,7 +350,6 @@ class MemberProfile extends Component
         $profileFields = [
             'name' => (bool) $this->name,
             'email' => (bool) $this->email,
-            'student_id' => (bool) $this->student_id,
             'registration_number' => (bool) $this->registration_number,
             'phone' => (bool) $this->phone,
             'bio' => (bool) $this->bio,
@@ -364,7 +378,9 @@ class MemberProfile extends Component
             'filledFields' => $filledFields,
             'totalFields' => $totalFields,
             'profileFields' => $profileFields,
-
+            'faculties' => config('academics.faculties'),
+            'programsForFaculty' => collect(config('academics.faculties'))
+                ->firstWhere('name', $this->faculty)['programs'] ?? [],
         ]);
     }
 }

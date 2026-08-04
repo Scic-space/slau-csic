@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Election;
 use App\Models\User;
 use Livewire\Component;
 
 class ElectionVoting extends Component
 {
+    use GuardsPendingMembers;
+
     public string $filter = 'all';
 
     public function mount(): void

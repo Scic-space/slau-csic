@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { Link, usePage } from '@inertiajs/react';
 import PublicLayout from '@/components/PublicLayout';
 import {
     GlowyWavesBackground,
@@ -12,8 +12,10 @@ import {
     Shield, Terminal, Trophy, Users, Target, Zap,
     ArrowRight, Code, Lock, Search, Bug, Network,
     Crown, Flame, ChevronDown, ChevronUp, CheckCircle2, Star, TrendingUp,
-    MessageSquareQuote, Footprints, Flag, Award, History,
+    MessageSquareQuote, Footprints, Flag, Award, History, Timer,
 } from 'lucide-react';
+
+type CompetitionStatus = 'live' | 'upcoming' | 'ended';
 
 interface CompetitionCategory {
     name: string;
@@ -33,6 +35,7 @@ interface Competition {
     challenges_count: number;
     teams_count: number;
     is_active: boolean;
+    status: CompetitionStatus;
     categories: CompetitionCategory[];
     difficulty_range: string[];
 }
@@ -216,9 +219,52 @@ function getDifficultyLabel(range: string[]): string {
     return `${range[0]} to ${range[range.length - 1]}`;
 }
 
+function CountdownTimer({ target, label }: { target: string; label: string }) {
+    const [now, setNow] = useState(() => Date.now());
+
+    useEffect(() => {
+        const id = window.setInterval(() => setNow(Date.now()), 1000);
+        return () => window.clearInterval(id);
+    }, []);
+
+    const diff = Math.max(0, new Date(target).getTime() - now);
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const parts = days > 0 ? [`${days}d`, pad(hours), pad(minutes), pad(seconds)] : [pad(hours), pad(minutes), pad(seconds)];
+
+    return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white/70 tabular-nums">
+            <Timer className="h-3 w-3 text-indigo-400" />
+            {label} {parts.join(':')}
+        </span>
+    );
+}
+
+function getStatusBadge(status: CompetitionStatus): { label: string; className: string; dot?: boolean } {
+    switch (status) {
+        case 'live':
+            return {
+                label: 'Live Now',
+                className: 'bg-emerald-500/20 border-emerald-500/20 text-emerald-400',
+                dot: true,
+            };
+        case 'upcoming':
+            return { label: 'Upcoming', className: 'bg-indigo-500/20 border-indigo-500/20 text-indigo-400' };
+        default:
+            return { label: 'Ended', className: 'bg-white/5 border-white/10 text-white/50' };
+    }
+}
+
 export default function CtfLanding({ competitions, categories, topPlayers, testimonials, pastSeasons, stats }: CtfLandingProps) {
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+    const { auth } = usePage<{ auth: { user: { name: string } | null } }>().props;
+    const isAuthenticated = auth.user !== null;
 
     const displayTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
 
@@ -268,17 +314,17 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                 transition={{ duration: 0.5, delay: 0.3 }}
                                 className="flex flex-wrap gap-3"
                             >
-                                <Link href="/auth/register">
-                                    <Button size="lg" className="group gap-2 rounded-full px-8 text-base uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25">
+                                <Button asChild size="lg" className="group gap-2 rounded-full px-8 text-base uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25">
+                                    <Link href="/auth/register">
                                         Join the Arena
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                                    </Button>
-                                </Link>
-                                <a href="#competitions">
-                                    <Button size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5 px-8 text-base text-white/80 backdrop-blur transition-all hover:border-white/40 hover:bg-white/10">
+                                    </Link>
+                                </Button>
+                                <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5 px-8 text-base text-white/80 backdrop-blur transition-all hover:border-white/40 hover:bg-white/10">
+                                    <a href="#competitions">
                                         View Competitions
-                                    </Button>
-                                </a>
+                                    </a>
+                                </Button>
                             </motion.div>
                         </div>
                     </div>
@@ -460,7 +506,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
 
                 {/* Competitions — Expandable Cards */}
                 {competitions.length > 0 && (
-                    <WaveSection id="competitions" className="py-16 md:py-24">
+                    <WaveSection id="competitions" className="py-16 md:py-24 scroll-mt-20 md:scroll-mt-24">
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
@@ -490,10 +536,11 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                         >
                             {competitions.map((comp, i) => {
                                 const isExpanded = expandedId === comp.id;
+                                const badge = getStatusBadge(comp.status);
                                 return (
                                     <motion.div key={comp.id} variants={fadeUp} custom={i}>
                                         <GlowCard
-                                            glowColor={comp.is_active ? 'green' : 'blue'}
+                                            glowColor={comp.status === 'live' ? 'green' : comp.status === 'upcoming' ? 'blue' : 'orange'}
                                             customSize
                                             className="!p-0 !bg-transparent !border-0 !backdrop-blur-none !shadow-none !gap-0"
                                         >
@@ -508,15 +555,15 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                                 <h3 className="text-base font-semibold text-white">
                                                                     {comp.title}
                                                                 </h3>
-                                                                {comp.is_active ? (
-                                                                    <span className="shrink-0 inline-flex items-center rounded-full bg-emerald-500/20 border border-emerald-500/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
-                                                                        Live Now
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="shrink-0 inline-flex items-center rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/50">
-                                                                        Upcoming
-                                                                    </span>
-                                                                )}
+                                                                <span className={`shrink-0 inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${badge.className}`}>
+                                                                    {badge.dot && (
+                                                                        <span className="relative mr-1.5 flex h-1.5 w-1.5">
+                                                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                                                                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                                                        </span>
+                                                                    )}
+                                                                    {badge.label}
+                                                                </span>
                                                             </div>
 
                                                             {comp.description && (
@@ -526,6 +573,12 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                             )}
 
                                                             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/40">
+                                                                {comp.status === 'live' && comp.end_date && (
+                                                                    <CountdownTimer label="Ends in" target={comp.end_date} />
+                                                                )}
+                                                                {comp.status === 'upcoming' && (
+                                                                    <CountdownTimer label="Starts in" target={comp.start_date} />
+                                                                )}
                                                                 <span className="flex items-center gap-1.5">
                                                                     <Target className="h-3.5 w-3.5" />
                                                                     {comp.challenges_count} challenges
@@ -617,19 +670,39 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                                                <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/5">
                                                                     <p className="text-xs text-white/30">
-                                                                        Members-only competition. Join to participate.
+                                                                        {comp.status === 'ended'
+                                                                            ? 'This competition has ended.'
+                                                                            : isAuthenticated
+                                                                                ? 'Members can compete in the arena.'
+                                                                                : 'Members-only competition. Join to participate.'}
                                                                     </p>
-                                                                    <Link href="/auth/register">
-                                                                        <Button
+                                                                    {comp.status === 'ended' ? (
+                                                                        <span className="text-xs font-semibold uppercase tracking-wider text-white/40">
+                                                                            Season Complete
+                                                                        </span>
+                                                                    ) : isAuthenticated ? (
+                                                                        <Button asChild
                                                                             size="sm"
                                                                             className="gap-2 rounded-full px-5 text-xs uppercase tracking-wider bg-indigo-600 hover:bg-indigo-500 text-white"
                                                                         >
-                                                                            Join Club to Participate
-                                                                            <ArrowRight className="h-3.5 w-3.5" />
+                                                                            <Link href="/ctf">
+                                                                                Enter the Arena
+                                                                                <ArrowRight className="h-3.5 w-3.5" />
+                                                                            </Link>
                                                                         </Button>
-                                                                    </Link>
+                                                                    ) : (
+                                                                        <Button asChild
+                                                                            size="sm"
+                                                                            className="gap-2 rounded-full px-5 text-xs uppercase tracking-wider bg-indigo-600 hover:bg-indigo-500 text-white"
+                                                                        >
+                                                                            <Link href="/auth/register">
+                                                                                Join the Arena
+                                                                                <ArrowRight className="h-3.5 w-3.5" />
+                                                                            </Link>
+                                                                        </Button>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>

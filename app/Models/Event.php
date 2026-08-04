@@ -49,6 +49,7 @@ class Event extends Model
         'learning_objectives',
         'skill_level',
         'registration_fee',
+        'no_show_fine_amount',
         'external_link',
         'is_recurring',
         'parent_event_id',
@@ -68,6 +69,8 @@ class Event extends Model
             'waitlist_enabled' => 'boolean',
             'is_public' => 'boolean',
             'is_recurring' => 'boolean',
+            'registration_fee' => 'decimal:2',
+            'no_show_fine_amount' => 'decimal:2',
             'cancelled_at' => 'datetime',
         ];
     }

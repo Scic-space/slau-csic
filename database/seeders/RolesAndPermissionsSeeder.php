@@ -161,7 +161,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $superAdmin->givePermissionTo(Permission::all());
 
-        User::where('email', '=', 'admin@slau-csic.org')?->first()?->assignRole($admin, $superAdmin);
+        User::where('email', '=', 'kevinssali23@gmail.com')?->first()?->assignRole($admin, $superAdmin);
 
         // 2. PRESIDENT - High-level management
         $president = Role::firstOrCreate(['name' => 'president']);
@@ -337,7 +337,7 @@ class RolesAndPermissionsSeeder extends Seeder
     private function createDefaultAdmin()
     {
         // $admin = User::firstOrCreate(
-        //     ['email' => 'admin@slau-csic.org'],
+        //     ['email' => 'kevinssali23@gmail.com'],
         //     [
         //         'name' => 'System Administrator',
         //         'password' => bcrypt('password'), // Change this!
@@ -349,7 +349,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // $admin->assignRole('admin');
 
-        // $this->command->info('Default admin created: admin@slau-csic.org / password');
+        // $this->command->info('Default admin created: kevinssali23@gmail.com / password');
         // $this->command->warn('IMPORTANT: Change the admin password immediately!');
     }
 }

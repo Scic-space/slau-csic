@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Poll;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -9,6 +10,8 @@ use Livewire\Component;
 #[Title('Polls')]
 class PollListing extends Component
 {
+    use GuardsPendingMembers;
+
     public function render()
     {
         $user = auth()->user();

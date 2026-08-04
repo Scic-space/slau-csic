@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMemberRegistrationRequest;
 use App\Models\User;
+use App\Services\MembershipService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,8 @@ use Illuminate\View\View;
 
 class RegistrationController extends Controller
 {
+    public function __construct(protected MembershipService $membershipService) {}
+
     public function create(): View
     {
         return view('pages.auth.register');
@@ -41,6 +44,8 @@ class RegistrationController extends Controller
         unset($validated['terms']);
 
         event(new Registered(($user = User::create($validated))));
+
+        $this->membershipService->registerPending($user, $validated);
 
         Auth::login($user);
 

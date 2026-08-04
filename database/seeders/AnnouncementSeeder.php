@@ -10,7 +10,7 @@ class AnnouncementSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('email', 'admin@slau-csic.org')->first()
+        $admin = User::where('email', 'kevinssali23@gmail.com')->first()
             ?? User::whereHas('roles', fn ($q) => $q->where('name', 'admin'))->first()
             ?? User::first();
 
