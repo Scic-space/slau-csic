@@ -11,7 +11,7 @@ class MeetingSeeder extends Seeder
     public function run(): void
     {
         $admin = User::firstOrCreate(
-            ['email' => 'admin@slau-csic.org'],
+            ['email' => 'kevinssali23@gmail.com'],
             ['name' => 'Admin', 'password' => bcrypt('password')]
         );
 
@@ -23,7 +23,6 @@ class MeetingSeeder extends Seeder
         Meeting::factory()
             ->count(8)
             ->past()
-            ->withAttendance(8)
             ->create(['created_by' => $admin->id]);
 
         Meeting::factory()
@@ -34,7 +33,6 @@ class MeetingSeeder extends Seeder
         Meeting::factory()
             ->count(1)
             ->ongoing()
-            ->withAttendance(5)
             ->create(['created_by' => $admin->id]);
     }
 }

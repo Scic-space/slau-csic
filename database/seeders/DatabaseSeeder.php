@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $admin = User::firstOrCreate(
-            ['email' => 'admin@slau-csic.org'],
+            ['email' => 'kevinssali23@gmail.com'],
             [
                 'name' => 'Admin',
                 'membership_status' => 'active',
@@ -47,10 +47,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(EventCategorySeeder::class);
         // $this->call(ElectionSeeder::class);
         // $this->call(BadgeSeeder::class);
-        // $this->call(DemoDataSeeder::class);
-        // $this->call(SampleDataSeeder::class);
         // $this->call(CtfChallengeSeeder::class);
-        // $this->call(AssignmentDemoSeeder::class);
         // $this->call(FineTypeSeeder::class);
         // $this->call(CompetitionSeeder::class);
         // $this->call(AnnouncementSeeder::class);
@@ -59,6 +56,5 @@ class DatabaseSeeder extends Seeder
         // $this->call(ProjectSeeder::class);
         // $this->call(TestimonialSeeder::class);
         // $this->call(NewsSeeder::class);
-        // $this->call(ProductionSeeder::class);
     }
 }
