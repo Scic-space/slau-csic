@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Poll;
 use App\Models\PollVote;
 use Livewire\Attributes\Title;
@@ -10,6 +11,8 @@ use Livewire\Component;
 #[Title('Poll')]
 class PollShow extends Component
 {
+    use GuardsPendingMembers;
+
     public ?array $poll = null;
 
     public ?string $successMessage = null;

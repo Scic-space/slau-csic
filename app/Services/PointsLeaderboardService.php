@@ -97,7 +97,7 @@ class PointsLeaderboardService
                     'rank' => 0, // Will be set after sorting
                     'user_id' => $user->id,
                     'name' => $user->name,
-                    'student_id' => $user->student_id,
+                    'registration_number' => $user->registration_number,
                     'avatar_url' => $user->avatar_url,
                     'total_points' => $user->total_points,
                     'rank_level' => $user->rank,
@@ -135,7 +135,7 @@ class PointsLeaderboardService
                     'rank' => 0,
                     'user_id' => $user->id,
                     'name' => $user->name,
-                    'student_id' => $user->student_id,
+                    'registration_number' => $user->registration_number,
                     'avatar_url' => $user->avatar_url,
                     'total_points' => $points,
                     'rank_level' => $user->rank,

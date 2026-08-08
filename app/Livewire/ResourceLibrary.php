@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\ClubResource;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -10,6 +11,7 @@ use Livewire\WithPagination;
 #[Title('Resource Library')]
 class ResourceLibrary extends Component
 {
+    use GuardsPendingMembers;
     use WithPagination;
 
     public string $search = '';

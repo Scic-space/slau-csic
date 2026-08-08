@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Testimonial;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -9,6 +10,8 @@ use Livewire\Component;
 #[Title('Share Your Experience')]
 class SubmitTestimonial extends Component
 {
+    use GuardsPendingMembers;
+
     public string $quote = '';
 
     public function rules(): array

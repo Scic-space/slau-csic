@@ -23,14 +23,16 @@ class ElectionSeeder extends Seeder
             'applications_ends_at' => now()->subDays(1),
         ]);
 
+        $candidateUserIds = $users->isNotEmpty() ? $users->random(min(3, $users->count()))->pluck('id')->all() : [];
+
         $openElection->candidates()->createMany([
-            ['name' => 'Alice Kamau', 'user_id' => $users->random()->id ?? null, 'manifesto' => 'Bringing innovation through collaboration and hands-on cybersecurity workshops.', 'agenda' => 'Monthly workshops, industry partnerships, CTF bootcamps', 'sort_order' => 0],
-            ['name' => 'Bob Ochieng', 'user_id' => $users->random()->id ?? null, 'manifesto' => 'Building a stronger community focused on academic excellence and research.', 'agenda' => 'Research papers, hackathons, mentorship program', 'sort_order' => 1],
-            ['name' => 'Carol Wanjiku', 'user_id' => $users->random()->id ?? null, 'manifesto' => 'Expanding the club\'s reach through outreach programs and inter-university collaboration.', 'agenda' => 'Outreach programs, inter-university events, industry talks', 'sort_order' => 2],
+            ['name' => 'Alice Kamau', 'user_id' => $candidateUserIds[0] ?? null, 'manifesto' => 'Bringing innovation through collaboration and hands-on cybersecurity workshops.', 'agenda' => 'Monthly workshops, industry partnerships, CTF bootcamps', 'sort_order' => 0],
+            ['name' => 'Bob Ochieng', 'user_id' => $candidateUserIds[1] ?? null, 'manifesto' => 'Building a stronger community focused on academic excellence and research.', 'agenda' => 'Research papers, hackathons, mentorship program', 'sort_order' => 1],
+            ['name' => 'Carol Wanjiku', 'user_id' => $candidateUserIds[2] ?? null, 'manifesto' => 'Expanding the club\'s reach through outreach programs and inter-university collaboration.', 'agenda' => 'Outreach programs, inter-university events, industry talks', 'sort_order' => 2],
         ]);
 
         // Sample applications for the open election
-        $sampleApplicants = $users->count() >= 5 ? $users->random(3) : User::factory(3)->create(['membership_status' => 'active', 'membership_type' => 'active']);
+        $sampleApplicants = $users->isNotEmpty() ? $users->take(3) : collect();
         $statuses = ['submitted', 'under_review', 'shortlisted', 'approved', 'rejected'];
         foreach ($sampleApplicants as $i => $applicant) {
             ElectionNomination::create([

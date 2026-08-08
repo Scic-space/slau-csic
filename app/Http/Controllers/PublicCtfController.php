@@ -20,36 +20,48 @@ class PublicCtfController extends Controller
             ->withCount(['challenges', 'teams'])
             ->with(['challenges.category'])
             ->orderByDesc('start_date')
-            ->take(6)
+            ->take(12)
             ->get()
-            ->map(fn (CtfCompetition $c) => [
-                'id' => $c->id,
-                'title' => $c->title,
-                'slug' => $c->slug,
-                'description' => str($c->description)->limit(220),
-                'start_date' => $c->start_date->toIso8601String(),
-                'end_date' => $c->end_date?->toIso8601String(),
-                'max_score' => $c->max_score,
-                'allow_teams' => $c->allow_teams,
-                'max_team_size' => $c->max_team_size,
-                'challenges_count' => $c->challenges_count,
-                'teams_count' => $c->teams_count,
-                'is_active' => $c->isActive(),
-                'categories' => $c->challenges
-                    ->pluck('category')
-                    ->filter()
-                    ->unique('id')
-                    ->map(fn ($cat) => ['name' => $cat->name, 'color' => $cat->color])
-                    ->values()
-                    ->all(),
-                'difficulty_range' => $c->challenges
-                    ->pluck('difficulty')
-                    ->filter()
-                    ->unique()
-                    ->sort(fn (string $a, string $b) => array_search(strtolower($a), ['easy', 'medium', 'hard', 'insane', 'master']) <=> array_search(strtolower($b), ['easy', 'medium', 'hard', 'insane', 'master']))
-                    ->values()
-                    ->all(),
-            ]);
+            ->map(function (CtfCompetition $c) {
+                $status = match (true) {
+                    $c->isActive() => 'live',
+                    $c->start_date > now() => 'upcoming',
+                    default => 'ended',
+                };
+
+                return [
+                    'id' => $c->id,
+                    'title' => $c->title,
+                    'slug' => $c->slug,
+                    'description' => str($c->description)->limit(220),
+                    'start_date' => $c->start_date->toIso8601String(),
+                    'end_date' => $c->end_date?->toIso8601String(),
+                    'max_score' => $c->max_score,
+                    'allow_teams' => $c->allow_teams,
+                    'max_team_size' => $c->max_team_size,
+                    'challenges_count' => $c->challenges_count,
+                    'teams_count' => $c->teams_count,
+                    'is_active' => $c->isActive(),
+                    'status' => $status,
+                    'categories' => $c->challenges
+                        ->pluck('category')
+                        ->filter()
+                        ->unique('id')
+                        ->map(fn ($cat) => ['name' => $cat->name, 'color' => $cat->color])
+                        ->values()
+                        ->all(),
+                    'difficulty_range' => $c->challenges
+                        ->pluck('difficulty')
+                        ->filter()
+                        ->unique()
+                        ->sort(fn (string $a, string $b) => array_search(strtolower($a), ['easy', 'medium', 'hard', 'insane', 'master']) <=> array_search(strtolower($b), ['easy', 'medium', 'hard', 'insane', 'master']))
+                        ->values()
+                        ->all(),
+                ];
+            })
+            ->sortBy(fn (array $c) => ['live' => 0, 'upcoming' => 1, 'ended' => 2][$c['status']])
+            ->values()
+            ->take(6);
 
         $totalCompetitions = CtfCompetition::published()->public()->count();
         $totalChallenges = CtfCompetition::published()->public()->withCount('challenges')->get()->sum('challenges_count');

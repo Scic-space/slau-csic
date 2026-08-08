@@ -3,15 +3,11 @@
 namespace App\Notifications;
 
 use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MemberRejectionNotification extends Notification implements ShouldQueue
+class MemberRejectionNotification extends Notification
 {
-    use Queueable;
-
     public function __construct(
         public User $rejectedBy,
         public ?string $notes = null
@@ -38,8 +34,7 @@ class MemberRejectionNotification extends Notification implements ShouldQueue
             })
             ->line('If you believe this decision was made in error or would like to understand more about the decision, please feel free to reach out to the club administration.')
             ->line('You may reapply in the future if circumstances change.')
-            ->salutation('Best regards,')
-            ->salutation('The Cybersecurity & Innovations Club Team');
+            ->salutation('Best regards, The Cybersecurity & Innovations Club Team');
     }
 
     public function toArray(object $notifiable): array

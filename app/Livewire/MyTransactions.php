@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
@@ -11,6 +12,7 @@ use Livewire\WithPagination;
 #[Title('My Transactions')]
 class MyTransactions extends Component
 {
+    use GuardsPendingMembers;
     use WithPagination;
 
     public string $typeFilter = '';

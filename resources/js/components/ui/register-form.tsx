@@ -1,9 +1,15 @@
 import { Link } from '@inertiajs/react';
-import { User, Mail, Phone, GraduationCap, Calendar, Lock, ArrowRight, Loader2, Eye, EyeOff, Hash, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Phone, GraduationCap, Calendar, Lock, ArrowRight, Loader2, Eye, EyeOff, Hash, CheckCircle2, BookOpen } from 'lucide-react';
 import { useState } from 'react';
+
+export interface Faculty {
+  name: string;
+  programs: string[];
+}
 
 interface RegisterFormProps {
   onSubmit: (e: React.FormEvent) => void;
+  faculties: Faculty[];
   name: string;
   email: string;
   registration_number: string;
@@ -11,6 +17,8 @@ interface RegisterFormProps {
   program: string;
   faculty: string;
   year_of_study: string;
+  intake: string;
+  intake_year: string;
   password: string;
   password_confirmation: string;
   terms: boolean;
@@ -21,6 +29,8 @@ interface RegisterFormProps {
   onProgramChange: (value: string) => void;
   onFacultyChange: (value: string) => void;
   onYearOfStudyChange: (value: string) => void;
+  onIntakeChange: (value: string) => void;
+  onIntakeYearChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onPasswordConfirmationChange: (value: string) => void;
   onTermsChange: (value: boolean) => void;
@@ -29,15 +39,17 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({
-  onSubmit, name, email, registration_number, phone,
-  program, faculty, year_of_study, password, password_confirmation, terms,
+  onSubmit, faculties, name, email, registration_number, phone,
+  program, faculty, year_of_study, intake, intake_year, password, password_confirmation, terms,
   onNameChange, onEmailChange, onRegistrationNumberChange,
   onPhoneChange, onProgramChange, onFacultyChange,
-  onYearOfStudyChange, onPasswordChange, onPasswordConfirmationChange,
+  onYearOfStudyChange, onIntakeChange, onIntakeYearChange, onPasswordChange, onPasswordConfirmationChange,
   onTermsChange, processing, errors,
 }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const programsForFaculty = faculties.find((f) => f.name === faculty)?.programs ?? [];
 
   const inputClass = (hasError: boolean) =>
     `h-12 w-full rounded-xl border bg-white/5 pl-11 pr-4 text-sm text-white placeholder:text-white/30 transition-all duration-200 focus:outline-none ${
@@ -150,37 +162,48 @@ export function RegisterForm({
             </div>
 
             <div className="space-y-1.5">
-              <label className={labelClass}>Programme <span className="text-indigo-400">*</span></label>
+              <label className={labelClass}>Faculty <span className="text-indigo-400">*</span></label>
               <div className="relative">
                 <GraduationCap className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/25" />
-                <input
-                  type="text"
+                <select
+                  value={faculty}
+                  onChange={(e) => {
+                    onFacultyChange(e.target.value);
+                    onProgramChange('');
+                  }}
+                  className={selectClass(!!errors.faculty)}
+                  required
+                >
+                  <option value="">Select faculty</option>
+                  {faculties.map((f) => (
+                    <option key={f.name} value={f.name}>{f.name}</option>
+                  ))}
+                </select>
+              </div>
+              {errors.faculty && <p className="text-sm text-red-400">{errors.faculty}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className={labelClass}>Programme <span className="text-indigo-400">*</span></label>
+              <div className="relative">
+                <BookOpen className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/25" />
+                <select
                   value={program}
                   onChange={(e) => onProgramChange(e.target.value)}
-                  className={inputClass(!!errors.program)}
-                  placeholder="Type your programme"
+                  disabled={programsForFaculty.length === 0}
+                  className={`${selectClass(!!errors.program)} disabled:cursor-not-allowed disabled:opacity-50`}
                   required
-                />
+                >
+                  <option value="">{programsForFaculty.length === 0 ? 'Select a faculty first' : 'Select programme'}</option>
+                  {programsForFaculty.map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
               </div>
               {errors.program && <p className="text-sm text-red-400">{errors.program}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className={labelClass}>Faculty</label>
-                <input
-                  type="text"
-                  value={faculty}
-                  onChange={(e) => onFacultyChange(e.target.value)}
-                  className={`h-12 w-full rounded-xl border bg-white/5 px-4 text-sm text-white placeholder:text-white/30 transition-all duration-200 focus:outline-none ${
-                    errors.faculty
-                      ? 'border-red-500/50 focus:border-red-500/70 focus:ring-2 focus:ring-red-500/20'
-                      : 'border-white/10 focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20'
-                  }`}
-                  placeholder="Type your faculty"
-                />
-                {errors.faculty && <p className="text-sm text-red-400">{errors.faculty}</p>}
-              </div>
               <div className="space-y-1.5">
                 <label className={labelClass}>Year of Study <span className="text-indigo-400">*</span></label>
                 <div className="relative">
@@ -199,7 +222,48 @@ export function RegisterForm({
                 </div>
                 {errors.year_of_study && <p className="text-sm text-red-400">{errors.year_of_study}</p>}
               </div>
+              <div className="space-y-1.5">
+                <label className={labelClass}>Intake <span className="text-indigo-400">*</span></label>
+                <div className="relative">
+                  <Calendar className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/25" />
+                  <select
+                    value={intake}
+                    onChange={(e) => onIntakeChange(e.target.value)}
+                    className={selectClass(!!errors.intake)}
+                    required
+                  >
+                    <option value="">Select intake</option>
+                    <option value="august">August</option>
+                    <option value="january">January</option>
+                    <option value="may">May</option>
+                  </select>
+                </div>
+                {errors.intake && <p className="text-sm text-red-400">{errors.intake}</p>}
+              </div>
             </div>
+
+            <div className="space-y-1.5">
+              <label className={labelClass}>Intake Year <span className="text-indigo-400">*</span></label>
+              <div className="relative">
+                <Calendar className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/25" />
+                <select
+                  value={intake_year}
+                  onChange={(e) => onIntakeYearChange(e.target.value)}
+                  className={selectClass(!!errors.intake_year)}
+                  required
+                >
+                  <option value="">Select year</option>
+                  {Array.from(
+                    { length: 6 },
+                    (_, i) => new Date().getFullYear() - 5 + i,
+                  ).map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+              {errors.intake_year && <p className="text-sm text-red-400">{errors.intake_year}</p>}
+            </div>
+            <p className="text-xs text-white/25">Intake month and year are used to calculate your membership card expiry</p>
           </div>
 
           {/* Security */}

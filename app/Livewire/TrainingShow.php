@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\ModuleProgress;
 use App\Models\Training;
 use App\Models\TrainingEnrollment;
@@ -10,6 +11,8 @@ use Livewire\Component;
 
 class TrainingShow extends Component
 {
+    use GuardsPendingMembers;
+
     public Training $training;
 
     public bool $enrolled = false;

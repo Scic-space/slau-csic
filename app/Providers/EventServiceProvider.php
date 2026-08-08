@@ -37,6 +37,13 @@ class EventServiceProvider extends ServiceProvider
 
     public function shouldDiscoverEvents(): bool
     {
-        return true;
+        return false;
+    }
+
+    protected function configureEmailVerification(): void
+    {
+        // The framework's base EventServiceProvider (registered automatically via
+        // withEvents()) already registers SendEmailVerificationNotification for the
+        // Registered event. Overriding this avoids double-registering the listener.
     }
 }

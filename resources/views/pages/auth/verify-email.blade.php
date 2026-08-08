@@ -44,7 +44,7 @@
                             </p>
 
                             <div class="flex flex-col gap-3 sm:flex-row">
-                                <form method="POST" action="{{ route('verification.store') }}" class="w-full sm:w-auto">
+                                <form method="POST" action="{{ route('verification.store.legacy') }}" class="w-full sm:w-auto">
                                     @csrf
                                     <button type="submit" class="portal-button flex h-12 w-full items-center justify-center rounded-sm px-6 text-sm font-semibold transition sm:w-auto">
                                         Resend Verification Email

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\MemberApproved;
 use App\Events\MemberRejected;
 use App\Events\MemberSuspended;
+use App\Notifications\EmailVerificationCodeNotification;
 use App\Notifications\MemberSuspendedNotification;
 use Carbon\Carbon;
 use Filament\Models\Contracts\FilamentUser;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Lab404\Impersonate\Models\Impersonate;
 use Laravel\Sanctum\HasApiTokens;
@@ -41,12 +43,15 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'name',
         'email',
         'password',
-        'student_id',
+        'email_verification_code',
+        'email_verification_code_expires_at',
         'registration_number',
         'phone',
         'program',
         'faculty',
         'year_of_study',
+        'intake',
+        'intake_year',
         'date_of_birth',
         'gender',
         'residence',
@@ -99,6 +104,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
      */
     protected $hidden = [
         'password',
+        'email_verification_code',
         'remember_token',
     ];
 
@@ -112,6 +118,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
         return [
             'email_verified_at' => 'datetime',
+            'email_verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
             'joined_at' => 'date',
             'date_of_birth' => 'date',
@@ -124,6 +131,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'membership_renewed_at' => 'datetime',
             'suspended_until' => 'datetime',
             'rank_changed_at' => 'datetime',
+            'intake_year' => 'integer',
         ];
     }
 
@@ -134,6 +142,46 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return LogOptions::defaults()
             ->logOnly(['name', 'email', 'membership_status', 'membership_type'])
             ->logOnlyDirty();
+    }
+
+    public function generateEmailVerificationCode(int $ttlMinutes = 15): string
+    {
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $this->forceFill([
+            'email_verification_code' => Hash::make($code),
+            'email_verification_code_expires_at' => now()->addMinutes($ttlMinutes),
+        ])->save();
+
+        return $code;
+    }
+
+    public function emailVerificationCodeIsValid(string $code): bool
+    {
+        if ($this->email_verification_code === null || $this->email_verification_code_expires_at === null) {
+            return false;
+        }
+
+        if ($this->email_verification_code_expires_at->isPast()) {
+            return false;
+        }
+
+        return Hash::check($code, $this->email_verification_code);
+    }
+
+    public function clearEmailVerificationCode(): void
+    {
+        $this->forceFill([
+            'email_verification_code' => null,
+            'email_verification_code_expires_at' => null,
+        ])->save();
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $code = $this->generateEmailVerificationCode();
+
+        $this->notify(new EmailVerificationCodeNotification($code));
     }
 
     public function canImpersonate(): bool
@@ -604,6 +652,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'approved_at' => now(),
                 'approved_by' => $approver?->id,
                 'approval_notes' => $notes,
+                'membership_expires_at' => $this->membershipExpiryDate(),
+            ]);
+
+            $this->membership?->update([
+                'status' => 'active',
+                'approved_by' => $approver?->id,
+                'approved_at' => now(),
+                'approval_notes' => $notes,
             ]);
 
             $this->assignRole('member');
@@ -627,6 +683,13 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'approval_notes' => $notes,
             ]);
 
+            $this->membership?->update([
+                'status' => 'rejected',
+                'approved_by' => $rejecter?->id,
+                'approved_at' => now(),
+                'approval_notes' => $notes,
+            ]);
+
             $this->notify(new \App\Notifications\MemberRejectionNotification($rejecter, $notes));
 
             MemberRejected::dispatch($this, $this->membership, $rejecter ?? $this);
@@ -647,6 +710,13 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'suspended_by' => $suspender?->id,
             ]);
 
+            $this->membership?->update([
+                'status' => 'suspended',
+                'suspension_reason' => $reason,
+                'suspended_until' => $until,
+                'suspended_by' => $suspender?->id,
+            ]);
+
             $this->notify(new MemberSuspendedNotification($reason, $until));
 
             MemberSuspended::dispatch($this, $this->membership, $suspender ?? $this);
@@ -660,16 +730,16 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     // Auto-alumni detection
     public function shouldBeAlumni(): bool
     {
-        if (! $this->year_of_study || $this->membership_type === 'alumni') {
+        if ($this->membership_type === 'alumni') {
             return false;
         }
 
-        // Assume 4-year program, calculate expected graduation year
-        $currentYear = now()->year;
-        $expectedGraduationYear = $currentYear + (4 - $this->year_of_study);
+        if (! $this->hasGraduationAnchor()) {
+            return false;
+        }
 
         // If current year is past expected graduation, mark as alumni
-        return $currentYear > $expectedGraduationYear;
+        return now()->year > $this->graduationYear();
     }
 
     public function convertToAlumni(): bool
@@ -678,6 +748,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             $this->update([
                 'membership_type' => 'alumni',
                 'membership_status' => 'active',
+            ]);
+
+            $this->membership?->update([
+                'type' => 'alumni',
+                'status' => 'active',
             ]);
 
             return true;
@@ -693,6 +768,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'membership_status' => 'inactive',
             ]);
 
+            $this->membership?->update([
+                'status' => 'left',
+                'left_at' => now(),
+            ]);
+
             activity()
                 ->performedOn($this)
                 ->causedBy($this)
@@ -702,6 +782,61 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    public function courseDurationYears(): int
+    {
+        $program = $this->program ?? $this->memberProfile?->program;
+
+        return AcademicLevel::fromProgram((string) $program)->durationYears();
+    }
+
+    public function graduationYear(): int
+    {
+        // Preferred: expiry is anchored to the admission year on a course of the
+        // student's programme level (e.g. Bachelor = 3 years, Diploma = 2 years).
+        if ($this->intake_year) {
+            return $this->intake_year + $this->courseDurationYears();
+        }
+
+        $yearOfStudy = $this->year_of_study ?? $this->memberProfile?->year_of_study;
+
+        if (! $yearOfStudy) {
+            return now()->year;
+        }
+
+        return now()->year + ($this->courseDurationYears() - $yearOfStudy);
+    }
+
+    public function studyExpiryDate(): ?Carbon
+    {
+        if ($this->membership_type === 'alumni') {
+            return null;
+        }
+
+        if (! $this->hasGraduationAnchor()) {
+            return null;
+        }
+
+        $graduationYear = $this->graduationYear();
+
+        return match ($this->intake) {
+            'january' => Carbon::createFromDate($graduationYear, 1, 31),
+            'may' => Carbon::createFromDate($graduationYear, 5, 31),
+            'august' => Carbon::createFromDate($graduationYear, 8, 31),
+            default => Carbon::createFromDate($graduationYear, 12, 31),
+        };
+    }
+
+    protected function hasGraduationAnchor(): bool
+    {
+        return (bool) $this->intake_year
+            || (bool) ($this->year_of_study ?? $this->memberProfile?->year_of_study);
+    }
+
+    public function membershipExpiryDate(): ?Carbon
+    {
+        return $this->membership_expires_at ?? $this->studyExpiryDate();
     }
 
     public function renew(int $durationMonths = 12): bool

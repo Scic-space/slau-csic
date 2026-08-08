@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Fine;
 use App\Models\FineAppeal;
 use App\Models\FinePayment;
@@ -12,6 +13,7 @@ use Livewire\WithFileUploads;
 
 class MyFines extends Component
 {
+    use GuardsPendingMembers;
     use WithFileUploads;
 
     public ?int $selectedFineId = null;

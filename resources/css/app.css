@@ -8,6 +8,33 @@ html {
     scroll-behavior: smooth;
 }
 
+html,
+body,
+#app {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+#app,
+.inertia-root,
+.inertia-root--standalone {
+    min-height: 100vh;
+    width: 100%;
+}
+
+.inertia-root--standalone {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body:has(.inertia-root--standalone) {
+    overflow: hidden;
+}
+
 /* Preline UI */
 @import "../../node_modules/preline/variants.css";
 @import "../../node_modules/preline/css/themes/theme.css";

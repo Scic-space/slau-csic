@@ -2,15 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MemberSuspendedNotification extends Notification implements ShouldQueue
+class MemberSuspendedNotification extends Notification
 {
-    use Queueable;
-
     public function __construct(
         public string $reason,
         public ?\DateTime $until = null
@@ -43,8 +39,7 @@ class MemberSuspendedNotification extends Notification implements ShouldQueue
 
         return $message
             ->line('If you have any questions, please reach out to the club administration.')
-            ->salutation('Best regards,')
-            ->salutation('The Cybersecurity & Innovations Club Team');
+            ->salutation('Best regards, The Cybersecurity & Innovations Club Team');
     }
 
     public function toArray(object $notifiable): array

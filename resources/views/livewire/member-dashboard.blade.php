@@ -34,13 +34,35 @@
             @endif
         </div>
 
+        @if (session('status'))
+            <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+                <div class="flex items-start gap-3">
+                    <svg class="h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2ZM0 12C0 5.373 5.373 0 12 0s12 5.373 12 12-5.373 12-12 12S0 17.627 0 12ZM12 8a1 1 0 011 1v3.586l2.707 2.707A1 1 0 0114 18v.05a1 1 0 01-.55.9 1 1 0 01-1.05-.05L10 16.293V14.5a1 1 0 011-1h1.5a1 1 0 010 2H13a1 1 0 01-1-1V9a1 1 0 011-1z" fill="currentColor"></path></svg>
+                    <p class="text-sm font-medium text-amber-800 dark:text-amber-200">{{ session('status') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if ($user->isPendingApproval())
+            <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+                <div class="flex items-start gap-3">
+                    <svg class="h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2ZM0 12C0 5.373 5.373 0 12 0s12 5.373 12 12-5.373 12-12 12S0 17.627 0 12ZM12 8a1 1 0 011 1v3.586l2.707 2.707A1 1 0 0114 18v.05a1 1 0 01-.55.9 1 1 0 01-1.05-.05L10 16.293V14.5a1 1 0 011-1h1.5a1 1 0 010 2H13a1 1 0 01-1-1V9a1 1 0 011-1z" fill="currentColor"></path></svg>
+                    <div class="min-w-0">
+                        <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-200">Membership Pending Approval</h3>
+                        <p class="mt-0.5 text-xs leading-relaxed text-amber-700 dark:text-amber-300">
+                            Your account is awaiting approval by the club administration. Club activities (events, trainings, CTF, voting and more) will be unlocked once you are approved.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- Profile Completion --}}
         @php
             $profileFields = [
                 'name' => !empty($user->name),
                 'email' => !empty($user->email),
                 'phone' => !empty($user->phone),
-                'student_id' => !empty($user->student_id),
                 'program' => !empty($user->program),
                 'year_of_study' => !empty($user->year_of_study),
                 'bio' => !empty($user->bio),
@@ -54,7 +76,6 @@
                 'name' => 'Full Name',
                 'email' => 'Email Address',
                 'phone' => 'Phone Number',
-                'student_id' => 'Student ID',
                 'program' => 'Program',
                 'year_of_study' => 'Year of Study',
                 'bio' => 'Bio',

@@ -11,7 +11,7 @@ use Inertia\Inertia;
 
 require __DIR__.'/inertia.php';
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'approved'])->group(function () {
     Route::get('/club/competitions', [ClubPortalController::class, 'competitions'])->name('portal.competitions');
     Route::get('/club/ctf-arena', [ClubPortalController::class, 'ctfArena'])->name('portal.ctf');
     Route::get('/club/classes', [ClubPortalController::class, 'classes'])->name('portal.classes');
@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Admin routes are now handled by Filament panels
 
 // CTF MEMBER ROUTES
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'approved'])->group(function () {
     Route::get('/ctf/files/{file}/download', [App\Http\Controllers\CtfController::class, 'downloadFile'])->name('ctf.file.download');
 
     Route::get('/ctf', [App\Http\Controllers\CtfController::class, 'index'])->name('ctf.index');

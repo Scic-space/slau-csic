@@ -11,12 +11,24 @@ class MembershipCardController extends Controller
     {
         $user = Auth::user()->load(['membership', 'earnedBadges']);
 
+        $isPending = $user->membership_status === 'pending'
+            || $user->membership?->status === 'pending';
+
+        if ($isPending) {
+            $joinedAt = $user->joined_at ?? $user->membership?->joined_at ?? $user->created_at;
+
+            return view('frontend.membership-pending', [
+                'user' => $user,
+                'memberSince' => $joinedAt?->format('F Y') ?? 'N/A',
+            ]);
+        }
+
         $joinedAt = $user->joined_at ?? $user->membership?->joined_at ?? $user->created_at;
         $memberSince = $joinedAt?->format('F Y') ?? 'N/A';
-        $memberId = $user->student_id ?? '#'.str_pad((string) $user->id, 5, '0', STR_PAD_LEFT);
+        $memberId = $user->registration_number ?? '#'.str_pad((string) $user->id, 5, '0', STR_PAD_LEFT);
 
-        $expiryDate = $user->membership_expires_at ?? $user->membership?->expires_at ?? null;
-        $expiryFormatted = $expiryDate ? \Carbon\Carbon::parse($expiryDate)->format('F j, Y') : 'N/A';
+        $expiryDate = $user->membershipExpiryDate();
+        $expiryFormatted = $expiryDate?->format('F j, Y') ?? 'N/A';
 
         $issueDate = now()->format('F j, Y');
 

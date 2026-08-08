@@ -214,6 +214,16 @@ class TeacherPortfolios extends Component
         $this->showSkillForm = true;
     }
 
+    private function defaultStudentId(): string
+    {
+        return $this->canManage() ? '' : (string) auth()->id();
+    }
+
+    private function canManage(): bool
+    {
+        return auth()->user()->hasPermissionTo('portfolio.manage');
+    }
+
     public function saveSkill(): void
     {
         $this->validate([
@@ -248,7 +258,7 @@ class TeacherPortfolios extends Component
         $this->skillName = '';
         $this->skillCategory = 'general';
         $this->skillProficiency = 3;
-        $this->skillStudentId = '';
+        $this->skillStudentId = $this->defaultStudentId();
     }
 
     // --- Certification CRUD ---
@@ -302,7 +312,7 @@ class TeacherPortfolios extends Component
         $this->certExpiryDate = '';
         $this->certCredentialUrl = '';
         $this->certCredentialId = '';
-        $this->certStudentId = '';
+        $this->certStudentId = $this->defaultStudentId();
     }
 
     // --- Experience CRUD ---
@@ -359,7 +369,7 @@ class TeacherPortfolios extends Component
         $this->expEndDate = '';
         $this->expIsCurrent = false;
         $this->expType = 'experience';
-        $this->expStudentId = '';
+        $this->expStudentId = $this->defaultStudentId();
     }
 
     // --- Shared ---
@@ -370,7 +380,7 @@ class TeacherPortfolios extends Component
         $this->formDescription = '';
         $this->formCategory = 'project';
         $this->formExternalLink = '';
-        $this->formStudentId = '';
+        $this->formStudentId = $this->defaultStudentId();
         $this->formIsPublished = false;
         $this->formFile = null;
         $this->formRepoUrl = '';
@@ -381,7 +391,7 @@ class TeacherPortfolios extends Component
 
     public function render()
     {
-        $canManage = auth()->user()->hasPermissionTo('portfolio.manage');
+        $canManage = $this->canManage();
 
         $allQuery = StudentPortfolio::query();
         if (! $canManage) {

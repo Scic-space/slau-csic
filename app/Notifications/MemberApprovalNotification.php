@@ -3,15 +3,11 @@
 namespace App\Notifications;
 
 use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MemberApprovalNotification extends Notification implements ShouldQueue
+class MemberApprovalNotification extends Notification
 {
-    use Queueable;
-
     public function __construct(
         public User $approvedBy,
         public ?string $notes = null
@@ -39,8 +35,7 @@ class MemberApprovalNotification extends Notification implements ShouldQueue
             })
             ->action('View Your Profile', route('user-profile'))
             ->line('Welcome to our community! We look forward to your active participation.')
-            ->salutation('Best regards,')
-            ->salutation('The Cybersecurity & Innovations Club Team');
+            ->salutation('Best regards, The Cybersecurity & Innovations Club Team');
     }
 
     public function toArray(object $notifiable): array
