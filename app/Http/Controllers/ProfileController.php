@@ -57,7 +57,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
-            'registration_number' => ['nullable', 'string', 'max:50', Rule::unique(User::class)->ignore($user->id), 'regex:/^[A-Za-z]+\/\d{2}[DW]\/[A-Za-z]\/[A-Za-z]\d+$/'],
+            'registration_number' => ['nullable', 'string', 'max:50', Rule::unique(User::class)->ignore($user->id), 'regex:/^[A-Za-z]+\/\d{2}[DW]\/[A-Za-z]\/[A-Za-z]\d+[A-Za-z]?$/'],
             'phone' => ['nullable', 'string', 'max:30'],
             'program' => ['nullable', 'string', 'max:255'],
             'faculty' => ['nullable', 'string', 'max:255'],
