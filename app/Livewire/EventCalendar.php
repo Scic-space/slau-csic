@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Event;
 use App\Models\EventCategory;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,8 @@ use Livewire\Component;
 #[Title('Event Calendar')]
 class EventCalendar extends Component
 {
+    use GuardsPendingMembers;
+
     public function render()
     {
         $user = Auth::user();

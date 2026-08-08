@@ -57,12 +57,13 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
-            'student_id' => ['nullable', 'string', 'max:50'],
             'registration_number' => ['nullable', 'string', 'max:50', Rule::unique(User::class)->ignore($user->id), 'regex:/^[A-Za-z]+\/\d{2}[DW]\/[A-Za-z]\/[A-Za-z]\d+$/'],
             'phone' => ['nullable', 'string', 'max:30'],
             'program' => ['nullable', 'string', 'max:255'],
             'faculty' => ['nullable', 'string', 'max:255'],
             'year_of_study' => ['nullable', 'integer', 'min:1', 'max:6'],
+            'intake' => ['nullable', 'string', 'in:january,may,august'],
+            'intake_year' => ['nullable', 'integer', 'min:1990', 'max:'.now()->year],
             'bio' => ['nullable', 'string', 'max:1000'],
             'headline' => ['nullable', 'string', 'max:255'],
             'github_username' => ['nullable', 'string', 'max:255'],
@@ -83,6 +84,8 @@ class ProfileController extends Controller
             'registration_number' => $validated['registration_number'] ?? null,
             'discord_username' => $validated['discord_username'] ?? null,
             'is_discord_member' => $validated['is_discord_member'] ?? false,
+            'intake' => $validated['intake'] ?? null,
+            'intake_year' => $validated['intake_year'] ?? null,
         ]);
 
         if ($request->hasFile('profile_photo')) {
@@ -102,7 +105,6 @@ class ProfileController extends Controller
         $user->memberProfile()->updateOrCreate(
             ['user_id' => $user->id],
             [
-                'student_id' => $validated['student_id'] ?? null,
                 'phone' => $validated['phone'] ?? null,
                 'program' => $validated['program'] ?? null,
                 'faculty' => $validated['faculty'] ?? null,

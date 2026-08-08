@@ -2,11 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\User;
 use Livewire\Component;
 
 class MemberShow extends Component
 {
+    use GuardsPendingMembers;
+
     public ?int $user = null;
 
     public function mount(int $user): void

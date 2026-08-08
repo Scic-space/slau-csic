@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Services\ExamAttemptService;
@@ -10,6 +11,8 @@ use Livewire\Component;
 
 class ExamTake extends Component
 {
+    use GuardsPendingMembers;
+
     public Exam $exam;
 
     public ExamAttempt $attempt;

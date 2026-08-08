@@ -6,9 +6,14 @@
             <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
                 Track the status of all your cabinet applications.
             </p>
-            <a href="{{ route('voting.nominations') }}" wire:navigate class="mt-4 inline-flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors">
-                Submit new application
-            </a>
+            <div class="mt-4 flex flex-wrap items-center gap-4">
+                <button type="button" wire:click="openApplicationForm" class="inline-flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors">
+                    Submit new application
+                </button>
+                <a href="{{ route('voting.nominations') }}" wire:navigate class="text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    Or browse open positions
+                </a>
+            </div>
         </div>
 
         @php
@@ -27,7 +32,7 @@
             <div class="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">No applications yet</h2>
                 <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                    <a href="{{ route('voting.nominations') }}" wire:navigate class="text-emerald-500 hover:underline">Submit an application</a>
+                    <button type="button" wire:click="openApplicationForm" class="text-emerald-500 hover:underline">Submit an application</button>
                     for an open cabinet position.
                 </p>
             </div>
@@ -194,6 +199,88 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
+        @endif
+
+        @if ($showForm)
+            <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ photoPreview: null }" wire:key="new-application-modal">
+                <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeApplicationForm"></div>
+                <div class="relative mx-auto my-8 w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Submit New Application</h2>
+                        <button type="button" wire:click="closeApplicationForm" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    <form wire:submit="submitApplication" class="mt-5 space-y-4">
+                        <div>
+                            <label for="application-position" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Position</label>
+                            <select id="application-position" wire:model="selectedElectionId" class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                                <option value="">Select an open position...</option>
+                                @foreach ($openElections as $election)
+                                    <option value="{{ $election->id }}">{{ $election->position }} &mdash; {{ $election->title }}</option>
+                                @endforeach
+                            </select>
+                            @error('selectedElectionId') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            @if ($openElections->isEmpty())
+                                <p class="mt-2 text-xs text-amber-600 dark:text-amber-400">No positions are currently open for applications.</p>
+                            @endif
+                        </div>
+
+                        <div>
+                            <label for="application-statement" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Personal Statement</label>
+                            <textarea id="application-statement" wire:model="statement" rows="3" placeholder="Why are you running for this position? Tell members about yourself..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                            @error('statement') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label for="application-manifesto" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Manifesto</label>
+                            <textarea id="application-manifesto" wire:model="manifesto" rows="3" placeholder="Your vision, values, and what you stand for..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                            @error('manifesto') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label for="application-agenda" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Agenda</label>
+                            <textarea id="application-agenda" wire:model="agenda" rows="3" placeholder="Specific goals, projects, and plans you will pursue..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                            @error('agenda') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Photo</p>
+                            <div class="mt-1.5 flex items-center gap-4">
+                                <template x-if="photoPreview">
+                                    <img :src="photoPreview" alt="Photo preview" class="h-16 w-16 rounded-lg object-cover" />
+                                </template>
+                                <template x-if="!photoPreview">
+                                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-100 text-gray-400 dark:bg-gray-800">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                    </div>
+                                </template>
+                                <input type="file" accept="image/jpeg,image/png,image/webp" wire:model="photo" @change="photoPreview = URL.createObjectURL($event.target.files[0])" class="text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-emerald-600 hover:file:bg-emerald-100 dark:text-gray-400 dark:file:bg-emerald-900/30 dark:file:text-emerald-300">
+                            </div>
+                            @error('photo') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Supporting Documents</p>
+                            <p class="mt-0.5 text-xs text-gray-400">Upload your CV, portfolio, or other documents (PDF, DOC, max 10MB each, up to 5 files)</p>
+                            <input type="file" multiple accept=".pdf,.doc,.docx" wire:model="documentFiles" class="mt-1.5 text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-emerald-600 hover:file:bg-emerald-100 dark:text-gray-400 dark:file:bg-emerald-900/30 dark:file:text-emerald-300">
+                            @error('documentFiles') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            @error('documentFiles.*') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <button type="button" wire:click="closeApplicationForm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                                Cancel
+                            </button>
+                            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 transition-colors">
+                                <span wire:loading.remove wire:target="submitApplication">Submit Application</span>
+                                <span wire:loading wire:target="submitApplication">Submitting...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         @endif
     </div>

@@ -53,6 +53,14 @@ class MeetingForm
                             ->numeric()
                             ->minValue(0),
 
+                        TextInput::make('missed_fine_amount')
+                            ->label('Missed Meeting Fine (UGX)')
+                            ->numeric()
+                            ->minValue(0)
+                            ->suffix('UGX')
+                            ->placeholder('e.g. 5000')
+                            ->helperText('Leave empty to not fine absentees. Members who miss this meeting are automatically fined this amount after it ends.'),
+
                         TextInput::make('late_threshold_minutes')
                             ->label('Late Threshold (minutes)')
                             ->numeric()

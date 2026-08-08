@@ -43,6 +43,12 @@ class CompetitionShow extends Component
 
     public function join(): void
     {
+        if (auth()->user()?->isPendingApproval()) {
+            $this->redirectRoute('dashboard');
+
+            return;
+        }
+
         $this->authorize('join', $this->competition);
 
         $this->validate();

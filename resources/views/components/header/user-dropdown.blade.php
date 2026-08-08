@@ -32,7 +32,7 @@
             />
         </span>
 
-       <span class="block mr-1 font-medium text-theme-sm">{{ Auth::user()->name }}</span>
+       <span class="hidden mr-1 font-medium text-theme-sm sm:block">{{ Auth::user()->name }}</span>
 
         <!-- Chevron Icon -->
         <svg

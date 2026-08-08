@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Election;
 use App\Models\ElectionVote;
 use Livewire\Component;
 
 class ElectionShow extends Component
 {
+    use GuardsPendingMembers;
+
     public ?string $slug = null;
 
     public array $selectedCandidates = [];

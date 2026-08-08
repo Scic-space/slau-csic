@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Election;
 use App\Models\ElectionNomination;
 use Livewire\Component;
@@ -9,6 +10,7 @@ use Livewire\WithFileUploads;
 
 class ElectionNominations extends Component
 {
+    use GuardsPendingMembers;
     use WithFileUploads;
 
     public string $activeTab = 'statement';

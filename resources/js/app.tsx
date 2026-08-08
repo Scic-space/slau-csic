@@ -14,6 +14,16 @@ createInertiaApp({
         return page;
     },
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        const pageComponent = props.initialPage.component;
+        const isStandalonePage = pageComponent.startsWith('auth/');
+
+        createRoot(el).render(
+            <div
+                data-inertia-page={pageComponent}
+                className={isStandalonePage ? 'inertia-root inertia-root--standalone' : 'inertia-root'}
+            >
+                <App {...props} />
+            </div>,
+        );
     },
 });

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\ExamAttempt;
 use App\Models\TrainingEnrollment;
 use Livewire\Attributes\Title;
@@ -10,6 +11,8 @@ use Livewire\Component;
 #[Title('My Grades')]
 class MyGrades extends Component
 {
+    use GuardsPendingMembers;
+
     public function render()
     {
         $user = auth()->user();

@@ -54,27 +54,35 @@ Route::get('/news', [\App\Http\Controllers\PublicNewsController::class, 'index']
 Route::get('/news/{slug}', [\App\Http\Controllers\PublicNewsController::class, 'show'])->name('news.show');
 Route::get('/leaderboard', \App\Http\Controllers\PublicLeaderboardController::class)->name('leaderboard.index');
 Route::get('/ctf-arena', \App\Http\Controllers\PublicCtfController::class)->name('ctf-arena');
-Route::get('/ctf-arena/testimonial', \App\Livewire\SubmitTestimonial::class)->name('ctf.testimonial')->middleware('auth');
+Route::get('/ctf-arena/testimonial', \App\Livewire\SubmitTestimonial::class)->name('ctf.testimonial')->middleware(['auth', 'approved']);
 Route::get('/workshops', \App\Http\Controllers\PublicWorkshopController::class)->name('workshops');
 Route::get('/certificates/verify/{code}', [CertificateVerificationController::class, 'show'])->name('certificates.verify');
 
 // Public routes
-Route::get('/events/calendar', EventCalendar::class)->name('events.calendar')->middleware('auth');
-Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware('auth');
+Route::get('/events/calendar', EventCalendar::class)->name('events.calendar')->middleware(['auth', 'approved']);
+Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware(['auth', 'approved']);
 Route::get('/members', MemberDirectory::class)->name('members.index');
 Route::get('/events', EventListing::class)->name('events.index');
+
+Route::get('/events/checkin', App\Http\Controllers\EventCheckInController::class.'@showScanPage')
+    ->name('events.checkin')
+    ->middleware(['auth', 'approved', 'throttle:30,1']);
+Route::post('/events/checkin', App\Http\Controllers\EventCheckInController::class.'@processCheckIn')
+    ->name('events.checkin.process')
+    ->middleware(['auth', 'approved', 'throttle:10,1']);
+
 Route::get('/events/{event:slug}', EventDetails::class)->name('events.show');
 Route::get('/events/{event:slug}/certificate/{registration}', App\Http\Controllers\EventCertificateController::class)
     ->name('events.certificate')
     ->middleware(['auth', 'verified']);
-Route::post('/events/{event:slug}/rsvp', [EventShowController::class, 'rsvp'])->name('events.rsvp')->middleware(['auth', 'verified', 'throttle:10,1']);
-Route::post('/events/{event:slug}/cancel-rsvp', [EventShowController::class, 'cancelRsvp'])->name('events.cancel-rsvp')->middleware(['auth', 'verified', 'throttle:10,1']);
-Route::post('/events/{event:slug}/register', [EventShowController::class, 'register'])->name('events.register')->middleware(['auth', 'verified', 'throttle:10,1']);
-Route::post('/events/{event:slug}/unregister', [EventShowController::class, 'unregister'])->name('events.unregister')->middleware(['auth', 'verified', 'throttle:10,1']);
-Route::post('/events/{event:slug}/feedback', [EventShowController::class, 'storeFeedback'])->name('events.feedback')->middleware(['auth', 'verified', 'throttle:10,1']);
-Route::get('/events/create', EventCreate::class)->name('events.create')->middleware('auth');
-Route::get('/events/{event:slug}/edit', EventEdit::class)->name('events.edit')->middleware('auth');
-Route::get('/organizer/dashboard', \App\Livewire\OrganizerDashboard::class)->name('organizer.dashboard')->middleware('auth');
+Route::post('/events/{event:slug}/rsvp', [EventShowController::class, 'rsvp'])->name('events.rsvp')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
+Route::post('/events/{event:slug}/cancel-rsvp', [EventShowController::class, 'cancelRsvp'])->name('events.cancel-rsvp')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
+Route::post('/events/{event:slug}/register', [EventShowController::class, 'register'])->name('events.register')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
+Route::post('/events/{event:slug}/unregister', [EventShowController::class, 'unregister'])->name('events.unregister')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
+Route::post('/events/{event:slug}/feedback', [EventShowController::class, 'storeFeedback'])->name('events.feedback')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
+Route::get('/events/create', EventCreate::class)->name('events.create')->middleware(['auth', 'approved']);
+Route::get('/events/{event:slug}/edit', EventEdit::class)->name('events.edit')->middleware(['auth', 'approved']);
+Route::get('/organizer/dashboard', \App\Livewire\OrganizerDashboard::class)->name('organizer.dashboard')->middleware(['auth', 'approved']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth/login', [InertiaAuthController::class, 'showLogin'])->name('auth.login');
@@ -85,23 +93,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/auth/forgot-password', [InertiaAuthController::class, 'sendResetLink']);
 });
 
-Route::get('/events/checkin', App\Http\Controllers\EventCheckInController::class.'@showScanPage')
-    ->name('events.checkin')
-    ->middleware(['auth', 'throttle:30,1']);
-Route::post('/events/checkin', App\Http\Controllers\EventCheckInController::class.'@processCheckIn')
-    ->name('events.checkin.process')
-    ->middleware(['auth', 'throttle:10,1']);
-
 Route::middleware('auth')->group(function () {
     Route::post('/auth/logout', [InertiaAuthController::class, 'logout'])->name('auth.logout');
 
     Route::get('/auth/verify-email', [InertiaAuthController::class, 'showVerifyEmail'])->name('verification.notice');
-    Route::post('/auth/verify-email/resend', [InertiaAuthController::class, 'resendVerification'])->name('verification.resend');
+    Route::post('/auth/verify-email/verify', [InertiaAuthController::class, 'verifyEmailCode'])->middleware('throttle:6,1')->name('verification.verify-code');
+    Route::post('/auth/verify-email/resend', [InertiaAuthController::class, 'resendVerification'])->middleware('throttle:6,1')->name('verification.resend');
 
     Route::get('/dashboard', MemberDashboard::class)
         ->name('dashboard');
-    Route::get('/my-events', MyEvents::class)->name('my-events');
-    Route::get('/grades', MyGrades::class)->name('grades.index');
+    Route::get('/my-events', MyEvents::class)->name('my-events')->middleware('approved');
+    Route::get('/grades', MyGrades::class)->name('grades.index')->middleware('approved');
     Route::get('/membership-card', App\Http\Controllers\MembershipCardController::class)->name('membership.card');
     Route::get('/profile', MemberProfile::class)->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -128,46 +130,46 @@ Route::middleware('auth')->group(function () {
     Route::get('/support', SupportPage::class)->name('support');
 
     // Training routes
-    Route::get('/trainings', TrainingListing::class)->name('trainings.index');
-    Route::get('/trainings/{training:slug}', TrainingShow::class)->name('trainings.show');
+    Route::get('/trainings', TrainingListing::class)->name('trainings.index')->middleware('approved');
+    Route::get('/trainings/{training:slug}', TrainingShow::class)->name('trainings.show')->middleware('approved');
 
     // Resource Library
-    Route::get('/resources', \App\Livewire\ResourceLibrary::class)->name('resources.index');
+    Route::get('/resources', \App\Livewire\ResourceLibrary::class)->name('resources.index')->middleware('approved');
 
     // Teaching session routes
-    Route::get('/classes/{meeting}', TeachingSessionShow::class)->name('classes.show');
+    Route::get('/classes/{meeting}', TeachingSessionShow::class)->name('classes.show')->middleware('approved');
 
-    Route::get('/members/{user}', \App\Livewire\MemberShow::class)->name('members.show');
-    Route::get('/fines', \App\Livewire\MyFines::class)->name('fines.index');
-    Route::get('/fines/export/csv', [\App\Http\Controllers\FineExportController::class, 'csv'])->name('fines.export.csv');
-    Route::post('/fines/{fine}/appeal', [\App\Http\Controllers\MemberFinesController::class, 'appeal'])->name('fines.appeal');
-    Route::get('/fines/{fine}/notice', \App\Http\Controllers\FineNoticeController::class.'@download')->name('fines.notice');
-    Route::get('/fines/payments/{payment}/receipt', \App\Http\Controllers\FineReceiptController::class.'@download')->name('fines.payments.receipt');
-    Route::get('/my-transactions', MyTransactions::class)->name('my-transactions');
-    Route::get('/my-transactions/export/csv', [\App\Http\Controllers\TransactionExportController::class, 'csv'])->name('transactions.export.csv');
+    Route::get('/members/{user}', \App\Livewire\MemberShow::class)->name('members.show')->middleware('approved');
+    Route::get('/fines', \App\Livewire\MyFines::class)->name('fines.index')->middleware('approved');
+    Route::get('/fines/export/csv', [\App\Http\Controllers\FineExportController::class, 'csv'])->name('fines.export.csv')->middleware('approved');
+    Route::post('/fines/{fine}/appeal', [\App\Http\Controllers\MemberFinesController::class, 'appeal'])->name('fines.appeal')->middleware('approved');
+    Route::get('/fines/{fine}/notice', \App\Http\Controllers\FineNoticeController::class.'@download')->name('fines.notice')->middleware('approved');
+    Route::get('/fines/payments/{payment}/receipt', \App\Http\Controllers\FineReceiptController::class.'@download')->name('fines.payments.receipt')->middleware('approved');
+    Route::get('/my-transactions', MyTransactions::class)->name('my-transactions')->middleware('approved');
+    Route::get('/my-transactions/export/csv', [\App\Http\Controllers\TransactionExportController::class, 'csv'])->name('transactions.export.csv')->middleware('approved');
     Route::get('/treasurer', \App\Livewire\TreasurerDashboard::class)->name('treasurer.dashboard')->middleware('role:admin|treasurer|president|super-admin');
 
-    Route::get('/account-statement', [\App\Http\Controllers\AccountStatementController::class, 'download'])->name('account.statement');
-    Route::get('/account-statement/{user}', [\App\Http\Controllers\AccountStatementController::class, 'download'])->name('account.statement.user')->middleware('role:admin|treasurer|president|super-admin');
+    Route::get('/account-statement', [\App\Http\Controllers\AccountStatementController::class, 'download'])->name('account.statement')->middleware('approved');
+    Route::get('/account-statement/{user}', [\App\Http\Controllers\AccountStatementController::class, 'download'])->name('account.statement.user')->middleware(['approved', 'role:admin|treasurer|president|super-admin']);
 
-    Route::get('/exams', ExamListing::class)->name('exams.index');
-    Route::get('/exams/{exam}/take', \App\Livewire\ExamTake::class)->name('exams.take');
-    Route::post('/exams/{exam}/take/answer', [ExamTakeController::class, 'saveAnswer'])->name('exams.save-answer');
-    Route::post('/exams/{exam}/take/submit', [ExamTakeController::class, 'submit'])->name('exams.submit');
-    Route::get('/exams/attempts/{attempt}/result', \App\Livewire\ExamResult::class)->name('exams.result');
-    Route::get('/exams/certificates', ExamCertificates::class)->name('exams.certificates');
-    Route::get('/exams/certificates/{eligibility}/download', ExamCertificateDownloadController::class)->name('exams.certificates.download');
+    Route::get('/exams', ExamListing::class)->name('exams.index')->middleware('approved');
+    Route::get('/exams/{exam}/take', \App\Livewire\ExamTake::class)->name('exams.take')->middleware('approved');
+    Route::post('/exams/{exam}/take/answer', [ExamTakeController::class, 'saveAnswer'])->name('exams.save-answer')->middleware('approved');
+    Route::post('/exams/{exam}/take/submit', [ExamTakeController::class, 'submit'])->name('exams.submit')->middleware('approved');
+    Route::get('/exams/attempts/{attempt}/result', \App\Livewire\ExamResult::class)->name('exams.result')->middleware('approved');
+    Route::get('/exams/certificates', ExamCertificates::class)->name('exams.certificates')->middleware('approved');
+    Route::get('/exams/certificates/{eligibility}/download', ExamCertificateDownloadController::class)->name('exams.certificates.download')->middleware('approved');
 
-    Route::get('/voting', ElectionVoting::class)->name('voting.index');
-    Route::get('/voting/nominations', ElectionNominations::class)->name('voting.nominations');
-    Route::get('/voting/my-applications', ElectionMyApplications::class)->name('voting.my-applications');
-    Route::get('/voting/results', ElectionResults::class)->name('voting.results');
-    Route::get('/vote/verify', VerifyReceipt::class)->name('voting.verify.form');
-    Route::get('/voting/{slug}', ElectionShow::class)->name('voting.show');
+    Route::get('/voting', ElectionVoting::class)->name('voting.index')->middleware('approved');
+    Route::get('/voting/nominations', ElectionNominations::class)->name('voting.nominations')->middleware('approved');
+    Route::get('/voting/my-applications', ElectionMyApplications::class)->name('voting.my-applications')->middleware('approved');
+    Route::get('/voting/results', ElectionResults::class)->name('voting.results')->middleware('approved');
+    Route::get('/vote/verify', VerifyReceipt::class)->name('voting.verify.form')->middleware('approved');
+    Route::get('/voting/{slug}', ElectionShow::class)->name('voting.show')->middleware('approved');
 
     // Polls
-    Route::get('/polls', \App\Livewire\PollListing::class)->name('polls.index');
-    Route::get('/polls/{slug}', \App\Livewire\PollShow::class)->name('polls.show');
+    Route::get('/polls', \App\Livewire\PollListing::class)->name('polls.index')->middleware('approved');
+    Route::get('/polls/{slug}', \App\Livewire\PollShow::class)->name('polls.show')->middleware('approved');
 
     // Instructor routes
     Route::get('/instructor', InstructorDashboard::class)->name('instructor.dashboard')->middleware('can:content.view');

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Training;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -9,6 +10,8 @@ use Livewire\Component;
 #[Title('Trainings')]
 class TrainingListing extends Component
 {
+    use GuardsPendingMembers;
+
     public string $search = '';
 
     public string $category = '';

@@ -15,6 +15,10 @@ class PublicHomeController extends Controller
     public function __invoke(): Response|RedirectResponse
     {
         if (auth()->check()) {
+            if (request()->inertia()) {
+                return Inertia::location(route('dashboard'));
+            }
+
             return redirect()->route('dashboard');
         }
 

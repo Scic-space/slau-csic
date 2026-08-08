@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\ExamAttempt;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class ExamResult extends Component
 {
+    use GuardsPendingMembers;
+
     public ExamAttempt $attempt;
 
     public bool $showAnswers = false;

@@ -17,6 +17,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -59,11 +60,8 @@ class UserResource extends Resource
                                 ->disabled(),
                             TextInput::make('email')
                                 ->disabled(),
-                            TextInput::make('student_id')
-                                ->label('Student ID')
-                                ->disabled(),
-                            TextInput::make('phone')
-                                ->tel()
+                            TextInput::make('registration_number')
+                                ->label('Registration Number')
                                 ->disabled(),
                             Select::make('membership_type')
                                 ->disabled()
@@ -80,19 +78,47 @@ class UserResource extends Resource
                                     'suspended' => 'Suspended',
                                     'inactive' => 'Inactive',
                                 ]),
-                            TextInput::make('program')
-                                ->disabled(),
-                            TextInput::make('year_of_study')
-                                ->numeric()
-                                ->disabled(),
+                            Select::make('intake')
+                                ->disabled()
+                                ->options([
+                                    'august' => 'August',
+                                    'january' => 'January',
+                                    'may' => 'May',
+                                ]),
+                            Select::make('intake_year')
+                                ->disabled()
+                                ->options(fn (): array => collect(range(now()->year - 5, now()->year))
+                                    ->mapWithKeys(fn (int $year): array => [$year => (string) $year])
+                                    ->all()),
                             DatePicker::make('joined_at')
                                 ->disabled(),
                             DatePicker::make('approved_at')
                                 ->disabled(),
                         ]),
-                    Textarea::make('bio')
-                        ->disabled()
-                        ->columnSpanFull(),
+
+                    Section::make('Member Profile')
+                        ->relationship('memberProfile')
+                        ->columns(2)
+                        ->schema([
+                            TextInput::make('phone')
+                                ->tel()
+                                ->disabled(),
+                            TextInput::make('faculty')
+                                ->disabled(),
+                            TextInput::make('program')
+                                ->label('Program/Course')
+                                ->disabled(),
+                            TextInput::make('year_of_study')
+                                ->numeric()
+                                ->disabled(),
+                            TextInput::make('residence')
+                                ->disabled(),
+                            TextInput::make('headline')
+                                ->disabled(),
+                            Textarea::make('bio')
+                                ->disabled()
+                                ->columnSpanFull(),
+                        ]),
                 ]);
         };
     }
@@ -115,6 +141,6 @@ class UserResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'email', 'student_id', 'phone', 'program'];
+        return ['name', 'email', 'registration_number'];
     }
 }

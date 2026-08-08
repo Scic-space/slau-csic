@@ -30,7 +30,19 @@ it('renders the register page', function () {
 
     $response->assertInertia(fn ($page) => $page
         ->component('auth/Register')
+        ->where('faculties', fn ($faculties) => collect($faculties)->isNotEmpty()
+            && collect($faculties)->every(fn ($faculty) => isset($faculty['name'], $faculty['programs'])))
     );
+});
+
+it('renders the verification page for unverified users', function () {
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user)
+        ->get(route('verification.notice'))
+        ->assertInertia(fn ($page) => $page
+            ->component('auth/VerifyEmail')
+            ->where('auth.user.email', $user->email));
 });
 
 // ─── Public pages ───────────────────────────────────────────────────

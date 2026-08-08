@@ -2,11 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Event;
 use Livewire\Component;
 
 class OrganizerDashboard extends Component
 {
+    use GuardsPendingMembers;
+
     public ?int $selectedEventId = null;
 
     public Event $selectedEvent;

@@ -54,17 +54,9 @@
                                 </div>
 
                                 <div>
-                                    <label for="student_id" class="portal-copy mb-2 block text-sm font-medium">Student ID <span style="color: var(--portal-primary);">*</span></label>
-                                    <input type="text" id="student_id" name="student_id" value="{{ old('student_id') }}" placeholder="SLAU issued student number" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('student_id') border-error-500 @enderror" />
-                                    @error('student_id')
-                                        <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div>
                                     <label for="registration_number" class="portal-copy mb-2 block text-sm font-medium">Registration Number <span style="color: var(--portal-primary);">*</span></label>
-                                    <input type="text" id="registration_number" name="registration_number" value="{{ old('registration_number') }}" placeholder="BACS/24D/U/A0160" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('registration_number') border-error-500 @enderror" />
-                                    <p class="portal-muted mt-2 text-xs">Format: Course/Year+Mode/Country/Intake+Number (e.g. BACS/24D/U/A0160)</p>
+                                    <input type="text" id="registration_number" name="registration_number" value="{{ old('registration_number') }}" placeholder="BACS/26D/U/A0000" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('registration_number') border-error-500 @enderror" />
+                                    <p class="portal-muted mt-2 text-xs">Format: Course/Year+Mode/Country/Intake+Number (e.g. BACS/26D/U/A0000)</p>
                                     @error('registration_number')
                                         <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
                                     @enderror
@@ -78,20 +70,43 @@
                                     @enderror
                                 </div>
 
-                                <div>
-                                    <label for="program" class="portal-copy mb-2 block text-sm font-medium">Programme <span style="color: var(--portal-primary);">*</span></label>
-                                    <input type="text" id="program" name="program" value="{{ old('program') }}" placeholder="e.g. BSc Information Technology" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('program') border-error-500 @enderror" />
-                                    @error('program')
-                                        <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                                <div x-data="{
+                                    faculties: @js(array_values(config('academics.faculties'))),
+                                    faculty: @js((string) old('faculty')),
+                                    program: @js((string) old('program')),
+                                    get facultyPrograms() {
+                                        const match = this.faculties.find((f) => f.name === this.faculty);
+                                        return match ? match.programs : [];
+                                    },
+                                    resetProgram() {
+                                        this.program = '';
+                                    },
+                                }" class="md:col-span-2 grid gap-5 md:grid-cols-2">
+                                    <div>
+                                        <label for="faculty" class="portal-copy mb-2 block text-sm font-medium">Faculty <span style="color: var(--portal-primary);">*</span></label>
+                                        <select id="faculty" name="faculty" x-model="faculty" @change="resetProgram()" class="portal-field h-12 w-full rounded-sm px-4 text-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('faculty') border-error-500 @enderror">
+                                            <option value="">Select faculty</option>
+                                            <template x-for="f in faculties" :key="f.name">
+                                                <option :value="f.name" x-text="f.name"></option>
+                                            </template>
+                                        </select>
+                                        @error('faculty')
+                                            <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
+                                        @enderror
+                                    </div>
 
-                                <div>
-                                    <label for="faculty" class="portal-copy mb-2 block text-sm font-medium">Faculty or school</label>
-                                    <input type="text" id="faculty" name="faculty" value="{{ old('faculty') }}" placeholder="e.g. Faculty of Science" class="portal-field h-12 w-full rounded-sm px-4 text-sm placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('faculty') border-error-500 @enderror" />
-                                    @error('faculty')
-                                        <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
-                                    @enderror
+                                    <div>
+                                        <label for="program" class="portal-copy mb-2 block text-sm font-medium">Programme <span style="color: var(--portal-primary);">*</span></label>
+                                        <select id="program" name="program" x-model="program" :disabled="facultyPrograms.length === 0" class="portal-field h-12 w-full rounded-sm px-4 text-sm disabled:opacity-50 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('program') border-error-500 @enderror">
+                                            <option value="" x-text="facultyPrograms.length === 0 ? 'Select a faculty first' : 'Select programme'"></option>
+                                            <template x-for="p in facultyPrograms" :key="p">
+                                                <option :value="p" x-text="p"></option>
+                                            </template>
+                                        </select>
+                                        @error('program')
+                                            <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
@@ -103,6 +118,33 @@
                                         @endfor
                                     </select>
                                     @error('year_of_study')
+                                        <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label for="intake" class="portal-copy mb-2 block text-sm font-medium">Intake <span style="color: var(--portal-primary);">*</span></label>
+                                    <select id="intake" name="intake" class="portal-field h-12 w-full rounded-sm px-4 text-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('intake') border-error-500 @enderror">
+                                        <option value="">Select intake</option>
+                                        <option value="august" @selected(old('intake') == 'august')>August</option>
+                                        <option value="january" @selected(old('intake') == 'january')>January</option>
+                                        <option value="may" @selected(old('intake') == 'may')>May</option>
+                                    </select>
+                                    @error('intake')
+                                        <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label for="intake_year" class="portal-copy mb-2 block text-sm font-medium">Intake year <span style="color: var(--portal-primary);">*</span></label>
+                                    <select id="intake_year" name="intake_year" class="portal-field h-12 w-full rounded-sm px-4 text-sm focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-400/10 @error('intake_year') border-error-500 @enderror">
+                                        <option value="">Select year</option>
+                                        @for ($year = now()->year - 5; $year <= now()->year; $year++)
+                                            <option value="{{ $year }}" @selected(old('intake_year') == $year)>{{ $year }}</option>
+                                        @endfor
+                                    </select>
+                                    <p class="portal-muted mt-2 text-xs">The year you were admitted. Used to calculate your membership card expiry.</p>
+                                    @error('intake_year')
                                         <p class="mt-2 text-sm text-error-400">{{ $message }}</p>
                                     @enderror
                                 </div>

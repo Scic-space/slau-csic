@@ -45,6 +45,10 @@ class EventDetails extends Component
     {
         $this->ensureAuthenticated();
 
+        if (! $this->ensureApproved()) {
+            return;
+        }
+
         if ($this->event->rsvp_deadline && now()->isAfter($this->event->rsvp_deadline)) {
             $this->dispatch('toast-show', message: 'RSVP for this event has closed.', type: 'error');
 
@@ -67,6 +71,10 @@ class EventDetails extends Component
     public function rsvp(): void
     {
         $this->ensureAuthenticated();
+
+        if (! $this->ensureApproved()) {
+            return;
+        }
 
         if ($this->event->registration_deadline && now()->isAfter($this->event->registration_deadline)) {
             $this->dispatch('toast-show', message: 'Registration for this event has closed.', type: 'error');
@@ -102,6 +110,10 @@ class EventDetails extends Component
     {
         $this->ensureAuthenticated();
 
+        if (! $this->ensureApproved()) {
+            return;
+        }
+
         $registration = EventRegistration::where('event_id', $this->event->id)
             ->where('user_id', auth()->id())
             ->first();
@@ -120,6 +132,10 @@ class EventDetails extends Component
     public function register(): void
     {
         $this->ensureAuthenticated();
+
+        if (! $this->ensureApproved()) {
+            return;
+        }
 
         if ($this->event->registration_deadline && now()->isAfter($this->event->registration_deadline)) {
             $this->dispatch('toast-show', message: 'Registration for this event has closed.', type: 'error');
@@ -164,6 +180,10 @@ class EventDetails extends Component
     {
         $this->ensureAuthenticated();
 
+        if (! $this->ensureApproved()) {
+            return;
+        }
+
         $registration = EventRegistration::where('event_id', $this->event->id)
             ->where('user_id', auth()->id())
             ->first();
@@ -180,6 +200,10 @@ class EventDetails extends Component
     public function submitFeedback(): void
     {
         $this->ensureAuthenticated();
+
+        if (! $this->ensureApproved()) {
+            return;
+        }
 
         $this->validate([
             'feedbackRating' => 'required|integer|min:1|max:5',
@@ -353,5 +377,16 @@ class EventDetails extends Component
         if (! auth()->check()) {
             $this->redirectRoute('auth.login');
         }
+    }
+
+    private function ensureApproved(): bool
+    {
+        if (auth()->user()?->isPendingApproval()) {
+            $this->redirectRoute('dashboard');
+
+            return false;
+        }
+
+        return true;
     }
 }

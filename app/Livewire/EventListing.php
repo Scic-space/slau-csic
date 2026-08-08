@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Event;
 use App\Models\EventCategory;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,6 +14,7 @@ class EventListing extends Component
 {
     use WithPagination;
 
+    #[Url]
     public string $search = '';
 
     public string $category = '';

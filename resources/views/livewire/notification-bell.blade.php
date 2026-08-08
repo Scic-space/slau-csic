@@ -38,7 +38,7 @@
         x-transition:leave="transition ease-in duration-100"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
         x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-        class="absolute right-0 mt-[17px] flex w-[calc(100vw-2rem)] max-w-[380px] flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900"
+        class="absolute left-0 mt-[17px] flex w-[calc(100vw-2rem)] max-w-[380px] flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900 xl:left-auto xl:right-0"
         role="menu"
         style="display: none;"
     >

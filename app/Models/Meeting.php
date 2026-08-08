@@ -30,6 +30,7 @@ class Meeting extends Model
         'attendance_open',
         'duration_minutes',
         'expected_attendees',
+        'missed_fine_amount',
         'created_by',
         'agenda',
         'minutes',
@@ -51,6 +52,7 @@ class Meeting extends Model
             'attendance_open' => 'boolean',
             'is_recurring' => 'boolean',
             'cancelled_at' => 'datetime',
+            'missed_fine_amount' => 'decimal:2',
         ];
     }
 

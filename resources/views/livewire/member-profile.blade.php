@@ -47,6 +47,7 @@
             </div>
         </div>
 
+        @if ($completionPercent < 100)
         {{-- Profile completion bar --}}
         <div class="dashboard-card mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center justify-between">
@@ -59,16 +60,15 @@
             <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                 <div class="h-full rounded-full bg-gray-900 transition-all duration-500 dark:bg-white" style="width: {{ $completionPercent }}%"></div>
             </div>
-            @if ($completionPercent < 100)
-                <div class="mt-3 flex flex-wrap gap-1.5">
-                    @foreach ($profileFields as $field => $filled)
-                        @unless ($filled)
-                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">{{ str_replace('_', ' ', $field) }}</span>
-                        @endunless
-                    @endforeach
-                </div>
-            @endif
+            <div class="mt-3 flex flex-wrap gap-1.5">
+                @foreach ($profileFields as $field => $filled)
+                    @unless ($filled)
+                        <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-gray-700/50 dark:text-gray-400">{{ str_replace('_', ' ', $field) }}</span>
+                    @endunless
+                @endforeach
+            </div>
         </div>
+        @endif
 
         {{-- Two-column sections --}}
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -95,12 +95,6 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Student ID</label>
-                                <input type="text" wire:model="student_id"
-                                       class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
-                                @error('student_id') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
-                            </div>
-                            <div>
                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Registration No.</label>
                                 <input type="text" wire:model="registration_number"
                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
@@ -119,19 +113,27 @@
                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
                             @error('headline') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Program</label>
-                                <input type="text" wire:model="program"
-                                       class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
-                                @error('program') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Faculty</label>
-                                <input type="text" wire:model="faculty"
-                                       class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
-                                @error('faculty') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
-                            </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Faculty</label>
+                            <select wire:model.live="faculty"
+                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
+                                <option value="">Select faculty</option>
+                                @foreach ($faculties as $facultyOption)
+                                    <option value="{{ $facultyOption['name'] }}">{{ $facultyOption['name'] }}</option>
+                                @endforeach
+                            </select>
+                            @error('faculty') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Program</label>
+                            <select wire:model="program"
+                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white dark:disabled:opacity-50">
+                                <option value="">Select a faculty first</option>
+                                @foreach ($programsForFaculty as $programOption)
+                                    <option value="{{ $programOption }}">{{ $programOption }}</option>
+                                @endforeach
+                            </select>
+                            @error('program') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Year of Study</label>
@@ -143,6 +145,30 @@
                                 @endforeach
                             </select>
                             @error('year_of_study') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Intake</label>
+                                <select wire:model="intake"
+                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
+                                    <option value="">Select intake</option>
+                                    <option value="august">August</option>
+                                    <option value="january">January</option>
+                                    <option value="may">May</option>
+                                </select>
+                                @error('intake') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Intake Year</label>
+                                <select wire:model="intake_year"
+                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
+                                    <option value="">Select year</option>
+                                    @foreach (range(now()->year - 5, now()->year) as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                                @error('intake_year') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Bio</label>

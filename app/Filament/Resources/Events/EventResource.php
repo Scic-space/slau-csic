@@ -138,6 +138,14 @@ class EventResource extends Resource
                     ->minValue(0)
                     ->default(0)
                     ->prefix('$'),
+
+                TextInput::make('no_show_fine_amount')
+                    ->label('No-Show Fine (UGX)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->suffix('UGX')
+                    ->placeholder('e.g. 10000')
+                    ->helperText('Leave empty to not fine no-shows. Registered members who miss this event are automatically fined this amount after it ends.'),
                 Select::make('status')
                     ->options([
                         'draft' => 'Draft',

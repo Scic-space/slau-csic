@@ -9,7 +9,6 @@ class MemberProfile extends Model
 {
     protected $fillable = [
         'user_id',
-        'student_id',
         'phone',
         'program',
         'faculty',

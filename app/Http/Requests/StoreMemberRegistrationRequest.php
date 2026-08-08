@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StoreMemberRegistrationRequest extends FormRequest
@@ -23,12 +25,25 @@ class StoreMemberRegistrationRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'student_id' => ['required', 'string', 'max:100', 'unique:users,student_id'],
             'registration_number' => ['required', 'string', 'max:50', 'unique:users,registration_number', 'regex:/^[A-Za-z]+\/\d{2}[DW]\/[A-Za-z]\/[A-Za-z]\d+$/'],
             'phone' => ['required', 'string', 'max:20'],
-            'program' => ['required', 'string', 'max:100'],
-            'faculty' => ['nullable', 'string', 'max:100'],
+            'program' => [
+                'required',
+                'string',
+                'max:100',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $programs = collect(config('academics.faculties'))
+                        ->firstWhere('name', $this->input('faculty'))['programs'] ?? [];
+
+                    if (! in_array($value, $programs, true)) {
+                        $fail('program.in');
+                    }
+                },
+            ],
+            'faculty' => ['required', 'string', 'max:100', Rule::in(config('academics.facultyNames'))],
             'year_of_study' => ['required', 'integer', 'min:1', 'max:6'],
+            'intake' => ['required', 'string', 'in:january,may,august'],
+            'intake_year' => ['required', 'integer', 'min:1990', 'max:'.now()->year],
             'date_of_birth' => ['required', 'date', 'before:today'],
             'gender' => ['required', 'string', 'max:30'],
             'residence' => ['required', 'string', 'max:120'],
@@ -56,13 +71,21 @@ class StoreMemberRegistrationRequest extends FormRequest
     {
         return [
             'registration_number.required' => 'Your university registration number is required.',
-            'registration_number.regex' => 'Format must be like BACS/24D/U/A0160 (Course/Year+Mode/Country/Intake+Number).',
+            'registration_number.regex' => 'Format must be like BACS/26D/U/A0000 (Course/Year+Mode/Country/Intake+Number).',
             'registration_number.unique' => 'This registration number is already registered.',
-            'student_id.required' => 'A student identification number is required for club records.',
             'profile_photo.required' => 'Please upload a clear profile photo for your member account.',
             'profile_photo.image' => 'The uploaded file must be an image.',
             'profile_photo.max' => 'Your profile photo should be 5MB or smaller.',
             'terms.accepted' => 'You need to accept the club platform terms before continuing.',
+            'intake.required' => 'Please select your intake (January, May or August).',
+            'intake.in' => 'Intake must be January, May or August.',
+            'intake_year.required' => 'Please enter the year you were admitted (your intake year).',
+            'intake_year.max' => 'Your intake year cannot be in the future.',
+            'intake_year.min' => 'Your intake year must be a valid four-digit year.',
+            'faculty.required' => 'Please select your faculty.',
+            'faculty.in' => 'Please select a valid faculty from the list.',
+            'program.required' => 'Please select your programme.',
+            'program.in' => 'Please select a valid programme from the list.',
         ];
     }
 }

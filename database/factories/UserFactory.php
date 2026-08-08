@@ -31,6 +31,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'membership_status' => 'active',
             'membership_type' => 'active',
+            'intake' => 'august',
         ];
     }
 
@@ -41,6 +42,17 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the member is awaiting approval by the club administration.
+     */
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'membership_status' => 'pending',
+            'approved_at' => null,
         ]);
     }
 }

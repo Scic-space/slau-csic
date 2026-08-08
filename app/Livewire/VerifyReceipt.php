@@ -2,11 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\ElectionVote;
 use Livewire\Component;
 
 class VerifyReceipt extends Component
 {
+    use GuardsPendingMembers;
+
     public string $receiptCode = '';
 
     public ?array $result = null;
