@@ -307,3 +307,29 @@ it('accepts a may intake during registration', function () {
     expect($user)->not->toBeNull()
         ->and($user->intake)->toBe('may');
 });
+
+it('accepts a registration number with a trailing letter', function () {
+    Storage::fake('public');
+    Event::fake();
+
+    $this->post(route('auth.register'), registrationPayload([
+        'registration_number' => 'BACS/24D/U/A016O',
+    ]))
+        ->assertRedirect(route('verification.notice', absolute: false));
+
+    $user = User::query()->where('email', 'grace@example.com')->first();
+
+    expect($user)->not->toBeNull()
+        ->and($user->registration_number)->toBe('BACS/24D/U/A016O');
+});
+
+it('rejects a malformed registration number', function () {
+    Storage::fake('public');
+    Event::fake();
+
+    $this->from(route('auth.register'))
+        ->post(route('auth.register'), registrationPayload([
+            'registration_number' => 'BACS-24D-U-A016O',
+        ]))
+        ->assertSessionHasErrors('registration_number');
+});
