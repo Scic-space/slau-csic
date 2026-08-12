@@ -20,6 +20,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Lab404\Impersonate\Models\Impersonate;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
@@ -45,6 +46,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'password',
         'email_verification_code',
         'email_verification_code_expires_at',
+        'member_number',
         'registration_number',
         'phone',
         'program',
@@ -196,7 +198,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(['super-admin', 'admin', 'treasurer', 'president']);
+        return $this->hasAnyRole(['super-admin', 'admin', 'Treasurer', 'President']);
     }
 
     public function isAdmin(): bool
@@ -408,15 +410,15 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     {
         return $query->whereHas('roles', function ($q) {
             $q->whereIn('name', [
-                'president',
-                'vice_president',
-                'secretary',
-                'treasurer',
-                'head_projects',
-                'head_ctf',
-                'head_media',
-                'head_innovations',
-                'head_discipline',
+                'President',
+                'Vice President',
+                'General Secretary',
+                'Treasurer',
+                'Head of Projects',
+                'CTF Lead',
+                'Public Relations',
+                'Lead Developer',
+                'Technical Lead',
             ]);
         });
     }
@@ -435,15 +437,15 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     {
         return $this->hasAnyRole([
             'admin',
-            'president',
-            'vice_president',
-            'secretary',
-            'treasurer',
-            'head_projects',
-            'head_ctf',
-            'head_media',
-            'head_innovations',
-            'head_discipline',
+            'President',
+            'Vice President',
+            'General Secretary',
+            'Treasurer',
+            'Head of Projects',
+            'CTF Lead',
+            'Public Relations',
+            'Lead Developer',
+            'Technical Lead',
         ]);
     }
 
@@ -486,8 +488,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function getRoleNamesAttribute(): string
     {
-        return $this->roles->pluck('name')->map(function ($role) {
-            return ucfirst(str_replace('_', ' ', $role));
+        return $this->roles->pluck('name')->map(function (string $role): string {
+            return Str::headline($role);
         })->join(', ');
     }
 
@@ -644,6 +646,17 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->membership_status === 'inactive';
     }
 
+    public function assignMemberNumber(): void
+    {
+        if ($this->member_number !== null) {
+            return;
+        }
+
+        $this->update([
+            'member_number' => (int) self::query()->max('member_number') + 1,
+        ]);
+    }
+
     public function approve(?User $approver = null, ?string $notes = null): bool
     {
         try {
@@ -654,6 +667,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'approval_notes' => $notes,
                 'membership_expires_at' => $this->membershipExpiryDate(),
             ]);
+
+            $this->assignMemberNumber();
 
             $this->membership?->update([
                 'status' => 'active',

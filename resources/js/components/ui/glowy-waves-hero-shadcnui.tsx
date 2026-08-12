@@ -44,6 +44,7 @@ export function GlowyWavesBackground({ children }: GlowyWavesProps) {
   const targetMouseRef = useRef<Point>({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(true);
   const visibleRef = useRef(true);
+  const scrollingRef = useRef(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -107,6 +108,8 @@ export function GlowyWavesBackground({ children }: GlowyWavesProps) {
     const influenceRadius = prefersReducedMotion ? 160 : 320;
     const smoothing = prefersReducedMotion ? 0.04 : 0.1;
 
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -129,11 +132,21 @@ export function GlowyWavesBackground({ children }: GlowyWavesProps) {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
 
+    let scrollTimer: ReturnType<typeof setTimeout>;
+    const handleScroll = () => {
+      scrollingRef.current = true;
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => { scrollingRef.current = false; }, 120);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
     const drawWave = (wave: WaveConfig) => {
       ctx.save();
       ctx.beginPath();
 
-      for (let x = 0; x <= canvas.width; x += 4) {
+      const step = isMobile ? 8 : 4;
+
+      for (let x = 0; x <= canvas.width; x += step) {
         const dx = x - mouseRef.current.x;
         const dy = canvas.height / 2 - mouseRef.current.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -151,14 +164,14 @@ export function GlowyWavesBackground({ children }: GlowyWavesProps) {
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = wave.color;
       ctx.globalAlpha = wave.opacity;
-      ctx.shadowBlur = 35;
+      ctx.shadowBlur = isMobile ? 0 : 35;
       ctx.shadowColor = wave.color;
       ctx.stroke();
       ctx.restore();
     };
 
     const animate = () => {
-      if (visibleRef.current) {
+      if (visibleRef.current && !scrollingRef.current) {
         time += 1;
         mouseRef.current.x += (targetMouseRef.current.x - mouseRef.current.x) * smoothing;
         mouseRef.current.y += (targetMouseRef.current.y - mouseRef.current.y) * smoothing;
@@ -180,6 +193,7 @@ export function GlowyWavesBackground({ children }: GlowyWavesProps) {
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("scroll", handleScroll);
       cancelAnimationFrame(animationId);
       observer.disconnect();
     };
@@ -187,7 +201,7 @@ export function GlowyWavesBackground({ children }: GlowyWavesProps) {
 
   return (
     <div ref={containerRef} className="relative min-h-[100dvh] w-full overflow-x-hidden bg-gray-50 dark:bg-[#0f172a]">
-      <canvas ref={canvasRef} className="fixed inset-0 h-full w-full" aria-hidden="true" />
+      <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 h-full w-full" aria-hidden="true" />
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute left-1/2 top-0 h-[300px] w-[300px] sm:h-[520px] sm:w-[520px] -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[140px]" />
         <div className="absolute bottom-0 right-0 h-[200px] w-[200px] sm:h-[360px] sm:w-[360px] rounded-full bg-violet-500/10 blur-[120px]" />

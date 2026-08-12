@@ -80,7 +80,7 @@ class StatsOverviewWidget extends BaseWidget
                 ->color('info');
         }
 
-        if ($user->hasAnyRole(['admin', 'super-admin', 'treasurer', 'president'])) {
+        if ($user->hasAnyRole(['admin', 'super-admin', 'Treasurer', 'President'])) {
             $outstandingFines = Fine::whereIn('status', ['pending', 'partially_paid'])->sum('balance');
             $overdueFines = Fine::overdue()->count();
 

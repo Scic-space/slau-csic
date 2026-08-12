@@ -10,7 +10,7 @@ class FineReceiptController extends Controller
 {
     public function download(FinePayment $payment): Response
     {
-        if ($payment->fine->user_id !== auth()->id() && ! auth()->user()?->hasAnyRole(['admin', 'treasurer', 'president', 'super-admin'])) {
+        if ($payment->fine->user_id !== auth()->id() && ! auth()->user()?->hasAnyRole(['admin', 'Treasurer', 'President', 'super-admin'])) {
             abort(403);
         }
 

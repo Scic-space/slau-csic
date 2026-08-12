@@ -90,7 +90,7 @@ class RecurringTransactionTest extends TestCase
 
     public function test_recurring_transaction_has_default_interval(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
         $transaction = Transaction::factory()->create([
             'created_by' => $user->id,
             'is_recurring' => true,
@@ -105,7 +105,7 @@ class RecurringTransactionTest extends TestCase
 
     public function test_non_recurring_transaction_has_null_fields(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
         $transaction = Transaction::factory()->create([
             'created_by' => $user->id,
             'is_recurring' => false,
@@ -119,7 +119,7 @@ class RecurringTransactionTest extends TestCase
 
     public function test_due_recurring_scope_returns_only_due_transactions(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
         $due = Transaction::factory()->create([
             'created_by' => $user->id,
             'is_recurring' => true,
@@ -146,7 +146,7 @@ class RecurringTransactionTest extends TestCase
 
     public function test_calculate_next_date_for_monthly(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
         $transaction = Transaction::factory()->create([
             'created_by' => $user->id,
             'is_recurring' => true,
@@ -161,7 +161,7 @@ class RecurringTransactionTest extends TestCase
 
     public function test_calculate_next_date_for_weekly(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
         $transaction = Transaction::factory()->create([
             'created_by' => $user->id,
             'is_recurring' => true,

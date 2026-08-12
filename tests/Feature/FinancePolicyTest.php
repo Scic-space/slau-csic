@@ -35,7 +35,7 @@ class FinancePolicyTest extends TestCase
 
     public function test_treasurer_can_view_any_transactions(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
 
         $this->assertTrue($user->can('viewAny', Transaction::class));
     }
@@ -101,7 +101,7 @@ class FinancePolicyTest extends TestCase
 
     public function test_head_discipline_can_waive_fines(): void
     {
-        $user = User::factory()->create()->assignRole('head_discipline');
+        $user = User::factory()->create()->assignRole('Technical Lead');
         $fine = Fine::factory()->create();
 
         $this->assertTrue($user->can('waive', $fine));
@@ -169,7 +169,7 @@ class FinancePolicyTest extends TestCase
 
     public function test_treasurer_can_manage_budget_categories(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
         $category = BudgetCategory::factory()->create();
 
         $this->assertTrue($user->can('viewAny', BudgetCategory::class));
@@ -190,7 +190,7 @@ class FinancePolicyTest extends TestCase
 
     public function test_treasurer_can_manage_allocations(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
         $allocation = BudgetAllocation::factory()->create();
 
         $this->assertTrue($user->can('viewAny', BudgetAllocation::class));
@@ -211,7 +211,7 @@ class FinancePolicyTest extends TestCase
 
     public function test_treasurer_can_record_payments(): void
     {
-        $user = User::factory()->create()->assignRole('treasurer');
+        $user = User::factory()->create()->assignRole('Treasurer');
 
         $this->assertTrue($user->can('create', FinePayment::class));
     }

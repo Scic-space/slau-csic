@@ -18,22 +18,22 @@ class BudgetAllocationPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function view(User $user, BudgetAllocation $budgetAllocation): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function update(User $user, BudgetAllocation $budgetAllocation): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function delete(User $user, BudgetAllocation $budgetAllocation): bool

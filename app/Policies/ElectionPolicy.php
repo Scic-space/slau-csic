@@ -27,17 +27,17 @@ class ElectionPolicy
             return true;
         }
 
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function update(User $user, Election $election): bool
     {
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function delete(User $user, Election $election): bool
@@ -47,17 +47,17 @@ class ElectionPolicy
 
     public function open(User $user, Election $election): bool
     {
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function close(User $user, Election $election): bool
     {
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function manageResults(User $user, Election $election): bool
     {
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function vote(User $user, Election $election): bool

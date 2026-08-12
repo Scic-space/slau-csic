@@ -62,12 +62,17 @@
             $profileFields = [
                 'name' => !empty($user->name),
                 'email' => !empty($user->email),
-                'phone' => !empty($user->phone),
-                'program' => !empty($user->program),
-                'year_of_study' => !empty($user->year_of_study),
-                'bio' => !empty($user->bio),
+                'registration_number' => !empty($user->registration_number),
+                'phone' => !empty($user->memberProfile?->phone),
+                'bio' => !empty($user->memberProfile?->bio),
+                'headline' => !empty($user->memberProfile?->headline),
+                'program' => !empty($user->memberProfile?->program),
+                'faculty' => !empty($user->memberProfile?->faculty),
+                'year_of_study' => !empty($user->memberProfile?->year_of_study),
+                'github_username' => !empty($user->socialLinks?->github_username),
+                'linkedin_url' => !empty($user->socialLinks?->linkedin_url),
+                'discord_username' => !empty($user->socialLinks?->discord_username ?? $user->discord_username),
                 'profile_photo' => !empty($user->profile_photo),
-                'social_links' => $user->socialLinks && ($user->socialLinks->github_username || $user->socialLinks->discord_username),
             ];
             $profileFilledCount = collect($profileFields)->filter()->count();
             $profileTotalCount = count($profileFields);
@@ -75,12 +80,17 @@
             $profileMissingFields = collect($profileFields)->reject(fn ($v) => $v)->keys()->map(fn ($key) => match ($key) {
                 'name' => 'Full Name',
                 'email' => 'Email Address',
+                'registration_number' => 'Registration Number',
                 'phone' => 'Phone Number',
-                'program' => 'Program',
-                'year_of_study' => 'Year of Study',
                 'bio' => 'Bio',
+                'headline' => 'Headline',
+                'program' => 'Program',
+                'faculty' => 'Faculty',
+                'year_of_study' => 'Year of Study',
+                'github_username' => 'GitHub Username',
+                'linkedin_url' => 'LinkedIn URL',
+                'discord_username' => 'Discord Username',
                 'profile_photo' => 'Profile Photo',
-                'social_links' => 'Social Links (GitHub/Discord)',
             });
         @endphp
 

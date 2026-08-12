@@ -147,10 +147,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/fines/payments/{payment}/receipt', \App\Http\Controllers\FineReceiptController::class.'@download')->name('fines.payments.receipt')->middleware('approved');
     Route::get('/my-transactions', MyTransactions::class)->name('my-transactions')->middleware('approved');
     Route::get('/my-transactions/export/csv', [\App\Http\Controllers\TransactionExportController::class, 'csv'])->name('transactions.export.csv')->middleware('approved');
-    Route::get('/treasurer', \App\Livewire\TreasurerDashboard::class)->name('treasurer.dashboard')->middleware('role:admin|treasurer|president|super-admin');
+    Route::get('/treasurer', \App\Livewire\TreasurerDashboard::class)->name('treasurer.dashboard')->middleware('role:admin|Treasurer|President|super-admin');
 
     Route::get('/account-statement', [\App\Http\Controllers\AccountStatementController::class, 'download'])->name('account.statement')->middleware('approved');
-    Route::get('/account-statement/{user}', [\App\Http\Controllers\AccountStatementController::class, 'download'])->name('account.statement.user')->middleware(['approved', 'role:admin|treasurer|president|super-admin']);
+    Route::get('/account-statement/{user}', [\App\Http\Controllers\AccountStatementController::class, 'download'])->name('account.statement.user')->middleware(['approved', 'role:admin|Treasurer|President|super-admin']);
 
     Route::get('/exams', ExamListing::class)->name('exams.index')->middleware('approved');
     Route::get('/exams/{exam}/take', \App\Livewire\ExamTake::class)->name('exams.take')->middleware('approved');

@@ -27,7 +27,7 @@ class PendingApprovalsWidget extends Widget
 
         return $user->can('approve_members')
             || $user->can('approve_expenditures')
-            || $user->hasAnyRole(['admin', 'super-admin', 'president', 'treasurer']);
+            || $user->hasAnyRole(['admin', 'super-admin', 'President', 'Treasurer']);
     }
 
     protected function getViewData(): array
@@ -66,7 +66,7 @@ class PendingApprovalsWidget extends Widget
                 ]));
         }
 
-        if ($user->hasAnyRole(['admin', 'super-admin', 'president', 'head_discipline'])) {
+        if ($user->hasAnyRole(['admin', 'super-admin', 'President', 'Technical Lead'])) {
             FineAppeal::where('status', 'pending')
                 ->latest()
                 ->limit(5)

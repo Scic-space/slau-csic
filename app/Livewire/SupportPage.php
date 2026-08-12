@@ -14,7 +14,7 @@ class SupportPage extends Component
 
     public string $email = '';
 
-    public string $subject = '';
+    public string $topic = '';
 
     public string $message = '';
 
@@ -32,17 +32,22 @@ class SupportPage extends Component
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
-            'subject' => ['required', 'string', 'max:255'],
+            'topic' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
         ], [
             'name.required' => 'Please provide your name.',
             'email.required' => 'An email address is required.',
             'email.email' => 'Please provide a valid email address.',
-            'subject.required' => 'Please select a topic.',
+            'topic.required' => 'Please select a topic.',
             'message.required' => 'Please write your message.',
         ]);
 
-        ContactMessage::create($validated);
+        ContactMessage::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'topic' => $validated['topic'],
+            'message' => $validated['message'],
+        ]);
 
         $this->submitted = true;
 

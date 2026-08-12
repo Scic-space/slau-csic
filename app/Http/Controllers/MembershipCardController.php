@@ -9,7 +9,7 @@ class MembershipCardController extends Controller
 {
     public function __invoke()
     {
-        $user = Auth::user()->load(['membership', 'earnedBadges']);
+        $user = Auth::user()->load(['membership', 'memberProfile', 'earnedBadges']);
 
         $isPending = $user->membership_status === 'pending'
             || $user->membership?->status === 'pending';
@@ -25,7 +25,9 @@ class MembershipCardController extends Controller
 
         $joinedAt = $user->joined_at ?? $user->membership?->joined_at ?? $user->created_at;
         $memberSince = $joinedAt?->format('F Y') ?? 'N/A';
-        $memberId = $user->registration_number ?? '#'.str_pad((string) $user->id, 5, '0', STR_PAD_LEFT);
+        $memberId = '#'.str_pad((string) ($user->member_number ?? $user->id), 5, '0', STR_PAD_LEFT);
+        $fullProgram = $user->program ?? $user->memberProfile?->program;
+        $program = $this->programAbbreviation($fullProgram) ?? $fullProgram ?? 'N/A';
 
         $expiryDate = $user->membershipExpiryDate();
         $expiryFormatted = $expiryDate?->format('F j, Y') ?? 'N/A';
@@ -52,10 +54,21 @@ class MembershipCardController extends Controller
             'member' => $user,
             'memberSince' => $memberSince,
             'memberId' => $memberId,
+            'program' => $program,
+            'fullProgram' => $fullProgram,
             'expiryFormatted' => $expiryFormatted,
             'issueDate' => $issueDate,
             'memberTypeLabel' => $memberTypeLabel,
             'qrCode' => $qrCode,
         ]);
+    }
+
+    private function programAbbreviation(?string $program): ?string
+    {
+        if (blank($program) || ! preg_match('/\(([^)]+)\)\s*$/', $program, $matches)) {
+            return null;
+        }
+
+        return trim($matches[1]);
     }
 }
