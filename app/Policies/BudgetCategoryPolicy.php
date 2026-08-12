@@ -18,22 +18,22 @@ class BudgetCategoryPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function view(User $user, BudgetCategory $budgetCategory): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function update(User $user, BudgetCategory $budgetCategory): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function delete(User $user, BudgetCategory $budgetCategory): bool

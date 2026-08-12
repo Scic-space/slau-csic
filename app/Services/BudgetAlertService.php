@@ -50,7 +50,7 @@ class BudgetAlertService
             'message' => $message,
         ]);
 
-        $notifiable = User::role(['treasurer', 'president', 'super-admin'])->get();
+        $notifiable = User::role(['Treasurer', 'President', 'super-admin'])->get();
 
         foreach ($notifiable as $user) {
             $user->notify(new BudgetAlertNotification($category, $alertLevel, $spent, $allocated, $percentage));

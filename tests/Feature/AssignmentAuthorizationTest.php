@@ -20,7 +20,7 @@ it('allows super-admin to view assignments page', function () {
 
 it('allows user with view_assignments permission to view assignments', function () {
     $user = User::factory()->create();
-    $user->assignRole('president');
+    $user->assignRole('President');
 
     $this->actingAs($user)
         ->get('/admin/assignments')
@@ -46,7 +46,7 @@ it('allows admin to access assignment wizard', function () {
 
 it('allows user with manage_assignments permission to access wizard', function () {
     $user = User::factory()->create();
-    $user->assignRole('treasurer');
+    $user->assignRole('Treasurer');
     $user->givePermissionTo('manage_assignments');
 
     $this->actingAs($user)
@@ -64,7 +64,7 @@ it('denies user without manage_assignments from accessing wizard', function () {
 
 it('allows user with view_assignments to view role templates', function () {
     $user = User::factory()->create();
-    $user->assignRole('president');
+    $user->assignRole('President');
 
     $this->actingAs($user)
         ->get('/admin/role-templates')

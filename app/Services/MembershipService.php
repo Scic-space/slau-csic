@@ -52,6 +52,7 @@ class MembershipService
                 'approval_notes' => $notes,
                 'membership_expires_at' => $user->membershipExpiryDate(),
             ]);
+            $user->assignMemberNumber();
             $user->assignRole('member');
 
             MemberApproved::dispatch($user, $membership, $approver);

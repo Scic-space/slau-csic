@@ -32,7 +32,7 @@ class FinanceNotificationTest extends TestCase
     {
         Notification::fake();
 
-        $treasurer = User::factory()->create()->assignRole('treasurer');
+        $treasurer = User::factory()->create()->assignRole('Treasurer');
         $category = BudgetCategory::factory()->expense()->create([
             'name' => 'Events',
             'allocated_amount' => 1000.00,
@@ -52,7 +52,7 @@ class FinanceNotificationTest extends TestCase
 
     public function test_budget_alert_has_database_channel(): void
     {
-        $treasurer = User::factory()->create()->assignRole('treasurer');
+        $treasurer = User::factory()->create()->assignRole('Treasurer');
         $category = BudgetCategory::factory()->expense()->create([
             'name' => 'Equipment',
             'allocated_amount' => 1000.00,
@@ -95,7 +95,7 @@ class FinanceNotificationTest extends TestCase
     {
         Notification::fake();
 
-        $approver = User::factory()->create()->assignRole('treasurer');
+        $approver = User::factory()->create()->assignRole('Treasurer');
         $transaction = Transaction::factory()->create(['status' => 'pending']);
 
         $approver->notify(new TransactionApprovalRequestedNotification($transaction));

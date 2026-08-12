@@ -18,22 +18,22 @@ class FinePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function view(User $user, Fine $fine): bool
     {
-        return $user->id === $fine->user_id || $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->id === $fine->user_id || $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president', 'head_discipline']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President', 'Technical Lead']);
     }
 
     public function update(User $user, Fine $fine): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president', 'head_discipline']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President', 'Technical Lead']);
     }
 
     public function delete(User $user, Fine $fine): bool
@@ -43,11 +43,11 @@ class FinePolicy
 
     public function waive(User $user, Fine $fine): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_discipline']);
+        return $user->hasAnyRole(['admin', 'President', 'Technical Lead']);
     }
 
     public function recordPayment(User $user, Fine $fine): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer']);
+        return $user->hasAnyRole(['admin', 'Treasurer']);
     }
 }

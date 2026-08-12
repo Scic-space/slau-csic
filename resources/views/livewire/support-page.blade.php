@@ -108,7 +108,7 @@
 
                             <div>
                                 <label for="support-subject" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Topic</label>
-                                <select id="support-subject" wire:model="subject"
+                                <select id="support-subject" wire:model="topic"
                                         class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-400">
                                     <option value="">Select a topic</option>
                                     <option value="Membership">Membership</option>
@@ -118,7 +118,7 @@
                                     <option value="Technical Issue">Technical Issue</option>
                                     <option value="General">General</option>
                                 </select>
-                                @error('subject') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                @error('topic') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                             </div>
 
                             <div>

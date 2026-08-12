@@ -14,7 +14,7 @@ class TrainingStatsWidget extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'head_ctf']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'CTF Lead']) ?? false;
     }
 
     protected function getStats(): array

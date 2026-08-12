@@ -25,7 +25,7 @@ class CtfDashboard extends Page implements HasTable
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'head_ctf']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'CTF Lead']) ?? false;
     }
 
     public function getStats(): array

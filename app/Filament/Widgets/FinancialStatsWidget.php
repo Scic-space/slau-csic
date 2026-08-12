@@ -13,7 +13,7 @@ class FinancialStatsWidget extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'treasurer', 'president']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'Treasurer', 'President']) ?? false;
     }
 
     protected function getStats(): array

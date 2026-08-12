@@ -40,7 +40,7 @@ class LoginController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if ($user && $user->hasAnyRole(['super-admin', 'admin', 'treasurer', 'president'])) {
+        if ($user && $user->hasAnyRole(['super-admin', 'admin', 'Treasurer', 'President'])) {
             RateLimiter::hit($this->throttleKey($request));
 
             throw ValidationException::withMessages([

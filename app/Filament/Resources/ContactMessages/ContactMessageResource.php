@@ -31,6 +31,11 @@ class ContactMessageResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('read_at')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (ContactMessage $record): string => $record->isUnread() ? 'Unread' : 'Read')
+                    ->color(fn (ContactMessage $record): string => $record->isUnread() ? 'warning' : 'gray'),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),

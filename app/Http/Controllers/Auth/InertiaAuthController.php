@@ -64,7 +64,7 @@ class InertiaAuthController extends Controller
 
         $user = Auth::user();
 
-        if ($user && $user->hasAnyRole(['super-admin', 'admin', 'treasurer', 'president'])) {
+        if ($user && $user->hasAnyRole(['super-admin', 'admin', 'Treasurer', 'President'])) {
             Auth::logout();
 
             $request->session()->invalidate();

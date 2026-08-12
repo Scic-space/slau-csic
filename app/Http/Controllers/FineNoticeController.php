@@ -10,7 +10,7 @@ class FineNoticeController extends Controller
 {
     public function download(Fine $fine): Response
     {
-        if ($fine->user_id !== auth()->id() && ! auth()->user()?->hasAnyRole(['admin', 'treasurer', 'president', 'head_discipline', 'super-admin'])) {
+        if ($fine->user_id !== auth()->id() && ! auth()->user()?->hasAnyRole(['admin', 'Treasurer', 'President', 'Technical Lead', 'super-admin'])) {
             abort(403);
         }
 

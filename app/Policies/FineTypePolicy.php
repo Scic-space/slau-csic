@@ -18,22 +18,22 @@ class FineTypePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function view(User $user, FineType $fineType): bool
     {
-        return $user->hasAnyRole(['admin', 'treasurer', 'president']);
+        return $user->hasAnyRole(['admin', 'Treasurer', 'President']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function update(User $user, FineType $fineType): bool
     {
-        return $user->hasAnyRole(['admin', 'president']);
+        return $user->hasAnyRole(['admin', 'President']);
     }
 
     public function delete(User $user, FineType $fineType): bool

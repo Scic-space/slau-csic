@@ -9,6 +9,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class EditUser extends EditRecord
 {
@@ -90,5 +92,21 @@ class EditUser extends EditRecord
 
             DeleteAction::make(),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $previousPhoto = $record->profile_photo;
+
+        $record = parent::handleRecordUpdate($record, $data);
+
+        if ($previousPhoto && $previousPhoto !== $record->profile_photo) {
+            Storage::disk('public')->delete($previousPhoto);
+        }
+
+        return $record;
     }
 }

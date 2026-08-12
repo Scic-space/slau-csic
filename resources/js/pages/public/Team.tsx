@@ -15,6 +15,7 @@ import {
     Megaphone,
     Code,
     Trophy,
+    GraduationCap,
 } from 'lucide-react';
 
 interface TeamMember {
@@ -27,70 +28,101 @@ interface TeamMember {
 
 const leadership: TeamMember[] = [
     {
-        name: 'Kevin',
+        name: 'Nantume Josline',
         role: 'President',
         department: 'Executive',
-        image: '/images/club/kevin-samuel.jpg',
-        bio: 'Leads club strategy, coordinates with university administration, and oversees all major initiatives.',
+        image: '/images/club/team/president.jpg',
+        bio: 'Leads the club\u2019s vision and strategy, coordinates with the university, and steers every major initiative.',
     },
     {
-        name: 'Sharon',
+        name: 'Shid cracker',
         role: 'Vice President',
         department: 'Executive',
-        image: '/images/club/kevin-sharon.jpg',
-        bio: 'Supports club operations, manages member engagement, and leads outreach to prospective members.',
+        image: '/images/club/team/vice-president.jpg',
+        bio: 'Supports club operations, drives member engagement, and leads outreach across the campus community.',
     },
     {
-        name: 'Samuel',
-        role: 'Secretary',
+        name: 'Shakirah',
+        role: 'General Secretary',
         department: 'Executive',
-        image: '/images/club/kevin-samuel-2.jpg',
-        bio: 'Manages club records, internal communications, and ensures smooth coordination between teams.',
+        image: '/images/club/team/general-secretary.jpg',
+        bio: 'Keeps club records, manages internal communications, and ensures every team stays in sync.',
+    },
+    {
+        name: 'Ssali Kevin',
+        role: 'Head of Projects',
+        department: 'Projects',
+        image: '/images/club/team/head-of-projects.jpg',
+        bio: 'Plans and delivers the club\u2019s projects, from community outreach to hands-on tech initiatives.',
+    },
+    {
+        name: 'Osiawo',
+        role: 'Lead Developer',
+        department: 'Development',
+        image: '/images/club/team/lead-developer.jpg',
+        bio: 'Leads the technical build of club systems and mentors members on real-world development skills.',
+    },
+    {
+        name: 'Shafic',
+        role: 'Treasurer',
+        department: 'Finance',
+        image: '/images/club/team/treasurer.jpg',
+        bio: 'Manages the club\u2019s finances, tracks budgets, and handles sponsorship and funding coordination.',
+    },
+];
+
+const advisors: TeamMember[] = [
+    {
+        name: 'Mr. Arfat',
+        role: 'Club Mentor',
+        department: 'Advisory',
+        image: '/images/club/team/club-mentor.jpg',
+        bio: 'Guides and mentors members, sharing experience that helps the team grow with every project.',
+    },
+    {
+        name: 'Mr. Mukiibi Zakaria',
+        role: 'Patron',
+        department: 'Advisory',
+        image: '/images/club/team/patron.jpg',
+        bio: 'Champions the club\u2019s mission, supporting its activities and growth within the university.',
     },
 ];
 
 const coreTeam: TeamMember[] = [
     {
-        name: 'Daniel',
+        name: 'Shid cracker',
         role: 'CTF Lead',
         department: 'Competitions',
-        image: '/images/club/cyber-team.jpg',
+        image: '/images/club/team/vice-president.jpg',
         bio: 'Organizes CTF competitions, coaches the competition team, and manages challenge development.',
     },
     {
-        name: 'Grace',
+        name: 'Ssali Kevin',
         role: 'Workshops Coordinator',
         department: 'Education',
-        image: '/images/club/with-gentlemen.jpg',
+        image: '/images/club/team/head-of-projects.jpg',
         bio: 'Plans and delivers technical workshops on cybersecurity topics for members of all skill levels.',
     },
     {
-        name: 'Brian',
+        name: 'Nantume Josline',
+        role: 'Public Relations',
+        department: 'Communications',
+        image: '/images/club/team/president.jpg',
+        bio: 'Manages the club\u2019s social media presence, public communications, and brand identity.',
+    },
+    {
+        name: 'Shakirah',
         role: 'Events Lead',
         department: 'Operations',
-        image: '/images/club/certificate-team.jpg',
+        image: '/images/club/team/general-secretary.jpg',
         bio: 'Organizes club events, meetups, and manages logistics for all in-person and virtual gatherings.',
     },
     {
-        name: 'Patricia',
-        role: 'Public Relations',
-        department: 'Communications',
-        image: '/images/club/logo1.jpg',
-        bio: 'Manages the club\'s social media presence, public communications, and brand identity.',
-    },
-    {
-        name: 'Isaac',
+        name: 'Osiawo',
         role: 'Technical Lead',
         department: 'Education',
-        image: '/images/club/club-logo.jpg',
+        image: '/images/club/team/lead-developer.jpg',
         bio: 'Leads technical projects, maintains club infrastructure, and mentors members on hands-on skills.',
-    },
-    {
-        name: 'Sarah',
-        role: 'Treasurer',
-        department: 'Finance',
-        image: '/images/club/clublogo.png',
-        bio: 'Manages club finances, tracks budgets, and handles sponsorship and funding coordination.',
     },
 ];
 
@@ -145,9 +177,8 @@ function MemberCard({ member, index }: { member: TeamMember; index: number }) {
                 <img
                     src={member.image}
                     alt={member.name}
-                    className="h-56 w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    className="aspect-[3/4] w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/30 to-transparent" />
             </div>
 
             <div className="p-5">
@@ -254,6 +285,36 @@ export default function Team() {
 
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {leadership.map((member, i) => (
+                            <MemberCard key={member.name} member={member} index={i} />
+                        ))}
+                    </div>
+                </div>
+            </WaveSection>
+
+            {/* Advisors */}
+            <WaveSection variant="default">
+                <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: '-80px' }}
+                        variants={container}
+                        className="mb-10"
+                    >
+                        <motion.div variants={fadeUp} className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            Advisory
+                        </motion.div>
+                        <motion.h2 variants={fadeUp} className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                            Our Guides
+                        </motion.h2>
+                        <motion.p variants={fadeUp} className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-500">
+                            The experience and support behind the club\u2019s growth.
+                        </motion.p>
+                    </motion.div>
+
+                    <div className="grid gap-6 sm:grid-cols-2">
+                        {advisors.map((member, i) => (
                             <MemberCard key={member.name} member={member} index={i} />
                         ))}
                     </div>
