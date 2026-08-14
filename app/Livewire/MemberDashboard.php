@@ -19,6 +19,8 @@ class MemberDashboard extends Component
     public function render()
     {
         $user = Auth::user()->load([
+            'memberProfile',
+            'socialLinks',
             'earnedBadges',
             'membership',
             'eventRegistrations' => fn ($q) => $q->with('event')->latest()->limit(5),

@@ -21,8 +21,8 @@ class RolesTable
                     ->color(fn (string $state): string => match ($state) {
                         'super-admin' => 'danger',
                         'admin' => 'warning',
-                        'president' => 'primary',
-                        'treasurer' => 'success',
+                        'President' => 'primary',
+                        'Treasurer' => 'success',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn ($state): string => str_replace('-', ' ', ucwords($state)))

@@ -86,7 +86,7 @@ class UpcomingScheduleWidget extends Widget
                 ]));
         }
 
-        if ($user->hasAnyRole(['admin', 'super-admin', 'head_ctf'])) {
+        if ($user->hasAnyRole(['admin', 'super-admin', 'CTF Lead'])) {
             CtfCompetition::published()
                 ->where('start_date', '>=', now())
                 ->orderBy('start_date')

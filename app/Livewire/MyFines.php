@@ -148,7 +148,7 @@ class MyFines extends Component
             'submitted_at' => now(),
         ]);
 
-        $adminUsers = \App\Models\User::role(['admin', 'president', 'head_discipline'])->get();
+        $adminUsers = \App\Models\User::role(['admin', 'President', 'Technical Lead'])->get();
         foreach ($adminUsers as $admin) {
             $admin->notify(new FineAppealSubmittedNotification($appeal));
         }

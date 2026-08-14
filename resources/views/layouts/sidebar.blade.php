@@ -754,7 +754,7 @@
                 @endcan
 
                 <!-- Section: Administration -->
-                @hasanyrole('admin|super-admin|president|treasurer|secretary')
+                @hasanyrole('admin|super-admin|President|Treasurer|General Secretary')
                 <div>
                     <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
                         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
@@ -963,7 +963,7 @@
                         @endhasanyrole
 
                         <!-- Financial Management -->
-                        @hasanyrole('treasurer|president|super-admin')
+                        @hasanyrole('Treasurer|President|super-admin')
                         <li>
                             <a href="{{ url('/admin/financial-report') }}" wire:navigate class="menu-item group"
                                 :class="[

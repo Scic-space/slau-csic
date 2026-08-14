@@ -89,7 +89,7 @@ it('saves a skill for the member without picking a student', function () {
 
 it('leaves the student empty for managers', function () {
     $manager = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
-    $manager->assignRole('president');
+    $manager->assignRole('President');
 
     Livewire::actingAs($manager)
         ->test(TeacherPortfolios::class)
@@ -99,7 +99,7 @@ it('leaves the student empty for managers', function () {
 
 it('lets a manager save an experience for a chosen student', function () {
     $manager = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
-    $manager->assignRole('president');
+    $manager->assignRole('President');
     $student = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
 
     Livewire::actingAs($manager)

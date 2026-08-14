@@ -87,7 +87,7 @@
                     </div>
                     <div>
                         <p class="text-[10px] font-medium uppercase tracking-wider text-indigo-200 sm:text-xs">Program</p>
-                        <p class="text-xs font-semibold text-white truncate sm:text-sm">{{ $member->program ?? 'N/A' }}</p>
+                        <p class="text-xs font-semibold text-white truncate sm:text-sm" title="{{ $fullProgram ?? $program ?? 'N/A' }}">{{ $program ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <p class="text-[10px] font-medium uppercase tracking-wider text-indigo-200 sm:text-xs">Card Issued</p>

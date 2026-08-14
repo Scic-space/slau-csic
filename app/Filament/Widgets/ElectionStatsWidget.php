@@ -14,7 +14,7 @@ class ElectionStatsWidget extends BaseWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'president', 'secretary']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'President', 'General Secretary']) ?? false;
     }
 
     protected function getStats(): array

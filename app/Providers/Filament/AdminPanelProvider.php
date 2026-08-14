@@ -261,7 +261,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-flag')
                                     ->group('CTF')
                                     ->sort(0)
-                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'head_ctf']) ?? false)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'CTF Lead']) ?? false)
                                     ->url(fn (): string => \App\Filament\Pages\CtfDashboard::getUrl())
                                     ->isActiveWhen(fn (): bool => request()->routeIs(\App\Filament\Pages\CtfDashboard::getRouteName())),
                                 NavigationItem::make('CTF Competitions')
@@ -300,7 +300,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-chat-bubble-left-right')
                                     ->group('Testimonials')
                                     ->sort(0)
-                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'head_ctf']) ?? false)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'CTF Lead']) ?? false)
                                     ->badge(fn (): string => (string) \App\Models\Testimonial::where('is_approved', false)->count(), 'warning')
                                     ->url(fn (): string => \App\Filament\Resources\Testimonials\TestimonialResource::getUrl())
                                     ->isActiveWhen(fn (): bool => request()->routeIs(\App\Filament\Resources\Testimonials\TestimonialResource::getRouteBaseName().'*')),
@@ -309,6 +309,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->group('Testimonials')
                                     ->sort(1)
                                     ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin']) ?? false)
+                                    ->badge(fn (): string => (string) \App\Models\ContactMessage::unread()->count(), 'warning')
                                     ->url(fn (): string => \App\Filament\Resources\ContactMessages\ContactMessageResource::getUrl())
                                     ->isActiveWhen(fn (): bool => request()->routeIs(\App\Filament\Resources\ContactMessages\ContactMessageResource::getRouteBaseName().'*')),
                             ]),
@@ -318,7 +319,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-check-badge')
                                     ->group('Elections')
                                     ->sort(1)
-                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'president']) ?? false)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'President']) ?? false)
                                     ->badge(fn (): string => (string) Election::where('status', 'open')->count(), 'success')
                                     ->url(fn (): string => ElectionFilamentResource::getUrl())
                                     ->isActiveWhen(fn (): bool => request()->routeIs(ElectionFilamentResource::getRouteBaseName().'*')),
@@ -341,7 +342,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-code-bracket-square')
                                     ->group('Projects')
                                     ->sort(0)
-                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'head_projects']) ?? false)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'Head of Projects']) ?? false)
                                     ->url(fn (): string => \App\Filament\Resources\Projects\ProjectResource::getUrl())
                                     ->isActiveWhen(fn (): bool => request()->routeIs(\App\Filament\Resources\Projects\ProjectResource::getRouteBaseName().'*')),
                             ]),

@@ -5,6 +5,8 @@ use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -71,4 +73,72 @@ it('shows member profile data on the view modal', function () {
     ]);
 
     $this->get('/admin/users')->assertSuccessful();
+});
+
+it('deletes the old profile photo when the admin replaces it', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create([
+        'registration_number' => 'BACS/26D/U/A0000',
+        'profile_photo' => 'profile-photos/old-avatar.jpg',
+    ]);
+
+    Storage::disk('public')->put('profile-photos/old-avatar.jpg', 'old');
+
+    $component = Livewire::test(EditUser::class, ['record' => $user->getRouteKey()]);
+
+    $oldFileKey = array_key_first($component->get('data.profile_photo'));
+
+    $component
+        ->call('callSchemaComponentMethod', 'form.profile_photo', 'removeUploadedFile', ['fileKey' => $oldFileKey])
+        ->set('data.profile_photo', UploadedFile::fake()->image('new-avatar.jpg'))
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $user->refresh();
+
+    expect($user->profile_photo)->not->toBe('profile-photos/old-avatar.jpg');
+    Storage::disk('public')->assertMissing('profile-photos/old-avatar.jpg');
+    Storage::disk('public')->assertExists($user->profile_photo);
+});
+
+it('deletes the old profile photo when the admin removes it', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create([
+        'registration_number' => 'BACS/26D/U/A0000',
+        'profile_photo' => 'profile-photos/old-avatar.jpg',
+    ]);
+
+    Storage::disk('public')->put('profile-photos/old-avatar.jpg', 'old');
+
+    Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
+        ->set('data.profile_photo', null)
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $user->refresh();
+
+    expect($user->profile_photo)->toBeNull();
+    Storage::disk('public')->assertMissing('profile-photos/old-avatar.jpg');
+});
+
+it('keeps the existing profile photo when it is not changed', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create([
+        'registration_number' => 'BACS/26D/U/A0000',
+        'profile_photo' => 'profile-photos/old-avatar.jpg',
+    ]);
+
+    Storage::disk('public')->put('profile-photos/old-avatar.jpg', 'old');
+
+    Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $user->refresh();
+
+    expect($user->profile_photo)->toBe('profile-photos/old-avatar.jpg');
+    Storage::disk('public')->assertExists('profile-photos/old-avatar.jpg');
 });

@@ -27,17 +27,17 @@ class ExamPolicy
             return true;
         }
 
-        return $user->hasAnyRole(['admin', 'president', 'head_ctf']);
+        return $user->hasAnyRole(['admin', 'President', 'CTF Lead']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_ctf']);
+        return $user->hasAnyRole(['admin', 'President', 'CTF Lead']);
     }
 
     public function update(User $user, Exam $exam): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_ctf']);
+        return $user->hasAnyRole(['admin', 'President', 'CTF Lead']);
     }
 
     public function delete(User $user, Exam $exam): bool
@@ -47,17 +47,17 @@ class ExamPolicy
 
     public function publish(User $user, Exam $exam): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_ctf']);
+        return $user->hasAnyRole(['admin', 'President', 'CTF Lead']);
     }
 
     public function grade(User $user, Exam $exam): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_ctf']);
+        return $user->hasAnyRole(['admin', 'President', 'CTF Lead']);
     }
 
     public function manageCertificates(User $user, Exam $exam): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_ctf']);
+        return $user->hasAnyRole(['admin', 'President', 'CTF Lead']);
     }
 
     public function take(User $user, Exam $exam): bool

@@ -18,12 +18,12 @@ class FineAppealPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_discipline']);
+        return $user->hasAnyRole(['admin', 'President', 'Technical Lead']);
     }
 
     public function view(User $user, FineAppeal $fineAppeal): bool
     {
-        return $user->id === $fineAppeal->fine->user_id || $user->hasAnyRole(['admin', 'president', 'head_discipline']);
+        return $user->id === $fineAppeal->fine->user_id || $user->hasAnyRole(['admin', 'President', 'Technical Lead']);
     }
 
     public function create(User $user): bool
@@ -33,7 +33,7 @@ class FineAppealPolicy
 
     public function update(User $user, FineAppeal $fineAppeal): bool
     {
-        return $user->hasAnyRole(['admin', 'president', 'head_discipline']);
+        return $user->hasAnyRole(['admin', 'President', 'Technical Lead']);
     }
 
     public function delete(User $user, FineAppeal $fineAppeal): bool
@@ -43,6 +43,6 @@ class FineAppealPolicy
 
     public function review(User $user, FineAppeal $fineAppeal): bool
     {
-        return $fineAppeal->canBeReviewed() && $user->hasAnyRole(['admin', 'president', 'head_discipline']);
+        return $fineAppeal->canBeReviewed() && $user->hasAnyRole(['admin', 'President', 'Technical Lead']);
     }
 }

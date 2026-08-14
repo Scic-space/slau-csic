@@ -60,13 +60,19 @@ const journey = [
     { text: 'Access job opportunities and industry referrals.', sub: 'Launch your career.' },
 ];
 
-const galleryImages = [
-    { src: '/images/club/certificate-team.jpg', alt: 'Team achievement ceremony', caption: 'Achievement Recognition' },
-    { src: '/images/club/cyber-team.jpg', alt: 'Club members at event', caption: 'Team Collaboration' },
-    { src: '/images/club/kevin-samuel.jpg', alt: 'Members networking', caption: 'Industry Connections' },
-    { src: '/images/club/kevin-sharon.jpg', alt: 'Career fair participation', caption: 'Career Fair' },
-    { src: '/images/club/with-gentlemen.jpg', alt: 'Alumni mentorship session', caption: 'Alumni Mentorship' },
-    { src: '/images/club/kevin-samuel-2.jpg', alt: 'Members collaborating', caption: 'Building Relationships' },
+const galleryImages: { src: string; alt: string; caption: string; objectPosition?: string }[] = [
+    { src: '/images/club/gulu/team-at-gulu.jpeg', alt: 'The team that represented us at Gulu', caption: 'Our Team at Gulu' },
+    { src: '/images/club/gulu/presenting-at-gulu.jpeg', alt: 'Former club president and current general secretary presenting at Gulu', caption: 'Presenting at the Exhibition' },
+    { src: '/images/club/gulu/busy-at-gulu-exhibition.jpeg', alt: 'Members busy at the NCHE exhibition booth in Gulu', caption: 'Busy at the Gulu Booth' },
+    { src: '/images/club/gulu/member-with-visitor-at-gulu.jpeg', alt: 'Member with a pleased visitor at the Gulu exhibition', caption: 'Engaging Visitors' },
+    { src: '/images/club/gulu/proud-member.jpeg', alt: 'A proud member of the club', caption: 'Proud to Represent', objectPosition: '50% 0%' },
+    { src: '/images/club/gulu/class-attracts-class.jpeg', alt: 'Class attracts class at Gulu', caption: 'Class Attracts Class' },
+    { src: '/images/club/gulu/team-at-gulu-booth.jpeg', alt: 'The team at the Gulu exhibition booth', caption: 'The Team at the Booth' },
+    { src: '/images/club/gulu/president-checking-cabinet-work.jpeg', alt: 'The president in the white shirt seeing what the cabinet did', caption: 'The President Checking the Work' },
+    { src: '/images/club/gulu/former-lead-developer-at-gulu.jpeg', alt: 'Former lead developer at Gulu', caption: 'Former Lead Developer' },
+    { src: '/images/club/gulu/learning-from-each-other.jpeg', alt: 'Learning from each other at Gulu', caption: 'Learning From Each Other' },
+    { src: '/images/club/gulu/love-during-explanations.jpeg', alt: 'The love during explanations is natural among members', caption: 'Love During Explanations' },
+    { src: '/images/club/gulu/smiles-heal.jpeg', alt: 'The smiles heal', caption: 'The Smiles Heal' },
 ];
 
 const faqs = [
@@ -150,7 +156,7 @@ export default function About({ upcomingEvents, stats }: NetworkingProps) {
                             <motion.div variants={fadeUp} className="relative">
                                 <div className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-indigo-500/20 via-transparent to-transparent blur-2xl" />
                                 <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10">
-                                    <img src="/images/club/with-gentlemen.jpg" alt="Club members with industry mentors" className="h-[300px] sm:h-[460px] w-full object-cover object-top" />
+                                    <img src="/images/club/gulu/club-patron-in-the-middle.jpeg" alt="Club patron with members" className="h-[300px] sm:h-[460px] w-full object-cover object-top" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent" />
                                 </div>
                             </motion.div>
@@ -281,7 +287,7 @@ export default function About({ upcomingEvents, stats }: NetworkingProps) {
                                 Moments from our journey
                             </motion.h2>
                             <motion.p variants={fadeUp} className="mt-4 text-lg text-gray-500 dark:text-white/50">
-                                Real photos from real events — no stock images, just genuine club moments.
+                                Captured moments from our exhibitions, workshops, and community engagements.
                             </motion.p>
                         </motion.div>
 
@@ -294,9 +300,7 @@ export default function About({ upcomingEvents, stats }: NetworkingProps) {
                                     className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/30 hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.15)]"
                                     onClick={() => setSelectedImage(i)}
                                 >
-                                    <div className="aspect-[4/3] overflow-hidden">
-                                        <img src={image.src} alt={image.alt} className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
-                                    </div>
+                                    <img src={image.src} alt={image.alt} style={{ objectPosition: image.objectPosition ?? '50% 30%' }} className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
                                         <p className="text-sm font-medium text-white">{image.caption}</p>
@@ -307,13 +311,25 @@ export default function About({ upcomingEvents, stats }: NetworkingProps) {
 
                         {/* Lightbox */}
                         {selectedImage !== null && (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setSelectedImage(null)}>
-                                <div className="relative max-w-4xl mx-4" onClick={(e) => e.stopPropagation()}>
-                                    <button onClick={() => setSelectedImage(null)} className="absolute -top-12 right-0 text-white/60 hover:text-white transition-colors">
-                                        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                                    </button>
-                                    <img src={galleryImages[selectedImage].src} alt={galleryImages[selectedImage].alt} className="max-h-[80vh] w-auto rounded-2xl border border-white/10" />
-                                    <p className="mt-4 text-center text-sm text-white/60">{galleryImages[selectedImage].caption}</p>
+                            <div
+                                className="fixed inset-0 z-[60] overflow-y-auto bg-black/80 backdrop-blur-sm"
+                                onClick={() => setSelectedImage(null)}
+                            >
+                                <div className="flex min-h-full p-4 sm:p-6">
+                                    <div
+                                        className="relative m-auto w-full max-w-4xl"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <button
+                                            onClick={() => setSelectedImage(null)}
+                                            aria-label="Close image"
+                                            className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
+                                        >
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                        <img src={galleryImages[selectedImage].src} alt={galleryImages[selectedImage].alt} className="mx-auto max-h-[80vh] w-auto max-w-full rounded-2xl border border-white/10" />
+                                        <p className="mt-4 text-center text-sm text-white/60">{galleryImages[selectedImage].caption}</p>
+                                    </div>
                                 </div>
                             </div>
                         )}

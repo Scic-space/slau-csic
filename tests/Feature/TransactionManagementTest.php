@@ -20,7 +20,7 @@ class TransactionManagementTest extends TestCase
     public function test_treasurer_can_access_transaction_management(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         $response = $this->actingAs($user)
             ->get('/admin/transactions');
@@ -32,7 +32,7 @@ class TransactionManagementTest extends TestCase
     public function test_president_can_access_transaction_management(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('president');
+        $user->assignRole('President');
 
         $response = $this->actingAs($user)
             ->get('/admin/transactions');
@@ -67,7 +67,7 @@ class TransactionManagementTest extends TestCase
     public function test_can_create_transaction(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         $this->actingAs($user);
         $response = $this->get('/admin/transactions');

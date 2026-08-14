@@ -14,7 +14,7 @@ class AccountStatementController extends Controller
     {
         $targetUser = $user ?? auth()->user();
 
-        if ($targetUser->id !== auth()->id() && ! auth()->user()?->hasAnyRole(['admin', 'treasurer', 'president', 'super-admin'])) {
+        if ($targetUser->id !== auth()->id() && ! auth()->user()?->hasAnyRole(['admin', 'Treasurer', 'President', 'super-admin'])) {
             abort(403);
         }
 

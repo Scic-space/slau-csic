@@ -21,7 +21,7 @@ class TreasurerDashboardTest extends TestCase
     public function test_dashboard_displays_correctly_for_treasurer(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         $response = $this->actingAs($user)
             ->get('/admin/treasurer-dashboard');
@@ -45,7 +45,7 @@ class TreasurerDashboardTest extends TestCase
     public function test_displays_financial_overview(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         // Create test transactions
         Transaction::factory()->income()->create(['amount' => 1000.00]);
@@ -62,7 +62,7 @@ class TreasurerDashboardTest extends TestCase
     public function test_displays_budget_status(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         // Create test budget category
         $category = BudgetCategory::factory()->expense()->create([
@@ -88,7 +88,7 @@ class TreasurerDashboardTest extends TestCase
     public function test_displays_recent_transactions(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         // Create test transactions
         Transaction::factory()->count(5)->create();
@@ -103,7 +103,7 @@ class TreasurerDashboardTest extends TestCase
     public function test_displays_pending_approvals_count(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         // Create pending transactions
         Transaction::factory()->count(3)->create(['status' => 'pending']);
@@ -118,7 +118,7 @@ class TreasurerDashboardTest extends TestCase
     public function test_displays_spending_trend_chart(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('treasurer');
+        $user->assignRole('Treasurer');
 
         $response = $this->actingAs($user)
             ->get('/admin/treasurer-dashboard');

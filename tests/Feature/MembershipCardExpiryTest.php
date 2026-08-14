@@ -105,6 +105,48 @@ it('shows N/A on the card for alumni members', function () {
         ->assertSee('N/A');
 });
 
+it('shows the sequential member id distinct from the registration number', function () {
+    $user = User::factory()->create([
+        'membership_status' => 'active',
+        'membership_type' => 'active',
+        'member_number' => 42,
+        'registration_number' => 'BACS/26D/U/A0000',
+    ]);
+
+    actingAs($user)
+        ->get(route('membership.card'))
+        ->assertOk()
+        ->assertSee('#00042')
+        ->assertSee('BACS/26D/U/A0000')
+        ->assertDontSee('#'.str_pad((string) $user->id, 5, '0', STR_PAD_LEFT));
+});
+
+it('shows the program abbreviation on the card', function () {
+    $user = User::factory()->create([
+        'membership_status' => 'active',
+        'membership_type' => 'active',
+    ]);
+    $user->memberProfile()->create(['program' => 'Bachelor of Information Technology (BIT)']);
+
+    actingAs($user)
+        ->get(route('membership.card'))
+        ->assertOk()
+        ->assertSee('BIT');
+});
+
+it('falls back to the full program when it has no abbreviation', function () {
+    $user = User::factory()->create([
+        'membership_status' => 'active',
+        'membership_type' => 'active',
+        'program' => 'Bachelor of Science in Cyber Security',
+    ]);
+
+    actingAs($user)
+        ->get(route('membership.card'))
+        ->assertOk()
+        ->assertSee('Bachelor of Science in Cyber Security');
+});
+
 it('uses the intake year to compute the card expiry', function () {
     $user = User::factory()->create([
         'membership_status' => 'active',

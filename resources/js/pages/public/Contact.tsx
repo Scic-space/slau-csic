@@ -44,6 +44,12 @@ export default function Contact() {
         e.preventDefault();
         setSubmitting(true);
         router.post('/contact', { name, email, topic, message }, {
+            onSuccess: () => {
+                setName('');
+                setEmail('');
+                setTopic('');
+                setMessage('');
+            },
             onFinish: () => setSubmitting(false),
             preserveScroll: true,
         });

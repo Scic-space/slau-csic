@@ -82,7 +82,7 @@ describe('ExamPolicy', function () {
 
     it('denies delete to non-admin roles', function () {
         $user = User::factory()->create();
-        $presidentRole = Role::firstOrCreate(['name' => 'president']);
+        $presidentRole = Role::firstOrCreate(['name' => 'President']);
         $user->assignRole($presidentRole);
 
         $exam = createExamWithQuestions();

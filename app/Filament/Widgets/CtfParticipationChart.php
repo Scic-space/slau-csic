@@ -16,7 +16,7 @@ class CtfParticipationChart extends ChartWidget
 
     public static function canView(): bool
     {
-        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'head_ctf']) ?? false;
+        return auth()->user()?->hasAnyRole(['admin', 'super-admin', 'CTF Lead']) ?? false;
     }
 
     protected function getData(): array

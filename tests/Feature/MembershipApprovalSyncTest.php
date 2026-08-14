@@ -90,6 +90,86 @@ it('syncs the membership row when a user is approved', function () {
         ->and($membership->fresh()->isActive())->toBeTrue();
 });
 
+it('assigns sequential member numbers as users are approved', function () {
+    Notification::fake();
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $approver = User::factory()->create();
+
+    $first = User::factory()->create(['membership_status' => 'pending']);
+    $second = User::factory()->create(['membership_status' => 'pending']);
+    $third = User::factory()->create(['membership_status' => 'pending']);
+
+    $first->approve($approver);
+    $second->approve($approver);
+    $third->approve($approver);
+
+    expect($first->fresh()->member_number)->toBe(1)
+        ->and($second->fresh()->member_number)->toBe(2)
+        ->and($third->fresh()->member_number)->toBe(3);
+});
+
+it('keeps the original member number when an approved user is approved again', function () {
+    Notification::fake();
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $approver = User::factory()->create();
+
+    $user = User::factory()->create(['membership_status' => 'pending']);
+    $user->approve($approver);
+
+    $firstNumber = $user->fresh()->member_number;
+
+    $user->approve($approver);
+
+    expect($user->fresh()->member_number)->toBe($firstNumber);
+});
+
+it('assigns a member number when a membership is approved via the service', function () {
+    Notification::fake();
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $user = User::factory()->create([
+        'membership_status' => 'pending',
+        'membership_type' => 'active',
+    ]);
+    $membership = Membership::create([
+        'user_id' => $user->id,
+        'type' => 'active',
+        'status' => 'pending',
+    ]);
+
+    $approver = User::factory()->create();
+
+    (new MembershipService)->approve($membership, $approver);
+
+    expect($user->fresh()->member_number)->not->toBeNull()
+        ->and($user->fresh()->member_number)->toBe(1);
+});
+
+it('shows the sequential member number on the card after approval', function () {
+    Notification::fake();
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $user = User::factory()->create([
+        'membership_status' => 'pending',
+        'membership_type' => 'active',
+        'year_of_study' => 2,
+    ]);
+    Membership::create([
+        'user_id' => $user->id,
+        'type' => 'active',
+        'status' => 'pending',
+    ]);
+
+    $user->approve(User::factory()->create());
+
+    actingAs($user)
+        ->get(route('membership.card'))
+        ->assertOk()
+        ->assertSee('#'.str_pad((string) $user->fresh()->member_number, 5, '0', STR_PAD_LEFT));
+});
+
 it('syncs the membership row when a user is rejected', function () {
     Notification::fake();
 
