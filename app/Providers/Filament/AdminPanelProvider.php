@@ -41,6 +41,8 @@ use App\Models\EventRegistration;
 use App\Models\Fine;
 use App\Models\FineAppeal;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -51,6 +53,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -61,6 +64,13 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        Action::configureUsing(fn (Action $action) => $action
+            ->slideOver()
+            ->modalWidth(Width::Medium));
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -68,8 +78,18 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->font(
+                'Google Sans Flex',
+                'https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..800&display=swap',
+                GoogleFontProvider::class,
+            )
+            ->sidebarCollapsibleOnDesktop()
+            ->collapsibleNavigationGroups()
+            ->maxContentWidth(Width::ScreenTwoExtraLarge)
             ->colors([
                 'primary' => Color::Amber,
+                'purple' => Color::Purple,
+                'teal' => Color::Teal,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -97,6 +117,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(MyProfile::getRouteName())),
                             ]),
                         NavigationGroup::make('Membership')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Users')
                                     ->icon('heroicon-o-users')
@@ -129,6 +150,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(BadgeResource::getRouteBaseName().'*')),
                             ]),
                         NavigationGroup::make('Events')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Events')
                                     ->icon('heroicon-o-calendar-days')
@@ -177,6 +199,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(EventAnalytics::getRouteName())),
                             ]),
                         NavigationGroup::make('Meetings')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Meetings')
                                     ->icon('heroicon-o-video-camera')
@@ -202,6 +225,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(MeetingAnalytics::getRouteName())),
                             ]),
                         NavigationGroup::make('Finance')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Transactions')
                                     ->icon('heroicon-o-banknotes')
@@ -219,6 +243,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(BudgetCategoryResource::getRouteBaseName().'*')),
                             ]),
                         NavigationGroup::make('Fines')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Fines')
                                     ->icon('heroicon-o-exclamation-triangle')
@@ -246,6 +271,7 @@ class AdminPanelProvider extends PanelProvider
                             ]),
 
                         NavigationGroup::make('Exams')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Exams')
                                     ->icon('heroicon-o-document-text')
@@ -256,6 +282,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'*')),
                             ]),
                         NavigationGroup::make('CTF')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('CTF Dashboard')
                                     ->icon('heroicon-o-flag')
@@ -295,6 +322,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(CtfWriteupResource::getRouteBaseName().'*')),
                             ]),
                         NavigationGroup::make('Testimonials')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Testimonials')
                                     ->icon('heroicon-o-chat-bubble-left-right')
@@ -314,6 +342,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(\App\Filament\Resources\ContactMessages\ContactMessageResource::getRouteBaseName().'*')),
                             ]),
                         NavigationGroup::make('Elections')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Elections')
                                     ->icon('heroicon-o-check-badge')
@@ -326,6 +355,7 @@ class AdminPanelProvider extends PanelProvider
                             ]),
 
                         NavigationGroup::make('Assignments')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Role Templates')
                                     ->icon('heroicon-o-academic-cap')
@@ -337,6 +367,7 @@ class AdminPanelProvider extends PanelProvider
                             ]),
 
                         NavigationGroup::make('Projects')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('Projects')
                                     ->icon('heroicon-o-code-bracket-square')
@@ -348,6 +379,7 @@ class AdminPanelProvider extends PanelProvider
                             ]),
 
                         NavigationGroup::make('System')
+                            ->collapsible()
                             ->items([
                                 NavigationItem::make('System Overview')
                                     ->icon('heroicon-o-server-stack')
@@ -402,6 +434,18 @@ class AdminPanelProvider extends PanelProvider
                             ]),
                     ]);
             })
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::SIDEBAR_NAV_END,
+                fn (): string => view('filament.admin-sidebar-enhancements')->render(),
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::HEAD_END,
+                fn (): string => view('filament.admin-ui-head')->render(),
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::FOOTER,
+                fn (): string => view('layouts.system-footer')->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

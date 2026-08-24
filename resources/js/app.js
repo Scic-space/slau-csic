@@ -1,14 +1,56 @@
 import './bootstrap';
-import ApexCharts from 'apexcharts';
 
 // flatpickr
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import 'preline';
 
-
-window.ApexCharts = ApexCharts;
 window.flatpickr = flatpickr;
+
+let prelinePromise;
+let chartsPromise;
+
+async function initOptionalComponents() {
+    const chartIds = ['chartOne', 'chartTwo', 'chartThree', 'chartSix', 'chartEight', 'chartThirteen'];
+    const hasCharts = chartIds.some((id) => document.getElementById(id));
+
+    if (hasCharts) {
+        chartsPromise ??= import('apexcharts').then(({ default: ApexCharts }) => {
+            window.ApexCharts = ApexCharts;
+        });
+
+        await chartsPromise;
+
+        const chartInitializers = [
+            ['chartOne', () => import('./components/chart/chart-1'), 'initChartOne'],
+            ['chartTwo', () => import('./components/chart/chart-2'), 'initChartTwo'],
+            ['chartThree', () => import('./components/chart/chart-3'), 'initChartThree'],
+            ['chartSix', () => import('./components/chart/chart-6'), 'initChartSix'],
+            ['chartEight', () => import('./components/chart/chart-8'), 'initChartEight'],
+            ['chartThirteen', () => import('./components/chart/chart-13'), 'initChartThirteen'],
+        ];
+
+        await Promise.all(chartInitializers.map(async ([id, loadModule, exportName]) => {
+            const chartElement = document.getElementById(id);
+            if (!chartElement || chartElement.dataset.chartInitialized) return;
+
+            chartElement.dataset.chartInitialized = 'loading';
+
+            const module = await loadModule();
+            if (!chartElement.isConnected) return;
+
+            module[exportName]();
+            chartElement.dataset.chartInitialized = 'true';
+        }));
+    }
+
+    const hasPrelineComponent = document.querySelector('[data-hs-overlay], [data-hs-dropdown], [data-hs-collapse], [data-hs-select]');
+
+    if (hasPrelineComponent) {
+        prelinePromise ??= import('preline');
+        await prelinePromise;
+        initPrelineComponents();
+    }
+}
 
 // Real-time notification listener via Reverb broadcasting
 document.addEventListener('DOMContentLoaded', () => {
@@ -78,25 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         import('./components/map').then(module => module.initMap());
     }
 
-    // Chart imports
-    if (document.querySelector('#chartOne')) {
-        import('./components/chart/chart-1').then(module => module.initChartOne());
-    }
-    if (document.querySelector('#chartTwo')) {
-        import('./components/chart/chart-2').then(module => module.initChartTwo());
-    }
-    if (document.querySelector('#chartThree')) {
-        import('./components/chart/chart-3').then(module => module.initChartThree());
-    }
-    if (document.querySelector('#chartSix')) {
-        import('./components/chart/chart-6').then(module => module.initChartSix());
-    }
-    if (document.querySelector('#chartEight')) {
-        import('./components/chart/chart-8').then(module => module.initChartEight());
-    }
-    if (document.querySelector('#chartThirteen')) {
-        import('./components/chart/chart-13').then(module => module.initChartThirteen());
-    }
+    initOptionalComponents();
 
     const revealItems = document.querySelectorAll('.reveal-fade');
     if (revealItems.length && 'IntersectionObserver' in window) {
@@ -199,20 +223,18 @@ function initPrelineComponents() {
 
 // Listen for Livewire events to re-initialize components
 document.addEventListener('livewire:navigated', () => {
-  // Re-initialize components after navigation
-  initPrelineComponents();
+  initOptionalComponents();
 });
 
 document.addEventListener('livewire:updated', () => {
-  initPrelineComponents();
+  initOptionalComponents();
 });
 
 document.addEventListener('livewire:load', () => {
-  initPrelineComponents();
+  initOptionalComponents();
 });
 
 // Initialize on page load
 document.addEventListener('livewire:init', () => {
-  initPrelineComponents();
+  initOptionalComponents();
 });
-

@@ -1,11 +1,11 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800 md:p-8">
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4">
             <p class="text-sm font-semibold uppercase tracking-widest text-emerald-500">Applications</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Apply for a cabinet position
+            <h1 class="mt-1 flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <span class="material-symbols-outlined text-brand-500" aria-hidden="true">person_add</span>Apply for a cabinet position
             </h1>
-            <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
+            <p class="mt-1 max-w-3xl text-sm text-gray-500 dark:text-gray-400">
                 Submit your candidacy for open positions. Include your manifesto, agenda, and a personal
                 statement. Your application will be reviewed by the administration.
             </p>
@@ -31,7 +31,7 @@
                 <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">Check back later when new elections are announced.</p>
             </div>
         @else
-            <div class="space-y-6">
+            <div class="space-y-3">
                 @foreach ($elections as $election)
                     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex flex-wrap items-start justify-between gap-4">
@@ -39,8 +39,8 @@
                                 <p class="text-xs font-semibold uppercase tracking-widest text-emerald-500">
                                     {{ $election['position'] }}
                                 </p>
-                                <h2 class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">
-                                    {{ $election['title'] }}
+                                <h2 class="mt-2 flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white">
+                                    <span class="material-symbols-outlined text-emerald-500" aria-hidden="true">person_add</span>{{ $election['title'] }}
                                 </h2>
                                 @if ($election['description'])
                                     <p class="mt-3 text-sm leading-7 text-gray-600 dark:text-gray-400">

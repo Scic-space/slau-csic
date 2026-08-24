@@ -1,19 +1,19 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="py-4 sm:py-5">
+    <div>
         {{-- Header --}}
-        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800 md:p-8">
+        <div class="mb-4">
             <p class="text-sm font-semibold uppercase tracking-widest text-emerald-500">Election Results</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Past Election Outcomes
+            <h1 class="mt-1 flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <span class="material-symbols-outlined text-brand-500" aria-hidden="true">poll</span>Past Election Outcomes
             </h1>
-            <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
+            <p class="mt-1 max-w-3xl text-sm text-gray-500 dark:text-gray-400">
                 Transparent results for all completed elections. Results are displayed once an election
                 has been closed and published by the administration.
             </p>
         </div>
 
         {{-- Filters --}}
-        <div class="mb-6 flex flex-wrap items-center gap-2">
+        <div class="mb-3 flex flex-wrap items-center gap-2">
             @foreach ([
                 'all' => 'All Results',
                 'published' => 'Published',
@@ -37,7 +37,7 @@
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Results will appear here once elections are closed and published.</p>
             </div>
         @else
-            <div class="space-y-6">
+            <div class="space-y-3">
                 @foreach ($elections as $election)
                     <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
                         {{-- Election Header --}}
@@ -45,7 +45,7 @@
                             <div class="flex flex-wrap items-start justify-between gap-4">
                                 <div>
                                     <p class="text-xs font-semibold uppercase tracking-widest text-emerald-500">{{ $election['position'] }}</p>
-                                    <h2 class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{{ $election['title'] }}</h2>
+                                    <h2 class="mt-2 flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">leaderboard</span>{{ $election['title'] }}</h2>
                                     @if ($election['ends_at'])
                                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                             Ended {{ \Carbon\Carbon::parse($election['ends_at'])->format('F j, Y') }}

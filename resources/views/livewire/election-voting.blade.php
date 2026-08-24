@@ -1,39 +1,39 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="py-4 sm:py-5">
+    <div>
         {{-- Header --}}
-        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800 md:p-8">
+        <div class="mb-4">
             <p class="text-sm font-semibold uppercase tracking-widest text-emerald-500">Cabinet Voting</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Elections Dashboard
+            <h1 class="mt-1 flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <span class="material-symbols-outlined text-brand-500" aria-hidden="true">how_to_vote</span>Elections Dashboard
             </h1>
-            <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
+            <p class="mt-1 max-w-3xl text-sm text-gray-500 dark:text-gray-400">
                 View all cabinet elections, cast your vote, track nominations, and review results.
                 Each election is position-based with one ballot per member.
             </p>
         </div>
 
         {{-- Stats --}}
-        <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                 <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</div>
-                <div class="mt-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Elections</div>
+                <div class="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">ballot</span>Total Elections</div>
             </div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
                 <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $stats['active'] }}</div>
-                <div class="mt-1 text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Active Now</div>
+                <div class="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-emerald-600 dark:text-emerald-400"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">how_to_vote</span>Active Now</div>
             </div>
             <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
                 <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['upcoming'] }}</div>
-                <div class="mt-1 text-xs font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400">Upcoming</div>
+                <div class="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">schedule</span>Upcoming</div>
             </div>
             <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                 <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['user_votes_cast'] }}</div>
-                <div class="mt-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Your Votes Cast</div>
+                <div class="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">verified</span>Your Votes Cast</div>
             </div>
         </div>
 
         {{-- Filter Tabs --}}
-        <div class="mb-6 flex flex-wrap items-center gap-2">
+        <div class="mb-3 flex flex-wrap items-center gap-2">
             @foreach ([
                 'all' => 'All Elections',
                 'active' => 'Active',
@@ -65,7 +65,7 @@
                 </p>
             </div>
         @else
-            <div class="space-y-4">
+            <div class="space-y-3">
                 @foreach ($elections as $election)
                     <a href="{{ route('voting.show', $election['slug']) }}" wire:navigate
                         class="group block rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-emerald-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-emerald-600">

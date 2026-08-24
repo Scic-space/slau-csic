@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Transactions\Pages;
 
 use App\Filament\Resources\Transactions\TransactionResource;
+use App\Filament\Widgets\TransactionStatusCards;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -17,6 +19,18 @@ class ListTransactions extends ListRecords
         return [
             CreateAction::make(),
         ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            TransactionStatusCards::class,
+        ];
+    }
+
+    public function getTabsContentComponent(): Component
+    {
+        return parent::getTabsContentComponent()->hidden();
     }
 
     public function getTabs(): array

@@ -3,9 +3,32 @@
 use App\Livewire\MemberDashboard;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+afterEach(function () {
+    Carbon::setTestNow();
+});
+
+it('shows the authenticated user a time-appropriate dashboard greeting', function (string $time, string $greeting) {
+    Carbon::setTestNow($time);
+
+    $user = User::factory()->create([
+        'name' => 'Amina Nsubuga',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertSuccessful()
+        ->assertSee("{$greeting}, Amina Nsubuga");
+})->with([
+    'morning before five' => ['2026-08-22 04:59:00', 'Good morning'],
+    'morning from five' => ['2026-08-22 05:00:00', 'Good morning'],
+    'afternoon from noon' => ['2026-08-22 12:00:00', 'Good afternoon'],
+    'evening from five' => ['2026-08-22 17:00:00', 'Good evening'],
+]);
 
 it('shows the complete your profile prompt when the profile is empty', function () {
     $user = User::factory()->create();
@@ -13,6 +36,26 @@ it('shows the complete your profile prompt when the profile is empty', function 
     Livewire::actingAs($user)
         ->test(MemberDashboard::class)
         ->assertSee('Complete Your Profile');
+});
+
+it('renders meaningful Material Symbols for dashboard cards', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertSeeHtml('material-symbols-outlined')
+        ->assertSeeInOrder([
+            'event',
+            'event_available',
+            'local_fire_department',
+            'stars',
+            'fact_check',
+            'emoji_events',
+            'calendar_month',
+            'school',
+            'military_tech',
+            'history',
+        ]);
 });
 
 it('counts profile fields stored on member_profiles and social_links', function () {

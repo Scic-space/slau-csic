@@ -1,17 +1,17 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="py-4 sm:py-5">
+    <div>
 
-        <div class="mb-8">
+        <div class="mb-4">
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Resource Library</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Browse and track your learning resources</p>
         </div>
 
         {{-- Stats Cards --}}
-        <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30">
-                        <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        <span class="material-symbols-outlined text-blue-600 dark:text-blue-400" aria-hidden="true">library_books</span>
                     </div>
                     <div>
                         <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $stats['total'] }}</p>
@@ -19,10 +19,10 @@
                     </div>
                 </div>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/30">
-                        <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400" aria-hidden="true">pending_actions</span>
                     </div>
                     <div>
                         <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $stats['in_progress'] }}</p>
@@ -30,10 +30,10 @@
                     </div>
                 </div>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/30">
-                        <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="material-symbols-outlined text-green-600 dark:text-green-400" aria-hidden="true">task_alt</span>
                     </div>
                     <div>
                         <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $stats['completed'] }}</p>
@@ -44,53 +44,44 @@
         </div>
 
         {{-- Search & Filters --}}
-        <div class="mb-6 space-y-4">
-            <div class="relative">
-                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <div class="mb-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[18rem_minmax(12rem,1fr)_minmax(12rem,1fr)_minmax(12rem,1fr)]">
+                <div class="relative min-w-0">
+                    <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">search</span>
+                    <input type="search" wire:model.live.debounce.250ms="search" placeholder="Search resources..."
+                        aria-label="Search resources"
+                        class="block h-11 w-full rounded-sm border border-gray-300 bg-white py-2.5 pl-10 pr-11 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400 hover:border-gray-400 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:hover:border-gray-500">
+                    @if ($search || $category || $difficulty || $status)
+                        <button type="button" wire:click="$set('search', ''); $set('category', ''); $set('difficulty', ''); $set('status', '');" class="absolute right-1 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 focus:bg-gray-100 focus:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-white" aria-label="Clear search and filters">
+                            <span class="material-symbols-outlined" aria-hidden="true">filter_alt_off</span>
+                        </button>
+                    @endif
                 </div>
-                <input type="text" wire:model.live="search" placeholder="Search resources..."
-                    class="block w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400">
-            </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-                <select wire:model.live="category"
-                    class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                    <option value="">All Categories</option>
-                    @foreach ($categories as $cat)
-                        <option value="{{ $cat }}">{{ ucfirst($cat) }}</option>
-                    @endforeach
-                </select>
+                @foreach ([
+                    ['category', 'category', 'Filter by category', 'All Categories', $categories],
+                    ['difficulty', 'speed', 'Filter by difficulty', 'All Difficulties', $difficulties],
+                    ['status', 'check_circle', 'Filter by status', 'All Statuses', $statuses],
+                ] as [$model, $icon, $ariaLabel, $defaultLabel, $options])
+                    <div class="group relative min-w-0">
+                        <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-gray-400 transition group-hover:text-brand-500" aria-hidden="true">{{ $icon }}</span>
+                        <select wire:model.live="{{ $model }}" aria-label="{{ $ariaLabel }}"
+                            class="block h-11 w-full appearance-none rounded-sm border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                            <option value="">{{ $defaultLabel }}</option>
+                            @foreach ($options as $option)
+                                <option value="{{ $option }}">{{ ucfirst($option) }}</option>
+                            @endforeach
+                        </select>
+                        <span class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">expand_more</span>
+                    </div>
+                @endforeach
 
-                <select wire:model.live="difficulty"
-                    class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                    <option value="">All Difficulties</option>
-                    @foreach ($difficulties as $diff)
-                        <option value="{{ $diff }}">{{ $diff }}</option>
-                    @endforeach
-                </select>
-
-                <select wire:model.live="status"
-                    class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                    <option value="">All Statuses</option>
-                    @foreach ($statuses as $st)
-                        <option value="{{ $st }}">{{ ucfirst($st) }}</option>
-                    @endforeach
-                </select>
-
-                @if ($search || $category || $difficulty || $status)
-                    <button wire:click="$set('search', ''); $set('category', ''); $set('difficulty', ''); $set('status', '');"
-                        class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        Clear
-                    </button>
-                @endif
             </div>
         </div>
 
         {{-- Resource Grid --}}
         @if ($resources->isEmpty())
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center shadow-sm">
+            <div class="rounded-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center shadow-sm">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -100,7 +91,7 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Try adjusting your search or filters.</p>
             </div>
         @else
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($resources as $resource)
                     @php
                         $progress = $userProgress->get($resource->id);
@@ -123,7 +114,7 @@
                         ];
                     @endphp
                     <a href="{{ route('portal.resources.show', $resource->slug) }}" wire:navigate
-                        class="group block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600">
+                        class="group block rounded-sm border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600">
 
                         <div class="mb-3 flex flex-wrap items-center gap-2">
                             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $categoryColors[$resource->category] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400' }}">
@@ -187,7 +178,7 @@
                 @endforeach
             </div>
 
-            <div class="mt-8">
+            <div class="mt-3">
                 {{ $resources->links() }}
             </div>
         @endif

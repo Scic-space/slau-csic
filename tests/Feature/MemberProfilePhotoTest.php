@@ -14,14 +14,20 @@ it('stores an uploaded profile photo', function () {
 
     $user = User::factory()->create();
 
-    Livewire::actingAs($user)
+    $component = Livewire::actingAs($user)
         ->test(MemberProfile::class)
         ->set('profile_photo', UploadedFile::fake()->image('avatar.jpg'))
-        ->assertHasNoErrors();
+        ->assertHasNoErrors()
+        ->assertDispatched('profile-photo-updated')
+        ->assertDispatched('toast-show')
+        ->assertSet('profile_photo', null);
 
     $user->refresh();
 
     expect($user->profile_photo)->not->toBeNull();
+    expect($component->get('profilePhotoUrl'))
+        ->toContain('/storage/'.$user->profile_photo)
+        ->toContain('?v=');
     Storage::disk('public')->assertExists($user->profile_photo);
 });
 
@@ -44,4 +50,21 @@ it('replaces an existing profile photo when a new one is uploaded', function () 
     expect($user->profile_photo)->not->toBe('profile-photos/old-avatar.jpg');
     Storage::disk('public')->assertMissing('profile-photos/old-avatar.jpg');
     Storage::disk('public')->assertExists($user->profile_photo);
+});
+
+it('keeps the uploaded profile photo after a fresh authenticated session', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(MemberProfile::class)
+        ->set('profile_photo', UploadedFile::fake()->image('persistent-avatar.jpg'));
+
+    $storedPath = $user->refresh()->profile_photo;
+
+    Livewire::actingAs(User::query()->findOrFail($user->id))
+        ->test(MemberProfile::class)
+        ->assertSet('profilePhotoUrl', Storage::disk('public')->url($storedPath))
+        ->assertSee(Storage::disk('public')->url($storedPath));
 });

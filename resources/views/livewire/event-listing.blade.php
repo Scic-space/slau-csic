@@ -1,12 +1,12 @@
-<div class="py-8">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4">
             <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Events</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Browse upcoming and past club events</p>
         </div>
 
         @if ($isGuest)
-            <div class="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800/50 dark:bg-indigo-900/20">
+            <div class="mb-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800/50 dark:bg-indigo-900/20">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-3">
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-800/50">
@@ -33,8 +33,8 @@
 
         {{-- Filters (members only) --}}
         @if (!$isGuest)
-            <div class="dashboard-card mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-7">
+            <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
                     <div class="lg:col-span-2">
                         <input wire:model.live.debounce="search" type="text" placeholder="Search events..."
                                class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 dark:focus:border-white dark:focus:ring-white">
@@ -83,7 +83,7 @@
         {{-- Next Upcoming Event --}}
         @if ($featuredEvent)
             <a href="{{ route('events.show', $featuredEvent['slug']) }}" wire:navigate
-               class="dashboard-card mb-6 block rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+               class="dashboard-card mb-3 block rounded-sm border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex flex-col sm:flex-row">
                     <div class="flex items-center gap-4 bg-gray-50 px-6 py-4 sm:flex-col sm:justify-center sm:border-r sm:border-gray-200 sm:bg-transparent dark:bg-gray-800/50 dark:sm:border-gray-700">
                         <div class="text-center">
@@ -135,7 +135,7 @@
 
         {{-- Event Grid --}}
         @if ($events->isEmpty())
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
@@ -143,10 +143,10 @@
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Try adjusting your search or filter criteria.</p>
             </div>
         @else
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($events as $event)
                     <a href="{{ route('events.show', $event['slug']) }}" wire:navigate
-                       class="dashboard-card group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+                       class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-start justify-between gap-2">
                             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                 {{ $event['type'] === 'workshop' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : '' }}
@@ -201,7 +201,7 @@
                 @endforeach
             </div>
 
-            <div class="mt-6">
+            <div class="mt-3">
                 {{ $events->links() }}
             </div>
         @endif

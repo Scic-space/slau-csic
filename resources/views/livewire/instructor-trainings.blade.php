@@ -1,13 +1,13 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="py-4 sm:py-5">
+    <div>
         {{-- Page Header --}}
-        <div class="mb-8">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">My Trainings</h1>
+        <div class="mb-4">
+            <h1 class="flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">model_training</span>My Trainings</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage and monitor your assigned training programs</p>
         </div>
 
         {{-- Filters --}}
-        <div class="mb-6 flex flex-wrap gap-3">
+        <div class="mb-3 flex flex-wrap gap-3 rounded-sm border border-gray-200 bg-white p-3 shadow-sm sm:p-4 dark:border-gray-700 dark:bg-gray-800">
             <input
                 type="text"
                 wire:model.live="search"
@@ -29,7 +29,7 @@
 
         @if ($trainings->isEmpty())
             {{-- Empty State --}}
-            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-8 text-center shadow-sm sm:p-10 dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -40,12 +40,12 @@
             </div>
         @else
             {{-- Training Cards Grid --}}
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($trainings as $training)
-                    <a href="{{ route('trainings.show', $training->slug) }}" wire:navigate class="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+                    <a href="{{ route('trainings.show', $training->slug) }}" wire:navigate class="dashboard-card group rounded-sm border border-gray-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-start justify-between">
                             <div class="flex-1 min-w-0">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{ $training->title }}</h3>
+                                <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400"><span class="material-symbols-outlined text-indigo-500" aria-hidden="true">school</span>{{ $training->title }}</h3>
                                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{{ $training->description }}</p>
                             </div>
                         </div>

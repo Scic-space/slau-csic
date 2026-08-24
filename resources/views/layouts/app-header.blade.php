@@ -93,6 +93,43 @@
             </div>
         </div>
 
+        @if (request()->routeIs('dashboard') && auth()->check())
+            @php
+                $headerUser = auth()->user();
+                $headerMembership = $headerUser->membership;
+                $headerMembershipDuration = $headerUser->joined_at ? (int) abs(now()->diffInMonths($headerUser->joined_at)) : 0;
+                $headerHour = (int) now()->format('G');
+                $headerGreeting = match (true) {
+                    $headerHour < 12 => 'Good morning',
+                    $headerHour < 17 => 'Good afternoon',
+                    default => 'Good evening',
+                };
+            @endphp
+            <div class="flex w-full min-w-0 items-center px-5 py-3 xl:flex-1 xl:justify-center xl:px-4 xl:py-0">
+                <div class="min-w-0">
+                    <p class="truncate text-sm font-semibold text-gray-800 dark:text-white/90">{{ $headerGreeting }}, {{ $headerUser->name }}</p>
+                    <p class="mt-0.5 hidden truncate text-xs text-gray-500 xl:block dark:text-gray-400">
+                        @if ($headerMembership)
+                            {{ ucfirst($headerMembership->status) }}
+                        @else
+                            {{ ucfirst($headerUser->membership_status) }}
+                        @endif
+                        Member
+                        &middot; {{ $headerMembershipDuration }} month{{ $headerMembershipDuration !== 1 ? 's' : '' }}
+                        @if ($headerUser->rank)
+                            &middot; Rank: {{ $headerUser->rank }}
+                        @endif
+                        @if ($headerUser->membership_expires_at)
+                            &middot; Expires {{ $headerUser->membership_expires_at->diffForHumans() }}
+                        @endif
+                        @if ($headerUser->isMembershipExpiringSoon())
+                            <span class="ml-1.5 inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Renewal due</span>
+                        @endif
+                    </p>
+                </div>
+            </div>
+        @endif
+
         <!-- Application Menu (mobile) and Right Side Actions (desktop) -->
         <div :class="isApplicationMenuOpen ? 'flex' : 'hidden'"
             class="flex-col gap-4 w-full px-5 py-4 shadow-theme-md xl:flex xl:flex-row xl:items-center xl:justify-end xl:gap-4 xl:px-0 xl:shadow-none">

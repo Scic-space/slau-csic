@@ -317,6 +317,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->hasMany(Testimonial::class);
     }
 
+    public function calendarReminders(): HasMany
+    {
+        return $this->hasMany(CalendarReminder::class);
+    }
+
     public function competitions()
     {
         return $this->belongsToMany(Competition::class, 'competition_participants')
@@ -502,7 +507,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             }
 
             if (Storage::disk('public')->exists($this->profile_photo)) {
-                return url('storage/'.$this->profile_photo);
+                return Storage::disk('public')->url($this->profile_photo);
             }
         }
 
@@ -644,6 +649,13 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function isInactive(): bool
     {
         return $this->membership_status === 'inactive';
+    }
+
+    public function isMembershipExpiringSoon(): bool
+    {
+        return $this->membership_expires_at
+            && $this->membership_expires_at->isFuture()
+            && $this->membership_expires_at->diffInDays(now()) <= 30;
     }
 
     public function assignMemberNumber(): void

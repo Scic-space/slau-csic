@@ -5,7 +5,7 @@
         <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
             <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                 <div>
-                    <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-500">CTF Arena</p>
+                    <p class="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-emerald-500"><span class="material-symbols-outlined" aria-hidden="true">sports_esports</span> CTF Arena</p>
                     <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">Practice harder, track progress, earn badges, and watch rankings move.</h1>
                     <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
                         This arena combines internal CTF competitions, challenge tracks, and connected Hack The Box profile data.
@@ -13,7 +13,7 @@
                 </div>
 
                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-gray-800 dark:bg-gray-900/60">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Hack The Box Sync</h2>
+                    <h2 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">sync</span> Hack The Box Sync</h2>
                     @if (! empty($htbData))
                         <div class="mt-4 space-y-3 text-sm">
                             <div class="flex items-center justify-between">
@@ -39,13 +39,13 @@
         @if (isset($activeCompetitions) && $activeCompetitions->count() > 0)
         <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Active Competitions</h2>
+                <h2 class="flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">emoji_events</span> Active Competitions</h2>
                 <a href="{{ route('ctf.index') }}" class="text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400">View All →</a>
             </div>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 @foreach ($activeCompetitions as $comp)
                 <a href="{{ route('ctf.competition', $comp) }}" class="rounded-lg border border-gray-200 bg-gray-50 p-4 hover:border-emerald-300 dark:border-gray-800 dark:bg-gray-900/60 dark:hover:border-emerald-700 transition">
-                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ $comp->title }}</h3>
+                    <h3 class="flex items-center gap-2 font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-[20px] text-emerald-500" aria-hidden="true">flag</span> {{ $comp->title }}</h3>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $comp->challenges_count }} challenges</p>
                     @if ($comp->end_date)
                     <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">Ends {{ $comp->end_date->format('M d, H:i') }}</p>
@@ -59,26 +59,26 @@
         {{-- Stats summary --}}
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Active CTFs</p>
+                <div class="flex items-center justify-between gap-2"><p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Active CTFs</p><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">terminal</span></div>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $activeCompetitions?->count() ?? 0 }}</p>
             </div>
             <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">My Solves</p>
+                <div class="flex items-center justify-between gap-2"><p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">My Solves</p><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">task_alt</span></div>
                 <p class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ $userSolves ?? 0 }}</p>
             </div>
             <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">My Points</p>
+                <div class="flex items-center justify-between gap-2"><p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">My Points</p><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">stars</span></div>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $userPoints ?? 0 }}</p>
             </div>
             <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-                <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Tracks</p>
+                <div class="flex items-center justify-between gap-2"><p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Tracks</p><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">route</span></div>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $resources->count() }}</p>
             </div>
         </div>
 
         <section class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
             <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Badges and ranks</h2>
+                <h2 class="flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">military_tech</span> Badges and ranks</h2>
                 <div class="mt-5 flex flex-wrap gap-3">
                     @forelse ($badges as $badge)
                         <span class="inline-flex items-center rounded-md bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-500">{{ $badge }}</span>
@@ -88,7 +88,7 @@
                 </div>
 
                 <div class="mt-8">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Internal leaderboard</h3>
+                    <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">leaderboard</span> Internal leaderboard</h3>
                     <div class="mt-4 space-y-3">
                         @forelse ($leaderboard as $index => $entry)
                             <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900/60">
@@ -113,7 +113,7 @@
             </div>
 
             <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Challenge tracks</h2>
+                <h2 class="flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">account_tree</span> Challenge tracks</h2>
                 <div class="mt-5 space-y-4">
                     @foreach ($resources as $resource)
                         @php $progress = optional($resource->user_progress); @endphp
@@ -143,7 +143,7 @@
 
         <section class="space-y-4">
             <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Track progress updates</h2>
+                <h2 class="flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">update</span> Track progress updates</h2>
                 <p class="mt-3 text-sm leading-7 text-gray-600 dark:text-gray-400">Update your completion state, score, and ranking per challenge track so your dashboard, badges, and leaderboard standing stay current.</p>
             </div>
 

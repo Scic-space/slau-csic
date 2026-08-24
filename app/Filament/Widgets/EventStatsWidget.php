@@ -2,13 +2,15 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Support\MaterialIconStat as Stat;
 use App\Models\Event;
 use App\Models\EventCategory;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class EventStatsWidget extends BaseWidget
 {
+    protected static bool $isLazy = false;
+
     protected static ?int $sort = 6;
 
     public static function canView(): bool
@@ -54,21 +56,25 @@ class EventStatsWidget extends BaseWidget
 
         return [
             Stat::make('Upcoming Events', $upcomingEvents)
+                ->icon('event_upcoming')
                 ->description($eventsThisMonth > 0 ? $eventsThisMonth.' this month' : 'No events this month')
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('info'),
 
             Stat::make('Active / Ongoing', $ongoingEvents)
+                ->icon('play_circle')
                 ->description($upcomingEvents.' upcoming')
                 ->descriptionIcon('heroicon-m-play-circle')
                 ->color('warning'),
 
             Stat::make('Attendance Rate', $attendanceRate.'%')
+                ->icon('how_to_reg')
                 ->description($totalAttendance.' of '.$totalRegistrations.' attended')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color($attendanceRate >= 70 ? 'success' : ($attendanceRate >= 40 ? 'warning' : 'danger')),
 
             Stat::make('Total Events', $totalEvents)
+                ->icon('calendar_month')
                 ->description($topCategory ? 'Top: '.$topCategory->name.' ('.$topCategory->events_count.')' : 'No categories')
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('primary'),

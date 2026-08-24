@@ -1,6 +1,6 @@
-<div class="py-6" x-data="eventCalendar()">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8 flex items-center justify-between">
+<div class="py-4 sm:py-5" x-data="eventCalendar()">
+    <div>
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Event Calendar</h1>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Browse and discover club events</p>
@@ -13,37 +13,29 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-6 lg:flex-row">
-            <div class="w-full shrink-0 space-y-4 lg:w-64">
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="mb-3 flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Categories</h3>
-                        <button x-show="selectedCategories.length > 0" @click="selectedCategories = []" class="text-xs text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">Clear</button>
-                    </div>
-                    <div class="space-y-2">
-                        @foreach ($categories as $cat)
-                            <label class="flex cursor-pointer items-center gap-2 group">
-                                <input type="checkbox" value="{{ $cat['id'] }}" x-model="selectedCategories" class="rounded border-gray-300 text-gray-900 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-white">
-                                <span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {{ $cat['color'] }}"></span>
-                                <span class="text-sm text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">{{ $cat['name'] }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <h3 class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Legend</h3>
-                    <div class="space-y-1.5 text-xs text-gray-500 dark:text-gray-400">
-                        <p><span class="inline-block h-2.5 w-2.5 rounded-full bg-green-500 mr-1"></span> You're registered</p>
-                        <p>Click an event to view details</p>
-                        <p>Events are colored by category</p>
-                    </div>
-                </div>
+        <div class="dashboard-card mb-3 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-sm border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="font-semibold text-gray-900 dark:text-white">Categories</span>
+                @foreach ($categories as $cat)
+                    <label class="group inline-flex cursor-pointer items-center gap-1.5">
+                        <input type="checkbox" value="{{ $cat['id'] }}" x-model="selectedCategories" class="rounded border-gray-300 text-gray-900 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-white">
+                        <span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background-color: {{ $cat['color'] }}"></span>
+                        <span class="text-gray-600 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">{{ $cat['name'] }}</span>
+                    </label>
+                @endforeach
+                <button x-show="selectedCategories.length > 0" @click="selectedCategories = []" class="text-xs font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">Clear</button>
             </div>
+            <span class="hidden h-5 w-px bg-gray-200 sm:block dark:bg-gray-700" aria-hidden="true"></span>
+            <span class="font-semibold text-gray-900 dark:text-white">Legend</span>
+            <span class="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-300"><span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>You're registered</span>
+            <span class="text-gray-500 dark:text-gray-400">Click an event to view details</span>
+            <span class="text-gray-500 dark:text-gray-400">Events are colored by category</span>
+        </div>
 
-            <div class="min-w-0 flex-1">
+        <div class="min-w-0">
                 {{-- Month View --}}
                 <div x-show="viewMode === 'month'">
-                    <div class="dashboard-card overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="p-4">
                             <div class="mb-4 flex items-center justify-between">
                                 <div class="flex items-center gap-2">
@@ -101,7 +93,7 @@
 
                 {{-- Agenda View --}}
                 <div x-show="viewMode === 'agenda'">
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="p-4">
                             <div class="mb-4 flex items-center justify-between">
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Upcoming Events</h2>
@@ -134,44 +126,42 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
 
-        {{-- Detail Modal --}}
-        <div x-show="detailEvent" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
-            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="detailEvent = null"></div>
-            <div class="relative w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
-                <button @click="detailEvent = null" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <span class="h-4 w-4 shrink-0 rounded-full" :style="{ backgroundColor: detailEvent?.color }"></span>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white" x-text="detailEvent?.title"></h2>
-                    </div>
-                    <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <div class="flex items-center gap-2">
-                            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <span x-text="detailEvent?.start ? formatDate(detailEvent.start) : ''"></span>
-                        </div>
-                        <div x-show="detailEvent?.end" class="flex items-center gap-2">
-                            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span x-text="detailEvent?.end ? 'Until ' + formatDate(detailEvent.end) : ''"></span>
-                        </div>
-                        <div x-show="detailEvent?.location" class="flex items-center gap-2">
-                            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <span x-text="detailEvent?.location"></span>
-                        </div>
-                        <span x-show="detailEvent?.is_recurring" class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">Recurring</span>
-                        <span x-show="detailEvent?.is_registered" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">You're Registered</span>
-                    </div>
-                    <p x-show="detailEvent?.description" class="text-sm text-gray-700 dark:text-gray-300" x-html="detailEvent?.description?.substring(0, 300)"></p>
-                    <div class="flex gap-3 pt-2">
-                        <a :href="detailEvent?.url" class="flex-1 rounded-lg bg-gray-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-gray-800 transition focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">View Event</a>
-                    </div>
+        {{-- Detail Drawer --}}
+        <x-ui.drawer show="detailEvent" on-close="detailEvent = null" :show-close-button="false">
+            <div class="flex items-start justify-between border-b border-gray-200 p-5 dark:border-gray-800">
+                <div class="flex items-center gap-3">
+                    <span class="h-4 w-4 shrink-0 rounded-full" :style="{ backgroundColor: detailEvent?.color }"></span>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white" x-text="detailEvent?.title"></h2>
                 </div>
+                <button @click="detailEvent = null" aria-label="Close" class="ml-4 text-gray-400 hover:text-gray-700 dark:hover:text-white">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
             </div>
-        </div>
+            <div class="flex-1 space-y-4 overflow-y-auto p-5">
+                <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span x-text="detailEvent?.start ? formatDate(detailEvent.start) : ''"></span>
+                    </div>
+                    <div x-show="detailEvent?.end" class="flex items-center gap-2">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span x-text="detailEvent?.end ? 'Until ' + formatDate(detailEvent.end) : ''"></span>
+                    </div>
+                    <div x-show="detailEvent?.location" class="flex items-center gap-2">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span x-text="detailEvent?.location"></span>
+                    </div>
+                    <span x-show="detailEvent?.is_recurring" class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">Recurring</span>
+                    <span x-show="detailEvent?.is_registered" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">You're Registered</span>
+                </div>
+                <p x-show="detailEvent?.description" class="text-sm text-gray-700 dark:text-gray-300" x-html="detailEvent?.description?.substring(0, 300)"></p>
+            </div>
+            <div class="border-t border-gray-200 p-5 dark:border-gray-800">
+                <a :href="detailEvent?.url" class="block w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-gray-800 transition focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">View Event</a>
+            </div>
+        </x-ui.drawer>
     </div>
 
     <script>

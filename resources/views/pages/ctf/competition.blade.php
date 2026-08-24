@@ -465,60 +465,39 @@
     </section>
     @endif
 
-    {{-- Challenge detail modal --}}
+    {{-- Challenge detail drawer --}}
     <template x-teleport="body">
-        <div x-show="modalOpen"
-             x-cloak
-             class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 pt-10 sm:pt-16"
-             @click.self="closeModal()">
-            {{-- Backdrop --}}
-            <div x-show="modalOpen"
-                 x-transition:enter="transition-opacity duration-200"
-                 x-transition:leave="transition-opacity duration-150"
-                 class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
-
-            {{-- Modal panel --}}
-            <div x-show="modalOpen"
-                 x-transition:enter="transition-all duration-200"
-                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                 x-transition:leave="transition-all duration-150"
-                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                 x-transition:leave-end="opacity-0 scale-95 translate-y-4"
-                 class="relative z-10 w-full max-w-2xl rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
-                 x-data="{
-                     submitted: false,
-                     submitError: '',
-                     revealingHint: null,
-                     submitFlag() {
-                         const challenge = this.selectedChallenge;
-                         if (!this.flagInput.trim() || !challenge) return;
-                         this.submitted = true;
-                         this.submitError = '';
-                         const form = document.createElement('form');
-                         form.method = 'POST';
-                         form.action = challenge.submit_url;
-                         const csrf = document.createElement('input');
-                         csrf.type = 'hidden';
-                         csrf.name = '_token';
-                         csrf.value = {{ Js::from(csrf_token()) }};
-                         form.appendChild(csrf);
-                         const flag = document.createElement('input');
-                         flag.type = 'hidden';
-                         flag.name = 'flag';
-                         flag.value = this.flagInput;
-                         form.appendChild(flag);
-                         document.body.appendChild(form);
-                         form.submit();
-                     }
-                 }">
-                {{-- Close button --}}
-                <button type="button" @click="closeModal()" class="absolute right-3 top-3 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-
+        <x-ui.drawer
+            show="modalOpen"
+            on-close="closeModal()"
+            width="lg"
+            x-data="{
+                submitted: false,
+                submitError: '',
+                revealingHint: null,
+                submitFlag() {
+                    const challenge = this.selectedChallenge;
+                    if (!this.flagInput.trim() || !challenge) return;
+                    this.submitted = true;
+                    this.submitError = '';
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = challenge.submit_url;
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = {{ Js::from(csrf_token()) }};
+                    form.appendChild(csrf);
+                    const flag = document.createElement('input');
+                    flag.type = 'hidden';
+                    flag.name = 'flag';
+                    flag.value = this.flagInput;
+                    form.appendChild(flag);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }"
+        >
                 {{-- Modal content bound to selectedChallenge --}}
                 <template x-if="selectedChallenge">
                     <div class="p-6">
@@ -699,8 +678,7 @@
                         </div>
                     </div>
                 </template>
-            </div>
-        </div>
+        </x-ui.drawer>
     </template>
 </div>
 @endsection

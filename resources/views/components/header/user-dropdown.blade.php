@@ -1,12 +1,13 @@
 <div class="relative" x-data="{
     dropdownOpen: false,
+    profilePhotoUrl: @js(auth()->user()?->profile_photo_url),
     toggleDropdown() {
         this.dropdownOpen = !this.dropdownOpen;
     },
     closeDropdown() {
         this.dropdownOpen = false;
     }
-}" @click.away="closeDropdown()">
+}" @click.away="closeDropdown()" @profile-photo-updated.window="profilePhotoUrl = $event.detail.url">
     @auth
     <!-- User Button -->
     <button
@@ -17,15 +18,10 @@
         :aria-expanded="dropdownOpen"
     >
         <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-            @php
-                $user = Auth::user();
-                $profilePhotoUrl = $user->profile_photo
-                    ? Storage::url($user->profile_photo)
-                    : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&color=FFFFFF&background=6366f1';
-            @endphp
+            @php($user = Auth::user())
 
             <img
-                src="{{ $profilePhotoUrl }}"
+                :src="profilePhotoUrl"
                 alt="{{ $user->name }}"
                 class="object-cover w-full h-full"
                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&color=FFFFFF&background=6366f1';"

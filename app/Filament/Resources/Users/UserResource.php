@@ -12,6 +12,7 @@ use App\Models\User;
 use BackedEnum;
 use Closure;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -63,6 +64,12 @@ class UserResource extends Resource
                             TextInput::make('registration_number')
                                 ->label('Registration Number')
                                 ->disabled(),
+                            Select::make('roles')
+                                ->label('Roles')
+                                ->multiple()
+                                ->relationship('roles', 'name')
+                                ->preload()
+                                ->disabled(),
                             Select::make('membership_type')
                                 ->disabled()
                                 ->options([
@@ -94,6 +101,12 @@ class UserResource extends Resource
                                 ->disabled(),
                             DatePicker::make('approved_at')
                                 ->disabled(),
+                            DatePicker::make('membership_expires_at')
+                                ->label('Membership Expires')
+                                ->disabled(),
+                            DateTimePicker::make('membership_renewed_at')
+                                ->label('Last Renewed')
+                                ->disabled(),
                         ]),
 
                     Section::make('Member Profile')
@@ -111,13 +124,50 @@ class UserResource extends Resource
                             TextInput::make('year_of_study')
                                 ->numeric()
                                 ->disabled(),
+                            DatePicker::make('date_of_birth')
+                                ->label('Date of Birth')
+                                ->disabled(),
+                            TextInput::make('gender')
+                                ->disabled(),
                             TextInput::make('residence')
+                                ->disabled(),
+                            TextInput::make('emergency_contact_name')
+                                ->label('Emergency Contact Name')
+                                ->disabled(),
+                            TextInput::make('emergency_contact_phone')
+                                ->label('Emergency Contact Phone')
                                 ->disabled(),
                             TextInput::make('headline')
                                 ->disabled(),
                             Textarea::make('bio')
                                 ->disabled()
                                 ->columnSpanFull(),
+                        ]),
+
+                    Section::make('Account & Administration')
+                        ->columns(2)
+                        ->schema([
+                            TextInput::make('github_username')
+                                ->label('GitHub Username')
+                                ->disabled(),
+                            TextInput::make('linkedin_url')
+                                ->label('LinkedIn URL')
+                                ->disabled(),
+                            TextInput::make('discord_username')
+                                ->label('Discord Username')
+                                ->disabled(),
+                            Textarea::make('approval_notes')
+                                ->label('Approval/Rejection Notes')
+                                ->disabled(),
+                            Textarea::make('admin_notes')
+                                ->label('Admin Notes')
+                                ->disabled(),
+                            Textarea::make('suspension_reason')
+                                ->label('Suspension Reason')
+                                ->disabled(),
+                            DateTimePicker::make('suspended_until')
+                                ->label('Suspended Until')
+                                ->disabled(),
                         ]),
                 ]);
         };

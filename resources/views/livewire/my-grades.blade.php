@@ -1,34 +1,34 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">My Grades</h1>
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4">
+            <h1 class="flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">grade</span>My Grades</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Your performance across all trainings and exams</p>
         </div>
 
-        <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Trainings Enrolled</p>
+        <div class="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Trainings Enrolled<span class="material-symbols-outlined" aria-hidden="true">school</span></p>
                 <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['trainings_enrolled'] }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Trainings Completed</p>
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Trainings Completed<span class="material-symbols-outlined text-green-500" aria-hidden="true">task_alt</span></p>
                 <p class="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">{{ $stats['trainings_completed'] }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Exams Taken</p>
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Exams Taken<span class="material-symbols-outlined" aria-hidden="true">quiz</span></p>
                 <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['exams_taken'] }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Exams Passed</p>
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Exams Passed<span class="material-symbols-outlined text-green-500" aria-hidden="true">verified</span></p>
                 <p class="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">{{ $stats['exams_passed'] }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Average Score</p>
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Average Score<span class="material-symbols-outlined text-blue-500" aria-hidden="true">monitoring</span></p>
                 <p class="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['average_score'] !== null ? number_format($stats['average_score'], 1).'%' : 'N/A' }}</p>
             </div>
         </div>
 
-        <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             @if ($grades->isEmpty())
                 <div class="p-12 text-center">
                     <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">

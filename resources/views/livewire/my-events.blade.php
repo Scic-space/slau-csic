@@ -1,16 +1,16 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4">
             <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">My Events</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Events you're registered for, instructing, or need feedback on</p>
         </div>
 
         @if ($pendingFeedback->isNotEmpty())
-            <div class="mb-8">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Pending Feedback</h2>
+            <div class="mb-3">
+                <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Pending Feedback</h2>
                 <div class="space-y-3">
                     @foreach ($pendingFeedback as $event)
-                        <div class="dashboard-card flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-800 dark:bg-amber-900/20">
+                        <div class="dashboard-card flex items-center justify-between rounded-sm border border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-800 dark:bg-amber-900/20">
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $event['title'] }}</p>
                                 <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ \Carbon\Carbon::parse($event['end_date'])->format('M j, Y') }}</p>
@@ -25,12 +25,12 @@
         @endif
 
         @if ($favoriteEvents->isNotEmpty())
-            <div class="mb-8">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Favorites ({{ $favoriteEvents->count() }})</h2>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="mb-3">
+                <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Favorites ({{ $favoriteEvents->count() }})</h2>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($favoriteEvents as $event)
                         <a href="{{ route('events.show', $event['slug']) }}" wire:navigate
-                           class="dashboard-card group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+                           class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
                             <div class="flex items-start justify-between gap-2">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                     {{ $event['type'] === 'workshop' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : '' }}
@@ -71,12 +71,12 @@
         @endif
 
         @if ($upcomingEvents->isNotEmpty())
-            <div class="mb-8">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Upcoming ({{ $upcomingEvents->count() }})</h2>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="mb-3">
+                <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Upcoming ({{ $upcomingEvents->count() }})</h2>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($upcomingEvents as $event)
                         <a href="{{ route('events.show', $event['slug']) }}" wire:navigate
-                           class="dashboard-card group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+                           class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
                             <div class="flex items-start justify-between gap-2">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                     {{ $event['type'] === 'workshop' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : '' }}
@@ -130,9 +130,9 @@
         @endif
 
         @if ($pastEvents->isNotEmpty())
-            <div class="mb-8">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Past ({{ $pastEvents->count() }})</h2>
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="mb-3">
+                <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Past ({{ $pastEvents->count() }})</h2>
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
@@ -177,8 +177,8 @@
 
         @if ($instructedEvents->isNotEmpty())
             <div>
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Instructed ({{ $instructedEvents->count() }})</h2>
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Instructed ({{ $instructedEvents->count() }})</h2>
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
@@ -233,7 +233,7 @@
         @endif
 
         @if ($upcomingEvents->isEmpty() && $pastEvents->isEmpty() && $instructedEvents->isEmpty())
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white p-6 sm:p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-6 sm:p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>

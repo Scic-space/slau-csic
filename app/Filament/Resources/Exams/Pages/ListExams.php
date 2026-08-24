@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\Exams\Pages;
 
 use App\Filament\Resources\Exams\ExamResource;
+use App\Filament\Widgets\ExamStatusCards;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class ListExams extends ListRecords
 {
@@ -15,8 +18,22 @@ class ListExams extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('New Exam')
+                ->icon(new HtmlString('<span class="material-symbols-outlined" aria-hidden="true">add_circle</span>')),
         ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ExamStatusCards::class,
+        ];
+    }
+
+    public function getTabsContentComponent(): Component
+    {
+        return parent::getTabsContentComponent()->hidden();
     }
 
     public function getTabs(): array

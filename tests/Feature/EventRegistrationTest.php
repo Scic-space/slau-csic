@@ -335,7 +335,14 @@ it('renders calendar with events for authenticated user', function () {
     actingAs($user);
 
     Livewire::test(EventCalendar::class)
-        ->assertOk();
+        ->assertOk()
+        ->assertSeeInOrder([
+            'Categories',
+            'Legend',
+            "You're registered",
+            'Click an event to view details',
+            'Events are colored by category',
+        ]);
 });
 
 // ─── My Events ────────────────────────────────────────────────────────

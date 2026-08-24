@@ -4,18 +4,50 @@
 @endphp
 
 <aside id="sidebar"
-    class="fixed flex flex-col mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200"
+    class="sidebar-shell fixed left-0 top-0 z-99999 flex h-dvh flex-col border-r border-gray-200 bg-white px-3 text-gray-900 shadow-sm transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900"
     x-data="{
         openSubmenus: {},
+        materialIcons: {
+            'Dashboard': 'dashboard', 'Profile': 'account_circle', 'Membership Card': 'badge', 'Members': 'groups',
+            'Browse Events': 'event', 'My Events': 'event_available', 'Event Calendar': 'calendar_month', 'Attendance': 'fact_check',
+            'Fines': 'gavel', 'Transactions': 'receipt_long', 'Competitions': 'emoji_events', 'CTF Arena': 'security',
+            'Internal Classes': 'school', 'Exams': 'quiz', 'My Grades': 'grade', 'Certificates': 'workspace_premium',
+            'Resource Library': 'library_books', 'Cabinet Voting': 'how_to_vote', 'Nominate': 'person_add',
+            'My Applications': 'assignment_ind', 'Results': 'poll', 'Verify Vote': 'verified_user', 'Announcements': 'campaign',
+            'Polls': 'ballot', 'Portfolios': 'work', 'Sessions': 'co_present', 'Course Materials': 'menu_book',
+            'My Trainings': 'model_training', 'Badges & Gamification': 'military_tech', 'Treasurer Dashboard': 'account_balance',
+            'User Management': 'manage_accounts', 'Pending Approvals': 'pending_actions', 'Alumni': 'history_edu',
+            'Roles & Permissions': 'admin_panel_settings', 'Membership Statistics': 'monitoring', 'Export Members': 'download',
+            'Meetings': 'groups_2', 'Questions': 'help', 'Grade Book': 'grading', 'Budget Categories': 'category',
+            'Fine Types': 'rule', 'Fines Management': 'request_quote', 'Financial Reports': 'analytics'
+        },
         init() {
             this.initializeActiveMenus();
+            this.$nextTick(() => this.applyMaterialIcons());
+        },
+        applyMaterialIcons() {
+            this.$root.querySelectorAll('.menu-item').forEach((item) => {
+                const label = item.querySelector('.menu-item-text')?.textContent.trim();
+                const iconHost = item.children[0];
+                if (!label || !iconHost) return;
+                iconHost.replaceChildren(Object.assign(document.createElement('span'), {
+                    className: 'material-symbols-outlined sidebar-material-icon',
+                    textContent: this.materialIcons[label] || 'circle'
+                }));
+                iconHost.firstElementChild.setAttribute('aria-hidden', 'true');
+            });
         },
         initializeActiveMenus() {
             const currentPath = '{{ $currentPath }}';
 
-            if (currentPath.startsWith('dashboard') || currentPath.startsWith('club/')) {
-                this.openSubmenus['dashboard'] = true;
-            }
+            if (currentPath === 'instructor' || currentPath.startsWith('instructor/') || currentPath.startsWith('teacher/')) this.openSubmenus['teaching'] = true;
+            else if (currentPath.startsWith('voting') || currentPath.startsWith('vote/verify') || currentPath.startsWith('announcements') || currentPath.startsWith('polls')) this.openSubmenus['community'] = true;
+            else if (currentPath.startsWith('club/classes') || currentPath.startsWith('exams') || currentPath.startsWith('grades') || currentPath.startsWith('resources')) this.openSubmenus['learning'] = true;
+            else if (currentPath.startsWith('club/competitions') || currentPath.startsWith('ctf')) this.openSubmenus['activities'] = true;
+            else if (currentPath.startsWith('fines') || currentPath.startsWith('my-transactions')) this.openSubmenus['finance'] = true;
+            else if (currentPath.startsWith('events') || currentPath.startsWith('my-events') || currentPath.startsWith('attendance')) this.openSubmenus['events'] = true;
+            else if (currentPath === 'dashboard' || currentPath.startsWith('user-profile') || currentPath.startsWith('membership-card') || currentPath.startsWith('members')) this.openSubmenus['member'] = true;
+
             if (currentPath.startsWith('admin/users')) {
                 this.openSubmenus['admin'] = true;
             }
@@ -24,12 +56,6 @@
             }
             if (currentPath.startsWith('admin/fine-types')) {
                 this.openSubmenus['admin'] = true;
-            }
-            if (currentPath.startsWith('/fines')) {
-                this.openSubmenus['main'] = true;
-            }
-            if (currentPath.startsWith('voting')) {
-                this.openSubmenus['voting'] = true;
             }
         },
         toggleSubmenu(menuKey) {
@@ -50,8 +76,8 @@
         }
     }"
     :class="{
-        'w-[290px]': $store.sidebar.isExpanded || $store.sidebar.isMobileOpen || $store.sidebar.isHovered,
-        'w-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
+        'w-[280px]': $store.sidebar.isExpanded || $store.sidebar.isMobileOpen || $store.sidebar.isHovered,
+        'w-[80px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
         'translate-x-0': $store.sidebar.isMobileOpen,
         '-translate-x-full xl:translate-x-0': !$store.sidebar.isMobileOpen
     }"
@@ -59,7 +85,7 @@
     @mouseleave="$store.sidebar.setHovered(false)">
 
     <!-- Logo Section -->
-    <div class="pt-8 pb-7 flex"
+    <div class="flex h-20 shrink-0 items-center border-b border-gray-100 dark:border-gray-800"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start pl-3'">
@@ -72,6 +98,9 @@
                 <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="SLAU CSIC" width="120" height="32" />
             </div>
         </a>
+        <button type="button" class="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-sm text-gray-500 hover:bg-gray-100 xl:hidden dark:text-gray-400 dark:hover:bg-gray-800" @click="$store.sidebar.setMobileOpen(false)" aria-label="Close navigation menu">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
     </div>
 
     <!-- Navigation Menu -->
@@ -82,8 +111,8 @@
             if (saved) $refs.sidebarNav.scrollTop = parseInt(saved, 10);
         })"
         @scroll="localStorage.setItem('sidebar-scroll-position', $el.scrollTop)">
-        <nav class="mb-6">
-            <div class="flex flex-col gap-4">
+        <nav class="py-4">
+            <div class="flex flex-col gap-3">
 
                 @if ($isPendingApproval)
                     <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
@@ -101,21 +130,13 @@
 
                 <!-- Section: Member -->
                 <div>
-                    <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
-                        :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-                        'lg:justify-center' : 'justify-start'">
-                        <template
-                            x-if="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                            <span>Member</span>
-                        </template>
-                        <template x-if="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="currentColor"/>
-                            </svg>
-                        </template>
-                    </h2>
+                    <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('member') }" @click="toggleSubmenu('member')" :aria-expanded="isSubmenuOpen('member').toString()">
+                        <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">person</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="min-w-0 flex-1 text-left">Member</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="material-symbols-outlined sidebar-section-chevron" :class="{ 'rotate-180': isSubmenuOpen('member') }" aria-hidden="true">expand_more</span>
+                    </button>
 
-                    <ul class="flex flex-col gap-1">
+                    <ul x-cloak x-show="isSubmenuOpen('member') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Dashboard -->
                         <li>
                             <a href="{{ route('dashboard') }}" wire:navigate class="menu-item group"
@@ -190,21 +211,13 @@
 
                 <!-- Section: Events -->
                 <div>
-                    <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
-                        :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-                        'lg:justify-center' : 'justify-start'">
-                        <template
-                            x-if="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                            <span>Events</span>
-                        </template>
-                        <template x-if="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="currentColor"/>
-                            </svg>
-                        </template>
-                    </h2>
+                    <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('events') }" @click="toggleSubmenu('events')" :aria-expanded="isSubmenuOpen('events').toString()">
+                        <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">calendar_month</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="min-w-0 flex-1 text-left">Events</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="material-symbols-outlined sidebar-section-chevron" :class="{ 'rotate-180': isSubmenuOpen('events') }" aria-hidden="true">expand_more</span>
+                    </button>
 
-                    <ul class="flex flex-col gap-1">
+                    <ul x-cloak x-show="isSubmenuOpen('events') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Browse Events -->
                         <li>
                             <a href="{{ route('events.index') }}" wire:navigate class="menu-item group"
@@ -281,21 +294,13 @@
 
                 <!-- Section: Finance -->
                 <div>
-                    <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
-                        :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-                        'lg:justify-center' : 'justify-start'">
-                        <template
-                            x-if="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                            <span>Finance</span>
-                        </template>
-                        <template x-if="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="currentColor"/>
-                            </svg>
-                        </template>
-                    </h2>
+                    <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('finance') }" @click="toggleSubmenu('finance')" :aria-expanded="isSubmenuOpen('finance').toString()">
+                        <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">account_balance_wallet</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="min-w-0 flex-1 text-left">Finance</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="material-symbols-outlined sidebar-section-chevron" :class="{ 'rotate-180': isSubmenuOpen('finance') }" aria-hidden="true">expand_more</span>
+                    </button>
 
-                    <ul class="flex flex-col gap-1">
+                    <ul x-cloak x-show="isSubmenuOpen('finance') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Fines -->
                         <li>
                             <a href="{{ route('fines.index') }}" wire:navigate class="menu-item group"
@@ -336,21 +341,13 @@
 
                 <!-- Section: Activities -->
                 <div>
-                    <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
-                        :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-                        'lg:justify-center' : 'justify-start'">
-                        <template
-                            x-if="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                            <span>Activities</span>
-                        </template>
-                        <template x-if="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="currentColor"/>
-                            </svg>
-                        </template>
-                    </h2>
+                    <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('activities') }" @click="toggleSubmenu('activities')" :aria-expanded="isSubmenuOpen('activities').toString()">
+                        <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">sports_esports</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="min-w-0 flex-1 text-left">Activities</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="material-symbols-outlined sidebar-section-chevron" :class="{ 'rotate-180': isSubmenuOpen('activities') }" aria-hidden="true">expand_more</span>
+                    </button>
 
-                    <ul class="flex flex-col gap-1">
+                    <ul x-cloak x-show="isSubmenuOpen('activities') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Competitions -->
                         <li>
                             <a href="{{ route('portal.competitions') }}" wire:navigate class="menu-item group"
@@ -391,21 +388,13 @@
 
                 <!-- Section: Learning -->
                 <div>
-                    <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
-                        :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-                        'lg:justify-center' : 'justify-start'">
-                        <template
-                            x-if="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                            <span>Learning</span>
-                        </template>
-                        <template x-if="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="currentColor"/>
-                            </svg>
-                        </template>
-                    </h2>
+                    <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('learning') }" @click="toggleSubmenu('learning')" :aria-expanded="isSubmenuOpen('learning').toString()">
+                        <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">school</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="min-w-0 flex-1 text-left">Learning</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="material-symbols-outlined sidebar-section-chevron" :class="{ 'rotate-180': isSubmenuOpen('learning') }" aria-hidden="true">expand_more</span>
+                    </button>
 
-                    <ul class="flex flex-col gap-1">
+                    <ul x-cloak x-show="isSubmenuOpen('learning') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Internal Classes -->
                         <li>
                             <a href="{{ route('portal.classes') }}" wire:navigate class="menu-item group"
@@ -498,21 +487,13 @@
 
                 <!-- Section: Community -->
                 <div>
-                    <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
-                        :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-                        'lg:justify-center' : 'justify-start'">
-                        <template
-                            x-if="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                            <span>Community</span>
-                        </template>
-                        <template x-if="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="currentColor"/>
-                            </svg>
-                        </template>
-                    </h2>
+                    <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('community') }" @click="toggleSubmenu('community')" :aria-expanded="isSubmenuOpen('community').toString()">
+                        <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">groups</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="min-w-0 flex-1 text-left">Community</span>
+                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="material-symbols-outlined sidebar-section-chevron" :class="{ 'rotate-180': isSubmenuOpen('community') }" aria-hidden="true">expand_more</span>
+                    </button>
 
-                    <ul class="flex flex-col gap-1">
+                    <ul x-cloak x-show="isSubmenuOpen('community') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Voting -->
                         <li>
                             <a href="{{ route('voting.index') }}" wire:navigate class="menu-item group"
@@ -631,21 +612,13 @@
                 <!-- Teacher Menu Items -->
                 @can('content.view')
                     <div>
-                        <h2 class="mb-4 text-xs uppercase flex leading-[20px] text-gray-400"
-                            :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
-                            'lg:justify-center' : 'justify-start'">
-                            <template
-                                x-if="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                                <span>Teaching</span>
-                            </template>
-                            <template x-if="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="currentColor"/>
-                                </svg>
-                            </template>
-                        </h2>
+                        <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('teaching') }" @click="toggleSubmenu('teaching')" :aria-expanded="isSubmenuOpen('teaching').toString()">
+                            <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">co_present</span>
+                            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="min-w-0 flex-1 text-left">Teaching</span>
+                            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" class="material-symbols-outlined sidebar-section-chevron" :class="{ 'rotate-180': isSubmenuOpen('teaching') }" aria-hidden="true">expand_more</span>
+                        </button>
 
-                        <ul class="flex flex-col gap-1">
+                        <ul x-cloak x-show="isSubmenuOpen('teaching') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                             <li>
                                 <a href="{{ route('instructor.dashboard') }}" wire:navigate class="menu-item group"
                                     :class="[
@@ -692,7 +665,7 @@
                                     </span>
                                     <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                         class="menu-item-text flex items-center gap-2">
-                                        Teaching Sessions
+                                        Sessions
                                     </span>
                                 </a>
                             </li>
@@ -1081,7 +1054,3 @@
 
     </div>
 </aside>
-
-<!-- Mobile Overlay -->
-<div x-show="$store.sidebar.isMobileOpen" @click="$store.sidebar.setMobileOpen(false)"
-    class="fixed z-50 h-screen w-full bg-gray-900/50"></div>
