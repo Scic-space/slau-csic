@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Roles\Tables;
 
+use App\Filament\Support\AdminActionStyle;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
@@ -50,7 +53,9 @@ class RolesTable
             ])
             ->filters([])
             ->recordActions([
-                EditAction::make(),
+                AdminActionStyle::apply(ViewAction::make(), 'View', 'visibility', 'info'),
+                AdminActionStyle::apply(EditAction::make(), 'Edit', 'edit', 'teal'),
+                AdminActionStyle::apply(DeleteAction::make(), 'Delete', 'delete', 'danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

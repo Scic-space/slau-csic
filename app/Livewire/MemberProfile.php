@@ -47,6 +47,8 @@ class MemberProfile extends Component
 
     public $profile_photo;
 
+    public string $profilePhotoUrl = '';
+
     public $current_password;
 
     public $new_password;
@@ -106,6 +108,7 @@ class MemberProfile extends Component
         $this->linkedin_url = $user->socialLinks?->linkedin_url;
         $this->discord_username = $user->socialLinks?->discord_username ?? $user->discord_username;
         $this->is_discord_member = $user->socialLinks?->is_discord_member ?? $user->is_discord_member;
+        $this->profilePhotoUrl = $user->profile_photo_url;
         $this->show_email = $user->privacy?->show_email ?? true;
         $this->show_phone = $user->privacy?->show_phone ?? false;
         $this->show_discord = $user->privacy?->show_discord ?? false;
@@ -222,6 +225,9 @@ class MemberProfile extends Component
             $user->profile_photo = $this->profile_photo->store('profile-photos', 'public');
             $user->save();
 
+            $this->profilePhotoUrl = $user->profile_photo_url.'?v='.now()->getTimestampMs();
+            $this->reset('profile_photo');
+            $this->dispatch('profile-photo-updated', url: $this->profilePhotoUrl);
             $this->dispatch('toast-show', message: 'Profile photo updated successfully.', type: 'success');
         }
     }

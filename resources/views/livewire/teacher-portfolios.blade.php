@@ -1,8 +1,8 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8 flex items-center justify-between">
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Student Portfolios</h1>
+                <h1 class="flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">work</span>Student Portfolios</h1>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage student profiles, projects, skills, and certifications</p>
             </div>
             <div class="flex items-center gap-3">
@@ -14,55 +14,55 @@
         </div>
 
         {{-- Stats --}}
-        <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
                         <svg class="h-5 w-5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     </div>
                     <div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $total }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Total Projects</p>
+                        <p class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px] text-indigo-500" aria-hidden="true">folder_open</span>Total Projects</p>
                     </div>
                 </div>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
                         <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $published }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Published</p>
+                        <p class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px] text-green-500" aria-hidden="true">public</span>Published</p>
                     </div>
                 </div>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
                         <svg class="h-5 w-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                     </div>
                     <div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $allSkills->count() }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Skills Added</p>
+                        <p class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px] text-purple-500" aria-hidden="true">psychology</span>Skills Added</p>
                     </div>
                 </div>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
                         <svg class="h-5 w-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                     </div>
                     <div>
                         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $allCerts->count() }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Certifications</p>
+                        <p class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px] text-amber-500" aria-hidden="true">workspace_premium</span>Certifications</p>
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- Section Tabs --}}
-        <div class="mb-6 flex gap-1 rounded-xl border border-gray-200 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="mb-3 flex gap-1 overflow-x-auto rounded-sm border border-gray-200 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             @foreach (['portfolios' => 'Projects', 'skills' => 'Skills', 'certifications' => 'Certifications', 'experience' => 'Experience'] as $key => $label)
                 <button wire:click="setSection('{{ $key }}')" class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors
                     {{ $activeSection === $key ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' }}">
@@ -75,7 +75,7 @@
         {{-- PORTFOLIOS SECTION --}}
         {{-- ============================================================ --}}
         @if ($activeSection === 'portfolios')
-            <div class="mb-6 flex flex-wrap gap-4">
+            <div class="mb-3 flex flex-wrap gap-3 rounded-sm border border-gray-200 bg-white p-3 shadow-sm sm:p-4 dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex-1 min-w-[200px]">
                     <div class="relative">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -108,7 +108,7 @@
             </div>
 
             @if ($showForm)
-                <div class="mb-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-6">
+                <div class="mb-3 rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $editingPortfolioId ? 'Edit Project' : 'New Project' }}</h3>
                     <form wire:submit="savePortfolio">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

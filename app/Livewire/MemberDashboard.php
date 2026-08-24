@@ -31,9 +31,7 @@ class MemberDashboard extends Component
 
         $memberStats = $user->getMemberStats();
 
-        $expiringSoon = $user->membership_expires_at
-            && $user->membership_expires_at->isFuture()
-            && $user->membership_expires_at->diffInDays(now()) <= 30;
+        $expiringSoon = $user->isMembershipExpiringSoon();
 
         $stats = [
             'events_attended' => $user->attendance_count ?? 0,

@@ -254,33 +254,31 @@
             </div>
         @endif
 
-        {{-- Confirmation Modal --}}
-        @if ($showConfirmModal)
-            <div class="fixed inset-0 z-50 flex items-center justify-center p-4" x-data x-on:keydown.escape.window="wire.cancelConfirm()">
-                <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" wire:click="cancelConfirm"></div>
-                <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Confirm Your Vote</h3>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        {{-- Confirmation Drawer --}}
+        <div x-data="{ open: @entangle('showConfirmModal') }" wire:key="vote-confirm-drawer">
+            <x-ui.drawer show="open" on-close="$wire.cancelConfirm()" title="Confirm Your Vote" width="sm">
+                <div class="flex-1 space-y-4 overflow-y-auto p-5">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
                         You are about to cast your ballot for <strong class="text-gray-900 dark:text-white">{{ $confirmCandidateName }}</strong> in the <strong class="text-gray-900 dark:text-white">{{ $election['title'] }}</strong> election.
                     </p>
-                    <p class="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                    <p class="text-xs text-amber-600 dark:text-amber-400">
                         @if ($election['allow_vote_changes'])
                             You can change your vote later if this election allows vote changes.
                         @else
                             This action cannot be undone. You will not be able to change your vote.
                         @endif
                     </p>
-                    <div class="mt-6 flex justify-end gap-3">
-                        <button wire:click="cancelConfirm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                            Cancel
-                        </button>
-                        <button wire:click="castVote" wire:loading.attr="disabled" class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50 transition-colors">
-                            <span wire:loading.remove wire:target="castVote">Confirm Vote</span>
-                            <span wire:loading wire:target="castVote">Casting...</span>
-                        </button>
-                    </div>
                 </div>
-            </div>
-        @endif
+                <div class="flex items-center justify-end gap-3 border-t border-gray-200 p-5 dark:border-gray-800">
+                    <button wire:click="cancelConfirm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button wire:click="castVote" wire:loading.attr="disabled" class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50 transition-colors">
+                        <span wire:loading.remove wire:target="castVote">Confirm Vote</span>
+                        <span wire:loading wire:target="castVote">Casting...</span>
+                    </button>
+                </div>
+            </x-ui.drawer>
+        </div>
     </div>
 </div>

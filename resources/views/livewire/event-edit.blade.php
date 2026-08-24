@@ -7,7 +7,7 @@
         </div>
 
         <form wire:submit="save" class="space-y-6">
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="mb-6 flex items-center justify-between">
                     <h1 class="text-xl font-bold text-gray-900 dark:text-white">Edit Event</h1>
                     @php

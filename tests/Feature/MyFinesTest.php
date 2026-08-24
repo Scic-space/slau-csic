@@ -157,4 +157,25 @@ class MyFinesTest extends TestCase
             ->test(\App\Livewire\MyFines::class)
             ->assertSee('You have no fines');
     }
+
+    public function test_page_shows_the_three_export_options_above_statistic_cards(): void
+    {
+        $user = User::factory()->create()->assignRole('member');
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\MyFines::class)
+            ->assertSeeInOrder(['XLSX', 'PDF', 'CSV', 'Total Outstanding'])
+            ->assertSee(route('fines.export.xlsx'), false)
+            ->assertSee(route('fines.export.csv'), false)
+            ->assertSee(route('account.statement'), false);
+    }
+
+    public function test_member_can_download_fines_as_xlsx(): void
+    {
+        $user = User::factory()->create()->assignRole('member');
+
+        $this->actingAs($user)
+            ->get(route('fines.export.xlsx'))
+            ->assertDownload('my-fines-'.now()->format('Y-m-d').'.xlsx');
+    }
 }

@@ -141,11 +141,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/members/{user}', \App\Livewire\MemberShow::class)->name('members.show')->middleware('approved');
     Route::get('/fines', \App\Livewire\MyFines::class)->name('fines.index')->middleware('approved');
+    Route::get('/fines/export/xlsx', [\App\Http\Controllers\FineExportController::class, 'xlsx'])->name('fines.export.xlsx')->middleware('approved');
     Route::get('/fines/export/csv', [\App\Http\Controllers\FineExportController::class, 'csv'])->name('fines.export.csv')->middleware('approved');
     Route::post('/fines/{fine}/appeal', [\App\Http\Controllers\MemberFinesController::class, 'appeal'])->name('fines.appeal')->middleware('approved');
     Route::get('/fines/{fine}/notice', \App\Http\Controllers\FineNoticeController::class.'@download')->name('fines.notice')->middleware('approved');
     Route::get('/fines/payments/{payment}/receipt', \App\Http\Controllers\FineReceiptController::class.'@download')->name('fines.payments.receipt')->middleware('approved');
     Route::get('/my-transactions', MyTransactions::class)->name('my-transactions')->middleware('approved');
+    Route::get('/my-transactions/export/xlsx', [\App\Http\Controllers\TransactionExportController::class, 'xlsx'])->name('transactions.export.xlsx')->middleware('approved');
     Route::get('/my-transactions/export/csv', [\App\Http\Controllers\TransactionExportController::class, 'csv'])->name('transactions.export.csv')->middleware('approved');
     Route::get('/treasurer', \App\Livewire\TreasurerDashboard::class)->name('treasurer.dashboard')->middleware('role:admin|Treasurer|President|super-admin');
 

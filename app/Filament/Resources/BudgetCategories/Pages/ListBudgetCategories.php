@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\BudgetCategories\Pages;
 
 use App\Filament\Resources\BudgetCategories\BudgetCategoryResource;
+use App\Filament\Widgets\BudgetCategoryStatusCards;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -17,6 +19,18 @@ class ListBudgetCategories extends ListRecords
         return [
             CreateAction::make(),
         ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            BudgetCategoryStatusCards::class,
+        ];
+    }
+
+    public function getTabsContentComponent(): Component
+    {
+        return parent::getTabsContentComponent()->hidden();
     }
 
     public function getTabs(): array

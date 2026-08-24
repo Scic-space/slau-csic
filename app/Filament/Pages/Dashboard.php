@@ -17,12 +17,23 @@ use App\Filament\Widgets\StatsOverviewWidget;
 use App\Filament\Widgets\TrainingStatsWidget;
 use App\Filament\Widgets\UpcomingScheduleWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
+use Illuminate\Contracts\Support\Htmlable;
 
 class Dashboard extends BaseDashboard
 {
-    protected static ?string $title = 'Admin Dashboard';
-
     protected static ?int $navigationSort = -2;
+
+    public function getTitle(): string|Htmlable
+    {
+        $hour = (int) now()->format('G');
+        $greeting = match (true) {
+            $hour < 12 => 'Good morning',
+            $hour < 17 => 'Good afternoon',
+            default => 'Good evening',
+        };
+
+        return $greeting.', '.auth()->user()->name;
+    }
 
     public function getWidgets(): array
     {

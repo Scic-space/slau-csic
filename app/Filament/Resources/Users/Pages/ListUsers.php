@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Widgets\MemberStatusCards;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -11,9 +12,11 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ListUsers extends ListRecords
@@ -23,11 +26,14 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->color('teal')
+                ->icon(self::materialIcon('person_add')),
 
             Action::make('import')
                 ->label('Import Members')
-                ->icon('heroicon-o-arrow-up-tray')
+                ->icon(self::materialIcon('upload_file'))
+                ->color('teal')
                 ->schema([
                     FileUpload::make('file')
                         ->label('CSV/Excel File')
@@ -59,7 +65,8 @@ class ListUsers extends ListRecords
 
             Action::make('broadcast')
                 ->label('Email Members')
-                ->icon('heroicon-o-envelope')
+                ->icon(self::materialIcon('mail'))
+                ->color('teal')
                 ->schema([
                     TextInput::make('subject')
                         ->label('Subject')
@@ -89,6 +96,18 @@ class ListUsers extends ListRecords
                         ->send();
                 }),
         ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            MemberStatusCards::class,
+        ];
+    }
+
+    public function getTabsContentComponent(): Component
+    {
+        return parent::getTabsContentComponent()->hidden();
     }
 
     protected function getFilteredQuery(): \Illuminate\Database\Eloquent\Builder
@@ -139,5 +158,10 @@ class ListUsers extends ListRecords
                 ->badge(fn (): int => User::expiringSoon()->count(), 'warning')
                 ->modifyQueryUsing(fn (Builder $query) => $query->expiringSoon()),
         ];
+    }
+
+    private static function materialIcon(string $name): HtmlString
+    {
+        return new HtmlString('<span class="material-symbols-outlined" aria-hidden="true">'.e($name).'</span>');
     }
 }

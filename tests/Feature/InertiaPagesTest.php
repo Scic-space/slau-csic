@@ -78,7 +78,11 @@ it('renders the members directory page', function () {
     ]);
 
     $this->get(route('members.index'))
-        ->assertSeeLivewire(\App\Livewire\MemberDirectory::class);
+        ->assertSuccessful()
+        ->assertSeeLivewire(\App\Livewire\MemberDirectory::class)
+        ->assertSee('Total Members')
+        ->assertSee('person_check')
+        ->assertSee('rounded-sm');
 });
 
 it('renders the announcements page', function () {

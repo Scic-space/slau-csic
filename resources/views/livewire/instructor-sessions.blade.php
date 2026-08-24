@@ -1,14 +1,14 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Teaching Sessions</h1>
+                <h1 class="flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">event_note</span>Teaching Sessions</h1>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your teaching sessions and track attendance</p>
             </div>
             <a href="{{ route('portal.classes') }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">&larr; Back to Classes</a>
         </div>
 
-        <div class="dashboard-card mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-3 shadow-sm sm:p-4 dark:border-gray-700 dark:bg-gray-800">
             <div class="flex gap-2">
                 @foreach (['upcoming', 'all', 'past'] as $f)
                     <button
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+        <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             @if ($sessions->isEmpty())
                 <div class="p-12 text-center">
                     <p class="text-gray-500 dark:text-gray-400">No teaching sessions found.</p>

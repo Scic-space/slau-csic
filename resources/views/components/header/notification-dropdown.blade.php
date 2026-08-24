@@ -77,7 +77,7 @@
                         $actionUrl = $data['action_url'] ?? $data['event_slug'] ?? null;
                     @endphp
                     <li>
-                        <a class="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"
+                        <a wire:navigate class="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                            href="{{ $actionUrl ? url($actionUrl) : route('notifications.index') }}">
                             {{-- Type Icon --}}
                             <div class="flex-shrink-0 mt-0.5">
@@ -130,9 +130,9 @@
 
         <!-- Footer -->
         <div class="border-t border-gray-100 px-3 py-2.5 dark:border-gray-800">
-            <a href="{{ route('notifications.index') }}"
+            <a href="{{ route('notifications.index') }}" wire:navigate
                class="flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.05]"
-               @click.prevent="window.location.href = this.href">
+               @click="isOpen = false">
                 View all notifications
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>

@@ -117,4 +117,25 @@ class MyTransactionsTest extends TestCase
             ->test(\App\Livewire\MyTransactions::class)
             ->assertSee('No transactions found');
     }
+
+    public function test_filters_and_exports_are_rendered_above_statistic_cards(): void
+    {
+        $user = User::factory()->create()->assignRole('member');
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\MyTransactions::class)
+            ->assertSeeInOrder(['All Types', 'All Status', 'XLSX', 'PDF', 'CSV', 'Total Income'])
+            ->assertSee(route('transactions.export.xlsx'), false)
+            ->assertSee(route('transactions.export.csv'), false)
+            ->assertSee(route('account.statement'), false);
+    }
+
+    public function test_member_can_download_transactions_as_xlsx(): void
+    {
+        $user = User::factory()->create()->assignRole('member');
+
+        $this->actingAs($user)
+            ->get(route('transactions.export.xlsx'))
+            ->assertDownload('my-transactions-'.now()->format('Y-m-d').'.xlsx');
+    }
 }

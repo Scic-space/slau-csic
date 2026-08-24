@@ -1,24 +1,20 @@
-<div class="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-[#0a0a0f] dark:via-[#07070b] dark:to-[#0a0a0f]">
+<div class="py-4 sm:py-5">
     {{-- Hero --}}
-    <section class="relative overflow-hidden border-b border-gray-200/50 dark:border-white/5">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.08),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.15),transparent)]"></div>
-        <div class="relative mx-auto max-w-4xl px-4 pt-20 pb-16 sm:px-6 lg:px-8 text-center">
-            <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/10 ring-1 ring-indigo-500/20 dark:bg-indigo-500/15 dark:ring-indigo-500/25">
-                <svg class="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-            </div>
-            <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                Club <span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-purple-400">Announcements</span>
+    <section class="mb-4">
+        <div>
+            <h1 class="flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <span class="material-symbols-outlined text-brand-500" aria-hidden="true">campaign</span>Club Announcements
             </h1>
-            <p class="mx-auto mt-4 max-w-xl text-lg text-gray-600 dark:text-gray-400">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Stay in the loop — the latest news, events, and updates from SLAU&nbsp;CSIC
             </p>
         </div>
     </section>
 
     {{-- Announcement list --}}
-    <section class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+    <section>
         @if ($announcements->isEmpty())
-            <div class="rounded-2xl border border-gray-200 bg-white p-16 text-center shadow-sm dark:border-white/[0.06] dark:bg-white/[0.02]">
+            <div class="rounded-sm border border-gray-200 bg-white p-8 text-center shadow-sm sm:p-10 dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-white/5">
                     <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
                 </div>
@@ -34,7 +30,7 @@
                         $isSeen = $announcement['is_seen'];
                     @endphp
                     <a href="{{ route('announcements.show', $announcement['slug']) }}" wire:navigate
-                        class="group block rounded-2xl border p-5 shadow-sm transition-all duration-200
+                        class="dashboard-card group block rounded-sm border p-4 shadow-sm transition-all duration-200
                             @if (!$isSeen && $isActive)
                                 border-indigo-200/60 bg-indigo-50/50 ring-1 ring-indigo-500/10 hover:border-indigo-300 hover:shadow-md dark:border-indigo-500/20 dark:bg-indigo-500/[0.04] dark:ring-indigo-500/10 dark:hover:border-indigo-500/30
                             @elseif ($isExpired)

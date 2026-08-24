@@ -1,10 +1,10 @@
-<div class="py-6">
-    <div class="mx-auto max-w-lg space-y-6">
+<div class="py-4 sm:py-5">
+    <div class="space-y-3">
         {{-- Header --}}
-        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800 md:p-8">
+        <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5">
             <p class="text-sm font-semibold uppercase tracking-widest text-emerald-500">Vote Verification</p>
-            <h1 class="mt-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Verify your vote receipt
+            <h1 class="mt-1 flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <span class="material-symbols-outlined text-brand-500" aria-hidden="true">verified_user</span>Verify your vote receipt
             </h1>
             <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">
                 Enter the receipt code you received after casting your vote to confirm

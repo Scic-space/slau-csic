@@ -1,12 +1,12 @@
-<div class="py-6">
-    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Polls</h1>
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4">
+            <h1 class="flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">ballot</span>Polls</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Vote on active polls and see results</p>
         </div>
 
         @if ($polls->isEmpty())
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center shadow-sm">
+            <div class="rounded-sm border border-gray-200 bg-white p-8 text-center shadow-sm sm:p-10 dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -23,7 +23,7 @@
                         $hasVoted = $poll['has_voted'];
                     @endphp
                     <a href="{{ route('polls.show', $poll['slug']) }}" wire:navigate
-                        class="group block rounded-xl border p-5 shadow-sm transition-all
+                        class="dashboard-card group block rounded-sm border p-4 shadow-sm transition-all
                             @if (!$hasVoted && $isActive)
                                 border-blue-200 bg-blue-50/60 ring-1 ring-blue-100 hover:border-blue-300 hover:shadow-md dark:border-blue-800 dark:bg-blue-900/10 dark:ring-blue-800/50 dark:hover:border-blue-700
                             @else
@@ -80,9 +80,7 @@
 
                                 <div class="mt-3 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                                     <span class="inline-flex items-center gap-1">
-                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                                        </svg>
+                                        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">list</span>
                                         {{ $poll['options_count'] }} {{ Str::plural('option', $poll['options_count']) }}
                                     </span>
                                     <span class="text-gray-300 dark:text-gray-600">·</span>

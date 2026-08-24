@@ -8,6 +8,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -15,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class CtfCategoryResource extends Resource
 {
@@ -56,8 +58,24 @@ class CtfCategoryResource extends Resource
             ])
             ->defaultSort('sort_order')
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->icon(self::materialIcon('visibility'))
+                    ->iconButton()
+                    ->color('info')
+                    ->tooltip('View')
+                    ->extraAttributes(self::accessibleActionAttributes('View')),
+                EditAction::make()
+                    ->icon(self::materialIcon('edit'))
+                    ->iconButton()
+                    ->color('teal')
+                    ->tooltip('Edit')
+                    ->extraAttributes(self::accessibleActionAttributes('Edit')),
+                DeleteAction::make()
+                    ->icon(self::materialIcon('delete'))
+                    ->iconButton()
+                    ->color('danger')
+                    ->tooltip('Delete')
+                    ->extraAttributes(self::accessibleActionAttributes('Delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -70,6 +88,20 @@ class CtfCategoryResource extends Resource
     {
         return [
             'index' => ManageCtfCategories::route('/'),
+        ];
+    }
+
+    private static function materialIcon(string $name): HtmlString
+    {
+        return new HtmlString('<span class="material-symbols-outlined" aria-hidden="true">'.e($name).'</span>');
+    }
+
+    /** @return array{aria-label: string, title: string} */
+    private static function accessibleActionAttributes(string $label): array
+    {
+        return [
+            'aria-label' => $label,
+            'title' => $label,
         ];
     }
 }

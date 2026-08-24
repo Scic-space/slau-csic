@@ -1,9 +1,9 @@
-<div class="py-8" x-data="{ flash: '' }" x-on:flash.window="flash = $event.detail.message; setTimeout(() => flash = '', 3500)">
-    <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+<div class="py-4 sm:py-5" x-data="{ flash: '' }" x-on:flash.window="flash = $event.detail.message; setTimeout(() => flash = '', 3500)">
+    <div>
 
         {{-- Flash message --}}
         <div x-show="flash" x-transition.duration.300ms
-             class="mb-6 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+             class="mb-4 rounded-sm border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="flex items-center gap-2">
                 <svg class="h-4 w-4 shrink-0 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
                 <p class="text-sm text-gray-900 dark:text-white" x-text="flash"></p>
@@ -11,26 +11,23 @@
         </div>
 
         {{-- Header --}}
-        <div class="mb-8">
+        <div class="mb-4">
             <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Profile</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your personal information and preferences</p>
         </div>
 
         {{-- Photo + Identity card --}}
-        <div class="dashboard-card mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div class="flex flex-col items-center gap-6 sm:flex-row">
+        <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5">
+            <div class="flex flex-col items-center gap-4 sm:flex-row">
                 <div class="relative shrink-0">
                     <div class="h-20 w-20 overflow-hidden rounded-full ring-2 ring-gray-200 dark:ring-gray-600">
-                        <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="h-full w-full object-cover">
+                        <img src="{{ $profilePhotoUrl }}" alt="{{ $user->name }}" class="h-full w-full object-cover">
                     </div>
                     <label for="profile-photo-upload"
                            class="absolute -bottom-1 -right-1 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-gray-900 text-white shadow-sm transition hover:bg-gray-700 dark:border-gray-800">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
+                        <span class="material-symbols-outlined text-base" aria-hidden="true">photo_camera</span>
                     </label>
-                    <input type="file" id="profile-photo-upload" class="hidden" wire:model="profile_photo" accept="image/*" x-on:change="$wire.updatePhoto()">
+                    <input type="file" id="profile-photo-upload" class="hidden" wire:model="profile_photo" accept="image/*">
                 </div>
                 <div class="min-w-0 flex-1 text-center sm:text-left">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $user->name }}</h2>
@@ -49,10 +46,10 @@
 
         @if ($completionPercent < 100)
         {{-- Profile completion bar --}}
-        <div class="dashboard-card mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Profile Completion</h3>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">task_alt</span>Profile Completion</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ $filledFields }} of {{ $totalFields }} fields filled</p>
                 </div>
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $completionPercent }}%</span>
@@ -71,15 +68,15 @@
         @endif
 
         {{-- Two-column sections --}}
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
 
             {{-- Personal Information --}}
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Personal Information</h3>
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">person</span>Personal Information</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Update your name, academic details, and bio</p>
                 </div>
-                <form wire:submit="updateProfile" class="px-6 py-5">
+                <form wire:submit="updateProfile" class="profile-form px-5 py-4">
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Full Name</label>
@@ -179,19 +176,19 @@
                     </div>
                     <div class="mt-5 flex justify-end">
                         <button type="submit" wire:loading.attr="disabled"
-                                class="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                            <span wire:loading.remove.delay>Save Changes</span>
-                            <span wire:loading>Saving...</span>
+                                class="inline-flex items-center gap-2 rounded-sm bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                            <span wire:loading.remove.delay class="inline-flex items-center gap-2"><span class="material-symbols-outlined" aria-hidden="true">save</span>Save</span>
+                            <span wire:loading class="inline-flex items-center gap-2"><span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>Saving...</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             {{-- Membership & Stats --}}
-            <div class="space-y-6">
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="space-y-3">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Membership</h3>
+                        <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">badge</span>Membership</h3>
                     </div>
                     <div class="px-6 py-5">
                         @if ($membership)
@@ -224,9 +221,9 @@
                 </div>
 
                 @if ($gamification)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Stats</h3>
+                            <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">monitoring</span>Stats</h3>
                         </div>
                         <div class="grid grid-cols-2 gap-0 divide-x divide-gray-100 dark:divide-gray-700">
                             <div class="px-6 py-4 text-center">
@@ -251,17 +248,17 @@
             </div>
 
             {{-- Social Links --}}
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Social Links</h3>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">link</span>Social Links</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Connect your GitHub, LinkedIn, and Discord</p>
                 </div>
-                <form wire:submit="updateProfile" class="px-6 py-5">
+                <form wire:submit="updateProfile" class="profile-form px-6 py-5">
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">GitHub</label>
-                            <div class="mt-1 flex rounded-lg border border-gray-300 dark:border-gray-600">
-                                <span class="inline-flex items-center rounded-l-lg border-r border-gray-300 bg-gray-50 px-3 text-xs text-gray-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400">github.com/</span>
+                            <div class="profile-input-group">
+                                <span class="inline-flex items-center border-r border-gray-300 bg-gray-50 px-3 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">github.com/</span>
                                 <input type="text" wire:model="github_username"
                                        class="block w-full rounded-r-lg border-0 bg-white px-3 py-2 text-sm text-gray-900 focus:ring-1 focus:ring-gray-900 dark:bg-gray-900 dark:text-white dark:focus:ring-white">
                             </div>
@@ -282,18 +279,18 @@
                     </div>
                     <div class="mt-5 flex justify-end">
                         <button type="submit" wire:loading.attr="disabled"
-                                class="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                            <span wire:loading.remove.delay>Save Changes</span>
-                            <span wire:loading>Saving...</span>
+                                class="inline-flex items-center gap-2 rounded-sm bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                            <span wire:loading.remove.delay class="inline-flex items-center gap-2"><span class="material-symbols-outlined" aria-hidden="true">save</span>Save</span>
+                            <span wire:loading class="inline-flex items-center gap-2"><span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>Saving...</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             {{-- Privacy Settings --}}
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Privacy</h3>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">shield_person</span>Privacy</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Control what appears on your public profile</p>
                 </div>
                 <form wire:submit="updatePrivacy" class="px-6 py-5">
@@ -324,18 +321,18 @@
                     </div>
                     <div class="mt-5 flex justify-end">
                         <button type="submit" wire:loading.attr="disabled"
-                                class="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                            <span wire:loading.remove.delay>Save Privacy Settings</span>
-                            <span wire:loading>Saving...</span>
+                                class="inline-flex items-center gap-2 rounded-sm bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                            <span wire:loading.remove.delay class="inline-flex items-center gap-2"><span class="material-symbols-outlined" aria-hidden="true">save</span>Save</span>
+                            <span wire:loading class="inline-flex items-center gap-2"><span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>Saving...</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             {{-- Notification Preferences --}}
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">notifications</span>Notifications</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Choose which notifications you receive</p>
                 </div>
                 <form wire:submit="updateNotificationPreferences" class="px-6 py-5">
@@ -366,21 +363,21 @@
                     </div>
                     <div class="mt-5 flex justify-end">
                         <button type="submit" wire:loading.attr="disabled"
-                                class="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                            <span wire:loading.remove.delay>Save Notification Preferences</span>
-                            <span wire:loading>Saving...</span>
+                                class="inline-flex items-center gap-2 rounded-sm bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                            <span wire:loading.remove.delay class="inline-flex items-center gap-2"><span class="material-symbols-outlined" aria-hidden="true">save</span>Save</span>
+                            <span wire:loading class="inline-flex items-center gap-2"><span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>Saving...</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             {{-- Change Password --}}
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Password</h3>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">lock</span>Password</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Update your account password</p>
                 </div>
-                <form wire:submit="updatePassword" class="px-6 py-5">
+                <form wire:submit="updatePassword" class="profile-form px-6 py-5">
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">Current Password</label>
@@ -402,33 +399,33 @@
                     </div>
                     <div class="mt-5 flex justify-end">
                         <button type="submit" wire:loading.attr="disabled"
-                                class="rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                            <span wire:loading.remove.delay>Update Password</span>
-                            <span wire:loading>Updating...</span>
+                                class="inline-flex items-center gap-2 rounded-sm bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                            <span wire:loading.remove.delay class="inline-flex items-center gap-2"><span class="material-symbols-outlined" aria-hidden="true">lock_reset</span>Update Password</span>
+                            <span wire:loading class="inline-flex items-center gap-2"><span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>Updating...</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             {{-- Sessions --}}
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Sessions</h3>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">devices</span>Sessions</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Manage your active sessions</p>
                 </div>
                 <div class="px-6 py-5">
                     <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">Log out of all other sessions across your devices. You will need to enter your password to confirm.</p>
-                    <form wire:submit="logoutOtherDevices">
-                        <div class="flex items-end gap-3">
+                    <form wire:submit="logoutOtherDevices" class="profile-form">
+                        <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-end">
                             <div class="flex-1">
                                 <input type="password" wire:model="logout_password" placeholder="Enter your password"
                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-white dark:focus:ring-white">
                                 @error('logout_password') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
                             <button type="submit" wire:loading.attr="disabled"
-                                    class="shrink-0 rounded-lg bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                                <span wire:loading.remove.delay>Log Out Other Devices</span>
-                                <span wire:loading>Logging out...</span>
+                                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-sm bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                                <span wire:loading.remove.delay class="inline-flex items-center gap-2"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Log Out Other Devices</span>
+                                <span wire:loading class="inline-flex items-center gap-2"><span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>Logging out...</span>
                             </button>
                         </div>
                     </form>
@@ -437,11 +434,11 @@
         </div>
 
         {{-- Badges --}}
-        <div class="dashboard-card mt-6 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card mt-3 rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Badges</h3>
+                        <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-gray-400" aria-hidden="true">military_tech</span>Badges</h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $earnedBadgeCount }} of {{ $totalBadges }} earned</p>
                     </div>
                     @if ($totalBadges > 0)
@@ -480,9 +477,9 @@
         </div>
 
         {{-- Danger Zone --}}
-        <div class="dashboard-card mt-6 rounded-xl border border-red-200 bg-white shadow-sm dark:border-red-900/50 dark:bg-gray-800">
+        <div class="dashboard-card mt-3 rounded-sm border border-red-200 bg-white shadow-sm dark:border-red-900/50 dark:bg-gray-800">
             <div class="border-b border-red-100 px-6 py-4 dark:border-red-900/30">
-                <h3 class="text-sm font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
+                <h3 class="flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400"><span class="material-symbols-outlined" aria-hidden="true">warning</span>Danger Zone</h3>
             </div>
             <div class="px-6 py-5">
                 @if ($confirmingDelete)
@@ -497,11 +494,11 @@
                                     @error('delete_password') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror
                                 </div>
                                 <button type="submit" wire:loading.attr="disabled"
-                                        class="shrink-0 rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50">
-                                    <span wire:loading.remove.delay>Delete Account</span>
-                                    <span wire:loading>Deleting...</span>
+                                        class="inline-flex shrink-0 items-center gap-2 rounded-sm bg-red-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50">
+                                    <span wire:loading.remove.delay class="inline-flex items-center gap-2"><span class="material-symbols-outlined" aria-hidden="true">delete_forever</span>Delete Account</span>
+                                    <span wire:loading class="inline-flex items-center gap-2"><span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>Deleting...</span>
                                 </button>
-                                <button type="button" wire:click="cancelDelete" class="shrink-0 rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">Cancel</button>
+                                <button type="button" wire:click="cancelDelete" class="inline-flex shrink-0 items-center gap-2 rounded-sm border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"><span class="material-symbols-outlined" aria-hidden="true">close</span>Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -511,7 +508,7 @@
                             <p class="text-sm font-medium text-gray-900 dark:text-white">Delete Account</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">Permanently remove your account and all associated data</p>
                         </div>
-                        <button type="button" wire:click="confirmDelete" class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20">Delete Account</button>
+                        <button type="button" wire:click="confirmDelete" class="inline-flex items-center gap-2 rounded-sm border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20"><span class="material-symbols-outlined" aria-hidden="true">delete</span>Delete Account</button>
                     </div>
                 @endif
             </div>

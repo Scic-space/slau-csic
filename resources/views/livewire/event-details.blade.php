@@ -95,7 +95,7 @@
 
                 {{-- About card --}}
                 @if ($event->description)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">About</h2>
                         </div>
@@ -109,7 +109,7 @@
 
                 {{-- Requirements card --}}
                 @if ($event->requirements)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Requirements</h2>
                         </div>
@@ -123,7 +123,7 @@
 
                 {{-- Agenda card --}}
                 @if ($agendaItems->isNotEmpty())
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Agenda</h2>
                         </div>
@@ -162,7 +162,7 @@
 
                 {{-- Instructors card --}}
                 @if ($event->instructors->isNotEmpty())
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Instructors</h2>
                         </div>
@@ -186,7 +186,7 @@
 
                 {{-- Resources card --}}
                 @if ($event->resources->isNotEmpty())
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Resources</h2>
                         </div>
@@ -213,7 +213,7 @@
 
                 {{-- Community Feedback --}}
                 @if ($feedbackStats['feedback_count'] > 0)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Community Feedback</h2>
                         </div>
@@ -250,7 +250,7 @@
 
                 {{-- Recent Feedback --}}
                 @if ($recentFeedbacks->isNotEmpty())
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Recent Feedback</h2>
                         </div>
@@ -280,7 +280,7 @@
 
                 {{-- User Feedback card --}}
                 @if ($userFeedback)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Your Feedback</h2>
                         </div>
@@ -319,7 +319,7 @@
                         </div>
                     </div>
                 @elseif ($canSubmitFeedback && !$feedbackOpen)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="px-5 py-4 text-center">
                             <button wire:click="$set('feedbackOpen', true)"
                                     class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
@@ -331,7 +331,7 @@
 
                 {{-- Feedback Form --}}
                 @if ($canSubmitFeedback && $feedbackOpen)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Share Your Feedback</h2>
                             <button wire:click="$set('feedbackOpen', false)"
@@ -401,7 +401,7 @@
                 @endif
                 {{-- Related Events --}}
                 @if ($relatedEvents->isNotEmpty())
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Related Events</h2>
                         </div>
@@ -430,7 +430,7 @@
             <div class="space-y-4">
 
                 {{-- Details card --}}
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Details</h3>
                     </div>
@@ -496,7 +496,7 @@
 
                 {{-- Countdown --}}
                 @if ($isFuture)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
                          x-data="{
                              target: new Date('{{ $event->start_date->format('Y/m/d H:i:s') }}').getTime(),
                              now: new Date().getTime(),
@@ -535,7 +535,7 @@
                 @endif
 
                 {{-- Add to Calendar --}}
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Add to Calendar</h3>
                     </div>
@@ -556,7 +556,7 @@
                 </div>
 
                 {{-- Share --}}
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Share</h3>
                     </div>
@@ -578,7 +578,7 @@
 
                 {{-- Map --}}
                 @if ($event->location)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Location</h3>
                         </div>
@@ -596,7 +596,7 @@
 
                 {{-- QR Code --}}
                 @if ($checkInCode)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Your Check-In Code</h3>
                         </div>
@@ -612,7 +612,7 @@
                 {{-- External Link --}}
                 @if ($event->external_link)
                     <a href="{{ $event->external_link }}" target="_blank" rel="noopener noreferrer"
-                       class="dashboard-card flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md dark:border-gray-700 dark:bg-gray-800 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                       class="dashboard-card flex items-center justify-center gap-2 rounded-sm border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md dark:border-gray-700 dark:bg-gray-800 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Register on External Site</span>
                         <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
@@ -620,7 +620,7 @@
 
                 {{-- Registration --}}
                 @if ($event->registration_required && !$event->external_link)
-                    <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div class="px-5 py-4 text-center">
                             @if (!$isAuthenticated)
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Login to register</p>
@@ -696,7 +696,7 @@
                 @endif
 
                 {{-- RSVP card --}}
-                <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">RSVP</h3>
                     </div>

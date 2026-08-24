@@ -8,6 +8,11 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TransactionExportController extends Controller
 {
+    public function xlsx(): BinaryFileResponse
+    {
+        return Excel::download(new TransactionsExport, 'my-transactions-'.now()->format('Y-m-d').'.xlsx');
+    }
+
     public function csv(): BinaryFileResponse
     {
         return Excel::download(new TransactionsExport, 'my-transactions-'.now()->format('Y-m-d').'.csv');

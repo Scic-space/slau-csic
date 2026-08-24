@@ -3,22 +3,25 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Support\AdminActionStyle;
 use App\Models\User;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\HtmlString;
 
 class UsersTable
 {
@@ -27,31 +30,9 @@ class UsersTable
         return $table
             ->query(User::query()->with(['roles', 'memberProfile']))
             ->columns([
-                ImageColumn::make('avatar')
-                    ->label('')
-                    ->getStateUsing(fn (User $record): string => $record->avatar_url)
-                    ->circular(),
-
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-
-                TextColumn::make('email')
-                    ->searchable()
-                    ->sortable()
-                    ->copyable()
-                    ->copyMessage('Email copied'),
-
-                TextColumn::make('registration_number')
-                    ->label('Reg. Number')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('memberProfile.program')
-                    ->label('Program')
-                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas('memberProfile', fn (Builder $q): Builder => $q->where('program', 'like', "%{$search}%")))
-                    ->limit(20)
-                    ->tooltip(fn (User $record): string => (string) ($record->memberProfile?->program ?? '')),
 
                 TextColumn::make('memberProfile.year_of_study')
                     ->label('Year')
@@ -67,59 +48,12 @@ class UsersTable
                     ->copyMessage('Phone copied')
                     ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas('memberProfile', fn (Builder $q): Builder => $q->where('phone', 'like', "%{$search}%"))),
 
-                TextColumn::make('intake')
-                    ->label('Intake')
-                    ->sortable()
-                    ->badge()
-                    ->color(fn (?string $state): string => $state === 'january' ? 'info' : 'gray')
-                    ->formatStateUsing(fn (?string $state): string => $state ? ucfirst($state) : '-'),
-
-                TextColumn::make('intake_year')
-                    ->label('Intake Year')
-                    ->sortable()
-                    ->placeholder('-'),
-
-                TextColumn::make('membership_type')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'associate' => 'warning',
-                        'alumni' => 'gray',
-                        default => 'secondary',
-                    })
-                    ->formatStateUsing(fn ($state) => ucfirst($state)),
-
-                TextColumn::make('membership_status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'pending' => 'warning',
-                        'suspended' => 'danger',
-                        'inactive' => 'gray',
-                        default => 'secondary',
-                    })
-                    ->formatStateUsing(fn ($state) => ucfirst($state)),
-
                 TextColumn::make('roles.name')
-                    ->label('Roles')
+                    ->label('Role')
                     ->formatStateUsing(fn ($state): string => str_replace('_', ' ', ucfirst($state)))
                     ->badge()
                     ->color('primary')
                     ->separator(','),
-
-                TextColumn::make('joined_at')
-                    ->label('Joined')
-                    ->date('M d, Y')
-                    ->sortable(),
-
-                TextColumn::make('approved_at')
-                    ->label('Approved')
-                    ->sortable()
-                    ->formatStateUsing(fn (User $record): string => match (true) {
-                        $record->approved_at !== null => $record->approved_at->format('M d, Y'),
-                        $record->membership_status === 'pending' => 'Pending',
-                        default => '—',
-                    }),
             ])
             ->filters([
                 SelectFilter::make('membership_type')
@@ -186,13 +120,20 @@ class UsersTable
                     ->query(fn (Builder $query): Builder => $query->whereNotNull('approved_at')),
             ])
             ->recordActions([
-                ViewAction::make()
+                AdminActionStyle::apply(ViewAction::make(), 'View', 'visibility', 'info')
                     ->form(UserResource::getViewForm()),
+
+                AdminActionStyle::apply(EditAction::make(), 'Edit', 'edit', 'teal'),
+
+                AdminActionStyle::apply(DeleteAction::make(), 'Delete', 'delete', 'danger'),
 
                 Action::make('approve')
                     ->label('Approve')
-                    ->icon('heroicon-o-check-circle')
+                    ->icon(self::materialIcon('check_circle'))
+                    ->iconButton()
                     ->color('success')
+                    ->tooltip('Approve')
+                    ->extraAttributes(self::accessibleActionAttributes('Approve'))
                     ->visible(fn (User $record): bool => $record->membership_status === 'pending')
                     ->requiresConfirmation()
                     ->action(function (User $record) {
@@ -201,8 +142,11 @@ class UsersTable
 
                 Action::make('reject')
                     ->label('Reject')
-                    ->icon('heroicon-o-x-circle')
+                    ->icon(self::materialIcon('cancel'))
+                    ->iconButton()
                     ->color('danger')
+                    ->tooltip('Reject')
+                    ->extraAttributes(self::accessibleActionAttributes('Reject'))
                     ->visible(fn (User $record): bool => $record->membership_status === 'pending')
                     ->schema([
                         Textarea::make('rejection_notes')
@@ -215,8 +159,11 @@ class UsersTable
 
                 Action::make('suspend')
                     ->label('Suspend')
-                    ->icon('heroicon-o-pause-circle')
+                    ->icon(self::materialIcon('pause_circle'))
+                    ->iconButton()
                     ->color('danger')
+                    ->tooltip('Suspend')
+                    ->extraAttributes(self::accessibleActionAttributes('Suspend'))
                     ->visible(fn (User $record): bool => $record->membership_status === 'active')
                     ->schema([
                         Textarea::make('reason')
@@ -235,8 +182,11 @@ class UsersTable
 
                 Action::make('reactivate')
                     ->label('Reactivate')
-                    ->icon('heroicon-o-arrow-path')
+                    ->icon(self::materialIcon('restart_alt'))
+                    ->iconButton()
                     ->color('success')
+                    ->tooltip('Reactivate')
+                    ->extraAttributes(self::accessibleActionAttributes('Reactivate'))
                     ->visible(fn (User $record): bool => $record->membership_status === 'suspended')
                     ->requiresConfirmation()
                     ->action(function (User $record) {
@@ -250,8 +200,11 @@ class UsersTable
 
                 Action::make('convert_to_alumni')
                     ->label('Convert to Alumni')
-                    ->icon('heroicon-o-academic-cap')
-                    ->color('gray')
+                    ->icon(self::materialIcon('school'))
+                    ->iconButton()
+                    ->color('purple')
+                    ->tooltip('Convert to Alumni')
+                    ->extraAttributes(self::accessibleActionAttributes('Convert to Alumni'))
                     ->visible(fn (User $record): bool => $record->membership_status === 'active' && $record->membership_type !== 'alumni')
                     ->requiresConfirmation()
                     ->modalHeading('Convert to Alumni')
@@ -285,5 +238,21 @@ class UsersTable
                         }),
                 ]),
             ]);
+    }
+
+    private static function materialIcon(string $name): HtmlString
+    {
+        return new HtmlString('<span class="material-symbols-outlined" aria-hidden="true">'.e($name).'</span>');
+    }
+
+    /**
+     * @return array{aria-label: string, title: string}
+     */
+    private static function accessibleActionAttributes(string $label): array
+    {
+        return [
+            'aria-label' => $label,
+            'title' => $label,
+        ];
     }
 }

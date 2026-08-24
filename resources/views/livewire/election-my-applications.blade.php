@@ -1,9 +1,9 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800 md:p-8">
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4">
             <p class="text-sm font-semibold uppercase tracking-widest text-emerald-500">Dashboard</p>
-            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">My Applications</h1>
-            <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
+            <h1 class="mt-1 flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">assignment_ind</span>My Applications</h1>
+            <p class="mt-1 max-w-3xl text-sm text-gray-500 dark:text-gray-400">
                 Track the status of all your cabinet applications.
             </p>
             <div class="mt-4 flex flex-wrap items-center gap-4">
@@ -37,7 +37,7 @@
                 </p>
             </div>
         @else
-            <div class="space-y-6">
+            <div class="space-y-3">
                 @foreach ($applications as $app)
                     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex flex-wrap items-start justify-between gap-4">
@@ -45,8 +45,8 @@
                                 <p class="text-xs font-semibold uppercase tracking-widest text-emerald-500">
                                     {{ $app['election']['position'] }}
                                 </p>
-                                <h2 class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">
-                                    {{ $app['election']['title'] }}
+                                <h2 class="mt-1 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
+                                    <span class="material-symbols-outlined text-emerald-500" aria-hidden="true">assignment</span>{{ $app['election']['title'] }}
                                 </h2>
                             </div>
                             <div class="text-right">
@@ -202,18 +202,10 @@
             </div>
         @endif
 
-        @if ($showForm)
-            <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ photoPreview: null }" wire:key="new-application-modal">
-                <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeApplicationForm"></div>
-                <div class="relative mx-auto my-8 w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Submit New Application</h2>
-                        <button type="button" wire:click="closeApplicationForm" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                    </div>
-
-                    <form wire:submit="submitApplication" class="mt-5 space-y-4">
+        <div x-data="{ open: @entangle('showForm'), photoPreview: null }" wire:key="new-application-drawer">
+            <x-ui.drawer show="open" on-close="$wire.closeApplicationForm()" title="Submit New Application">
+                <form wire:submit="submitApplication" class="flex min-h-0 flex-1 flex-col">
+                    <div class="flex-1 space-y-4 overflow-y-auto p-5">
                         <div>
                             <label for="application-position" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Position</label>
                             <select id="application-position" wire:model="selectedElectionId" class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
@@ -269,19 +261,19 @@
                             @error('documentFiles') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                             @error('documentFiles.*') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
+                    </div>
 
-                        <div class="flex items-center justify-end gap-3 pt-2">
-                            <button type="button" wire:click="closeApplicationForm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                                Cancel
-                            </button>
-                            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 transition-colors">
-                                <span wire:loading.remove wire:target="submitApplication">Submit Application</span>
-                                <span wire:loading wire:target="submitApplication">Submitting...</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        @endif
+                    <div class="flex items-center justify-end gap-3 border-t border-gray-200 p-5 dark:border-gray-800">
+                        <button type="button" wire:click="closeApplicationForm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                            Cancel
+                        </button>
+                        <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 transition-colors">
+                            <span wire:loading.remove wire:target="submitApplication">Submit Application</span>
+                            <span wire:loading wire:target="submitApplication">Submitting...</span>
+                        </button>
+                    </div>
+                </form>
+            </x-ui.drawer>
+        </div>
     </div>
 </div>

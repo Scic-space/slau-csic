@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\System;
 
+use App\Filament\Support\AdminActionStyle;
 use App\Models\ContentPage;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -79,8 +81,9 @@ class ContentPageResource extends Resource
             ->filters([])
             ->defaultSort('updated_at', 'desc')
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                AdminActionStyle::apply(ViewAction::make(), 'View', 'visibility', 'info'),
+                AdminActionStyle::apply(EditAction::make(), 'Edit', 'edit', 'teal'),
+                AdminActionStyle::apply(DeleteAction::make(), 'Delete', 'delete', 'danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

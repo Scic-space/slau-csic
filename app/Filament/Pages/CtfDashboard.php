@@ -2,10 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\CtfDashboardStatsWidget;
 use App\Models\CtfCompetition;
-use App\Models\CtfSubmission;
-use App\Models\CtfTeam;
-use App\Models\CtfWriteup;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
@@ -30,26 +28,13 @@ class CtfDashboard extends Page implements HasTable
 
     public function getStats(): array
     {
-        $activeCompetitions = CtfCompetition::published()
-            ->currentlyActive()
-            ->count();
+        return app(CtfDashboardStatsWidget::class)->statistics();
+    }
 
-        $pendingWriteups = CtfWriteup::where('status', 'pending')->count();
-
-        $totalSolves = CtfSubmission::where('is_correct', true)->count();
-
-        $totalParticipants = CtfSubmission::where('is_correct', true)
-            ->distinct('user_id')
-            ->count('user_id');
-
-        $totalTeams = CtfTeam::count();
-
+    public function getHeaderWidgets(): array
+    {
         return [
-            'active_competitions' => $activeCompetitions,
-            'pending_writeups' => $pendingWriteups,
-            'total_solves' => $totalSolves,
-            'total_participants' => $totalParticipants,
-            'total_teams' => $totalTeams,
+            CtfDashboardStatsWidget::class,
         ];
     }
 

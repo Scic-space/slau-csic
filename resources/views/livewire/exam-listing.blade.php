@@ -1,12 +1,12 @@
-<div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Internal Exams</h1>
+<div class="py-4 sm:py-5">
+    <div>
+        <div class="mb-4">
+            <h1 class="flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">quiz</span>Internal Exams</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Test your knowledge and earn certifications</p>
         </div>
 
         @if ($exams->isEmpty())
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center shadow-sm">
+            <div class="rounded-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center shadow-sm">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -16,15 +16,15 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Exams will appear here once published by instructors.</p>
             </div>
         @else
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($exams as $exam)
                     @php
                         $attempt = $exam->attempts->first();
                     @endphp
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+                    <div class="rounded-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
                         <div class="flex items-start justify-between">
                             <div class="flex-1 min-w-0">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{ $exam->title }}</h3>
+                                <h3 class="flex items-center gap-2 truncate text-lg font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-brand-500" aria-hidden="true">assignment</span>{{ $exam->title }}</h3>
                                 @if ($exam->description)
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{{ $exam->description }}</p>
                                 @endif
