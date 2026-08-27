@@ -22,21 +22,21 @@
 
         {{-- Stats Grid --}}
         <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</p>
                 <p class="mt-2 text-2xl font-bold text-green-600 dark:text-green-400" x-text="'UGX ' + window.treasurerData.totalIncome.toLocaleString()">UGX {{ number_format($stats['total_income'], 0) }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expenses</p>
                 <p class="mt-2 text-2xl font-bold text-red-600 dark:text-red-400" x-text="'UGX ' + window.treasurerData.totalExpenses.toLocaleString()">UGX {{ number_format($stats['total_expenses'], 0) }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Net Balance</p>
                 <p class="mt-2 text-2xl font-bold {{ $stats['net_balance'] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
                     UGX {{ number_format($stats['net_balance'], 0) }}
                 </p>
             </div>
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Payments</p>
                 <p class="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $stats['pending_payments_count'] }}</p>
             </div>
@@ -44,15 +44,15 @@
 
         {{-- Fines Stats Row --}}
         <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Fines Issued</p>
                 <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">UGX {{ number_format($stats['total_fines_issued'], 0) }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Fines Collected</p>
                 <p class="mt-2 text-2xl font-bold text-green-600 dark:text-green-400">UGX {{ number_format($stats['total_fines_collected'], 0) }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue Fines</p>
                 <p class="mt-2 text-2xl font-bold text-red-600 dark:text-red-400">{{ $stats['overdue_fines_count'] }}</p>
             </div>
@@ -67,7 +67,7 @@
                         $percent = $cat['allocated'] > 0 ? min(100, round(($cat['spent'] / $cat['allocated']) * 100)) : 0;
                         $barColor = $percent >= 100 ? 'bg-red-500' : ($percent >= 80 ? 'bg-amber-500' : 'bg-green-500');
                     @endphp
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $cat['name'] }}</p>
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ ucfirst($cat['type']) }}</span>
@@ -82,7 +82,7 @@
                         <p class="mt-1 text-xs text-right text-gray-500 dark:text-gray-400">{{ $percent }}% used</p>
                     </div>
                 @empty
-                    <div class="col-span-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center">
+                    <div class="col-span-full rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-8 text-center">
                         <p class="text-sm text-gray-500 dark:text-gray-400">No active budget categories.</p>
                     </div>
                 @endforelse
@@ -90,7 +90,7 @@
         </div>
 
         {{-- Income vs Expenses Chart --}}
-        <div class="mb-8 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-5">
+        <div class="mb-8 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card shadow-sm p-5">
             <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">Income vs Expenses (6 Months)</h2>
             <div id="treasurerChart" x-data="{}" x-init="
                 const options = {
@@ -113,8 +113,8 @@
 
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
             {{-- Pending Payments --}}
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card shadow-sm overflow-hidden">
+                <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                     <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Pending Payment Approvals</h2>
                 </div>
                 @if ($pendingPayments->isEmpty())
@@ -143,7 +143,7 @@
                                         <button wire:click="confirmPayment({{ $p['id'] }})" class="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 focus:ring-2 focus:ring-green-600 focus:ring-offset-2">
                                             Confirm
                                         </button>
-                                        <button wire:click="rejectPayment({{ $p['id'] }})" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                                        <button wire:click="rejectPayment({{ $p['id'] }})" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">
                                             Reject
                                         </button>
                                     </div>
@@ -155,8 +155,8 @@
             </div>
 
             {{-- Recent Transactions --}}
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card shadow-sm overflow-hidden">
+                <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                     <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Recent Transactions</h2>
                 </div>
                 @if ($recentTransactions->isEmpty())

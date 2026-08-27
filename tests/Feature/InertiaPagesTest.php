@@ -35,6 +35,20 @@ it('renders the register page', function () {
     );
 });
 
+it('uses the streamlined registration layout without the promotional panel', function () {
+    $source = file_get_contents(resource_path('js/pages/auth/Register.tsx'));
+
+    expect($source)
+        ->toContain('SCIC Cyber home')
+        ->toContain('Sign In')
+        ->toContain('<ThemeToggle />')
+        ->not->toContain('Join SCIC Cyber')
+        ->not->toContain('Create your club account.')
+        ->not->toContain('Secure registration')
+        ->not->toContain('Student learning hub')
+        ->not->toContain('Collaborative community');
+});
+
 it('renders the verification page for unverified users', function () {
     $user = User::factory()->unverified()->create();
 

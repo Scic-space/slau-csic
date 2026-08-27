@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Event;
 use App\Models\EventCategory;
+use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -49,7 +50,7 @@ class EventListing extends Component
         $this->resetPage();
     }
 
-    public function render()
+    public function render(): View
     {
         $isGuest = ! auth()->check();
 
@@ -60,7 +61,7 @@ class EventListing extends Component
             ->first();
 
         $query = Event::where('is_public', true)
-            ->whereIn('status', ['published', 'scheduled', 'ongoing'])
+            ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed'])
             ->with(['organizer', 'categories', 'recurrence'])
             ->withCount(['registrations as registered_count' => fn ($q) => $q->where('status', 'registered')])
             ->when($featured, fn ($q) => $q->where('id', '!=', $featured->id));
@@ -91,8 +92,27 @@ class EventListing extends Component
         }
 
         match ($this->filter) {
-            'upcoming' => $query->where('start_date', '>=', now()),
-            'past' => $query->where('start_date', '<', now()),
+            'upcoming' => $query->where('start_date', '>', now())
+                ->whereNotIn('status', ['ongoing', 'completed']),
+            'ongoing' => $query->where(function ($query) {
+                $query->where('status', 'ongoing')
+                    ->orWhere(function ($query) {
+                        $query->where('start_date', '<=', now())
+                            ->where('end_date', '>=', now())
+                            ->whereNot('status', 'completed');
+                    });
+            }),
+            'past', 'completed' => $query->where(function ($query) {
+                $query->where('status', 'completed')
+                    ->orWhere(function ($query) {
+                        $query->whereNot('status', 'ongoing')
+                            ->where('start_date', '<=', now())
+                            ->where(function ($query) {
+                                $query->whereNull('end_date')
+                                    ->orWhere('end_date', '<', now());
+                            });
+                    });
+            }),
             'favorites' => $query->whereHas('favoritedBy', fn ($q) => $q->where('user_id', auth()->id())),
             default => null,
         };
@@ -123,6 +143,7 @@ class EventListing extends Component
                 ]),
                 'organizer' => $event->organizer?->only(['id', 'name']),
                 'is_recurring' => $event->is_recurring,
+                'display_status' => $this->displayStatus($event),
             ]);
 
         $categories = EventCategory::active()->ordered()->get()->map(fn ($c) => [
@@ -150,5 +171,26 @@ class EventListing extends Component
             'featuredEvent' => $featured,
             'isGuest' => $isGuest,
         ]);
+    }
+
+    private function displayStatus(Event $event): string
+    {
+        if ($event->status === 'completed') {
+            return 'completed';
+        }
+
+        if ($event->status === 'ongoing') {
+            return 'ongoing';
+        }
+
+        if ($event->start_date->isFuture()) {
+            return 'upcoming';
+        }
+
+        if ($event->end_date?->isFuture()) {
+            return 'ongoing';
+        }
+
+        return 'completed';
     }
 }

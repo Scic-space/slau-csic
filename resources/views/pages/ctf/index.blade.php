@@ -3,7 +3,7 @@
 @section('content')
 <div class="space-y-8">
     {{-- Header --}}
-    <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
+    <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03] md:p-8">
         <div class="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
             <div class="space-y-4">
                 <span class="inline-flex items-center rounded-md bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-500">
@@ -23,19 +23,19 @@
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 xl:grid-cols-2">
-                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+                <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                     <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Competitions</p>
                     <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $competitionCount }}</p>
                 </div>
-                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+                <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                     <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Challenges</p>
                     <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $totalChallenges }}</p>
                 </div>
-                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+                <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                     <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Solved</p>
                     <p class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ $solvedCount }}</p>
                 </div>
-                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+                <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                     <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Points</p>
                     <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $userTotalPoints }}</p>
                 </div>
@@ -67,7 +67,7 @@
 
     @forelse ($competitionStats as $stat)
         @php $competition = $stat['competition']; @endphp
-        <section class="rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-gray-800 dark:bg-white/[0.03]">
+        <section class="rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-border dark:bg-white/[0.03]">
             <a href="{{ route('ctf.competition', $competition) }}" class="block p-6 md:p-8">
                 <div class="flex flex-wrap items-start justify-between gap-6">
                     <div class="flex items-start gap-4">
@@ -94,15 +94,15 @@
                     </div>
                     <div class="flex shrink-0 items-center gap-4">
                         <div class="grid grid-cols-3 gap-4 text-center">
-                            <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-900/60">
+                            <div class="rounded-lg border border-gray-200 bg-background px-4 py-2.5 dark:border-border dark:bg-background/60">
                                 <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $stat['total'] }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Challenges</p>
                             </div>
-                            <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-900/60">
+                            <div class="rounded-lg border border-gray-200 bg-background px-4 py-2.5 dark:border-border dark:bg-background/60">
                                 <p class="text-lg font-bold {{ $stat['solved'] > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-white' }}">{{ $stat['solved'] }}/{{ $stat['total'] }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Solved</p>
                             </div>
-                            <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-900/60">
+                            <div class="rounded-lg border border-gray-200 bg-background px-4 py-2.5 dark:border-border dark:bg-background/60">
                                 <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $stat['points'] }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Points</p>
                             </div>
@@ -115,7 +115,7 @@
             </a>
         </section>
     @empty
-        <div class="rounded-xl border border-gray-200 bg-white p-16 text-center shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-xl border border-gray-200 bg-white p-16 text-center shadow-sm dark:border-border dark:bg-white/[0.03]">
             <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
                 <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2-2-2-2m0 6l2-2-2-2m2-4l2-2-2-2m-4 10l4 4 4-4m-8-8l4-4 4 4"/>

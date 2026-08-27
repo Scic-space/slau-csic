@@ -7,6 +7,96 @@
         --radius-md: 0.25rem;
         --radius-lg: 0.25rem;
         --radius-xl: 0.25rem;
+
+        /* System theme (Light/Dark) — Filament ships its own precompiled CSS
+           pipeline, separate from resources/css/app.css, so the admin panel's
+           chrome, cards, tables, modals, dropdowns and form inputs are
+           re-themed here using the same semantic values as the SPA layout. */
+        --admin-background: oklch(96.8% 0.007 247.896);
+        --admin-sidebar: #ffffff;
+        --admin-card: #ffffff;
+        --admin-card-hover: #f9fafb;
+        --admin-border: #e4e7ec;
+        --admin-input: #ffffff;
+        --admin-foreground: #101828;
+        --admin-muted-foreground: #667085;
+    }
+
+    .dark {
+        --admin-background: oklch(18% 0.035 255);
+        --admin-sidebar: oklch(14% 0.035 255);
+        --admin-card: oklch(23% 0.035 255);
+        --admin-card-hover: oklch(26% 0.04 255);
+        --admin-border: oklch(31% 0.035 255);
+        --admin-input: oklch(25% 0.035 255);
+        --admin-foreground: oklch(96% 0.01 255);
+        --admin-muted-foreground: oklch(70% 0.025 255);
+    }
+
+    .fi-body,
+    .fi-sidebar,
+    .fi-sidebar-header,
+    .fi-topbar {
+        background-color: var(--admin-sidebar);
+    }
+
+    .fi-body {
+        background-color: var(--admin-background);
+    }
+
+    .fi-section,
+    .fi-ta-ctn,
+    .fi-wi-stats-overview-stat,
+    .fi-modal-window,
+    .fi-dropdown-panel,
+    .fi-fo-repeater-item {
+        background-color: var(--admin-card);
+        border-color: var(--admin-border);
+    }
+
+    .fi-ta-header-cell {
+        background-color: var(--admin-sidebar);
+    }
+
+    .fi-ta-row {
+        border-color: var(--admin-border);
+    }
+
+    .dark .fi-ta-row:hover {
+        background-color: var(--admin-card-hover);
+    }
+
+    .fi-input,
+    .fi-select-input,
+    .fi-textarea {
+        background-color: var(--admin-input);
+    }
+
+    .dark .fi-section,
+    .dark .fi-ta-ctn,
+    .dark .fi-wi-stats-overview-stat,
+    .dark .fi-modal-window,
+    .dark .fi-dropdown-panel,
+    .dark .fi-ta-header-cell,
+    .dark .fi-input,
+    .dark .fi-select-input,
+    .dark .fi-textarea {
+        border-color: var(--admin-border);
+    }
+
+    /* Custom admin pages (e.g. the Event Calendar) predate this project's
+       theme tokens and reference stray, non-standard class names — map
+       them onto the same admin tokens rather than leaving them undefined. */
+    .border-stroke {
+        border-color: #e4e7ec;
+    }
+
+    .dark .border-strokedark {
+        border-color: var(--admin-border);
+    }
+
+    .bg-boxdark {
+        background-color: var(--admin-card);
     }
 
     .material-symbols-outlined {
@@ -95,8 +185,8 @@
     }
 
     .dark .system-footer {
-        border-color: rgb(31 41 55);
-        color: rgb(156 163 175);
+        border-color: var(--admin-border);
+        color: var(--admin-muted-foreground);
     }
 
     @media (max-width: 639px) {

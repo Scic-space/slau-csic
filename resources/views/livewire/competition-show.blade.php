@@ -22,7 +22,7 @@
                 <span class="inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium
                     @if ($competition['status_color'] === 'success') border-green-500/20 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300
                     @elseif ($competition['status_color'] === 'indigo') border-indigo-500/20 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300
-                    @else border-gray-500/20 bg-gray-50 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300 @endif">
+                    @else border-gray-500/20 bg-background dark:bg-background/30 text-gray-700 dark:text-gray-300 @endif">
                     {{ $competition['status'] }}
                 </span>
             @endif
@@ -47,7 +47,7 @@
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm text-gray-500 dark:text-gray-400">Are you sure?</span>
                                     <button wire:click="leave" class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 transition-colors">Yes, leave</button>
-                                    <button wire:click="cancelLeave" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
+                                    <button wire:click="cancelLeave" class="rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
                                 </div>
                             @endif
                         </div>
@@ -70,13 +70,13 @@
                     @if ($competition['is_team_based'])
                         <div>
                             <label for="teamName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team Name (optional)</label>
-                            <input type="text" id="teamName" wire:model="teamName" placeholder="Enter your team name" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <input type="text" id="teamName" wire:model="teamName" placeholder="Enter your team name" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             @error('teamName') <span class="text-xs text-red-600 dark:text-red-400 mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     @endif
                     <div>
                         <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role (optional)</label>
-                        <select id="role" wire:model="role" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select id="role" wire:model="role" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <option value="">Select a role...</option>
                             <option value="member">Member</option>
                             <option value="leader">Leader</option>
@@ -85,7 +85,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors">Confirm Join</button>
-                        <button type="button" wire:click="toggleJoinForm" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
+                        <button type="button" wire:click="toggleJoinForm" class="rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -94,13 +94,13 @@
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <div class="space-y-6 lg:col-span-2">
                 @if ($competition['description'])
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-6 shadow-sm">
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">{{ $competition['description'] }}</p>
                     </div>
                 @endif
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+                    <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                         <div class="mb-1 flex items-center gap-2">
                             <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Start Date</p>
@@ -108,7 +108,7 @@
                         <p class="font-medium text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($competition['start_date'])->format('F j, Y') }}</p>
                     </div>
                     @if ($competition['end_date'])
-                        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+                        <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                             <div class="mb-1 flex items-center gap-2">
                                 <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                 <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">End Date</p>
@@ -117,7 +117,7 @@
                         </div>
                     @endif
                     @if ($competition['location'])
-                        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+                        <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                             <div class="mb-1 flex items-center gap-2">
                                 <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Location</p>
@@ -126,7 +126,7 @@
                         </div>
                     @endif
                     @if ($competition['participation_status'])
-                        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+                        <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-5 shadow-sm">
                             <div class="mb-1 flex items-center gap-2">
                                 <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Participation Status</p>
@@ -147,7 +147,7 @@
                 @endif
 
                 @if ($competition['website_url'])
-                    <a href="{{ $competition['website_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <a href="{{ $competition['website_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-card-hover transition">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         Competition Website
                     </a>
@@ -155,7 +155,7 @@
             </div>
 
             <div>
-                <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
+                <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-6 shadow-sm">
                     <div class="mb-4 flex items-center gap-2">
                         <svg class="h-5 w-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"/></svg>
                         <h3 class="font-semibold text-gray-900 dark:text-white">Participants ({{ count($competition['participants']) }})</h3>
@@ -165,11 +165,11 @@
                     @else
                         <ul class="space-y-2">
                             @foreach ($competition['participants'] as $p)
-                                <li class="flex items-center justify-between rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-4 py-2.5 text-sm">
+                                <li class="flex items-center justify-between rounded-lg border border-gray-100 dark:border-border bg-gray-50 dark:bg-gray-800/50 px-4 py-2.5 text-sm">
                                     <span class="font-medium text-gray-900 dark:text-white">{{ $p['name'] }}</span>
                                     <div class="flex gap-1.5">
                                         @if ($p['team_name'])
-                                            <span class="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $p['team_name'] }}</span>
+                                            <span class="rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $p['team_name'] }}</span>
                                         @endif
                                         @if ($p['role'])
                                             <span class="rounded-lg border border-indigo-500/20 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 text-xs text-indigo-700 dark:text-indigo-300">{{ $p['role'] }}</span>

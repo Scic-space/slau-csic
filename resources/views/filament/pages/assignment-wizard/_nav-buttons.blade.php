@@ -1,7 +1,7 @@
 <div class="flex items-center justify-between" x-data="{ showConfirmApprove: false }">
     <div>
         @if ($step > 1)
-            <button type="button" wire:click="prevStep" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+            <button type="button" wire:click="prevStep" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-border dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 Back
             </button>
@@ -43,11 +43,11 @@
                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
                     @click.away="showConfirmApprove = false"
                 >
-                    <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
+                    <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-card">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Approve Assignment?</h3>
                         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Once approved, all selected members will be notified. Roles and assignments will be locked.</p>
                         <div class="mt-6 flex justify-end gap-3">
-                            <button type="button" @click="showConfirmApprove = false" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+                            <button type="button" @click="showConfirmApprove = false" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-border dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                                 Cancel
                             </button>
                             <button

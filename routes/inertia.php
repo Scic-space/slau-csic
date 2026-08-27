@@ -86,11 +86,11 @@ Route::get('/organizer/dashboard', \App\Livewire\OrganizerDashboard::class)->nam
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth/login', [InertiaAuthController::class, 'showLogin'])->name('auth.login');
-    Route::post('/auth/login', [InertiaAuthController::class, 'login']);
+    Route::post('/auth/login', [InertiaAuthController::class, 'login'])->middleware('throttle:20,1');
     Route::get('/auth/register', [InertiaAuthController::class, 'showRegister'])->name('auth.register');
-    Route::post('/auth/register', [InertiaAuthController::class, 'register']);
+    Route::post('/auth/register', [InertiaAuthController::class, 'register'])->middleware('throttle:5,1');
     Route::get('/auth/forgot-password', [InertiaAuthController::class, 'showForgotPassword'])->name('auth.forgot-password');
-    Route::post('/auth/forgot-password', [InertiaAuthController::class, 'sendResetLink']);
+    Route::post('/auth/forgot-password', [InertiaAuthController::class, 'sendResetLink'])->middleware('throttle:6,1');
 });
 
 Route::middleware('auth')->group(function () {

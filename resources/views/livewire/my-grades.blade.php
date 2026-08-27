@@ -6,29 +6,29 @@
         </div>
 
         <div class="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Trainings Enrolled<span class="material-symbols-outlined" aria-hidden="true">school</span></p>
                 <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['trainings_enrolled'] }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Trainings Completed<span class="material-symbols-outlined text-green-500" aria-hidden="true">task_alt</span></p>
                 <p class="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">{{ $stats['trainings_completed'] }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Exams Taken<span class="material-symbols-outlined" aria-hidden="true">quiz</span></p>
                 <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['exams_taken'] }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Exams Passed<span class="material-symbols-outlined text-green-500" aria-hidden="true">verified</span></p>
                 <p class="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">{{ $stats['exams_passed'] }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <p class="flex items-center justify-between gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">Average Score<span class="material-symbols-outlined text-blue-500" aria-hidden="true">monitoring</span></p>
                 <p class="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['average_score'] !== null ? number_format($stats['average_score'], 1).'%' : 'N/A' }}</p>
             </div>
         </div>
 
-        <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
             @if ($grades->isEmpty())
                 <div class="p-12 text-center">
                     <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
@@ -42,7 +42,7 @@
             @else
                 <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-900">
+                    <thead class="bg-background">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Name</th>
@@ -54,7 +54,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach ($grades as $grade)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-card-hover/50 transition">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                         {{ $grade['type'] === 'training' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : '' }}

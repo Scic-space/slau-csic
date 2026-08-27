@@ -18,7 +18,7 @@ uses(RefreshDatabase::class);
 it('marks the user row as pending when a pending membership is registered', function () {
     $user = User::factory()->create(['membership_status' => 'active']);
 
-    (new MembershipService)->registerPending($user, []);
+    (new MembershipService)->registerPending($user);
 
     expect($user->fresh()->membership_status)->toBe('pending')
         ->and($user->fresh()->approved_at)->toBeNull()

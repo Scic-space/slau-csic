@@ -6,11 +6,11 @@
 
 html {
     scroll-behavior: smooth;
-    background-color: #f9fafb;
+    background-color: var(--background);
 }
 
 html.dark {
-    background-color: #101828;
+    background-color: var(--background);
 }
 
 html.is-page-navigating #main-content > div {
@@ -34,6 +34,10 @@ body,
     width: 100%;
     min-height: 100%;
     margin: 0;
+}
+
+body {
+    font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
 }
 
 #app,
@@ -91,11 +95,11 @@ body:has(.inertia-root--standalone) {
 }
 
 .system-footer {
-    @apply flex flex-col items-center justify-between gap-2 border-t border-gray-200 px-4 py-3 text-center text-xs text-gray-500 sm:flex-row sm:px-6 sm:text-left dark:border-gray-800 dark:text-gray-400;
+    @apply flex flex-col items-center justify-between gap-2 border-t border-gray-200 px-4 py-3 text-center text-xs text-gray-500 sm:flex-row sm:px-6 sm:text-left dark:border-border dark:text-muted-foreground;
 }
 
 .system-footer-fixed {
-    @apply fixed inset-x-0 bottom-0 z-30 bg-white/95 shadow-sm backdrop-blur-sm transition-[left] duration-300 ease-in-out dark:bg-gray-900/95;
+    @apply fixed inset-x-0 bottom-0 z-30 bg-white/95 shadow-sm backdrop-blur-sm transition-[left] duration-300 ease-in-out dark:bg-sidebar/95;
 }
 
 .system-footer a {
@@ -113,7 +117,7 @@ body:has(.inertia-root--standalone) {
 
 .dashboard-stat .material-symbols-outlined,
 .dashboard-card:not([class*='border-red']) > :first-child h3 > .material-symbols-outlined:first-child {
-    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[20px] text-gray-500 dark:bg-gray-700 dark:text-gray-300;
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[20px] text-gray-500 dark:bg-card-hover dark:text-muted-foreground;
 }
 
 .dashboard-card[class*='border-red'] > :first-child h3 > .material-symbols-outlined:first-child {
@@ -125,11 +129,11 @@ body:has(.inertia-root--standalone) {
 }
 
 .profile-form label:not(.profile-toggle-row) {
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+    @apply block text-sm font-medium text-gray-700 dark:text-muted-foreground;
 }
 
 .profile-form :is(input:not([type='checkbox'], [type='radio'], [type='file']), select, textarea) {
-    @apply mt-1.5 block w-full rounded-sm border border-gray-300 bg-transparent px-3.5 py-2.5 text-sm text-gray-900 shadow-theme-xs outline-hidden transition placeholder:text-gray-400 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-brand-800 dark:disabled:bg-gray-800;
+    @apply mt-1.5 block w-full rounded-sm border border-gray-300 bg-transparent px-3.5 py-2.5 text-sm text-gray-900 shadow-theme-xs outline-hidden transition placeholder:text-gray-400 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 dark:border-border dark:bg-input dark:text-foreground dark:placeholder:text-muted dark:focus:border-primary dark:disabled:bg-card;
 }
 
 .profile-form :is(input:not([type='checkbox'], [type='radio'], [type='file']), select) {
@@ -145,7 +149,7 @@ body:has(.inertia-root--standalone) {
 }
 
 .profile-input-group {
-    @apply mt-1.5 flex min-h-11 overflow-hidden rounded-sm border border-gray-300 bg-transparent shadow-theme-xs transition focus-within:border-brand-300 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:focus-within:border-brand-800;
+    @apply mt-1.5 flex min-h-11 overflow-hidden rounded-sm border border-gray-300 bg-transparent shadow-theme-xs transition focus-within:border-brand-300 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-border dark:bg-input dark:focus-within:border-primary;
 }
 
 .profile-form .profile-input-group input {
@@ -166,10 +170,10 @@ body:has(.inertia-root--standalone) {
 
 @theme {
   --font-*: initial;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   --font-outfit: 'Google Sans Flex', 'Google Sans', Inter, ui-sans-serif, sans-serif;
   --font-sans: 'Google Sans Flex', 'Google Sans', Inter, ui-sans-serif, sans-serif;
-  --font-serif: Merriweather, serif;
+  --font-serif: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
 
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.125rem;
@@ -350,6 +354,7 @@ body:has(.inertia-root--standalone) {
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-card-hover: var(--card-hover);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
@@ -431,11 +436,12 @@ body:has(.inertia-root--standalone) {
     --gray-950: #0c111d;
     --gray-dark: #1a2231;
     --card: #ffffff;
-    --ring: #6366f1;
-    --input: #d1d5db;
-    --muted: #f3f4f6;
+    --card-hover: #f9fafb;
+    --ring: var(--primary);
+    --input: #ffffff;
+    --muted: #98a2b3;
     --accent: #e0e7ff;
-    --border: #d1d5db;
+    --border: #e4e7ec;
     --radius: 0.5rem;
     --chart-1: #6366f1;
     --chart-2: #4f46e5;
@@ -443,35 +449,83 @@ body:has(.inertia-root--standalone) {
     --chart-4: #3730a3;
     --chart-5: #312e81;
     --popover: #ffffff;
-    --primary: #6366f1;
-    --sidebar: #f3f4f6;
-    --font-mono: JetBrains Mono, monospace;
+    --primary: #465fff;
+    --sidebar: #ffffff;
+    --font-mono: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
     --font-sans: 'Google Sans Flex', 'Google Sans', Inter, ui-sans-serif, sans-serif;
     --secondary: #e5e7eb;
-    --background: #f8fafc;
-    --font-serif: Merriweather, serif;
-    --foreground: #1e293b;
+    --background: #f9fafb;
+    --font-serif: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
+    --foreground: #101828;
     --destructive: #ef4444;
     --shadow-blur: 8px;
     --shadow-color: hsl(0 0% 0%);
-    --sidebar-ring: #6366f1;
+    --sidebar-ring: #465fff;
     --shadow-spread: -1px;
     --shadow-opacity: 0.1;
     --sidebar-accent: #e0e7ff;
-    --sidebar-border: #d1d5db;
-    --card-foreground: #1e293b;
+    --sidebar-border: #e4e7ec;
+    --card-foreground: #101828;
     --shadow-offset-x: 0px;
     --shadow-offset-y: 4px;
-    --sidebar-primary: #6366f1;
-    --muted-foreground: #6b7280;
+    --sidebar-primary: #465fff;
+    --muted-foreground: #667085;
     --accent-foreground: #374151;
-    --popover-foreground: #1e293b;
+    --popover-foreground: #101828;
     --primary-foreground: #ffffff;
-    --sidebar-foreground: #1e293b;
+    --sidebar-foreground: #101828;
     --secondary-foreground: #374151;
     --destructive-foreground: #ffffff;
     --sidebar-accent-foreground: #374151;
     --sidebar-primary-foreground: #ffffff;
+  }
+
+  /* Dark theme — reusable semantic surface/text tokens consumed via
+     bg-background, bg-card, bg-sidebar, border-border, bg-input,
+     text-foreground, text-muted-foreground, etc. Light-mode values above
+     are unchanged; this is the only place dark-mode colors are defined. */
+  :root.dark {
+    --background: oklch(18% 0.035 255);
+    --foreground: oklch(96% 0.01 255);
+    --card: oklch(23% 0.035 255);
+    --card-foreground: oklch(96% 0.01 255);
+    --card-hover: oklch(26% 0.04 255);
+    --popover: oklch(23% 0.035 255);
+    --popover-foreground: oklch(96% 0.01 255);
+    --sidebar: oklch(14% 0.035 255);
+    --sidebar-foreground: oklch(96% 0.01 255);
+    --border: oklch(31% 0.035 255);
+    --input: oklch(25% 0.035 255);
+    --primary: oklch(65% 0.18 255);
+    --primary-foreground: oklch(98% 0.01 255);
+    --muted: oklch(55% 0.025 255);
+    --muted-foreground: oklch(70% 0.025 255);
+    --ring: var(--primary);
+  }
+}
+
+@layer components {
+  .auth-input {
+    color-scheme: light;
+    caret-color: var(--foreground);
+  }
+
+  :root.dark .auth-input {
+    color-scheme: dark;
+  }
+
+  .auth-input:autofill,
+  .auth-input:autofill:hover,
+  .auth-input:autofill:focus,
+  .auth-input:autofill:active,
+  .auth-input:-webkit-autofill,
+  .auth-input:-webkit-autofill:hover,
+  .auth-input:-webkit-autofill:focus,
+  .auth-input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--foreground);
+    caret-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0 1000px var(--input) inset;
+    box-shadow: 0 0 0 1000px var(--input) inset;
   }
 }
 
@@ -496,7 +550,7 @@ body:has(.inertia-root--standalone) {
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-900;
+    @apply relative font-normal font-outfit z-1 bg-background text-foreground;
   }
 }
 
@@ -505,23 +559,23 @@ body:has(.inertia-root--standalone) {
 }
 
 @utility menu-item-active {
-  @apply bg-brand-50 text-brand-600 shadow-sm ring-1 ring-brand-100 dark:bg-brand-500/15 dark:text-brand-300 dark:ring-brand-500/20;
+  @apply bg-brand-50 text-brand-600 shadow-sm ring-1 ring-brand-100 dark:bg-primary/15 dark:text-primary dark:ring-primary/20;
 }
 
 @utility menu-item-inactive {
-  @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white;
+  @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-muted-foreground dark:hover:bg-card-hover dark:hover:text-foreground;
 }
 
 @utility menu-item-icon {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
+  @apply text-gray-500 group-hover:text-gray-700 dark:text-muted-foreground;
 }
 
 @utility menu-item-icon-active {
-  @apply text-brand-600 dark:text-brand-300;
+  @apply text-brand-600 dark:text-primary;
 }
 
 @utility menu-item-icon-inactive {
-  @apply text-gray-400 transition-colors group-hover:text-gray-700 dark:text-gray-500 dark:group-hover:text-gray-200;
+  @apply text-gray-400 transition-colors group-hover:text-gray-700 dark:text-muted dark:group-hover:text-foreground;
 }
 
 @utility menu-item-arrow {
@@ -529,11 +583,11 @@ body:has(.inertia-root--standalone) {
 }
 
 @utility menu-item-arrow-active {
-  @apply rotate-180 text-brand-500 dark:text-brand-400;
+  @apply rotate-180 text-brand-500 dark:text-primary;
 }
 
 @utility menu-item-arrow-inactive {
-  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+  @apply text-gray-500 group-hover:text-gray-700 dark:text-muted-foreground dark:group-hover:text-foreground;
 }
 
 @utility menu-dropdown-item {
@@ -541,11 +595,11 @@ body:has(.inertia-root--standalone) {
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-brand-50 text-brand-500 dark:bg-primary/[0.15] dark:text-primary;
 }
 
 @utility menu-dropdown-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5;
+  @apply text-gray-700 hover:bg-gray-100 dark:text-muted-foreground dark:hover:bg-card-hover;
 }
 
 @utility menu-dropdown-item {
@@ -553,11 +607,11 @@ body:has(.inertia-root--standalone) {
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-brand-50 text-brand-500 dark:bg-primary/[0.15] dark:text-primary;
 }
 
 @utility menu-dropdown-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5;
+  @apply text-gray-700 hover:bg-gray-100 dark:text-muted-foreground dark:hover:bg-card-hover;
 }
 
 @utility menu-dropdown-badge {
@@ -1145,11 +1199,11 @@ span.flatpickr-weekday,
 }
 
 .social-button {
-  @apply flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200;
+  @apply flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card-hover dark:hover:text-foreground;
 }
 
 .edit-button {
-  @apply flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto;
+  @apply flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card-hover dark:hover:text-foreground lg:inline-flex lg:w-auto;
 }
 
 .home-header {
@@ -1288,7 +1342,7 @@ span.flatpickr-weekday,
 
 .home-eyebrow,
 .home-card-eyebrow {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.38em;
@@ -1330,7 +1384,7 @@ span.flatpickr-weekday,
 }
 
 .home-stat-label {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   display: block;
   font-size: 0.72rem;
   letter-spacing: 0.2em;
@@ -1394,7 +1448,7 @@ span.flatpickr-weekday,
   border-bottom: 1px solid rgba(148, 163, 184, 0.14);
   background: rgba(19, 28, 41, 0.82);
   padding: 0.8rem 1rem;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1403,7 +1457,7 @@ span.flatpickr-weekday,
 
 .home-terminal-body {
   padding: 1.2rem;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   font-size: 0.85rem;
   line-height: 1.75;
 }
@@ -1421,7 +1475,7 @@ span.flatpickr-weekday,
   align-items: center;
   gap: 1rem;
   padding: 0.8rem 0;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -1496,7 +1550,7 @@ span.flatpickr-weekday,
 
 .home-card-meta {
   margin-top: 1.2rem;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   font-size: 0.72rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1528,7 +1582,7 @@ span.flatpickr-weekday,
 
 .home-image-badge span {
   display: block;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.26em;
   text-transform: uppercase;
@@ -1679,7 +1733,7 @@ pre[class*='language-'] {
 }
 
 .sidebar-shell nav h2 {
-    @apply mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500;
+    @apply mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-muted;
 }
 
 .sidebar-shell nav ul {
@@ -1700,11 +1754,11 @@ pre[class*='language-'] {
 }
 
 .sidebar-section-button {
-    @apply flex min-h-11 w-full items-center gap-3 rounded-sm px-3 py-2 text-sm font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white;
+    @apply flex min-h-11 w-full items-center gap-3 rounded-sm px-3 py-2 text-sm font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-muted-foreground dark:hover:bg-card-hover dark:hover:text-foreground;
 }
 
 .sidebar-section-button-active {
-    @apply bg-brand-50 text-brand-600 dark:bg-brand-500/12 dark:text-brand-400;
+    @apply bg-brand-50 text-brand-600 dark:bg-primary/[0.12] dark:text-primary;
 }
 
 .sidebar-section-icon {
@@ -1720,7 +1774,7 @@ pre[class*='language-'] {
 }
 
 .sidebar-section-children {
-    @apply mt-1 ml-3 border-l border-gray-200 pl-3 dark:border-gray-700;
+    @apply mt-1 ml-3 border-l border-gray-200 pl-3 dark:border-border;
 }
 
 .sidebar-section-children .menu-item {
@@ -1729,15 +1783,15 @@ pre[class*='language-'] {
 
 /* Submenu Styles */
 .submenu-item {
-    @apply flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200;
+    @apply flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-card-hover transition-colors duration-200;
 }
 
 .submenu-item-active {
-    @apply bg-brand-50 text-brand-600 dark:bg-brand-500/[0.12] dark:text-brand-400;
+    @apply bg-brand-50 text-brand-600 dark:bg-primary/[0.12] dark:text-primary;
 }
 
 .submenu-item-inactive {
-    @apply text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100;
+    @apply text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:hover:text-foreground;
 }
 
 /* Rotate animation for chevron */
@@ -1883,6 +1937,7 @@ pre[class*='language-'] {
 }
 
 .dark .dashboard-card:hover {
+  background-color: var(--card-hover);
   border-color: rgba(99, 102, 241, 0.3);
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.1),
@@ -1919,6 +1974,7 @@ pre[class*='language-'] {
 }
 
 .dark .dashboard-stat:hover {
+  background-color: var(--card-hover);
   border-color: rgba(99, 102, 241, 0.35);
   box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.15),

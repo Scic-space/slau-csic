@@ -18,7 +18,7 @@
         <button onclick="window.print()" class="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 sm:px-6 sm:py-3 sm:text-sm">
             Print / Save as PDF
         </button>
-        <a href="{{ auth()->user()?->hasRole(['admin', 'super-admin']) ? route('filament.admin.pages.dashboard') : route('dashboard') }}" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-6 sm:py-3 sm:text-sm">
+        <a href="{{ auth()->user()?->hasRole(['admin', 'super-admin']) ? route('filament.admin.pages.dashboard') : route('dashboard') }}" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover sm:px-6 sm:py-3 sm:text-sm">
             Back to Dashboard
         </a>
     </div>

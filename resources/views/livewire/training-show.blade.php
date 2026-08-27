@@ -7,7 +7,7 @@
         </div>
 
         {{-- Training Header --}}
-        <div class="rounded-xl border border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
+        <div class="rounded-xl border border-gray-200 bg-white p-8 dark:border-border dark:bg-card">
             <div class="flex items-start justify-between">
                 <div class="flex-1">
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $training->title }}</h1>
@@ -41,7 +41,7 @@
             @endif
 
             @if ($training->objectives)
-                <div class="mt-6 border-t border-gray-100 pt-4 dark:border-gray-700">
+                <div class="mt-6 border-t border-gray-100 pt-4 dark:border-border">
                     <h3 class="text-sm font-medium text-gray-900 dark:text-white">Learning Objectives</h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ $training->objectives }}</p>
                 </div>
@@ -76,8 +76,8 @@
         @endif
 
         {{-- Modules --}}
-        <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+        <div class="rounded-xl border border-gray-200 bg-white dark:border-border dark:bg-card">
+            <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
                 <h2 class="font-semibold text-gray-900 dark:text-white">Modules</h2>
             </div>
 
@@ -106,7 +106,7 @@
                         </div>
 
                         @if ($enrolled && ! $isCompleted)
-                            <button wire:click="completeModule({{ $module->id }})" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                            <button wire:click="completeModule({{ $module->id }})" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">
                                 Mark Complete
                             </button>
                         @endif
@@ -114,7 +114,7 @@
 
                     @if ($module->content && $enrolled)
                         <div class="px-6 pb-4">
-                            <div class="rounded-lg bg-gray-50 p-4 text-sm text-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                            <div class="rounded-lg bg-background p-4 text-sm text-gray-700 dark:text-gray-300">
                                 {!! nl2br(e($module->content)) !!}
                             </div>
                         </div>

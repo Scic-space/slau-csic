@@ -1,5 +1,5 @@
-<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
         <div class="flex items-center gap-3">
             <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-100 text-sm font-bold text-primary-700 shadow-sm dark:bg-primary-900/40 dark:text-primary-300">2</span>
             <div>
@@ -20,7 +20,7 @@
                         <button
                             type="button"
                             wire:click="applyRoleTemplate({{ $template->id }})"
-                            class="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-white px-3 py-1.5 text-xs font-medium text-primary-700 shadow-sm transition hover:border-primary-300 hover:bg-primary-50 hover:shadow dark:border-primary-800 dark:bg-gray-800 dark:text-primary-300 dark:hover:border-primary-700 dark:hover:bg-primary-900/20"
+                            class="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-white px-3 py-1.5 text-xs font-medium text-primary-700 shadow-sm transition hover:border-primary-300 hover:bg-primary-50 hover:shadow dark:border-primary-800 dark:bg-card dark:text-primary-300 dark:hover:border-primary-700 dark:hover:bg-primary-900/20"
                         >
                             <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                             {{ $template->name }}
@@ -39,7 +39,7 @@
                     class="group rounded-xl border p-5 shadow-sm transition-all duration-200
                         {{ isset($validationErrors['roles.'.$index.'.name']) || isset($validationErrors['roles.'.$index.'.seats'])
                             ? 'border-red-300 bg-red-50/50 dark:border-red-500 dark:bg-red-900/10'
-                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800/80 dark:hover:border-gray-600' }}"
+                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md dark:border-border dark:bg-card/80 dark:hover:border-gray-600' }}"
                     wire:key="role-{{ $index }}"
                 >
                     <div class="mb-4 flex items-center justify-between">
@@ -81,7 +81,7 @@
                                 class="block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition focus:outline-none focus:ring-2 dark:text-white
                                     {{ isset($validationErrors['roles.'.$index.'.name'])
                                         ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/30 dark:border-red-500 dark:bg-red-900/10'
-                                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700' }}"
+                                        : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700' }}"
                             >
                             @if (isset($validationErrors['roles.'.$index.'.name']))
                                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $validationErrors['roles.'.$index.'.name'] }}</p>
@@ -99,7 +99,7 @@
                                     class="block w-full rounded-lg border py-2 pl-8 pr-3 text-sm shadow-sm transition focus:outline-none focus:ring-2 dark:text-white
                                         {{ isset($validationErrors['roles.'.$index.'.seats'])
                                             ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/30 dark:border-red-500 dark:bg-red-900/10'
-                                            : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700' }}"
+                                            : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700' }}"
                                 >
                             </div>
                             @if (isset($validationErrors['roles.'.$index.'.seats']))
@@ -123,7 +123,7 @@
                                 <button
                                     type="button"
                                     @click="open = !open; if(open) $nextTick(() => $refs.search.focus())"
-                                    class="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition hover:border-primary-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-primary-500"
+                                    class="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition hover:border-primary-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700 dark:text-white dark:hover:border-primary-500"
                                 >
                                     <span class="truncate text-gray-700 dark:text-gray-300">
                                         <template x-if="skills.length === 0">
@@ -144,15 +144,15 @@
                                     x-transition:enter="transition ease-out duration-150"
                                     x-transition:enter-start="opacity-0 -translate-y-1"
                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                    class="absolute z-20 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
+                                    class="absolute z-20 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-lg dark:border-border dark:bg-card"
                                 >
-                                    <div class="border-b border-gray-100 p-2 dark:border-gray-700">
+                                    <div class="border-b border-gray-100 p-2 dark:border-border">
                                         <input
                                             type="text"
                                             x-ref="search"
                                             x-model="search"
                                             placeholder="Search skills..."
-                                            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400 dark:border-border dark:bg-gray-700 dark:text-white"
                                         >
                                     </div>
                                     <div class="max-h-48 overflow-y-auto p-1.5">
@@ -162,14 +162,14 @@
                                                     type="checkbox"
                                                     :value="skill"
                                                     x-model="skills"
-                                                    class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700"
+                                                    class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500 dark:border-border dark:bg-gray-700"
                                                 >
                                                 <span x-text="skill" class="text-gray-700 dark:text-gray-300"></span>
                                             </label>
                                         </template>
                                         <p x-show="filteredSkills.length === 0" class="px-2.5 py-4 text-center text-xs text-gray-400">No skills match your search.</p>
                                     </div>
-                                    <div class="flex items-center justify-between border-t border-gray-100 px-3 py-1.5 dark:border-gray-700">
+                                    <div class="flex items-center justify-between border-t border-gray-100 px-3 py-1.5 dark:border-border">
                                         <span class="text-xs text-gray-400" x-text="skills.length + ' selected'"></span>
                                         <button type="button" @click="skills = []" class="text-xs font-medium text-red-500 hover:text-red-600 dark:text-red-400">Clear all</button>
                                     </div>
@@ -177,11 +177,11 @@
                             </div>
                         </div>
                         <div class="flex items-end pb-2 sm:col-span-1 lg:col-span-2">
-                            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600/50">
+                            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition hover:bg-gray-50 dark:border-border dark:bg-gray-700 dark:hover:bg-gray-600/50">
                                 <input
                                     type="checkbox"
                                     wire:model="roles.{{ $index }}.lead_required"
-                                    class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700"
+                                    class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500 dark:border-border dark:bg-gray-700"
                                 >
                                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Lead required</span>
                             </label>
@@ -194,7 +194,7 @@
         <button
             type="button"
             wire:click="addRole"
-            class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-4 py-3.5 text-sm font-medium text-gray-500 transition hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50/50 dark:border-gray-600 dark:text-gray-400 dark:hover:border-primary-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/10"
+            class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-4 py-3.5 text-sm font-medium text-gray-500 transition hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50/50 dark:border-border dark:text-gray-400 dark:hover:border-primary-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/10"
         >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
             Add Another Role

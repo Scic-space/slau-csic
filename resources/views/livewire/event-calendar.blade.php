@@ -13,12 +13,12 @@
             </div>
         </div>
 
-        <div class="dashboard-card mb-3 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-sm border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card mb-3 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-sm border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-border dark:bg-card">
             <div class="flex flex-wrap items-center gap-3">
                 <span class="font-semibold text-gray-900 dark:text-white">Categories</span>
                 @foreach ($categories as $cat)
                     <label class="group inline-flex cursor-pointer items-center gap-1.5">
-                        <input type="checkbox" value="{{ $cat['id'] }}" x-model="selectedCategories" class="rounded border-gray-300 text-gray-900 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-white">
+                        <input type="checkbox" value="{{ $cat['id'] }}" x-model="selectedCategories" class="rounded border-gray-300 text-gray-900 focus:ring-gray-900 dark:border-border dark:bg-gray-900 dark:text-white dark:focus:ring-white">
                         <span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background-color: {{ $cat['color'] }}"></span>
                         <span class="text-gray-600 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">{{ $cat['name'] }}</span>
                     </label>
@@ -35,15 +35,15 @@
         <div class="min-w-0">
                 {{-- Month View --}}
                 <div x-show="viewMode === 'month'">
-                    <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="p-4">
                             <div class="mb-4 flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <button @click="prevMonth" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                    <button @click="prevMonth" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-card-hover transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                     </button>
                                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="monthYear"></h2>
-                                    <button @click="nextMonth" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                    <button @click="nextMonth" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-card-hover transition focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                     </button>
                                 </div>
@@ -61,16 +61,16 @@
                                     <div
                                         class="min-h-[80px] p-1 text-sm transition"
                                         :class="{
-                                            'bg-gray-50 dark:bg-gray-900/50': !day.isCurrentMonth,
-                                            'bg-white dark:bg-gray-800': day.isCurrentMonth,
-                                            'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700': day.events.length > 0
+                                            'bg-background dark:bg-background/50': !day.isCurrentMonth,
+                                            'bg-white dark:bg-card': day.isCurrentMonth,
+                                            'cursor-pointer hover:bg-gray-100 dark:hover:bg-card-hover': day.events.length > 0
                                         }"
                                     >
                                         <div class="mb-1 text-xs font-medium"
                                             :class="{
                                                 'text-gray-400 dark:text-gray-600': !day.isCurrentMonth,
                                                 'text-gray-900 dark:text-white': day.isCurrentMonth && !day.isToday,
-                                                'text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-full w-6 h-6 flex items-center justify-center': day.isToday
+                                                'text-white bg-brand-500 rounded-full w-6 h-6 flex items-center justify-center': day.isToday
                                             }"
                                             x-text="day.date"></div>
                                         <template x-for="evt in day.events.slice(0, 2)" :key="evt.id">
@@ -93,7 +93,7 @@
 
                 {{-- Agenda View --}}
                 <div x-show="viewMode === 'agenda'">
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="p-4">
                             <div class="mb-4 flex items-center justify-between">
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Upcoming Events</h2>
@@ -101,7 +101,7 @@
                             </div>
                             <div class="space-y-2">
                                 <template x-for="evt in agendaEvents" :key="evt.id">
-                                    <div @click="openDetail(evt)" class="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-100 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                                    <div @click="openDetail(evt)" class="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-100 p-3 transition hover:bg-gray-50 dark:border-border dark:hover:bg-card-hover">
                                         <div class="w-14 shrink-0 text-center">
                                             <p class="text-lg font-bold text-gray-900 dark:text-white" x-text="new Date(evt.start).getDate()"></p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400" x-text="new Date(evt.start).toLocaleDateString('en', { month: 'short' })"></p>
@@ -130,7 +130,7 @@
 
         {{-- Detail Drawer --}}
         <x-ui.drawer show="detailEvent" on-close="detailEvent = null" :show-close-button="false">
-            <div class="flex items-start justify-between border-b border-gray-200 p-5 dark:border-gray-800">
+            <div class="flex items-start justify-between border-b border-gray-200 p-5 dark:border-border">
                 <div class="flex items-center gap-3">
                     <span class="h-4 w-4 shrink-0 rounded-full" :style="{ backgroundColor: detailEvent?.color }"></span>
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white" x-text="detailEvent?.title"></h2>
@@ -158,7 +158,7 @@
                 </div>
                 <p x-show="detailEvent?.description" class="text-sm text-gray-700 dark:text-gray-300" x-html="detailEvent?.description?.substring(0, 300)"></p>
             </div>
-            <div class="border-t border-gray-200 p-5 dark:border-gray-800">
+            <div class="border-t border-gray-200 p-5 dark:border-border">
                 <a :href="detailEvent?.url" class="block w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-gray-800 transition focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">View Event</a>
             </div>
         </x-ui.drawer>

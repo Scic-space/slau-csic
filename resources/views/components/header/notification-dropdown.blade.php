@@ -17,7 +17,7 @@
 
     <!-- Notification Button -->
     <button
-        class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+        class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-border dark:bg-card dark:text-gray-400 dark:hover:bg-card-hover dark:hover:text-white"
         @click="toggleDropdown()"
         type="button"
         aria-label="Notifications"
@@ -46,12 +46,12 @@
         x-transition:leave="transition ease-in duration-100"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
         x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-        class="absolute -right-[240px] mt-[17px] flex w-[380px] flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900 lg:right-0"
+        class="absolute -right-[240px] mt-[17px] flex w-[380px] flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-border dark:bg-card lg:right-0"
         role="menu"
         style="display: none;"
     >
         <!-- Header -->
-        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
             <div class="flex items-center gap-2">
                 <h5 class="text-base font-semibold text-gray-900 dark:text-white">Notifications</h5>
                 @if ($unreadCount > 0)
@@ -129,7 +129,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="border-t border-gray-100 px-3 py-2.5 dark:border-gray-800">
+        <div class="border-t border-gray-100 px-3 py-2.5 dark:border-border">
             <a href="{{ route('notifications.index') }}" wire:navigate
                class="flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.05]"
                @click="isOpen = false">

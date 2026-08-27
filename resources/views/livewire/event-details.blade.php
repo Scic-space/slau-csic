@@ -44,7 +44,7 @@
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
                 <a href="{{ route('events.index') }}" wire:navigate
-                   class="mb-3 inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                   class="mb-3 inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     Back to Events
                 </a>
@@ -62,14 +62,14 @@
             <div class="flex items-center gap-2 shrink-0">
                 @if ($canEdit)
                     <a href="{{ route('events.edit', $event->slug) }}" wire:navigate
-                       class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                       class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         Edit
                     </a>
                 @endif
                 @if ($isAuthenticated)
                     <button wire:click="toggleFavorite"
-                            class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
+                            class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium transition hover:bg-gray-50 dark:border-border dark:bg-card dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
                             title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
                         <svg class="w-4 h-4 {{ $isFavorited ? 'text-red-500 fill-red-500' : 'text-gray-500' }}" viewBox="0 0 24 24" fill="{{ $isFavorited ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                     </button>
@@ -82,7 +82,7 @@
 
         {{-- Banner --}}
         @if ($event->banner_image)
-            <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm dark:border-gray-700">
+            <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm dark:border-border">
                 <div class="h-48 sm:h-64 bg-cover bg-center" style="background-image: url({{ asset('storage/' . $event->banner_image) }})"></div>
             </div>
         @endif
@@ -95,8 +95,8 @@
 
                 {{-- About card --}}
                 @if ($event->description)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">About</h2>
                         </div>
                         <div class="px-5 py-4">
@@ -109,8 +109,8 @@
 
                 {{-- Requirements card --}}
                 @if ($event->requirements)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Requirements</h2>
                         </div>
                         <div class="px-5 py-4">
@@ -123,8 +123,8 @@
 
                 {{-- Agenda card --}}
                 @if ($agendaItems->isNotEmpty())
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Agenda</h2>
                         </div>
                         <div class="px-5 py-4">
@@ -162,8 +162,8 @@
 
                 {{-- Instructors card --}}
                 @if ($event->instructors->isNotEmpty())
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Instructors</h2>
                         </div>
                         <div class="px-5 py-4">
@@ -186,8 +186,8 @@
 
                 {{-- Resources card --}}
                 @if ($event->resources->isNotEmpty())
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Resources</h2>
                         </div>
                         <div class="px-5 py-4">
@@ -213,8 +213,8 @@
 
                 {{-- Community Feedback --}}
                 @if ($feedbackStats['feedback_count'] > 0)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Community Feedback</h2>
                         </div>
                         <div class="px-5 py-4 space-y-4">
@@ -250,13 +250,13 @@
 
                 {{-- Recent Feedback --}}
                 @if ($recentFeedbacks->isNotEmpty())
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Recent Feedback</h2>
                         </div>
                         <div class="px-5 py-4 space-y-4">
                             @foreach ($recentFeedbacks as $fb)
-                                <div class="{{ !$loop->last ? 'border-b border-gray-100 dark:border-gray-700 pb-4' : '' }}">
+                                <div class="{{ !$loop->last ? 'border-b border-gray-100 dark:border-border pb-4' : '' }}">
                                     <div class="flex items-center justify-between mb-1">
                                         <div class="flex items-center gap-2">
                                             @if ($fb->is_anonymous)
@@ -280,8 +280,8 @@
 
                 {{-- User Feedback card --}}
                 @if ($userFeedback)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Your Feedback</h2>
                         </div>
                         <div class="px-5 py-4 space-y-2 text-sm">
@@ -319,7 +319,7 @@
                         </div>
                     </div>
                 @elseif ($canSubmitFeedback && !$feedbackOpen)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="px-5 py-4 text-center">
                             <button wire:click="$set('feedbackOpen', true)"
                                     class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
@@ -331,8 +331,8 @@
 
                 {{-- Feedback Form --}}
                 @if ($canSubmitFeedback && $feedbackOpen)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Share Your Feedback</h2>
                             <button wire:click="$set('feedbackOpen', false)"
                                     class="text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">Cancel</button>
@@ -377,18 +377,18 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comments</label>
                                 <textarea wire:model="feedbackText" rows="3"
-                                          class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 dark:focus:border-white dark:focus:ring-white"
+                                          class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:placeholder-gray-500 dark:focus:border-white dark:focus:ring-white"
                                           placeholder="What did you think of the event?"></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Suggestions</label>
                                 <textarea wire:model="feedbackSuggestions" rows="2"
-                                          class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 dark:focus:border-white dark:focus:ring-white"
+                                          class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:placeholder-gray-500 dark:focus:border-white dark:focus:ring-white"
                                           placeholder="Any suggestions for improvement?"></textarea>
                             </div>
                             <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                                 <input type="checkbox" wire:model="feedbackAnonymous"
-                                       class="rounded border-gray-300 text-gray-900 shadow-sm focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:focus:ring-white">
+                                       class="rounded border-gray-300 text-gray-900 shadow-sm focus:ring-gray-900 dark:border-border dark:bg-gray-900 dark:focus:ring-white">
                                 Submit anonymously
                             </label>
                             <button wire:click="submitFeedback" wire:loading.attr="disabled"
@@ -401,8 +401,8 @@
                 @endif
                 {{-- Related Events --}}
                 @if ($relatedEvents->isNotEmpty())
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Related Events</h2>
                         </div>
                         <div class="px-5 py-4">
@@ -430,8 +430,8 @@
             <div class="space-y-4">
 
                 {{-- Details card --}}
-                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                    <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Details</h3>
                     </div>
                     <div class="px-5 py-4 space-y-3 text-sm">
@@ -496,7 +496,7 @@
 
                 {{-- Countdown --}}
                 @if ($isFuture)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card"
                          x-data="{
                              target: new Date('{{ $event->start_date->format('Y/m/d H:i:s') }}').getTime(),
                              now: new Date().getTime(),
@@ -508,7 +508,7 @@
                              get m() { return Math.floor((this.diff % 3600000) / 60000); },
                              get s() { return Math.floor((this.diff % 60000) / 1000); }
                          }">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Starts In</h3>
                         </div>
                         <div class="px-5 py-4">
@@ -535,20 +535,20 @@
                 @endif
 
                 {{-- Add to Calendar --}}
-                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                    <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Add to Calendar</h3>
                     </div>
                     <div class="px-5 py-4 space-y-2">
                         <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ urlencode($event->title) }}&dates={{ $gCalStart }}/{{ $gCalEnd }}&details={{ urlencode(strip_tags($event->description ?? '')) }}&location={{ urlencode($event->location ?? '') }}"
                            target="_blank" rel="noopener noreferrer"
-                           class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                           class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                             <svg class="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 2.5a1.5 1.5 0 0 1 3 0v1h3v-1a1.5 1.5 0 0 1 3 0v1H19a2 2 0 0 1 2 2v1H3V5.5a2 2 0 0 1 2-2h2.5v-1zM3 9.5h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-10zm5 3a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H8zm0 4a1 1 0 1 0 0 2h5a1 1 0 1 0 0-2H8z"/></svg>
                             Google Calendar
                         </a>
                         <a href="data:text/calendar;charset=utf-8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:{{ $gCalStart }}%0ADTEND:{{ $gCalEnd }}%0ASUMMARY:{{ rawurlencode($event->title) }}%0ADESCRIPTION:{{ rawurlencode(strip_tags($event->description ?? '')) }}%0ALOCATION:{{ rawurlencode($event->location ?? '') }}%0AEND:VEVENT%0AEND:VCALENDAR"
                            download="{{ $event->slug }}.ics"
-                           class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                           class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                             <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             iCal (.ics)
                         </a>
@@ -556,20 +556,20 @@
                 </div>
 
                 {{-- Share --}}
-                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                    <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Share</h3>
                     </div>
                     <div class="px-5 py-4 space-y-2">
                         <button x-data="{ copied: false }"
                                 x-on:click="navigator.clipboard.writeText('{{ $shareUrl }}'); copied = true; setTimeout(() => copied = false, 2000)"
-                                class="flex items-center gap-2 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                class="flex items-center gap-2 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                             <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                             <span x-text="copied ? 'Copied!' : 'Copy Link'"></span>
                         </button>
                         <a href="https://twitter.com/intent/tweet?text={{ $twitterShareText }}&url={{ urlencode($shareUrl) }}"
                            target="_blank" rel="noopener noreferrer"
-                           class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                           class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                             <svg class="h-4 w-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                             Share on X
                         </a>
@@ -578,8 +578,8 @@
 
                 {{-- Map --}}
                 @if ($event->location)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Location</h3>
                         </div>
                         <div class="px-5 py-4">
@@ -596,8 +596,8 @@
 
                 {{-- QR Code --}}
                 @if ($checkInCode)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Your Check-In Code</h3>
                         </div>
                         <div class="px-5 py-4 text-center">
@@ -612,7 +612,7 @@
                 {{-- External Link --}}
                 @if ($event->external_link)
                     <a href="{{ $event->external_link }}" target="_blank" rel="noopener noreferrer"
-                       class="dashboard-card flex items-center justify-center gap-2 rounded-sm border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md dark:border-gray-700 dark:bg-gray-800 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                       class="dashboard-card flex items-center justify-center gap-2 rounded-sm border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md dark:border-border dark:bg-card focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Register on External Site</span>
                         <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
@@ -620,7 +620,7 @@
 
                 {{-- Registration --}}
                 @if ($event->registration_required && !$event->external_link)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="px-5 py-4 text-center">
                             @if (!$isAuthenticated)
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Login to register</p>
@@ -696,8 +696,8 @@
                 @endif
 
                 {{-- RSVP card --}}
-                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                    <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">RSVP</h3>
                     </div>
                     <div class="px-5 py-4">
@@ -722,7 +722,7 @@
                                 </div>
                             </div>
                             @if ($confirmCancelRsvpId === $registration?->id)
-                                <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+                                <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-border dark:bg-card/50">
                                     <p class="text-sm text-gray-600 dark:text-gray-400">Cancel your RSVP?</p>
                                     <div class="flex gap-2">
                                         <button wire:click="cancelRsvp" wire:loading.attr="disabled"
@@ -754,7 +754,7 @@
                                 </div>
                             </div>
                             @if ($confirmCancelRsvpId === $registration?->id)
-                                <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+                                <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-border dark:bg-card/50">
                                     <p class="text-sm text-gray-600 dark:text-gray-400">Cancel your RSVP?</p>
                                     <div class="flex gap-2">
                                         <button wire:click="cancelRsvp" wire:loading.attr="disabled"
@@ -785,7 +785,7 @@
                                         <span wire:loading>Processing...</span>
                                     </button>
                                     <button wire:click="rsvpMaybe" wire:loading.attr="disabled"
-                                            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">
+                                            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">
                                         <span wire:loading.remove>Maybe</span>
                                         <span wire:loading>Processing...</span>
                                     </button>

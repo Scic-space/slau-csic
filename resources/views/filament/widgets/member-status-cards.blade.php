@@ -8,9 +8,9 @@
                 @class([
                     'member-status-card',
                     'is-active' => $activeTab === $card['tab'],
-                    'group flex min-h-32 flex-col justify-between rounded-sm border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 dark:bg-gray-900',
+                    'group flex min-h-32 flex-col justify-between rounded-sm border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500 dark:bg-card',
                     'border-teal-500 ring-1 ring-teal-500/20 dark:border-teal-400' => $activeTab === $card['tab'],
-                    'border-gray-200 dark:border-gray-700' => $activeTab !== $card['tab'],
+                    'border-gray-200 dark:border-border' => $activeTab !== $card['tab'],
                 ])
                 aria-label="Filter members by {{ $card['label'] }}"
             >

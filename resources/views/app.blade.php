@@ -17,12 +17,17 @@
             }
         })();
     </script>
+    <style>
+        html, body { background-color: #f9fafb; }
+        html.dark, html.dark body { background-color: oklch(18% 0.035 255); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
     <title data-inertia>{{ config('app.name', 'SLAU-CSIC') }}</title>
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])
     @inertiaHead
 </head>
-<body class="bg-background antialiased">
+<body class="bg-background font-sans antialiased">
     @inertia
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="space-y-6">
-        <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
+        <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03] md:p-8">
             <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-500">Cabinet Voting</p>
             <h1 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">Vote for cabinet positions with real candidates, ballots, and results.</h1>
             <p class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
@@ -22,7 +22,7 @@
                     $userVote = $election->votes->first();
                     $totalVotes = $election->candidates->sum(fn ($candidate) => $candidate->votes->count());
                 @endphp
-                <article class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+                <article class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]">
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-500">{{ $election->position }}</p>
@@ -31,7 +31,7 @@
                                 <p class="mt-3 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">{{ $election->description }}</p>
                             @endif
                         </div>
-                        <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-4 text-right dark:border-gray-800 dark:bg-gray-900/60">
+                        <div class="rounded-lg border border-gray-200 bg-background px-4 py-4 text-right dark:border-border dark:bg-background/60">
                             <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Status</div>
                             <div class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">{{ ucfirst($election->status) }}</div>
                         </div>
@@ -39,7 +39,7 @@
 
                     <div class="mt-6 grid gap-4 xl:grid-cols-2">
                         @foreach ($election->candidates as $candidate)
-                            <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                            <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                                 <div class="flex items-start gap-4">
                                     <div class="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800">
                                         @if ($candidate->photo)
@@ -54,7 +54,7 @@
                                             <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">{{ $candidate->manifesto }}</p>
                                         @endif
                                         @if ($candidate->agenda)
-                                            <div class="mt-3 rounded-md border border-gray-200 bg-white px-3 py-3 text-sm text-gray-600 dark:border-gray-700 dark:bg-white/[0.03] dark:text-gray-400">
+                                            <div class="mt-3 rounded-md border border-gray-200 bg-white px-3 py-3 text-sm text-gray-600 dark:border-border dark:bg-white/[0.03] dark:text-gray-400">
                                                 {{ $candidate->agenda }}
                                             </div>
                                         @endif
@@ -62,7 +62,7 @@
                                 </div>
 
                                 @if (! $election->isOpen() || $election->results_visible)
-                                    <div class="mt-4 flex items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-3 text-sm dark:border-gray-700 dark:bg-white/[0.03]">
+                                    <div class="mt-4 flex items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-3 text-sm dark:border-border dark:bg-white/[0.03]">
                                         <span class="text-gray-500 dark:text-gray-400">Votes</span>
                                         <span class="font-semibold text-gray-900 dark:text-white">{{ $candidate->votes->count() }}</span>
                                     </div>
@@ -88,7 +88,7 @@
                         @if ($election->isOpen() && ! $userVote)
                             <form method="POST" action="{{ route('portal.voting.cast', $election) }}" class="flex flex-wrap items-center gap-3">
                                 @csrf
-                                <select name="candidate_id" class="rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                                <select name="candidate_id" class="rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white">
                                     <option value="">Select candidate</option>
                                     @foreach ($election->candidates as $candidate)
                                         <option value="{{ $candidate->id }}">{{ $candidate->name }}</option>
@@ -97,14 +97,14 @@
                                 <button type="submit" class="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950">Cast ballot</button>
                             </form>
                         @elseif (! $userVote && ($election->results_visible || $election->status === 'closed'))
-                            <div class="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm dark:border-gray-800 dark:bg-gray-900/60">
+                            <div class="rounded-md border border-gray-200 bg-background px-4 py-3 text-sm dark:border-border dark:bg-background/60">
                                 Total votes cast: <span class="font-semibold text-gray-900 dark:text-white">{{ $totalVotes }}</span>
                             </div>
                         @endif
                     </div>
                 </article>
             @empty
-                <article class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+                <article class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-border dark:bg-white/[0.03]">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white">No elections are available yet.</h2>
                     <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">Once cabinet elections are created from admin, candidates and ballots will appear here.</p>
                 </article>

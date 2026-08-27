@@ -1,4 +1,4 @@
-<div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+<div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card shadow-sm">
     <div class="p-6 md:p-8">
         <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
@@ -14,7 +14,7 @@
         </div>
 
         @if ($challenges->isEmpty())
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-6 py-8 text-center">
+            <div class="rounded-lg border border-gray-200 dark:border-border bg-background dark:bg-background/50 px-6 py-8 text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400">No challenges published yet. Check back later.</p>
             </div>
         @else
@@ -24,7 +24,7 @@
                         $submission = $challenge->submissions->first();
                         $isSolved = $submission?->is_correct;
                     @endphp
-                    <div class="rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-5 py-4" x-data="{ open: false }">
+                    <div class="rounded-lg border border-gray-100 dark:border-border bg-background dark:bg-background/50 px-5 py-4" x-data="{ open: false }">
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2 mb-1">
@@ -38,7 +38,7 @@
                                     <button type="button" @click="open = !open" class="text-left font-medium text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{{ $challenge->title }}</button>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                    <span class="inline-flex items-center gap-1 rounded-md border border-gray-200 dark:border-gray-600 px-2 py-0.5 font-medium">{{ $challenge->type }}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-md border border-gray-200 dark:border-border px-2 py-0.5 font-medium">{{ $challenge->type }}</span>
                                     <span>{{ $challenge->points }} points</span>
                                     @if ($isSolved)
                                         <span class="text-green-600 dark:text-green-400 font-medium">Solved</span>
@@ -66,7 +66,7 @@
                                 @else
                                     <form wire:submit="submit" class="space-y-2">
                                         <div>
-                                            <input type="text" wire:model="answer" placeholder="Enter your answer..." class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-gray-400">
+                                            <input type="text" wire:model="answer" placeholder="Enter your answer..." class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-gray-400">
                                             @error('answer') <span class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
                                         </div>
                                         <div class="flex items-center gap-2">
@@ -74,7 +74,7 @@
                                                 <span wire:loading.remove>Submit</span>
                                                 <span wire:loading>Checking...</span>
                                             </button>
-                                            <button type="button" wire:click="cancelAnswering" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
+                                            <button type="button" wire:click="cancelAnswering" class="rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-4 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancel</button>
                                         </div>
                                     </form>
                                 @endif

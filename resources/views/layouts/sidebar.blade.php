@@ -4,7 +4,7 @@
 @endphp
 
 <aside id="sidebar"
-    class="sidebar-shell fixed left-0 top-0 z-99999 flex h-dvh flex-col border-r border-gray-200 bg-white px-3 text-gray-900 shadow-sm transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900"
+    class="sidebar-shell fixed left-0 top-0 z-99999 flex h-dvh flex-col border-r border-border bg-sidebar px-3 text-sidebar-foreground shadow-sm transition-all duration-300 ease-in-out"
     x-data="{
         openSubmenus: {},
         materialIcons: {
@@ -85,7 +85,7 @@
     @mouseleave="$store.sidebar.setHovered(false)">
 
     <!-- Logo Section -->
-    <div class="flex h-20 shrink-0 items-center border-b border-gray-100 dark:border-gray-800"
+    <div class="flex h-20 shrink-0 items-center border-b border-border"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start pl-3'">
@@ -98,7 +98,7 @@
                 <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="SLAU CSIC" width="120" height="32" />
             </div>
         </a>
-        <button type="button" class="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-sm text-gray-500 hover:bg-gray-100 xl:hidden dark:text-gray-400 dark:hover:bg-gray-800" @click="$store.sidebar.setMobileOpen(false)" aria-label="Close navigation menu">
+        <button type="button" class="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-sm text-muted hover:bg-card-hover xl:hidden" @click="$store.sidebar.setMobileOpen(false)" aria-label="Close navigation menu">
             <span class="material-symbols-outlined" aria-hidden="true">close</span>
         </button>
     </div>

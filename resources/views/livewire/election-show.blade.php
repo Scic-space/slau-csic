@@ -7,7 +7,7 @@
         </a>
 
         {{-- Header --}}
-        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800 md:p-8">
+        <div class="mb-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-border dark:bg-card md:p-8">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="flex-1">
                     <div class="flex flex-wrap items-center gap-2">
@@ -31,7 +31,7 @@
                 </div>
 
                 {{-- Timeline --}}
-                <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/60">
+                <div class="rounded-lg border border-gray-200 bg-background px-4 py-3 dark:border-border dark:bg-background/60">
                     @php
                         $steps = [
                             ['key' => 'nominations', 'label' => 'Applications'],
@@ -59,7 +59,7 @@
             </div>
 
             {{-- Stats bar --}}
-            <div class="mt-6 flex flex-wrap items-center gap-6 border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <div class="mt-6 flex flex-wrap items-center gap-6 border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-border dark:text-gray-400">
                 @if ($election['starts_at'] || $election['ends_at'])
                     <span class="inline-flex items-center gap-1.5">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -100,7 +100,7 @@
                         <p class="mt-2 text-sm text-emerald-700 dark:text-emerald-300">
                             Use this receipt code to verify your vote was counted:
                         </p>
-                        <div class="mt-3 inline-flex items-center gap-3 rounded-lg border border-emerald-200 bg-white px-4 py-3 dark:border-emerald-700 dark:bg-gray-800/50">
+                        <div class="mt-3 inline-flex items-center gap-3 rounded-lg border border-emerald-200 bg-white px-4 py-3 dark:border-emerald-700 dark:bg-card/50">
                             <p class="font-mono text-2xl font-bold tracking-widest text-emerald-800 dark:text-emerald-100">{{ $receiptCode }}</p>
                             <button type="button" x-data x-clipboard="{{ $receiptCode }}" x-on:click="show = true; setTimeout(() => show = false, 2000)" class="relative text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-200">
                                 <svg x-show="!show" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
@@ -165,7 +165,7 @@
                 @endphp
                 <div wire:click="{{ $election['is_open'] && !$election['user_has_voted'] ? "selectCandidate({$election['id']}, {$candidate['id']})" : '' }}"
                     class="group relative rounded-xl border-2 p-5 transition-all
-                        {{ $isSelected ? 'border-emerald-500 bg-emerald-50 shadow-md dark:border-emerald-500 dark:bg-emerald-900/10' : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600' }}
+                        {{ $isSelected ? 'border-emerald-500 bg-emerald-50 shadow-md dark:border-emerald-500 dark:bg-emerald-900/10' : 'border-gray-200 bg-white hover:border-gray-300 dark:border-border dark:bg-card dark:hover:border-gray-600' }}
                         {{ $election['is_open'] && !$election['user_has_voted'] ? 'cursor-pointer' : '' }}">
 
                     {{-- Selection indicator --}}
@@ -199,7 +199,7 @@
                                 <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400 line-clamp-3">{{ $candidate['manifesto'] }}</p>
                             @endif
                             @if ($candidate['agenda'])
-                                <div class="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-400">
+                                <div class="mt-3 rounded-lg border border-gray-200 bg-background px-3 py-2.5 text-xs text-gray-600 dark:border-border dark:bg-background/60 dark:text-gray-400">
                                     <span class="font-semibold text-gray-700 dark:text-gray-300">Agenda:</span> {{ Str::limit($candidate['agenda'], 150) }}
                                 </div>
                             @endif
@@ -212,7 +212,7 @@
                             $sortedCandidates = collect($election['candidates'])->sortByDesc('votes_count');
                             $maxVotes = $sortedCandidates->max('votes_count') ?: 1;
                         @endphp
-                        <div class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
+                        <div class="mt-4 border-t border-gray-100 pt-4 dark:border-border">
                             <div class="mb-1.5 flex items-center justify-between">
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $candidate['votes_count'] }} vote{{ $candidate['votes_count'] !== 1 ? 's' : '' }}</span>
                                 <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $candidate['percentage'] }}%</span>
@@ -229,7 +229,7 @@
 
         {{-- Vote button --}}
         @if ($election['is_open'])
-            <div class="mt-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+            <div class="mt-8 rounded-xl border border-gray-200 bg-white p-6 dark:border-border dark:bg-card">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         @if ($selectedCandidates[$election['id']] ?? null)
@@ -269,8 +269,8 @@
                         @endif
                     </p>
                 </div>
-                <div class="flex items-center justify-end gap-3 border-t border-gray-200 p-5 dark:border-gray-800">
-                    <button wire:click="cancelConfirm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                <div class="flex items-center justify-end gap-3 border-t border-gray-200 p-5 dark:border-border">
+                    <button wire:click="cancelConfirm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
                         Cancel
                     </button>
                     <button wire:click="castVote" wire:loading.attr="disabled" class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50 transition-colors">

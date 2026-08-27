@@ -38,7 +38,7 @@ class EventDetails extends Component
             'organizer', 'categories', 'instructors', 'resources', 'recurrence', 'agendaItems',
         ]);
 
-        abort_unless(in_array($event->status, ['published', 'scheduled', 'ongoing']), 404);
+        abort_unless(in_array($event->status, ['published', 'scheduled', 'ongoing', 'completed']), 404);
     }
 
     public function rsvpMaybe(): void

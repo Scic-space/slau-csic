@@ -19,7 +19,7 @@
             @if ($unreadCount > 0)
                 <button wire:click="markAllAsRead"
                         wire:confirm="Mark all notifications as read?"
-                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     Mark All as Read
                 </button>
@@ -28,7 +28,7 @@
 
         {{-- Category Tabs --}}
         <div class="mb-6 overflow-x-auto scrollbar-none">
-            <div class="flex gap-1.5 border-b border-gray-200 dark:border-gray-700 pb-px">
+            <div class="flex gap-1.5 border-b border-gray-200 dark:border-border pb-px">
                 @foreach ($categories as $key => $label)
                     @php
                         $count = $categoryCounts[$key] ?? 0;
@@ -60,7 +60,7 @@
 
         {{-- Notifications List --}}
         @if ($notifications->isEmpty())
-            <div class="rounded-2xl border border-gray-200 bg-white p-8 sm:p-16 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-2xl border border-gray-200 bg-white p-8 sm:p-16 text-center shadow-sm dark:border-border dark:bg-card">
                 <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -80,10 +80,10 @@
                         $shortType = class_basename($notification->type);
                     @endphp
                     <a href="{{ route('notifications.show', $notification->id) }}" wire:navigate
-                       class="group relative block overflow-hidden rounded-xl border bg-white shadow-sm transition-all hover:shadow-md dark:bg-gray-800
+                       class="group relative block overflow-hidden rounded-xl border bg-white shadow-sm transition-all hover:shadow-md dark:bg-card
                                 {{ $isUnread
                                     ? 'border-indigo-200 dark:border-indigo-800/50'
-                                    : 'border-gray-200 dark:border-gray-700' }}"
+                                    : 'border-gray-200 dark:border-border' }}"
                          wire:key="notification-{{ $notification->id }}">
 
                         {{-- Left accent bar for unread --}}

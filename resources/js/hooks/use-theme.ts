@@ -5,7 +5,7 @@ type Theme = 'light' | 'dark';
 function getStoredTheme(): Theme {
   try {
     if (typeof localStorage === 'undefined') return 'dark';
-    const stored = localStorage.getItem('theme');
+    const stored = localStorage.getItem('slau-theme');
     if (stored === 'light' || stored === 'dark') return stored;
   } catch {
     // localStorage unavailable
@@ -19,13 +19,14 @@ function getStoredTheme(): Theme {
 
 function applyTheme(theme: Theme): void {
   const root = document.documentElement;
+  root.dataset.theme = theme;
   if (theme === 'dark') {
     root.classList.add('dark');
   } else {
     root.classList.remove('dark');
   }
   try {
-    localStorage.setItem('theme', theme);
+    localStorage.setItem('slau-theme', theme);
   } catch {
     // localStorage unavailable
   }
@@ -38,7 +39,7 @@ export function useTheme() {
     applyTheme(theme);
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('theme')) {
+      if (!localStorage.getItem('slau-theme')) {
         setThemeState(e.matches ? 'dark' : 'light');
       }
     };

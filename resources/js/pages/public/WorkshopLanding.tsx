@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import PublicLayout from '@/components/PublicLayout';
-import {
-    GlowyWavesBackground,
-    WaveSection,
-} from '@/components/ui/glowy-waves-hero-shadcnui';
+import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { GlowCard } from '@/components/ui/spotlight-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    BookOpen, Terminal, Users, Target, Zap,
-    ArrowRight, Code, Lock, Search, Bug, Network,
-    ChevronDown, ChevronUp, Star, GraduationCap,
-    Calendar, MapPin, Award, Clock, TrendingUp, MessageSquareQuote,
+    BookOpen, Users,
+    Code, Lock, Search, Bug, Network,
+    Star, GraduationCap,
+    Calendar, MapPin, Clock, TrendingUp, MessageSquareQuote,
     CheckCircle2, Footprints, Lightbulb, Shield,
 } from 'lucide-react';
 
@@ -172,7 +169,7 @@ function getSkillLevelColor(level: string | null): string {
         case 'beginner': return 'text-emerald-400 bg-emerald-500/15 border-emerald-500/20';
         case 'intermediate': return 'text-amber-400 bg-amber-500/15 border-amber-500/20';
         case 'advanced': return 'text-red-400 bg-red-500/15 border-red-500/20';
-        default: return 'text-white/40 bg-white/5 border-white/10';
+        default: return 'text-muted-foreground bg-card';
     }
 }
 
@@ -195,24 +192,36 @@ function formatWorkshopTime(isoString: string): string {
     return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
+function Icon({ children, className = '' }: { children: string; className?: string }) {
+    return <span className={`material-symbols-outlined ${className}`} aria-hidden="true">{children}</span>;
+}
+
+function WaveSection({ children, className = '', id }: { children: ReactNode; className?: string; id?: string }) {
+    return (
+        <section id={id} className={`relative px-4 sm:px-6 lg:px-8 ${className}`}>
+            <div className="mx-auto max-w-7xl">{children}</div>
+        </section>
+    );
+}
+
 export default function WorkshopLanding({ upcomingWorkshops, categories, pastHighlights, topInstructors, stats }: WorkshopLandingProps) {
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
 
     return (
-        <PublicLayout transparentNav>
-            <GlowyWavesBackground>
+        <PublicLayout>
+            <div className="overflow-hidden bg-background text-foreground">
                 {/* Hero */}
-                <div className="relative pt-32 pb-16 md:pt-44 md:pb-24">
+                <div className="relative bg-background pb-20 pt-20 sm:pb-24 sm:pt-24">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="max-w-3xl">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5 }}
-                                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6"
+                                className="mb-6 inline-flex items-center gap-2 rounded-sm bg-brand-50 px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
                             >
-                                <BookOpen className="h-4 w-4 text-emerald-400" />
+                                <Icon className="text-[19px]">school</Icon>
                                 Hands-on Workshops
                             </motion.div>
 
@@ -220,10 +229,10 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.1 }}
-                                className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                                className="mb-6 text-4xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl"
                             >
                                 Learn by{' '}
-                                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                                <span className="text-brand-600 dark:text-brand-300">
                                     Doing
                                 </span>
                             </motion.h1>
@@ -232,7 +241,7 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="text-lg text-white/50 mb-8 max-w-2xl leading-relaxed"
+                                className="mb-8 max-w-2xl text-lg leading-8 text-muted-foreground"
                             >
                                 Weekly hands-on workshops covering ethical hacking, network defense,
                                 cloud security, and emerging tech. No lectures — just labs, code, and real skills
@@ -246,13 +255,13 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                 className="flex flex-wrap gap-3"
                             >
                                 <Link href="/auth/register">
-                                    <Button size="lg" className="group gap-2 rounded-full px-8 text-base uppercase tracking-[0.2em] bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25">
+                                    <Button size="lg" className="group min-h-12 gap-2 rounded-sm bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-theme-sm hover:bg-[#2984D1]">
                                         Join the Club
-                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                        <Icon className="text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</Icon>
                                     </Button>
                                 </Link>
                                 <a href="#upcoming">
-                                    <Button size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5 px-8 text-base text-white/80 backdrop-blur transition-all hover:border-white/40 hover:bg-white/10">
+                                    <Button size="lg" variant="outline" className="min-h-12 rounded-sm border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-theme-xs transition-colors hover:bg-card-hover">
                                         View Workshops
                                     </Button>
                                 </a>
@@ -262,7 +271,7 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                 </div>
 
                 {/* Stats Bar */}
-                <WaveSection className="py-8">
+                <WaveSection className="bg-card py-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
                             { label: 'Workshops Held', value: stats.total_workshops, icon: BookOpen },
@@ -277,11 +286,11 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                 viewport={{ once: true }}
                                 variants={fadeUp}
                                 custom={i}
-                                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm text-center"
+                                className="rounded-sm bg-background/75 p-5 text-center shadow-theme-xs backdrop-blur-sm dark:bg-background/55"
                             >
                                 <stat.icon className="h-5 w-5 text-emerald-400 mx-auto mb-2" />
-                                <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
-                                <p className="text-xs text-white/40 mt-1 uppercase tracking-wider">{stat.label}</p>
+                                <p className="text-2xl font-bold text-foreground md:text-3xl">{stat.value}</p>
+                                <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{stat.label}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -289,24 +298,24 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
 
                 {/* What We Cover */}
                 {categories.length > 0 && (
-                    <WaveSection className="py-16 md:py-24">
+                    <WaveSection className="bg-background py-20 sm:py-24">
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true, margin: '-100px' }}
                             className="text-center mb-12"
                         >
-                            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                                <Target className="h-4 w-4 text-emerald-400" />
+                            <motion.div variants={fadeUp} custom={0} className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                                <Icon className="text-[20px]">target</Icon>
                                 What We Cover
                             </motion.div>
-                            <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-4xl font-bold text-white mb-4">
+                            <motion.h2 variants={fadeUp} custom={1} className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                                 Skills That{' '}
-                                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                                <span className="text-brand-600 dark:text-brand-300">
                                     Matter
                                 </span>
                             </motion.h2>
-                            <motion.p variants={fadeUp} custom={2} className="text-white/50 text-lg max-w-xl mx-auto">
+                            <motion.p variants={fadeUp} custom={2} className="mx-auto max-w-xl text-lg leading-7 text-muted-foreground">
                                 Topics chosen by the community, taught by practitioners.
                             </motion.p>
                         </motion.div>
@@ -321,15 +330,15 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                 const Icon = getCategoryIcon(cat.slug);
                                 return (
                                     <motion.div key={cat.slug} variants={fadeUp} custom={i}>
-                                        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm text-center hover:border-white/20 transition-all">
+                                        <div className="rounded-sm bg-card/80 p-5 text-center shadow-theme-xs backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-card hover:shadow-theme-sm dark:bg-card/70">
                                             <div
-                                                className="rounded-xl p-3 inline-flex mb-3"
+                                                className="mb-3 inline-flex rounded-sm p-3"
                                                 style={{ backgroundColor: cat.color + '20' }}
                                             >
                                                 <Icon className="h-6 w-6" style={{ color: cat.color }} />
                                             </div>
-                                            <h3 className="text-sm font-semibold text-white mb-1">{cat.name}</h3>
-                                            <p className="text-xs text-white/40">
+                                            <h3 className="mb-1 text-sm font-semibold text-foreground">{cat.name}</h3>
+                                            <p className="text-xs text-muted-foreground">
                                                 {cat.events_count} workshop{cat.events_count !== 1 ? 's' : ''}
                                             </p>
                                         </div>
@@ -341,20 +350,20 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                 )}
 
                 {/* How It Works */}
-                <WaveSection className="py-16 md:py-24">
+                <WaveSection className="bg-card py-20 sm:py-24">
                     <motion.div
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true, margin: '-100px' }}
                         className="text-center mb-16"
                     >
-                        <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                            <Footprints className="h-4 w-4 text-emerald-400" />
+                        <motion.div variants={fadeUp} custom={0} className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                            <Icon className="text-[20px]">footprint</Icon>
                             Getting Started
                         </motion.div>
-                        <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-4xl font-bold text-white mb-4">
+                        <motion.h2 variants={fadeUp} custom={1} className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                             How It{' '}
-                            <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                            <span className="text-brand-600 dark:text-brand-300">
                                 Works
                             </span>
                         </motion.h2>
@@ -375,16 +384,16 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                     className="relative text-center"
                                 >
                                     <div className="relative mx-auto mb-6">
-                                        <div className={`mx-auto w-16 h-16 rounded-2xl ${item.bg} ${item.border} border flex items-center justify-center`}>
+                                        <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-sm ${item.bg}`}>
                                             <item.icon className={`h-7 w-7 ${item.color}`} />
                                         </div>
-                                        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#0a1320] border border-white/10 flex items-center justify-center">
+                                        <div className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-background shadow-theme-xs">
                                             <span className={`text-xs font-bold ${item.color}`}>{item.step}</span>
                                         </div>
                                     </div>
 
-                                    <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
-                                    <p className="text-sm text-white/40 leading-relaxed max-w-xs mx-auto">{item.description}</p>
+                                    <h3 className="mb-2 text-lg font-semibold text-foreground">{item.title}</h3>
+                                    <p className="mx-auto max-w-xs text-sm leading-6 text-muted-foreground">{item.description}</p>
                                 </motion.div>
                             ))}
                         </div>
@@ -393,24 +402,24 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
 
                 {/* Upcoming Workshops — Expandable Cards */}
                 {upcomingWorkshops.length > 0 && (
-                    <WaveSection id="upcoming" className="py-16 md:py-24">
+                    <WaveSection id="upcoming" className="bg-background py-20 sm:py-24">
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true, margin: '-100px' }}
                             className="text-center mb-12"
                         >
-                            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                                <Calendar className="h-4 w-4 text-emerald-400" />
+                            <motion.div variants={fadeUp} custom={0} className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                                <Icon className="text-[20px]">event_upcoming</Icon>
                                 Coming Up
                             </motion.div>
-                            <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-4xl font-bold text-white mb-4">
+                            <motion.h2 variants={fadeUp} custom={1} className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                                 Upcoming{' '}
-                                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                                <span className="text-brand-600 dark:text-brand-300">
                                     Workshops
                                 </span>
                             </motion.h2>
-                            <motion.p variants={fadeUp} custom={2} className="text-white/50 text-lg max-w-xl mx-auto">
+                            <motion.p variants={fadeUp} custom={2} className="mx-auto max-w-xl text-lg leading-7 text-muted-foreground">
                                 Click a workshop to see what you&apos;ll learn and how to prepare.
                             </motion.p>
                         </motion.div>
@@ -436,13 +445,13 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                         >
                                             <button
                                                 onClick={() => setExpandedId(isExpanded ? null : workshop.id)}
-                                                className="w-full text-left rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/[0.06]"
+                                                className="w-full rounded-sm bg-card/80 text-left shadow-theme-xs backdrop-blur-sm transition-all hover:bg-card hover:shadow-theme-sm dark:bg-card/70"
                                             >
                                                 <div className="p-6">
                                                     <div className="flex items-start justify-between gap-4">
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-3 mb-2">
-                                                                <h3 className="text-base font-semibold text-white">
+                                                                <h3 className="text-base font-semibold text-foreground">
                                                                     {workshop.title}
                                                                 </h3>
                                                                 {workshop.is_full ? (
@@ -457,12 +466,12 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                                             </div>
 
                                                             {workshop.description && (
-                                                                <p className="text-sm text-white/40 line-clamp-1 mb-3">
+                                                                <p className="mb-3 line-clamp-1 text-sm text-muted-foreground">
                                                                     {workshop.description}
                                                                 </p>
                                                             )}
 
-                                                            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/40">
+                                                            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
                                                                 <span className="flex items-center gap-1.5">
                                                                     <Calendar className="h-3.5 w-3.5 text-emerald-400" />
                                                                     {formatWorkshopDate(workshop.start_date)}
@@ -493,7 +502,7 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                                             </div>
                                                         </div>
 
-                                                        <ChevronDown className={`h-5 w-5 text-white/30 shrink-0 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                                                        <Icon className={`shrink-0 text-[20px] text-muted-foreground transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</Icon>
                                                     </div>
                                                 </div>
                                             </button>
@@ -508,11 +517,11 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                                         className="overflow-hidden"
                                                     >
                                                         <div className="px-6 pb-6 -mt-2">
-                                                            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                                                            <div className="rounded-sm bg-background/70 p-6 dark:bg-background/55">
                                                                 {/* Categories */}
                                                                 {workshop.categories.length > 0 && (
                                                                     <div className="mb-5">
-                                                                        <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-3">
+                                                                        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                                                                             Topics Covered
                                                                         </p>
                                                                         <div className="flex flex-wrap gap-2">
@@ -536,10 +545,10 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                                                 {/* Learning Objectives */}
                                                                 {workshop.learning_objectives && (
                                                                     <div className="mb-5">
-                                                                        <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-2">
+                                                                        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                                                                             What You&apos;ll Learn
                                                                         </p>
-                                                                        <p className="text-sm text-white/60 leading-relaxed whitespace-pre-line">
+                                                                        <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
                                                                             {workshop.learning_objectives}
                                                                         </p>
                                                                     </div>
@@ -548,10 +557,10 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                                                 {/* Requirements */}
                                                                 {workshop.requirements && (
                                                                     <div className="mb-5">
-                                                                        <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-2">
+                                                                        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                                                                             Requirements
                                                                         </p>
-                                                                        <p className="text-sm text-white/60 leading-relaxed whitespace-pre-line">
+                                                                        <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
                                                                             {workshop.requirements}
                                                                         </p>
                                                                     </div>
@@ -559,22 +568,22 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
 
                                                                 {/* What You'll Gain */}
                                                                 <div className="mb-5">
-                                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-3">
+                                                                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                                                                         Why Attend
                                                                     </p>
                                                                     <div className="grid sm:grid-cols-2 gap-3">
                                                                         {workshopBenefits.map((benefit) => (
                                                                             <div key={benefit.text} className="flex items-start gap-2.5">
                                                                                 <benefit.icon className="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" />
-                                                                                <span className="text-sm text-white/60">{benefit.text}</span>
+                                                                                <span className="text-sm text-muted-foreground">{benefit.text}</span>
                                                                             </div>
                                                                         ))}
                                                                     </div>
                                                                 </div>
 
                                                                 {/* Info */}
-                                                                <div className="pt-4 border-t border-white/5">
-                                                                    <p className="text-xs text-white/30">
+                                                                <div className="pt-4">
+                                                                    <p className="text-xs text-muted-foreground">
                                                                         {workshop.registration_required ? 'Registration required' : 'Open to all members'}
                                                                         {spotsLeft !== null && spotsLeft > 0 && ` — ${spotsLeft} spots remaining`}
                                                                     </p>
@@ -594,24 +603,24 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
 
                 {/* Past Highlights */}
                 {pastHighlights.length > 0 && (
-                    <WaveSection className="py-16 md:py-24">
+                    <WaveSection className="bg-card py-20 sm:py-24">
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true, margin: '-100px' }}
                             className="text-center mb-12"
                         >
-                            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                                <Award className="h-4 w-4 text-amber-400" />
+                            <motion.div variants={fadeUp} custom={0} className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                                <Icon className="text-[20px]">workspace_premium</Icon>
                                 Past Workshops
                             </motion.div>
-                            <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-4xl font-bold text-white mb-4">
+                            <motion.h2 variants={fadeUp} custom={1} className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                                 Recent{' '}
-                                <span className="bg-gradient-to-r from-amber-400 to-orange-300 bg-clip-text text-transparent">
+                                <span className="text-brand-600 dark:text-brand-300">
                                     Highlights
                                 </span>
                             </motion.h2>
-                            <motion.p variants={fadeUp} custom={2} className="text-white/50 text-lg max-w-xl mx-auto">
+                            <motion.p variants={fadeUp} custom={2} className="mx-auto max-w-xl text-lg leading-7 text-muted-foreground">
                                 A look at workshops we&apos;ve run and the impact they made.
                             </motion.p>
                         </motion.div>
@@ -631,30 +640,30 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                     variants={fadeUp}
                                     custom={i}
                                 >
-                                    <div className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm flex flex-col">
+                                    <div className="flex h-full flex-col rounded-sm bg-background/75 p-6 shadow-theme-xs backdrop-blur-sm dark:bg-background/55">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="rounded-xl p-2 bg-emerald-500/10 border border-emerald-500/20">
+                                            <div className="rounded-sm bg-brand-50 p-2 dark:bg-brand-500/10">
                                                 <BookOpen className="h-5 w-5 text-emerald-400" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-semibold text-white line-clamp-2">{workshop.title}</h3>
-                                                <p className="text-[11px] text-white/40">
+                                                <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{workshop.title}</h3>
+                                                <p className="text-[11px] text-muted-foreground">
                                                     {new Date(workshop.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </p>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3 mt-auto">
-                                            <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center">
-                                                <p className="text-lg font-bold text-white">{workshop.registered_count}</p>
-                                                <p className="text-[10px] text-white/40 uppercase tracking-wider">Attended</p>
+                                            <div className="rounded-sm bg-card/80 p-3 text-center dark:bg-card/70">
+                                                <p className="text-lg font-bold text-foreground">{workshop.registered_count}</p>
+                                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Attended</p>
                                             </div>
-                                            <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center">
+                                            <div className="rounded-sm bg-card/80 p-3 text-center dark:bg-card/70">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-                                                    <p className="text-lg font-bold text-white">{workshop.average_rating > 0 ? workshop.average_rating : '—'}</p>
+                                                    <p className="text-lg font-bold text-foreground">{workshop.average_rating > 0 ? workshop.average_rating : '—'}</p>
                                                 </div>
-                                                <p className="text-[10px] text-white/40 uppercase tracking-wider">Rating</p>
+                                                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Rating</p>
                                             </div>
                                         </div>
                                     </div>
@@ -666,20 +675,20 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
 
                 {/* Instructors */}
                 {topInstructors.length > 0 && (
-                    <WaveSection className="py-16 md:py-24">
+                    <WaveSection className="bg-background py-20 sm:py-24">
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true, margin: '-100px' }}
                             className="text-center mb-12"
                         >
-                            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                                <GraduationCap className="h-4 w-4 text-indigo-400" />
+                            <motion.div variants={fadeUp} custom={0} className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                                <Icon className="text-[20px]">co_present</Icon>
                                 Our Instructors
                             </motion.div>
-                            <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-4xl font-bold text-white mb-4">
+                            <motion.h2 variants={fadeUp} custom={1} className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                                 Learn From the{' '}
-                                <span className="bg-gradient-to-r from-indigo-400 to-violet-300 bg-clip-text text-transparent">
+                                <span className="text-brand-600 dark:text-brand-300">
                                     Best
                                 </span>
                             </motion.h2>
@@ -691,25 +700,23 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                             viewport={{ once: true, margin: '-50px' }}
                             className="max-w-2xl mx-auto"
                         >
-                            <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden">
+                            <div className="overflow-hidden rounded-sm bg-card/80 shadow-theme-xs backdrop-blur-sm dark:bg-card/70">
                                 {topInstructors.map((instructor, i) => (
                                     <motion.div
                                         key={instructor.name}
                                         variants={fadeUp}
                                         custom={i}
-                                        className={`flex items-center gap-4 px-6 py-4 ${
-                                            i !== topInstructors.length - 1 ? 'border-b border-white/5' : ''
-                                        }`}
+                                        className="flex items-center gap-4 px-6 py-4"
                                     >
-                                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/10 flex items-center justify-center shrink-0">
-                                            <span className="text-sm font-bold text-white">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/10">
+                                            <span className="text-sm font-bold text-brand-600 dark:text-brand-300">
                                                 {instructor.name.split(' ').map((n) => n[0]).join('')}
                                             </span>
                                         </div>
 
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold text-white truncate">{instructor.name}</p>
-                                            <p className="text-xs text-white/40">
+                                            <p className="truncate text-sm font-semibold text-foreground">{instructor.name}</p>
+                                            <p className="text-xs text-muted-foreground">
                                                 {instructor.workshops_count} workshop{instructor.workshops_count !== 1 ? 's' : ''} taught
                                             </p>
                                         </div>
@@ -717,11 +724,11 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                         <div className="text-right shrink-0">
                                             <div className="flex items-center gap-1 justify-end">
                                                 <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                                                <p className="text-sm font-bold text-white">
+                                                <p className="text-sm font-bold text-foreground">
                                                     {instructor.average_rating > 0 ? instructor.average_rating : '—'}
                                                 </p>
                                             </div>
-                                            <p className="text-[10px] text-white/30 uppercase tracking-wider">
+                                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                                                 {instructor.total_feedback} review{instructor.total_feedback !== 1 ? 's' : ''}
                                             </p>
                                         </div>
@@ -733,20 +740,20 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                 )}
 
                 {/* FAQ */}
-                <WaveSection className="py-16 md:py-24">
+                <WaveSection className="bg-card py-20 sm:py-24">
                     <motion.div
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true, margin: '-100px' }}
                         className="text-center mb-12"
                     >
-                        <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                        <motion.div variants={fadeUp} custom={0} className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                            <Icon className="text-[20px]">quiz</Icon>
                             Common Questions
                         </motion.div>
-                        <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-4xl font-bold text-white mb-4">
+                        <motion.h2 variants={fadeUp} custom={1} className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                             Frequently{' '}
-                            <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                            <span className="text-brand-600 dark:text-brand-300">
                                 Asked
                             </span>
                         </motion.h2>
@@ -765,18 +772,14 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                     key={faq.question}
                                     variants={fadeUp}
                                     custom={i}
-                                    className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden"
+                                    className="overflow-hidden rounded-sm bg-background/75 shadow-theme-xs backdrop-blur-sm dark:bg-background/55"
                                 >
                                     <button
                                         onClick={() => setOpenFaq(isOpen ? null : i)}
                                         className="w-full flex items-center justify-between gap-4 p-5 text-left"
                                     >
-                                        <span className="text-sm font-medium text-white">{faq.question}</span>
-                                        {isOpen ? (
-                                            <ChevronUp className="h-4 w-4 text-white/40 shrink-0" />
-                                        ) : (
-                                            <ChevronDown className="h-4 w-4 text-white/40 shrink-0" />
-                                        )}
+                                        <span className="text-sm font-medium text-foreground">{faq.question}</span>
+                                        <Icon className={`shrink-0 text-[20px] text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>expand_more</Icon>
                                     </button>
                                     <AnimatePresence>
                                         {isOpen && (
@@ -788,7 +791,7 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                                                 className="overflow-hidden"
                                             >
                                                 <div className="px-5 pb-5 -mt-1">
-                                                    <p className="text-sm text-white/40 leading-relaxed">{faq.answer}</p>
+                                                    <p className="text-sm leading-6 text-muted-foreground">{faq.answer}</p>
                                                 </div>
                                             </motion.div>
                                         )}
@@ -800,38 +803,38 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                 </WaveSection>
 
                 {/* CTA */}
-                <WaveSection className="pb-24 pt-16 md:pb-40 md:pt-32">
+                <WaveSection className="bg-background py-20 sm:py-24">
                     <div className="relative">
                         <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 via-teal-500/5 to-transparent rounded-3xl blur-3xl" />
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true, margin: '-100px' }}
-                            className="relative mx-auto max-w-3xl text-center rounded-3xl border border-white/10 bg-white/[0.02] px-6 py-10 sm:px-8 sm:py-16 backdrop-blur-sm"
+                            className="relative mx-auto max-w-3xl rounded-sm bg-brand-600 px-6 py-10 text-center text-white shadow-theme-lg sm:px-8 sm:py-16"
                         >
-                            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                                <Zap className="h-4 w-4 text-emerald-400" />
+                            <motion.div variants={fadeUp} custom={0} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-100">
+                                <Icon className="text-[20px]">rocket_launch</Icon>
                                 Ready to Learn?
                             </motion.div>
-                            <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-5xl font-bold text-white mb-4">
+                            <motion.h2 variants={fadeUp} custom={1} className="mb-4 text-3xl font-bold text-white md:text-5xl">
                                 Start Your{' '}
-                                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                                <span className="text-brand-100">
                                     Journey
                                 </span>
                             </motion.h2>
-                            <motion.p variants={fadeUp} custom={2} className="text-white/50 text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+                            <motion.p variants={fadeUp} custom={2} className="mx-auto mb-8 max-w-xl text-lg leading-7 text-brand-100">
                                 Join SLAU-CSIC and get access to weekly hands-on workshops,
                                 mentorship, and a community of builders and security enthusiasts.
                             </motion.p>
                             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Link href="/auth/register">
-                                    <Button size="lg" className="group gap-2 rounded-full px-8 text-base uppercase tracking-[0.2em] bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25">
+                                    <Button size="lg" className="group min-h-12 gap-2 rounded-sm bg-white px-6 py-3 text-sm font-semibold text-brand-700 shadow-theme-sm hover:bg-brand-50">
                                         Join SLAU-CSIC
-                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                        <Icon className="text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</Icon>
                                     </Button>
                                 </Link>
                                 <Link href="/events">
-                                    <Button size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5 px-8 text-base text-white/80 backdrop-blur transition-all hover:border-white/40 hover:bg-white/10">
+                                    <Button size="lg" variant="outline" className="min-h-12 rounded-sm border-white/30 bg-transparent px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/10 hover:text-white">
                                         View All Events
                                     </Button>
                                 </Link>
@@ -839,7 +842,7 @@ export default function WorkshopLanding({ upcomingWorkshops, categories, pastHig
                         </motion.div>
                     </div>
                 </WaveSection>
-            </GlowyWavesBackground>
+            </div>
         </PublicLayout>
     );
 }

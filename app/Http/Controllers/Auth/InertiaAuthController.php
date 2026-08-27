@@ -11,6 +11,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
@@ -33,32 +34,39 @@ class InertiaAuthController extends Controller
 
     public function login(Request $request): RedirectResponse|\Illuminate\Http\Response
     {
-        $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+        $credentials = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
             'remember' => ['boolean'],
         ]);
 
-        $key = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
+        $accountKey = $this->loginAccountRateLimitKey($request);
+        $ipKey = $this->loginIpRateLimitKey($request);
 
-        if (RateLimiter::tooManyAttempts($key, 5)) {
+        if (RateLimiter::tooManyAttempts($accountKey, 5) || RateLimiter::tooManyAttempts($ipKey, 20)) {
+            $seconds = max(RateLimiter::availableIn($accountKey), RateLimiter::availableIn($ipKey));
+
             throw ValidationException::withMessages([
                 'email' => __('auth.throttle', [
-                    'seconds' => RateLimiter::availableIn($key),
-                    'minutes' => ceil(RateLimiter::availableIn($key) / 60),
+                    'seconds' => $seconds,
+                    'minutes' => ceil($seconds / 60),
                 ]),
             ]);
         }
 
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-            RateLimiter::hit($key);
+        if (! Auth::attempt([
+            'email' => $credentials['email'],
+            'password' => $credentials['password'],
+        ], $request->boolean('remember'))) {
+            RateLimiter::hit($accountKey, 60);
+            RateLimiter::hit($ipKey, 60);
 
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         }
 
-        RateLimiter::clear($key);
+        RateLimiter::clear($accountKey);
 
         $request->session()->regenerate();
 
@@ -70,7 +78,8 @@ class InertiaAuthController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            RateLimiter::hit($key);
+            RateLimiter::hit($accountKey, 60);
+            RateLimiter::hit($ipKey, 60);
 
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
@@ -89,7 +98,7 @@ class InertiaAuthController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'registration_number' => ['required', 'string', 'max:50', 'unique:users,registration_number', 'regex:/^[A-Za-z]+\/\d{2}[DW]\/[A-Za-z]\/[A-Za-z]\d+[A-Za-z]?$/'],
@@ -135,33 +144,38 @@ class InertiaAuthController extends Controller
             'password.confirmed' => 'Passwords do not match.',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'registration_number' => $request->registration_number,
-            'joined_at' => now(),
-            'membership_status' => 'pending',
-            'membership_type' => 'active',
-            'intake' => $request->intake,
-            'intake_year' => $request->intake_year,
-        ]);
+        $user = DB::transaction(function () use ($validated): User {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'registration_number' => $validated['registration_number'],
+                'joined_at' => now(),
+                'membership_status' => 'pending',
+                'membership_type' => 'active',
+                'intake' => $validated['intake'],
+                'intake_year' => $validated['intake_year'],
+            ]);
 
-        $user->memberProfile()->create([
-            'phone' => $request->phone,
-            'program' => $request->program,
-            'faculty' => $request->faculty,
-            'year_of_study' => $request->year_of_study,
-        ]);
+            $user->memberProfile()->create([
+                'phone' => $validated['phone'],
+                'program' => $validated['program'],
+                'faculty' => $validated['faculty'],
+                'year_of_study' => $validated['year_of_study'],
+            ]);
 
-        $user->socialLinks()->create();
-        $user->privacy()->create();
+            $user->socialLinks()->create();
+            $user->privacy()->create();
 
-        $this->membershipService->registerPending($user, $request->all());
+            $this->membershipService->registerPending($user);
+
+            return $user;
+        });
 
         event(new Registered($user));
 
         Auth::login($user);
+        $request->session()->regenerate();
 
         return redirect()->route('verification.notice');
     }
@@ -177,15 +191,9 @@ class InertiaAuthController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        $status = Password::sendResetLink($request->only('email'));
+        Password::sendResetLink($request->only('email'));
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('status', __($status));
-        }
-
-        throw ValidationException::withMessages([
-            'email' => __($status),
-        ]);
+        return back()->with('status', __('If an account exists for that email, a password reset link has been sent.'));
     }
 
     public function logout(Request $request): RedirectResponse
@@ -251,5 +259,17 @@ class InertiaAuthController extends Controller
         $request->user()->sendEmailVerificationNotification();
 
         return back()->with('status', 'verification-code-sent');
+    }
+
+    protected function loginAccountRateLimitKey(Request $request): string
+    {
+        $email = Str::lower(Str::transliterate((string) $request->input('email')));
+
+        return 'login:account:'.hash('sha256', $email);
+    }
+
+    protected function loginIpRateLimitKey(Request $request): string
+    {
+        return 'login:ip:'.hash('sha256', (string) $request->ip());
     }
 }

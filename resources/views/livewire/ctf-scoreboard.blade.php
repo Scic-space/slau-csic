@@ -1,9 +1,9 @@
 <div wire:poll.{{ $pollInterval }}s>
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr class="border-b border-gray-200 dark:border-gray-700">
+                <tr class="border-b border-gray-200 dark:border-border">
                     <th class="pb-3 text-left font-medium text-gray-500 w-16">Rank</th>
                     <th class="pb-3 text-left font-medium text-gray-500">{{ $competition->allow_teams && $viewMode !== 'individual' ? 'Team' : 'Player' }}</th>
                     <th class="pb-3 text-right font-medium text-gray-500">Score</th>
@@ -15,7 +15,7 @@
                 @php
                     $isCurrentUser = isset($entry['user_id']) && $entry['user_id'] === auth()->id();
                 @endphp
-                <tr class="border-b border-gray-100 dark:border-gray-800 {{ $isCurrentUser ? 'bg-emerald-50 dark:bg-emerald-900/10' : '' }}">
+                <tr class="border-b border-gray-100 dark:border-border {{ $isCurrentUser ? 'bg-emerald-50 dark:bg-emerald-900/10' : '' }}">
                     <td class="py-3">
                         <span class="inline-flex h-7 w-7 items-center justify-center rounded-md text-xs font-semibold text-white
                             @if($entry['rank'] === 1) bg-yellow-500

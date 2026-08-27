@@ -3,7 +3,7 @@
 
         @if ($unreadNotificationCount > 0)
             <div class="mb-4 flex justify-end">
-                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                <span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 shadow-sm dark:border-border dark:bg-card dark:text-gray-300">
                     <span class="flex h-2 w-2 rounded-full bg-amber-500"></span>
                     {{ $unreadNotificationCount }} unread
                 </span>
@@ -103,21 +103,21 @@
 
         {{-- KPIs --}}
         <div class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
-            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Events Attended</p>
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">event</span>
                 </div>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['events_attended'] }}</p>
             </div>
-            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Sessions</p>
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">event_available</span>
                 </div>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['total_sessions'] }}</p>
             </div>
-            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Streak</p>
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">local_fire_department</span>
@@ -127,21 +127,21 @@
                     <p class="text-[11px] text-gray-400 dark:text-gray-500">Best: {{ $stats['longest_streak'] }}d</p>
                 @endif
             </div>
-            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Points</p>
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">stars</span>
                 </div>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['score'] }}</p>
             </div>
-            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Attendance Rate</p>
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">fact_check</span>
                 </div>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['attendance_rate'] }}<span class="text-base font-normal text-gray-400 dark:text-gray-500">%</span></p>
             </div>
-            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Competitions</p>
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">emoji_events</span>
@@ -161,14 +161,14 @@
         @if ($hasAlerts)
             <div class="mb-5 flex flex-wrap gap-2">
                 @if ($unreadNotifications->isNotEmpty())
-                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-border dark:bg-card">
                         <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                         <span class="text-xs font-medium text-gray-900 dark:text-white">{{ $unreadNotificationCount }}</span>
                         <span class="text-xs text-gray-500 dark:text-gray-400">notification{{ $unreadNotificationCount !== 1 ? 's' : '' }}</span>
                         <div class="ml-0.5 flex gap-0.5">
                             @foreach ($unreadNotifications->take(2) as $notification)
                                 <button wire:click="markNotificationAsRead({{ $notification->id }})"
-                                        class="rounded px-1 py-0.5 text-[10px] text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                                        class="rounded px-1 py-0.5 text-[10px] text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-card-hover dark:hover:text-gray-300"
                                         title="Dismiss: {{ $notification->title }}">✕</button>
                             @endforeach
                         </div>
@@ -176,7 +176,7 @@
                 @endif
 
                 @if ($activeElections->isNotEmpty())
-                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-border dark:bg-card">
                         <span class="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
                         <span class="text-xs font-medium text-gray-900 dark:text-white">{{ $activeElections->count() }}</span>
                         <span class="text-xs text-gray-500 dark:text-gray-400">election{{ $activeElections->count() !== 1 ? 's' : '' }}</span>
@@ -186,7 +186,7 @@
 
                 @php $firstMeeting = $joinableMeetings->first(); @endphp
                 @if ($firstMeeting)
-                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-border dark:bg-card">
                         <span class="h-1.5 w-1.5 rounded-full {{ $firstMeeting->attendance_open ? 'bg-green-500' : 'bg-gray-400' }}"></span>
                         <span class="text-xs font-medium text-gray-900 dark:text-white">{{ $firstMeeting->scheduled_at->format('D, g:i A') }}</span>
                         @if ($joinableMeetings->count() > 1)
@@ -200,7 +200,7 @@
                 @endif
 
                 @if ($finesSummary['pending_count'] > 0 || $finesSummary['overdue_count'] > 0)
-                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-border dark:bg-card">
                         <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
                         <span class="text-xs font-medium text-gray-900 dark:text-white">${{ number_format($finesSummary['total_outstanding'], 2) }}</span>
                         <span class="text-xs text-gray-500 dark:text-gray-400">due</span>
@@ -211,7 +211,7 @@
                 @endif
 
                 @if ($user->htb_username)
-                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-border dark:bg-card">
                         @if ($user->htb_profile_data)
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                         @else
@@ -231,8 +231,8 @@
         <div class="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
 
             {{-- Events card --}}
-            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
                     <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                         <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">calendar_month</span>
                         Upcoming Events
@@ -265,8 +265,8 @@
             </div>
 
             {{-- Training card --}}
-            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
                     <div>
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                             <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">school</span>
@@ -291,7 +291,7 @@
                         </div>
                     @else
                         @if ($stats['club_portal_active_tracks'] > 0)
-                            <div class="mb-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900">
+                            <div class="mb-3 rounded-lg border border-gray-100 bg-background px-3 py-2.5 dark:border-border">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Club Resources</span>
                                     <span class="text-[11px] text-gray-500 dark:text-gray-400">{{ $stats['club_portal_active_tracks'] }} active · {{ $stats['club_portal_completed_tracks'] }} completed</span>
@@ -334,8 +334,8 @@
             </div>
 
             {{-- Achievements card --}}
-            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
                     <div>
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                             <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">military_tech</span>
@@ -358,7 +358,7 @@
                     @else
                         <div class="flex flex-wrap gap-2">
                             @foreach ($user->earnedBadges as $badge)
-                                <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 dark:border-gray-700 dark:bg-gray-900" title="{{ $badge->description }}">
+                                <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-background px-3 py-1.5 dark:border-border" title="{{ $badge->description }}">
                                     <span class="text-lg">{{ $badge->icon }}</span>
                                     <div>
                                         <p class="text-xs font-medium text-gray-900 dark:text-white">{{ $badge->name }}</p>
@@ -376,8 +376,8 @@
         </div>
 
         {{-- Club Activity --}}
-        <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+        <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+            <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                 <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">history</span>
                     Club Activity

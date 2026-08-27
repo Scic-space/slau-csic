@@ -23,11 +23,8 @@
     </script>
     <style>
         html, body { background-color: #f9fafb; }
-        html.dark, html.dark body { background-color: #101828; }
+        html.dark, html.dark body { background-color: oklch(18% 0.035 255); }
     </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
     @livewireStyles
     @filamentStyles
@@ -72,11 +69,11 @@
                     if (this.theme === 'dark') {
                         html.classList.add('dark');
                         html.dataset.theme = 'dark';
-                        body.classList.add('dark', 'bg-gray-900');
+                        body.classList.add('dark');
                     } else {
                         html.classList.remove('dark');
                         html.dataset.theme = 'light';
-                        body.classList.remove('dark', 'bg-gray-900');
+                        body.classList.remove('dark');
                     }
                 }
             });
@@ -160,9 +157,9 @@
             const applyBodyTheme = () => {
                 if (!document.body) return;
                 if (theme === 'dark') {
-                    document.body.classList.add('dark', 'bg-gray-900');
+                    document.body.classList.add('dark');
                 } else {
-                    document.body.classList.remove('dark', 'bg-gray-900');
+                    document.body.classList.remove('dark');
                 }
             };
 
@@ -182,11 +179,11 @@
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
                 document.documentElement.dataset.theme = 'dark';
-                document.body.classList.add('dark', 'bg-gray-900');
+                document.body.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
                 document.documentElement.dataset.theme = 'light';
-                document.body.classList.remove('dark', 'bg-gray-900');
+                document.body.classList.remove('dark');
             }
         });
 
@@ -198,11 +195,11 @@
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
                 document.documentElement.dataset.theme = 'dark';
-                document.body.classList.add('dark', 'bg-gray-900');
+                document.body.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
                 document.documentElement.dataset.theme = 'light';
-                document.body.classList.remove('dark', 'bg-gray-900');
+                document.body.classList.remove('dark');
             }
 
             requestAnimationFrame(() => document.documentElement.classList.remove('is-page-navigating'));
@@ -210,7 +207,7 @@
     </script>
 </head>
 
-<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100"
+<body class="bg-background text-foreground"
     x-data="{ 'loaded': true}"
     x-init="$store.sidebar.init();
     const checkMobile = () => {

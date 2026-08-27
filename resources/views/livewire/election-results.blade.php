@@ -20,14 +20,14 @@
                 'closed' => 'Awaiting Publication',
             ] as $key => $label)
                 <button wire:click="setFilter('{{ $key }}')"
-                    class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors {{ $filter === $key ? 'bg-brand-500 text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700' }}">
+                    class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors {{ $filter === $key ? 'bg-brand-500 text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-400 dark:hover:bg-card-hover' }}">
                     {{ $label }}
                 </button>
             @endforeach
         </div>
 
         @if ($elections->isEmpty())
-            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-border dark:bg-card">
                 <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -39,9 +39,9 @@
         @else
             <div class="space-y-3">
                 @foreach ($elections as $election)
-                    <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
+                    <div class="rounded-xl border border-gray-200 bg-white dark:border-border dark:bg-card overflow-hidden">
                         {{-- Election Header --}}
-                        <div class="border-b border-gray-100 p-6 dark:border-gray-700">
+                        <div class="border-b border-gray-100 p-6 dark:border-border">
                             <div class="flex flex-wrap items-start justify-between gap-4">
                                 <div>
                                     <p class="text-xs font-semibold uppercase tracking-widest text-emerald-500">{{ $election['position'] }}</p>
@@ -129,7 +129,7 @@
                             </div>
                         @else
                             <div class="p-6 text-center">
-                                <div class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-400">
+                                <div class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-background px-4 py-3 text-sm text-gray-500 dark:border-border dark:bg-background/60 dark:text-gray-400">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                     Results have not been published yet.
                                 </div>

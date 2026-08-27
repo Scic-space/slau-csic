@@ -14,6 +14,16 @@ interface NavBarProps {
   className?: string
 }
 
+function NavLabel({ name }: { name: string }) {
+  return (
+    <span className="relative grid" aria-label={name}>
+      <span className="invisible col-start-1 row-start-1 uppercase" aria-hidden="true">{name}</span>
+      <span className="col-start-1 row-start-1 transition-opacity duration-200 group-hover:opacity-0" aria-hidden="true">{name}</span>
+      <span className="col-start-1 row-start-1 uppercase opacity-0 transition-opacity duration-200 group-hover:opacity-100" aria-hidden="true">{name}</span>
+    </span>
+  )
+}
+
 export function NavBar({ items, className }: NavBarProps) {
   const { url } = usePage()
   const [activeTab, setActiveTab] = useState(items[0]?.name ?? "")
@@ -35,8 +45,8 @@ export function NavBar({ items, className }: NavBarProps) {
   return (
     <>
       {/* Desktop pill nav */}
-      <div className={cn("hidden md:flex items-center", className)}>
-        <div className="flex items-center gap-1 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg">
+      <div className={cn("hidden lg:flex items-center", className)}>
+        <div className="flex items-center gap-1 xl:gap-2">
           {items.map((item) => {
             const isActive = activeTab === item.name
 
@@ -46,12 +56,13 @@ export function NavBar({ items, className }: NavBarProps) {
                 href={item.url}
                 onClick={() => setActiveTab(item.name)}
                 className={cn(
-                  "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
+                  "group relative flex min-h-10 items-center cursor-pointer rounded-sm px-2.5 py-2 text-sm font-medium transition-colors duration-200 xl:px-3",
                   "text-foreground/80 hover:text-primary",
-                  isActive && "bg-muted text-primary",
+                  isActive && "bg-primary/10 text-primary",
+                  (item.name === "Sign In" || item.name === "Join Us") && "hidden",
                 )}
               >
-                <span>{item.name}</span>
+                <NavLabel name={item.name} />
                 {isActive && (
                   <motion.div
                     layoutId="lamp"
@@ -77,10 +88,10 @@ export function NavBar({ items, className }: NavBarProps) {
       </div>
 
       {/* Mobile hamburger */}
-      <div className="relative md:hidden">
+      <div className="relative justify-self-end lg:hidden">
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-background/5 border border-border backdrop-blur-lg text-foreground/80 hover:text-foreground transition-colors"
+          className="flex h-10 w-10 items-center justify-center rounded-sm border border-border bg-background text-foreground/80 transition-colors hover:text-foreground"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -101,7 +112,7 @@ export function NavBar({ items, className }: NavBarProps) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -12, scale: 0.95 }}
                 transition={{ duration: 0.15, ease: "easeOut" }}
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-3 z-50 w-64 rounded-2xl border border-border bg-background/95 backdrop-blur-xl p-2 shadow-2xl"
+                className="fixed inset-x-4 top-16 z-50 rounded-sm border border-border bg-card p-3 shadow-theme-xl sm:left-auto sm:right-6 sm:w-72"
               >
                 <nav className="flex flex-col gap-1">
                   {items.map((item) => {
@@ -115,13 +126,13 @@ export function NavBar({ items, className }: NavBarProps) {
                           setMobileOpen(false)
                         }}
                         className={cn(
-                          "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
+                          "group flex min-h-11 items-center rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
                           isActive
                             ? "bg-primary/10 text-primary"
                             : "text-foreground/70 hover:text-foreground hover:bg-accent/50"
                         )}
                       >
-                        {item.name}
+                        <NavLabel name={item.name} />
                       </a>
                     )
                   })}

@@ -6,7 +6,7 @@
             </a>
         </div>
 
-        <div class="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 text-center dark:border-gray-700 dark:bg-gray-800">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 sm:p-8 text-center dark:border-border dark:bg-card">
             <div class="text-5xl sm:text-6xl font-bold {{ ($attempt['passed'] ?? false) ? 'text-green-600' : 'text-red-600' }}">
                 {{ $attempt['total_score'] ?? 0 }}%
             </div>
@@ -34,8 +34,8 @@
             </div>
         @endif
 
-        <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+        <div class="rounded-xl border border-gray-200 bg-white dark:border-border dark:bg-card">
+            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-border">
                 <h2 class="font-semibold text-gray-900 dark:text-white">Answer Review</h2>
                 <button wire:click="toggleAnswers" class="rounded-lg bg-blue-100 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50">
                     {{ $showAnswers ? 'Hide Correct Answers' : 'Show Correct Answers' }}
@@ -50,7 +50,7 @@
                                 <p class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">Question {{ $i + 1 }}</p>
                                 <p class="text-gray-900 dark:text-white">{{ $answer['question']['question_text'] }}</p>
                                 @if ($answer['question']['image'])
-                                    <img src="{{ $answer['question']['image'] }}" alt="Question image" class="mt-2 max-w-full rounded-lg border border-gray-200 dark:border-gray-700" style="max-height: 300px">
+                                    <img src="{{ $answer['question']['image'] }}" alt="Question image" class="mt-2 max-w-full rounded-lg border border-gray-200 dark:border-border" style="max-height: 300px">
                                 @endif
                                 @if ($answer['question']['code_block'])
                                     <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-100 p-3 text-sm dark:bg-gray-700"><code>{{ $answer['question']['code_block'] }}</code></pre>
@@ -73,7 +73,7 @@
                                         $isSelected = $opt['id'] === $answer['selected_option_id'];
                                     @endphp
                                     <div class="rounded-lg border px-3 py-2 text-sm
-                                        {{ $opt['is_correct'] ? 'border-green-300 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-900/20 dark:text-green-300' : ($isSelected ? 'border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300' : 'border-gray-200 text-gray-700 dark:border-gray-600 dark:text-gray-300') }}">
+                                        {{ $opt['is_correct'] ? 'border-green-300 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-900/20 dark:text-green-300' : ($isSelected ? 'border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300' : 'border-gray-200 text-gray-700 dark:border-border dark:text-gray-300') }}">
                                         <span class="flex items-center gap-2">
                                             @if ($opt['is_correct'])<span class="text-green-600">&check;</span>@endif
                                             @if ($isSelected && !$opt['is_correct'])<span class="text-red-600">&cross;</span>@endif

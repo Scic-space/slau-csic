@@ -1,350 +1,93 @@
 import { Link } from '@inertiajs/react';
 import PublicLayout from '@/components/PublicLayout';
-import {
-    GlowyWavesBackground,
-    HeroContent,
-    WaveSection,
-} from '@/components/ui/glowy-waves-hero-shadcnui';
-import { Button } from '@/components/ui/button';
-import { PillarCard } from '@/components/ui/pillar-card';
-import { GlowCard } from '@/components/ui/spotlight-card';
-import { motion } from 'framer-motion';
-import {
-    ArrowRight,
-    Shield,
-    Terminal,
-    BookOpen,
-    Trophy,
-    Code2,
-    Network,
-    Zap,
-    Rocket,
-} from 'lucide-react';
-import { useState } from 'react';
-import EventDetailModal from '@/components/EventDetailModal';
-import AnnouncementDetailModal from '@/components/AnnouncementDetailModal';
 
 interface EventItem {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    type: string;
-    start_date: string;
-    end_date: string | null;
-    location: string | null;
-    skill_level: string | null;
-    is_recurring: boolean;
+    id: number; title: string; slug: string; description: string; type: string;
+    start_date: string; location: string | null;
     categories: { name: string; slug: string; color: string }[];
 }
 
-interface AnnouncementItem {
-    id: number;
-    title: string;
-    content: string;
-    type: string;
-    published_at: string | null;
-}
-
-interface Stats {
-    projects: number;
-    members: number;
-    events: number;
-}
+interface AnnouncementItem { id: number; title: string; content: string; }
 
 interface HomeProps {
     upcomingEvents: EventItem[];
     announcements: AnnouncementItem[];
-    stats: Stats;
+    stats: { projects: number; members: number; events: number };
 }
 
-const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.4, delay: i * 0.06, ease: 'easeOut' },
-    }),
-};
+const features = [
+    ['security', 'Cyber Security Training', 'Build practical defensive and offensive security skills through guided, hands-on sessions.', '/workshops'],
+    ['event', 'Events & Workshops', 'Learn from peers and industry practitioners at workshops, meetups, and technical events.', '/events'],
+    ['terminal', 'CTF Arena', 'Apply your skills to cryptography, forensics, web exploitation, and reverse engineering.', '/ctf-arena'],
+    ['lightbulb', 'Innovation & Projects', 'Collaborate on open-source tools and technology that solves meaningful campus problems.', '/projects'],
+    ['groups', 'Community', 'Find teammates, mentors, collaborators, and a network invested in your growth.', '/club-members'],
+    ['workspace_premium', 'Certifications', 'Track achievement through assessments, verifiable certificates, and practical milestones.', '/auth/login'],
+];
+
+const learning = [
+    ['school', 'Internal Classes', 'Structured sessions led by experienced club instructors.'],
+    ['quiz', 'Exams', 'Assess your understanding with focused practical evaluations.'],
+    ['monitoring', 'Grades', 'Follow your progress and identify your next focus area.'],
+    ['verified', 'Certificates', 'Earn proof of achievement as you complete milestones.'],
+    ['library_books', 'Resource Library', 'Access curated notes, tools, references, and materials.'],
+];
+
+function Icon({ children, className = '' }: { children: string; className?: string }) {
+    return <span className={`material-symbols-outlined ${className}`} aria-hidden="true">{children}</span>;
+}
+
+function Heading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+    return <div className="max-w-2xl"><p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">{eyebrow}</p><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{title}</h2><p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">{description}</p></div>;
+}
 
 export default function Home({ upcomingEvents, announcements, stats }: HomeProps) {
-    const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
-    const [selectedAnnouncement, setSelectedAnnouncement] = useState<AnnouncementItem | null>(null);
-    const pillars: {
-        icon: React.ComponentType<{ className?: string }>;
-        title: string;
-        description: string;
-        tags: string[];
-        frequency: string;
-        statValue?: string;
-        statLabel?: string;
-        accentColor: string;
-        accentBg: string;
-        accentBorder: string;
-        glowColor: 'blue' | 'purple' | 'green' | 'orange';
-        href: string;
-    }[] = [
-        {
-            icon: Terminal, title: 'CTF Competitions',
-            description: 'Hone your skills in capture-the-flag challenges spanning web exploitation, cryptography, reverse engineering, and forensics. Compete, learn, and earn your rank.',
-            tags: ['Security', 'CTF'], frequency: 'Seasonal',
-            statValue: String(stats.events), statLabel: 'active challenges this season',
-            accentColor: 'text-indigo-400', accentBg: 'bg-indigo-500/20', accentBorder: 'border-indigo-500/20',
-            glowColor: 'blue', href: '/ctf-arena',
-        },
-        {
-            icon: BookOpen, title: 'Hands-on Workshops',
-            description: 'Learn by doing. Our weekly workshops cover ethical hacking, network defense, coding, and emerging tech — no experience required.',
-            tags: ['Learning', 'Mentorship'], frequency: 'Weekly',
-            accentColor: 'text-emerald-400', accentBg: 'bg-emerald-500/20', accentBorder: 'border-emerald-500/20',
-            glowColor: 'green', href: '/workshops',
-        },
-        {
-            icon: Code2, title: 'Community Projects',
-            description: 'Collaborate on open-source tools, security utilities, and impactful campus solutions. Ship code that matters.',
-            tags: ['Collaboration', 'Impact'], frequency: 'Ongoing',
-            statValue: String(stats.projects), statLabel: 'active open-source projects',
-            accentColor: 'text-purple-400', accentBg: 'bg-purple-500/20', accentBorder: 'border-purple-500/20',
-            glowColor: 'purple', href: '/projects',
-        },
-        {
-            icon: Network, title: 'Networking & Industry',
-            description: 'Connect with cybersecurity professionals, alumni, and recruiters. Build relationships that launch careers.',
-            tags: ['Community', 'Growth'], frequency: 'Monthly',
-            statValue: String(stats.members), statLabel: 'members in our network',
-            accentColor: 'text-sky-400', accentBg: 'bg-sky-500/20', accentBorder: 'border-sky-500/20',
-            glowColor: 'orange', href: '/about',
-        },
-    ];
-
     return (
-        <PublicLayout transparentNav>
-            <GlowyWavesBackground>
-                {/* Section 1: Hero */}
-                <div>
-                    <HeroContent stats={stats} upcomingEvents={upcomingEvents} />
-                </div>
-
-                {/* Gradient divider */}
-                <div className="relative h-32 w-full overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent" />
-                </div>
-
-                {/* Section 2: What We Do — Pillars */}
-                <WaveSection className="py-16 md:py-32">
-                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="text-center mb-16">
-                        <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                            <Shield className="h-4 w-4 text-indigo-400" />
-                            The Arena
-                        </motion.div>
-                        <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-5xl font-bold text-white mb-4">
-                            What We <span className="bg-gradient-to-r from-indigo-400 to-violet-300 bg-clip-text text-transparent">Build</span> Together
-                        </motion.h2>
-                        <motion.p variants={fadeUp} custom={2} className="text-white/50 max-w-2xl mx-auto text-lg">
-                            Four ways we level up.
-                        </motion.p>
-                    </motion.div>
-                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {pillars.map((pillar, i) => (
-                            <motion.div key={pillar.title} variants={fadeUp} custom={i}>
-                                <PillarCard {...pillar} />
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </WaveSection>
-
-                {/* Section 3: Upcoming Events */}
-                {upcomingEvents.length > 0 && (
-                    <WaveSection id="upcoming-events" className="py-16 md:py-32">
-                        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="flex items-end justify-between mb-12">
-                            <div>
-                                <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-4">
-                                    <Trophy className="h-4 w-4 text-indigo-400" />
-                                    What&apos;s Happening
-                                </motion.div>
-                                <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-5xl font-bold text-white mb-2">
-                                    Upcoming <span className="bg-gradient-to-r from-indigo-400 to-violet-300 bg-clip-text text-transparent">Events</span>
-                                </motion.h2>
-                                <motion.p variants={fadeUp} custom={2} className="text-white/50 text-lg">
-                                    Workshops, competitions, and meetups — mark your calendar.
-                                </motion.p>
-                            </div>
-                        </motion.div>
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, margin: '-50px' }}
-                            className="grid grid-cols-1 gap-6 md:grid-cols-3"
-                        >
-                            {upcomingEvents.map((event, i) => (
-                                <motion.div key={event.id} variants={fadeUp} custom={i}>
-                                    <GlowCard glowColor="blue" customSize className="!p-0 !bg-transparent !border-0 !backdrop-blur-none !shadow-none !gap-0 h-full">
-                                        <button
-                                            onClick={() => setSelectedEvent(event)}
-                                            className="group block w-full rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm transition-all hover:border-indigo-500/30 hover:bg-white/[0.06] text-left cursor-pointer"
-                                        >
-                                            <div className="mb-4 flex items-center gap-3">
-                                                <div className="rounded-xl bg-indigo-500/20 px-4 py-2 text-center leading-tight border border-indigo-500/20">
-                                                    <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
-                                                        {new Date(event.start_date).toLocaleDateString('en-US', { month: 'short' })}
-                                                    </p>
-                                                    <p className="text-xl font-bold text-white">
-                                                        {new Date(event.start_date).getDate()}
-                                                    </p>
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <h3 className="line-clamp-2 text-sm font-semibold text-white transition-colors group-hover:text-indigo-400">
-                                                        {event.title}
-                                                    </h3>
-                                                    <p className="text-xs text-white/40">
-                                                        {new Date(event.start_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        <div className="mb-3 flex flex-wrap gap-1.5">
-                                            {event.categories.map((cat) => (
-                                                <span
-                                                    key={cat.name}
-                                                    className="rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-                                                    style={{ backgroundColor: cat.color + '25', color: cat.color }}
-                                                >
-                                                    {cat.name}
-                                                </span>
-                                            ))}
-                                            {event.is_recurring && (
-                                                <span className="rounded-full px-2.5 py-0.5 text-[11px] font-medium border-purple-500/20 bg-purple-500/10 text-purple-400">
-                                                    Recurring
-                                                </span>
-                                            )}
-                                        </div>
-                                        {event.location && (
-                                            <div className="flex items-center gap-1.5 text-xs text-white/40">
-                                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                <span className="truncate">{event.location}</span>
-                                            </div>
-                                        )}
-                                    </button>
-                                    </GlowCard>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                    </WaveSection>
-                )}
-
-                {/* Section 4: Latest News */}
-                {announcements.length > 0 && (
-                    <WaveSection className="py-16 md:py-32">
-                        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="mb-12">
-                            <div>
-                                <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-4">
-                                    <Zap className="h-4 w-4 text-indigo-400" />
-                                    Latest
-                                </motion.div>
-                                <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-5xl font-bold text-white mb-2">
-                                    The <span className="bg-gradient-to-r from-amber-400 to-orange-300 bg-clip-text text-transparent">Pulse</span>
-                                </motion.h2>
-                                <motion.p variants={fadeUp} custom={2} className="text-white/50 text-lg">
-                                    Recent achievements, updates, and announcements from the club.
-                                </motion.p>
-                            </div>
-                        </motion.div>
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, margin: '-50px' }}
-                            className="grid grid-cols-1 gap-6 md:grid-cols-2"
-                        >
-                            {announcements.map((a, i) => (
-                                <motion.div key={a.id} variants={fadeUp} custom={i}>
-                                    <GlowCard glowColor={i === 0 ? 'purple' : 'blue'} customSize className="!p-0 !bg-transparent !border-0 !backdrop-blur-none !shadow-none !gap-0 h-full">
-                                        <button
-                                            onClick={() => setSelectedAnnouncement(a)}
-                                            className="group block w-full rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm transition-all hover:border-indigo-500/30 hover:bg-white/[0.06] text-left cursor-pointer"
-                                        >
-                                        <div className="flex items-start gap-4">
-                                            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border backdrop-blur-sm ${
-                                                a.type === 'urgent'
-                                                    ? 'bg-red-500/20 text-red-400 border-red-500/20'
-                                                    : a.type === 'achievement'
-                                                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/20'
-                                                        : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/20'
-                                            }`}>
-                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d={a.type === 'urgent' ? 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' : a.type === 'achievement' ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'} />
-                                                </svg>
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <h3 className="font-semibold text-white transition-colors group-hover:text-indigo-400">
-                                                    {a.title}
-                                                </h3>
-                                                <p className="mt-1 text-sm text-white/50 line-clamp-2">{a.content}</p>
-                                                {a.published_at && (
-                                                    <p className="mt-2 text-xs text-white/40">
-                                                        {new Date(a.published_at).toLocaleDateString('en-US', {
-                                                            month: 'short', day: 'numeric', year: 'numeric',
-                                                        })}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </button>
-                                    </GlowCard>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                    </WaveSection>
-                )}
-
-                {selectedEvent && (
-                    <EventDetailModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-                )}
-
-                {selectedAnnouncement && (
-                    <AnnouncementDetailModal announcement={selectedAnnouncement} onClose={() => setSelectedAnnouncement(null)} />
-                )}
-
-                {/* Section 5: CTA — Join */}
-                <WaveSection className="pb-24 pt-16 md:pb-40 md:pt-32">
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-purple-500/5 to-transparent rounded-3xl blur-3xl" />
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, margin: '-100px' }}
-                            className="relative mx-auto max-w-3xl text-center rounded-3xl border border-white/10 bg-white/[0.02] px-6 py-10 sm:px-8 sm:py-16 backdrop-blur-sm"
-                        >
-                            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                                <Rocket className="h-4 w-4 text-indigo-400" />
-                                Get Started
-                            </motion.div>
-                            <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-5xl font-bold text-white mb-4">
-                                Ready to <span className="bg-gradient-to-r from-indigo-400 to-violet-300 bg-clip-text text-transparent">Hack</span> the Future?
-                            </motion.h2>
-                            <motion.p variants={fadeUp} custom={2} className="text-white/50 text-lg mb-8 max-w-xl mx-auto leading-relaxed">
-                                No dues. No prerequisites. Just curiosity and a willingness to learn.
-                                Whether you&apos;ve never written a line of code or you&apos;re already breaking into
-                                boxes — there&apos;s a place for you here.
-                            </motion.p>
-                            <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <Link href="/auth/register">
-                                    <Button size="lg" className="group gap-2 rounded-full px-8 text-base uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25">
-                                        Join SLAU-CSIC
-                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                                    </Button>
-                                </Link>
-                                <Link href="/contact">
-                                    <Button size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5 px-8 text-base text-white/80 backdrop-blur transition-all hover:border-white/40 hover:bg-white/10">
-                                        Ask a Question
-                                    </Button>
-                                </Link>
-                            </motion.div>
-                        </motion.div>
+        <PublicLayout>
+            <section className="relative overflow-hidden border-b border-border bg-background pt-16">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(70,95,255,0.16),transparent_36%),radial-gradient(circle_at_15%_85%,rgba(34,197,94,0.08),transparent_30%)]" />
+                <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-28">
+                    <div>
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-sm border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 dark:border-brand-500/25 dark:bg-brand-500/10 dark:text-brand-300"><Icon className="text-[19px]">shield_lock</Icon>St. Lawrence University Cyber Security &amp; Innovation Club</div>
+                        <h1 className="max-w-3xl text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">where cybersecurity meets innovation.</h1>
+                        <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">SCIC Cyber is where students learn cybersecurity, compete in CTFs, build technology, and grow alongside an ambitious community of innovators.</p>
+                        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                            <Link href="/auth/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-theme-sm transition-colors duration-200 hover:bg-[#2984D1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2984D1]">Join SCIC Cyber <Icon className="text-[20px]">arrow_forward</Icon></Link>
+                            <a href="#events" className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-sm border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-theme-xs transition-colors duration-200 hover:border-[#2984D1] hover:bg-[#2984D1] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2984D1]"><Icon className="text-[20px] text-brand-600 transition-colors duration-200 group-hover:text-white dark:text-brand-300">event</Icon>Explore Events</a>
+                        </div>
+                        <dl className="mt-12 grid max-w-2xl grid-cols-3 overflow-hidden rounded-sm bg-card/80 shadow-theme-xs backdrop-blur-sm dark:bg-card/70">
+                            {[[stats.members, 'Active members', 'groups'], [stats.events, 'Public events', 'event'], [stats.projects, 'Projects', 'code']].map(([value, label, icon]) => <div key={label} className="px-3 py-4 sm:px-5"><dt className="flex items-center gap-1.5 text-xs leading-5 text-muted-foreground sm:text-sm"><Icon className="text-[18px] text-brand-600 dark:text-brand-300">{String(icon)}</Icon>{label}</dt><dd className="mt-1 text-2xl font-bold text-foreground sm:text-3xl">{value}</dd></div>)}
+                        </dl>
                     </div>
-                </WaveSection>
-            </GlowyWavesBackground>
+                    <div className="relative mx-auto w-full max-w-xl" aria-label="Cyber security learning dashboard preview">
+                        <div className="absolute -inset-6 rounded-full bg-brand-500/15 blur-3xl" />
+                        <div className="relative rounded-sm bg-card/90 p-4 shadow-theme-md backdrop-blur-sm dark:bg-card/80 sm:p-6">
+                            <div className="flex items-center justify-between pb-4"><div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-sm bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300"><Icon className="text-[24px]">security</Icon></div><div><p className="font-semibold text-foreground">SCIC Learning Hub</p><p className="text-sm text-muted-foreground">Your skills command center</p></div></div><span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-2.5 py-1 text-xs font-semibold text-success-700 dark:bg-success-500/10 dark:text-success-400"><span className="h-1.5 w-1.5 rounded-full bg-success-500" />Live</span></div>
+                            <div className="mt-5 grid grid-cols-2 gap-3">{[['terminal', 'CTF Arena', 'Solve challenges'], ['school', 'Training', 'Learn by doing'], ['emoji_events', 'Competitions', 'Test your skills'], ['hub', 'Community', 'Build together']].map(([icon, title, text]) => <div key={title} className="rounded-sm bg-background/70 p-4 shadow-theme-xs transition hover:bg-card-hover dark:bg-background/50"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">{icon}</Icon><p className="mt-3 text-sm font-semibold text-foreground">{title}</p><p className="mt-1 text-xs text-muted-foreground">{text}</p></div>)}</div>
+                            <div className="mt-4 rounded-sm bg-gray-950 p-5 text-white dark:bg-background"><div className="flex items-center gap-2 text-xs text-gray-400"><span className="h-2 w-2 rounded-full bg-success-500" /> scic@cyber:~</div><p className="mt-4 font-mono text-sm"><span className="text-success-400">$</span> learn --build --secure</p><p className="mt-2 font-mono text-xs text-gray-400">Knowledge loaded. Ready to innovate.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" className="border-b border-border bg-card py-20 sm:py-24"><div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8"><Heading eyebrow="About SCIC Cyber" title="A practical launchpad for technology leaders." description="We connect classroom knowledge with real challenges, strong peer networks, and opportunities to create useful technology." /><div className="grid gap-4 sm:grid-cols-2">{[
+                ['psychology', 'Learn with purpose', 'Develop current, practical skills through guided practice and peer learning.'], ['diversity_3', 'Grow together', 'Share ideas, lead teams, and form relationships that extend beyond campus.'], ['rocket_launch', 'Create real impact', 'Turn ideas into security tools, open-source projects, and campus solutions.'], ['military_tech', 'Compete confidently', 'Represent the club in technical competitions and sharpen your problem-solving.'],
+            ].map(([icon, title, text]) => <article key={title} className="rounded-sm bg-background/75 p-5 shadow-theme-xs dark:bg-background/55"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">{icon}</Icon><h3 className="mt-4 font-semibold text-foreground">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div></div></section>
+
+            <section id="features" className="border-b border-border bg-background py-20 sm:py-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><Heading eyebrow="What we offer" title="Everything you need to move from curious to capable." description="A complete student experience built around practical skills, meaningful projects, and community." /><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{features.map(([icon, title, text, href]) => <article key={title} className="group flex min-h-64 flex-col rounded-sm bg-card/80 p-6 shadow-theme-xs transition duration-200 hover:-translate-y-1 hover:bg-card hover:shadow-theme-sm dark:bg-card/70"><div className="flex h-12 w-12 items-center justify-center rounded-sm bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300"><Icon className="text-[24px]">{icon}</Icon></div><h3 className="mt-5 text-lg font-semibold text-foreground">{title}</h3><p className="mt-3 flex-1 text-sm leading-6 text-muted-foreground">{text}</p><Link href={href} className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 dark:text-brand-300">Learn more <Icon className="text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</Icon></Link></article>)}</div></div></section>
+
+            <section id="events" className="border-b border-border bg-card py-20 sm:py-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><Heading eyebrow="Upcoming events" title="Learn something new. Meet someone brilliant." description="Explore upcoming club workshops, competitions, meetups, and community sessions." /><Link href="/events" className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-brand-600 dark:text-brand-300">View all events <Icon className="text-[19px]">arrow_forward</Icon></Link></div>
+                {upcomingEvents.length > 0 ? <div className="mt-12 grid gap-5 lg:grid-cols-3">{upcomingEvents.map((event) => <article key={event.id} className="flex flex-col rounded-sm bg-background/75 p-6 shadow-theme-xs transition hover:bg-background hover:shadow-theme-sm dark:bg-background/55"><div className="flex items-start gap-4"><time dateTime={event.start_date} className="flex w-14 shrink-0 flex-col items-center rounded-sm bg-brand-50 px-2 py-2 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"><Icon className="text-[18px]">calendar_month</Icon><span className="text-xs font-bold uppercase">{new Date(event.start_date).toLocaleDateString('en-US', { month: 'short' })}</span><span className="text-2xl font-bold">{new Date(event.start_date).getDate()}</span></time><div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{event.categories[0]?.name ?? event.type}</p><h3 className="mt-1 text-lg font-semibold text-foreground">{event.title}</h3></div></div><p className="mt-5 line-clamp-3 flex-1 text-sm leading-6 text-muted-foreground">{event.description}</p><div className="mt-5 flex items-center justify-between gap-3 pt-4 text-sm"><span className="flex min-w-0 items-center gap-1.5 text-muted-foreground"><Icon className="text-[18px]">location_on</Icon><span className="truncate">{event.location ?? 'Online / TBA'}</span></span><Link href={`/events/${event.slug}`} className="shrink-0 font-semibold text-brand-600 dark:text-brand-300">View event</Link></div></article>)}</div> : <div className="mt-12 rounded-sm bg-background/75 px-6 py-12 text-center shadow-theme-xs dark:bg-background/55"><Icon className="text-[36px] text-muted-foreground">event_busy</Icon><p className="mt-3 font-semibold text-foreground">No upcoming events yet</p><p className="mt-1 text-sm text-muted-foreground">Check back soon for the next club activity.</p></div>}
+            </div></section>
+
+            <section id="learning" className="border-b border-border bg-background py-20 sm:py-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><Heading eyebrow="Learning ecosystem" title="A clear path from fundamentals to mastery." description="Learn, practise, assess your progress, and build a record of achievement inside one connected platform." /><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">{learning.map(([icon, title, text]) => <article key={title} className="rounded-sm bg-card/80 p-5 shadow-theme-xs dark:bg-card/70"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">{icon}</Icon><h3 className="mt-4 font-semibold text-foreground">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div></div></section>
+
+            <section id="ctf" className="overflow-hidden border-b border-border bg-gray-950 py-20 text-white sm:py-24"><div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8"><div><p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">CTF Arena</p><h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Think like an attacker. Build like a defender.</h2><p className="mt-5 max-w-xl text-lg leading-8 text-gray-300">Take on cybersecurity challenges, join teams, compete on live scoreboards, record solves, and share approved writeups with the community.</p><Link href="/ctf-arena" className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-sm bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-500">Explore CTF Arena <Icon className="text-[20px]">arrow_forward</Icon></Link></div><div className="grid grid-cols-2 gap-4">{[['flag', 'Challenges', 'Web, crypto, forensics, reversing'], ['groups', 'Teams', 'Collaborate under pressure'], ['leaderboard', 'Competitions', 'Track progress live'], ['description', 'Writeups', 'Learn from every solve']].map(([icon, title, text]) => <div key={title} className="rounded-sm bg-white/[0.06] p-5 shadow-theme-xs"><Icon className="text-[24px] text-brand-300">{icon}</Icon><h3 className="mt-4 font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-gray-400">{text}</p></div>)}</div></div></section>
+
+            <section id="community" className="border-b border-border bg-card py-20 sm:py-24"><div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8"><Heading eyebrow="Community" title="Your ideas go further with the right people around you." description="Meet students who want to lead, build, compete, and make technology matter. SCIC Cyber is a place to contribute at every skill level." /><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{[['hub', 'Networking'], ['handshake', 'Collaboration'], ['lightbulb', 'Innovation'], ['leaderboard', 'Leadership'], ['emoji_events', 'Competitions'], ['code', 'Tech Projects']].map(([icon, label]) => <div key={label} className="flex min-h-28 flex-col items-center justify-center rounded-sm bg-background/75 p-4 text-center shadow-theme-xs dark:bg-background/55"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">{icon}</Icon><span className="mt-3 text-sm font-semibold text-foreground">{label}</span></div>)}</div></div></section>
+
+            {announcements.length > 0 && <section className="border-b border-border bg-background py-16"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><p className="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">Latest from the club</p><div className="grid gap-4 md:grid-cols-2">{announcements.map((item) => <article key={item.id} className="rounded-sm bg-card/80 p-5 shadow-theme-xs dark:bg-card/70"><div className="flex gap-3"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">campaign</Icon><div><h3 className="font-semibold text-foreground">{item.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{item.content}</p></div></div></article>)}</div></div></section>}
+
+            <section className="bg-background py-20 sm:py-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div className="relative overflow-hidden rounded-sm bg-brand-600 px-6 py-14 text-center text-white shadow-theme-xl sm:px-10"><div className="pointer-events-none absolute -right-16 -top-28 h-72 w-72 rounded-full border-[48px] border-white/10" /><p className="relative text-sm font-semibold uppercase tracking-[0.2em] text-brand-100">Start your journey</p><h2 className="relative mt-3 text-3xl font-bold tracking-tight sm:text-5xl">Build. Learn. Secure. Innovate.</h2><p className="relative mx-auto mt-5 max-w-2xl text-brand-100">Join a community turning curiosity into practical cybersecurity skills and bold technology projects.</p><div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/auth/register" className="inline-flex min-h-12 items-center justify-center rounded-sm bg-white px-6 py-3 text-sm font-semibold text-brand-700 transition hover:bg-brand-50">Join SCIC Cyber</Link><Link href="/auth/login" className="inline-flex min-h-12 items-center justify-center rounded-sm border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Explore the Platform</Link></div></div></div></section>
         </PublicLayout>
     );
 }

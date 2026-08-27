@@ -6,7 +6,7 @@
         </div>
 
         @if ($events->isEmpty())
-            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-border dark:bg-card">
                 <p class="text-sm font-medium text-gray-900 dark:text-white">No events yet</p>
                 <p class="mt-1 text-xs text-gray-500">Create your first event to get started.</p>
                 <a href="{{ route('events.create') }}" wire:navigate class="mt-4 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
@@ -29,23 +29,23 @@
                 @php $evt = $events->firstWhere('id', $selectedEventId); @endphp
                 @if ($evt)
                     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Status</p>
                             <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white capitalize">{{ $evt['status'] }}</p>
                         </div>
-                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Registered</p>
                             <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $evt['registered_count'] }}<span class="text-xs font-normal text-gray-500"> / {{ $evt['max_participants'] ?? '∞' }}</span></p>
                         </div>
-                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Attended</p>
                             <p class="mt-1 text-sm font-semibold text-green-600 dark:text-green-400">{{ $evt['attended_count'] }}</p>
                         </div>
-                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Waitlisted</p>
                             <p class="mt-1 text-sm font-semibold text-amber-600 dark:text-amber-400">{{ $evt['waitlist_count'] }}</p>
                         </div>
-                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Avg Rating</p>
                             <p class="mt-1 text-sm font-semibold {{ $averageRating && $averageRating >= 4 ? 'text-green-600 dark:text-green-400' : ($averageRating && $averageRating >= 3 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white') }}">
                                 {{ $averageRating ? $averageRating . ' / 5' : 'N/A' }}
@@ -55,8 +55,8 @@
 
                     <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
                         {{-- Registrations --}}
-                        <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
-                            <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                        <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card overflow-hidden">
+                            <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                                 <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Registrations ({{ $registrations->count() }})</h2>
                             </div>
                             @if ($registrations->isEmpty())
@@ -97,8 +97,8 @@
                         </div>
 
                         {{-- Feedback --}}
-                        <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
-                            <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700">
+                        <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card overflow-hidden">
+                            <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                                 <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Feedback ({{ $feedbackData->count() }})</h2>
                             </div>
                             @if ($feedbackData->isEmpty())
@@ -134,8 +134,8 @@
                     {{-- Links --}}
                     <div class="mt-6 flex flex-wrap gap-3">
                         <a href="{{ route('events.show', $evt['slug']) }}" wire:navigate class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">View Event</a>
-                        <a href="{{ route('events.edit', $evt['slug']) }}" wire:navigate class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Edit Event</a>
-                        <a href="{{ route('events.checkin') }}" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Check-In</a>
+                        <a href="{{ route('events.edit', $evt['slug']) }}" wire:navigate class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">Edit Event</a>
+                        <a href="{{ route('events.checkin') }}" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">Check-In</a>
                     </div>
                 @endif
             @endif

@@ -237,6 +237,68 @@ it('lists published events on index page', function () {
         ->assertSee('events');
 });
 
+it('allows guests to view public events without authentication redirects', function () {
+    Event::factory()->create([
+        'status' => 'published',
+        'is_public' => true,
+        'start_date' => now()->addWeek(),
+    ]);
+
+    get(route('events.index'))
+        ->assertSuccessful()
+        ->assertSeeLivewire(EventListing::class);
+});
+
+it('organizes public events by their current lifecycle status', function () {
+    Event::factory()->create([
+        'title' => 'Featured Upcoming Event',
+        'status' => 'published',
+        'is_public' => true,
+        'start_date' => now()->addDay(),
+        'end_date' => now()->addDay()->addHour(),
+    ]);
+    Event::factory()->create([
+        'title' => 'Second Upcoming Event',
+        'status' => 'scheduled',
+        'is_public' => true,
+        'start_date' => now()->addWeek(),
+        'end_date' => now()->addWeek()->addHour(),
+    ]);
+    Event::factory()->create([
+        'title' => 'Current Ongoing Event',
+        'status' => 'published',
+        'is_public' => true,
+        'start_date' => now()->subHour(),
+        'end_date' => now()->addHour(),
+    ]);
+    Event::factory()->create([
+        'title' => 'Finished Event',
+        'status' => 'completed',
+        'is_public' => true,
+        'start_date' => now()->subDays(2),
+        'end_date' => now()->subDay(),
+    ]);
+
+    Livewire::test(EventListing::class)
+        ->assertSee('Upcoming')
+        ->assertSee('Second Upcoming Event')
+        ->assertSee('Ongoing')
+        ->assertSee('Current Ongoing Event')
+        ->assertSee('Completed')
+        ->assertSee('Finished Event');
+});
+
+it('allows guests to read completed public event details', function () {
+    $event = Event::factory()->create([
+        'status' => 'completed',
+        'is_public' => true,
+        'start_date' => now()->subDays(2),
+        'end_date' => now()->subDay(),
+    ]);
+
+    get(route('events.show', $event))->assertSuccessful();
+});
+
 it('does not show draft events on index page', function () {
     Event::factory()->create(['status' => 'draft', 'is_public' => true]);
 

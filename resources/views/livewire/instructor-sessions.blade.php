@@ -8,7 +8,7 @@
             <a href="{{ route('portal.classes') }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">&larr; Back to Classes</a>
         </div>
 
-        <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-3 shadow-sm sm:p-4 dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-3 shadow-sm sm:p-4 dark:border-border dark:bg-card">
             <div class="flex gap-2">
                 @foreach (['upcoming', 'all', 'past'] as $f)
                     <button
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="dashboard-card overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
             @if ($sessions->isEmpty())
                 <div class="p-12 text-center">
                     <p class="text-gray-500 dark:text-gray-400">No teaching sessions found.</p>
@@ -29,7 +29,7 @@
             @else
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-900">
+                        <thead class="bg-background">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Date & Time</th>
@@ -40,7 +40,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($sessions as $session)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-card-hover/50 transition">
                                     <td class="px-6 py-4">
                                         <a href="{{ route('portal.class', $session->id) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
                                             {{ $session->title }}

@@ -4,8 +4,8 @@ it('sets the theme background before external assets load', function () {
     $layout = file_get_contents(resource_path('views/layouts/app.blade.php'));
 
     expect($layout)
-        ->toContain('html.dark, html.dark body { background-color: #101828; }')
-        ->toContain('class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100"')
+        ->toContain('html.dark, html.dark body { background-color: oklch(18% 0.035 255); }')
+        ->toContain('class="bg-background text-foreground"')
         ->toContain("document.documentElement.classList.add('is-page-navigating')")
         ->toContain("document.documentElement.classList.remove('is-page-navigating')");
 });

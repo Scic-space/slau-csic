@@ -32,6 +32,54 @@ class InstructorDashboard extends Component
             'materials' => TeachingMaterial::where('uploaded_by', $user->id)->count(),
         ];
 
+        $teachingCards = [
+            [
+                'label' => 'Total Trainings',
+                'icon' => 'school',
+                'count' => $stats['trainings'],
+                'tone' => 'indigo',
+                'url' => route('instructor.trainings'),
+            ],
+            [
+                'label' => 'Upcoming Sessions',
+                'icon' => 'event_upcoming',
+                'count' => Meeting::teachingSessions()->where('created_by', $user->id)->upcoming()->count(),
+                'tone' => 'teal',
+                'url' => route('instructor.sessions'),
+            ],
+            [
+                'label' => 'Completed Sessions',
+                'icon' => 'task_alt',
+                'count' => Meeting::completedTeachingSessions()->where('created_by', $user->id)->count(),
+                'tone' => 'green',
+                'url' => route('instructor.sessions'),
+            ],
+            [
+                'label' => 'Course Materials',
+                'icon' => 'menu_book',
+                'count' => $stats['materials'],
+                'tone' => 'amber',
+                'url' => route('instructor.materials'),
+            ],
+            [
+                'label' => 'Students',
+                'icon' => 'groups',
+                'count' => TrainingEnrollment::whereIn('training_id', $myTrainingIds)->distinct('user_id')->count('user_id'),
+                'tone' => 'blue',
+                'url' => route('members.index'),
+            ],
+            [
+                'label' => 'Pending Grades',
+                'icon' => 'grading',
+                'count' => TrainingEnrollment::whereIn('training_id', $myTrainingIds)
+                    ->completed()
+                    ->whereNull('score')
+                    ->count(),
+                'tone' => 'orange',
+                'url' => route('instructor.trainings'),
+            ],
+        ];
+
         $recentEnrollments = TrainingEnrollment::whereIn('training_id', $myTrainingIds)
             ->with(['user', 'training'])
             ->latest('enrolled_at')
@@ -52,6 +100,7 @@ class InstructorDashboard extends Component
 
         return view('livewire.instructor-dashboard', [
             'stats' => $stats,
+            'teachingCards' => $teachingCards,
             'recentEnrollments' => $recentEnrollments,
             'recentSessions' => $recentSessions,
             'recentMaterials' => $recentMaterials,

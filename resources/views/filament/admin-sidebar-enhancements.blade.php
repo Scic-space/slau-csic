@@ -1,11 +1,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
 
 <style>
     .fi-sidebar,
     .fi-body {
-        font-family: 'Google Sans Flex', 'Google Sans', Inter, ui-sans-serif, sans-serif;
+        font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
     }
 
     .fi-sidebar-nav {
@@ -131,8 +132,8 @@
     }
 
     .dark .member-status-card {
-        border-color: var(--gray-700);
-        background: var(--gray-900);
+        border-color: var(--admin-border, var(--gray-700));
+        background: var(--admin-card, var(--gray-900));
     }
 
     @media (min-width: 48rem) {

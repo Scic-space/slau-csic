@@ -16,25 +16,25 @@
         </div>
 
         <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-start justify-between gap-3"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Outstanding</p><span class="material-symbols-outlined text-red-500" aria-hidden="true">account_balance_wallet</span></div>
                 <p class="mt-2 text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">UGX {{ number_format($stats['total_outstanding'], 0) }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-start justify-between gap-3"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Paid</p><span class="material-symbols-outlined text-green-500" aria-hidden="true">payments</span></div>
                 <p class="mt-2 text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">UGX {{ number_format($stats['total_paid'], 0) }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-start justify-between gap-3"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue</p><span class="material-symbols-outlined text-orange-500" aria-hidden="true">event_busy</span></div>
                 <p class="mt-2 text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400">{{ $stats['overdue_count'] }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-start justify-between gap-3"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Review</p><span class="material-symbols-outlined text-blue-500" aria-hidden="true">pending_actions</span></div>
                 <p class="mt-2 text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['pending_submissions'] }}</p>
             </div>
         </div>
 
-        <div class="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
             @if ($fines->isEmpty())
                 <div class="p-12 text-center">
                     <p class="text-gray-500 dark:text-gray-400">You have no fines.</p>
@@ -42,7 +42,7 @@
             @else
                 <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-900">
+                    <thead class="bg-background">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reason</th>
@@ -68,7 +68,7 @@
                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                         {{ $fine->status === 'paid' ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300' : '' }}
                                         {{ $fine->status === 'pending' || $fine->status === 'partially_paid' ? ($fine->is_overdue ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300') : '' }}
-                                        {{ $fine->status === 'waived' ? 'bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300' : '' }}">
+                                        {{ $fine->status === 'waived' ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' : '' }}">
                                         {{ ucfirst(str_replace('_', ' ', $fine->status)) }}
                                         @if ($fine->is_overdue)
                                             (Overdue)
@@ -103,7 +103,7 @@
                                 </td>
                             </tr>
                             @if ($fine->payments->isNotEmpty())
-                                <tr class="bg-gray-50 dark:bg-gray-900">
+                                <tr class="bg-background">
                                     <td colspan="8" class="px-6 py-2">
                                         <div class="space-y-1">
                                             <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Payments:</span>
@@ -139,12 +139,12 @@
                     <div class="flex-1 space-y-4 overflow-y-auto p-5">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount (UGX)</label>
-                            <input type="number" min="1" wire:model="paymentAmount" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <input type="number" min="1" wire:model="paymentAmount" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-green-500 focus:ring-green-500">
                             @error('paymentAmount') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Method</label>
-                            <select wire:model="paymentMethod" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <select wire:model="paymentMethod" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-green-500 focus:ring-green-500">
                                 @foreach (\App\Models\FinePayment::getPaymentMethods() as $key => $label)
                                     <option value="{{ $key }}">{{ $label }}</option>
                                 @endforeach
@@ -157,13 +157,13 @@
                             @error('paymentReceipt') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             @if ($paymentReceipt)
                                 <div class="mt-2">
-                                    <img src="{{ $paymentReceipt->temporaryUrl() }}" class="h-32 w-auto rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <img src="{{ $paymentReceipt->temporaryUrl() }}" class="h-32 w-auto rounded-lg border border-gray-200 dark:border-border">
                                 </div>
                             @endif
                         </div>
                     </div>
-                    <div class="flex justify-end gap-3 border-t border-gray-200 p-5 dark:border-gray-800">
-                        <button type="button" wire:click="closePayment" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <div class="flex justify-end gap-3 border-t border-gray-200 p-5 dark:border-border">
+                        <button type="button" wire:click="closePayment" class="rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600">
                             Cancel
                         </button>
                         <button type="submit" wire:loading.attr="disabled" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-500 disabled:opacity-50">
@@ -182,7 +182,7 @@
                     <div class="flex-1 space-y-4 overflow-y-auto p-5">
                         <div>
                             <label for="appealReason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason</label>
-                            <select wire:model="appealReason" id="appealReason" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <select wire:model="appealReason" id="appealReason" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Select a reason</option>
                                 @foreach (\App\Models\FineAppeal::getAppealReasons() as $key => $label)
                                     <option value="{{ $key }}">{{ $label }}</option>
@@ -192,12 +192,12 @@
                         </div>
                         <div>
                             <label for="appealExplanation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Explanation</label>
-                            <textarea wire:model="appealExplanation" id="appealExplanation" rows="4" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Explain why this fine should be waived..."></textarea>
+                            <textarea wire:model="appealExplanation" id="appealExplanation" rows="4" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Explain why this fine should be waived..."></textarea>
                             @error('appealExplanation') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
-                    <div class="flex justify-end gap-3 border-t border-gray-200 p-5 dark:border-gray-800">
-                        <button type="button" wire:click="closeAppeal" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <div class="flex justify-end gap-3 border-t border-gray-200 p-5 dark:border-border">
+                        <button type="button" wire:click="closeAppeal" class="rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600">
                             Cancel
                         </button>
                         <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-500">

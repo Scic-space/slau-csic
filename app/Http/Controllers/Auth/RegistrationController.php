@@ -45,7 +45,7 @@ class RegistrationController extends Controller
 
         event(new Registered(($user = User::create($validated))));
 
-        $this->membershipService->registerPending($user, $validated);
+        $this->membershipService->registerPending($user);
 
         Auth::login($user);
 

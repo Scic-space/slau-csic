@@ -9,7 +9,7 @@
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="w-full sm:w-48">
-                        <select wire:model.live="type" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select wire:model.live="type" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <option value="">All Types</option>
                             @foreach ($competitionTypes as $t)
                                 <option value="{{ $t['value'] }}">{{ $t['label'] }}</option>
@@ -17,14 +17,14 @@
                         </select>
                     </div>
                     <div class="w-full sm:w-56">
-                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search competitions..." class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search competitions..." class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <input type="date" wire:model.live="dateFrom" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="date" wire:model.live="dateFrom" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                     <span class="text-gray-400 dark:text-gray-500">—</span>
                     <div>
-                        <input type="date" wire:model.live="dateTo" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="date" wire:model.live="dateTo" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -37,7 +37,7 @@
         </div>
 
         @if ($competitions->isEmpty())
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center shadow-sm">
+            <div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-12 text-center shadow-sm">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 5H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2z"/>
@@ -49,7 +49,7 @@
         @else
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($competitions as $c)
-                    <a href="{{ route('competitions.show', $c['id']) }}" wire:navigate class="group relative block rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm hover:shadow-md hover:border-indigo-500/30 hover:-translate-y-0.5 transition-all">
+                    <a href="{{ route('competitions.show', $c['id']) }}" wire:navigate class="group relative block rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card p-6 shadow-sm hover:shadow-md hover:border-indigo-500/30 hover:-translate-y-0.5 transition-all">
                         <div class="mb-3 flex items-start justify-between gap-3">
                             <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate">{{ $c['name'] }}</h3>
                             <span class="shrink-0 inline-flex items-center rounded-full border border-indigo-500/20 bg-indigo-50 px-3 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-500/30 dark:text-indigo-300">{{ $c['type'] }}</span>

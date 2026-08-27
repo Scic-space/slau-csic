@@ -6,7 +6,7 @@
         </div>
 
         @if ($polls->isEmpty())
-            <div class="rounded-sm border border-gray-200 bg-white p-8 text-center shadow-sm sm:p-10 dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-8 text-center shadow-sm sm:p-10 dark:border-border dark:bg-card">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -27,7 +27,7 @@
                             @if (!$hasVoted && $isActive)
                                 border-blue-200 bg-blue-50/60 ring-1 ring-blue-100 hover:border-blue-300 hover:shadow-md dark:border-blue-800 dark:bg-blue-900/10 dark:ring-blue-800/50 dark:hover:border-blue-700
                             @else
-                                border-gray-200 bg-white hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600
+                                border-gray-200 bg-white hover:border-gray-300 hover:shadow-md dark:border-border dark:bg-card dark:hover:border-gray-600
                             @endif">
 
                         <div class="flex items-start gap-4">

@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="py-8">
         <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-700 flex items-center justify-between">
+            <div class="dashboard-card rounded-xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                <div class="border-b border-gray-100 px-5 py-4 dark:border-border flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Event Check-In</h2>
                     <button x-show="!cameraActive" x-on:click="startCamera" class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                         Open Scanner
@@ -142,7 +142,7 @@
                                     type="text"
                                     id="checkin-code"
                                     placeholder="e.g. ABC123XYZ789"
-                                    class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-mono tracking-widest text-gray-900 placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-gray-400 dark:focus:ring-gray-400/20"
+                                    class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-mono tracking-widest text-gray-900 placeholder-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20 dark:border-border dark:bg-card dark:text-white dark:placeholder-gray-500 dark:focus:border-gray-400 dark:focus:ring-gray-400/20"
                                     maxlength="16"
                                     autofocus
                                 >
@@ -193,7 +193,7 @@
                         </div>
 
                         {{-- Quick actions --}}
-                        <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div class="mt-6 pt-4 border-t border-gray-100 dark:border-border">
                             <a href="{{ route('events.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                                 &larr; Back to Events
                             </a>

@@ -8,7 +8,7 @@
 
         {{-- Stats Cards --}}
         <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30">
                         <span class="material-symbols-outlined text-blue-600 dark:text-blue-400" aria-hidden="true">library_books</span>
@@ -19,7 +19,7 @@
                     </div>
                 </div>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/30">
                         <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400" aria-hidden="true">pending_actions</span>
@@ -30,7 +30,7 @@
                     </div>
                 </div>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/30">
                         <span class="material-symbols-outlined text-green-600 dark:text-green-400" aria-hidden="true">task_alt</span>
@@ -50,7 +50,7 @@
                     <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">search</span>
                     <input type="search" wire:model.live.debounce.250ms="search" placeholder="Search resources..."
                         aria-label="Search resources"
-                        class="block h-11 w-full rounded-sm border border-gray-300 bg-white py-2.5 pl-10 pr-11 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400 hover:border-gray-400 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:hover:border-gray-500">
+                        class="block h-11 w-full rounded-sm border border-gray-300 bg-white py-2.5 pl-10 pr-11 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400 hover:border-gray-400 focus:border-brand-500 focus:ring-brand-500 dark:border-border dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:hover:border-gray-500">
                     @if ($search || $category || $difficulty || $status)
                         <button type="button" wire:click="$set('search', ''); $set('category', ''); $set('difficulty', ''); $set('status', '');" class="absolute right-1 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 focus:bg-gray-100 focus:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-white" aria-label="Clear search and filters">
                             <span class="material-symbols-outlined" aria-hidden="true">filter_alt_off</span>
@@ -66,7 +66,7 @@
                     <div class="group relative min-w-0">
                         <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-gray-400 transition group-hover:text-brand-500" aria-hidden="true">{{ $icon }}</span>
                         <select wire:model.live="{{ $model }}" aria-label="{{ $ariaLabel }}"
-                            class="block h-11 w-full appearance-none rounded-sm border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                            class="block h-11 w-full appearance-none rounded-sm border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus:border-brand-500 focus:ring-brand-500 dark:border-border dark:bg-gray-700 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                             <option value="">{{ $defaultLabel }}</option>
                             @foreach ($options as $option)
                                 <option value="{{ $option }}">{{ ucfirst($option) }}</option>
@@ -81,7 +81,7 @@
 
         {{-- Resource Grid --}}
         @if ($resources->isEmpty())
-            <div class="rounded-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center shadow-sm">
+            <div class="rounded-sm border border-gray-200 dark:border-border bg-white dark:bg-card p-12 text-center shadow-sm">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -114,7 +114,7 @@
                         ];
                     @endphp
                     <a href="{{ route('portal.resources.show', $resource->slug) }}" wire:navigate
-                        class="group block rounded-sm border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600">
+                        class="group block rounded-sm border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-gray-300 hover:shadow-md dark:border-border dark:bg-card dark:hover:border-gray-600">
 
                         <div class="mb-3 flex flex-wrap items-center gap-2">
                             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $categoryColors[$resource->category] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400' }}">
@@ -152,7 +152,7 @@
                                 <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium
                                     @if ($progress->status === 'completed') bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300
                                     @elseif ($progress->status === 'in_progress') bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300
-                                    @else bg-gray-50 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400 @endif">
+                                    @else bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 @endif">
                                     <span class="mr-1 h-1.5 w-1.5 rounded-full
                                         @if ($progress->status === 'completed') bg-green-500
                                         @elseif ($progress->status === 'in_progress') bg-blue-500

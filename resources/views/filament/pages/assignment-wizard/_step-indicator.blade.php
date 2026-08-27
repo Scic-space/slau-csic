@@ -25,7 +25,7 @@
                             ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-sm dark:border-primary-400 dark:bg-primary-900/30 dark:text-primary-300'
                             : ($isPast
                                 ? 'border-green-500 bg-green-50 text-green-700 dark:border-green-400 dark:bg-green-900/30 dark:text-green-300'
-                                : 'border-gray-200 bg-white text-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-600') }}
+                                : 'border-gray-200 bg-white text-gray-300 dark:border-border dark:bg-card dark:text-gray-600') }}
                     ">
                         @if ($isPast)
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -44,7 +44,7 @@
         @endforeach
     </nav>
 
-    <div class="mt-6 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="mt-6 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-3 shadow-sm dark:border-border dark:bg-card">
         <div class="flex items-center gap-3">
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-xs font-bold text-primary-700 shadow-sm dark:bg-primary-900/40 dark:text-primary-300">
                 {{ $step }}

@@ -3,7 +3,7 @@
         <p class="text-sm text-gray-500 dark:text-gray-400">No activity recorded yet.</p>
     @else
         @foreach ($activities as $activity)
-            <div class="flex items-start gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3">
+            <div class="flex items-start gap-3 rounded-lg border border-gray-200 dark:border-border bg-background px-4 py-3">
                 <div class="mt-0.5 shrink-0">
                     @switch($activity->description)
                         @case('created')
