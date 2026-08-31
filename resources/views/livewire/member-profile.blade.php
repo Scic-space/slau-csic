@@ -151,6 +151,7 @@
                                     <option value="">Select intake</option>
                                     <option value="august">August</option>
                                     <option value="january">January</option>
+                                    <option value="february">February</option>
                                     <option value="may">May</option>
                                 </select>
                                 @error('intake') <span class="mt-1 text-xs text-red-600">{{ $message }}</span> @enderror

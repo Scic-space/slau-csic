@@ -338,10 +338,10 @@ export default function About({ upcomingEvents, stats }: NetworkingProps) {
                 <section className="bg-card px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
                     <div className="mx-auto max-w-7xl">
                         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }} variants={container} className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-                            <motion.div variants={fadeUp} className="relative">
+                            <motion.div variants={fadeUp} className="relative mx-auto w-full max-w-xl lg:h-[440px]">
                                 <div className="absolute -inset-4 rounded-full bg-brand-500/10 blur-3xl" />
-                                <div className="relative overflow-hidden rounded-sm bg-background/70 shadow-theme-sm dark:bg-background/55">
-                                    <img src="/images/club/kevin-sharon.jpg" alt="Members at a career event" className="h-full w-full object-cover object-top" />
+                                <div className="relative flex h-full max-h-[440px] items-center justify-center overflow-hidden rounded-sm bg-background/70 shadow-theme-sm dark:bg-background/55">
+                                    <img src="/images/club/kevin-sharon.jpg" alt="Members at a career event" className="max-h-[440px] w-full object-contain object-top" />
                                     <div className="absolute inset-0 bg-gradient-to-tr from-[#0f172a]/60 via-transparent to-transparent" />
                                 </div>
                             </motion.div>

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\News;
 use App\Filament\Resources\News\Pages\ManageNews;
 use App\Models\News;
 use App\Models\NewsCategory;
+use App\Services\ImageOptimizer;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -23,6 +24,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Http\UploadedFile;
 
 class NewsResource extends Resource
 {
@@ -79,6 +81,8 @@ class NewsResource extends Resource
                     ->imageCropAspectRatio('16:9')
                     ->imageResizeTargetWidth('800')
                     ->imageResizeTargetHeight('450')
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'news/thumbnails', 1280, 720))
                     ->maxSize(2048)
                     ->visible(fn ($get) => $get('content_type') === 'video'),
                 TextInput::make('video_url')

@@ -72,11 +72,12 @@ class EventShowController extends Controller
         return $cleaned;
     }
 
-    public function show(string $slug): Response
+    public function show(Event $event): Response
     {
-        $event = Event::where('slug', $slug)
-            ->whereIn('status', ['published', 'scheduled', 'ongoing'])
-            ->with(['organizer', 'categories', 'instructors', 'resources', 'recurrence'])
+        $event = Event::query()
+            ->publiclyVisible()
+            ->whereKey($event->getKey())
+            ->with(['organizer', 'categories', 'instructors', 'recurrence'])
             ->withCount(['registrations as registered_count' => fn ($q) => $q->where('status', 'registered')])
             ->firstOrFail();
 
@@ -129,7 +130,7 @@ class EventShowController extends Controller
                 'status' => $event->status,
                 'requirements' => $this->sanitizeHtml($event->requirements),
                 'registration_fee' => $event->registration_fee,
-                'external_link' => $event->external_link,
+                'external_link' => $this->publicExternalLink($event->external_link),
                 'is_recurring' => $event->is_recurring,
                 'registered_count' => $event->registered_count,
                 'is_full' => $event->is_full,
@@ -146,12 +147,7 @@ class EventShowController extends Controller
                     'name' => $i->name,
                     'role' => $i->pivot->role,
                 ]),
-                'resources' => $event->resources->map(fn ($r) => [
-                    'id' => $r->id,
-                    'title' => $r->title,
-                    'type' => $r->type,
-                    'url' => $r->display_url,
-                ]),
+                'resources' => [],
                 'user_registration' => $userRegistration ? [
                     'id' => $userRegistration->id,
                     'status' => $userRegistration->status,
@@ -170,6 +166,15 @@ class EventShowController extends Controller
             ],
             'categories' => $categories,
         ]);
+    }
+
+    private function publicExternalLink(?string $url): ?string
+    {
+        if ($url === null || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        return parse_url($url, PHP_URL_SCHEME) === 'https' ? $url : null;
     }
 
     public function rsvp(string $slug): RedirectResponse

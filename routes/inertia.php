@@ -7,6 +7,7 @@ use App\Http\Controllers\ExamCertificateDownloadController;
 use App\Http\Controllers\ExamTakeController;
 use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\PublicHomeController;
 use App\Livewire\AnnouncementListing;
 use App\Livewire\AttendanceCalendar;
@@ -19,9 +20,7 @@ use App\Livewire\ElectionShow;
 use App\Livewire\ElectionVoting;
 use App\Livewire\EventCalendar;
 use App\Livewire\EventCreate;
-use App\Livewire\EventDetails;
 use App\Livewire\EventEdit;
-use App\Livewire\EventListing;
 use App\Livewire\ExamCertificates;
 use App\Livewire\ExamListing;
 use App\Livewire\InstructorDashboard;
@@ -62,7 +61,7 @@ Route::get('/certificates/verify/{code}', [CertificateVerificationController::cl
 Route::get('/events/calendar', EventCalendar::class)->name('events.calendar')->middleware(['auth', 'approved']);
 Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware(['auth', 'approved']);
 Route::get('/members', MemberDirectory::class)->name('members.index');
-Route::get('/events', EventListing::class)->name('events.index');
+Route::get('/events', PublicEventController::class)->name('events.index');
 
 Route::get('/events/checkin', App\Http\Controllers\EventCheckInController::class.'@showScanPage')
     ->name('events.checkin')
@@ -71,7 +70,8 @@ Route::post('/events/checkin', App\Http\Controllers\EventCheckInController::clas
     ->name('events.checkin.process')
     ->middleware(['auth', 'approved', 'throttle:10,1']);
 
-Route::get('/events/{event:slug}', EventDetails::class)->name('events.show');
+Route::get('/events/create', EventCreate::class)->name('events.create')->middleware(['auth', 'approved']);
+Route::get('/events/{event:slug}', [EventShowController::class, 'show'])->name('events.show');
 Route::get('/events/{event:slug}/certificate/{registration}', App\Http\Controllers\EventCertificateController::class)
     ->name('events.certificate')
     ->middleware(['auth', 'verified']);
@@ -80,7 +80,6 @@ Route::post('/events/{event:slug}/cancel-rsvp', [EventShowController::class, 'ca
 Route::post('/events/{event:slug}/register', [EventShowController::class, 'register'])->name('events.register')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
 Route::post('/events/{event:slug}/unregister', [EventShowController::class, 'unregister'])->name('events.unregister')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
 Route::post('/events/{event:slug}/feedback', [EventShowController::class, 'storeFeedback'])->name('events.feedback')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
-Route::get('/events/create', EventCreate::class)->name('events.create')->middleware(['auth', 'approved']);
 Route::get('/events/{event:slug}/edit', EventEdit::class)->name('events.edit')->middleware(['auth', 'approved']);
 Route::get('/organizer/dashboard', \App\Livewire\OrganizerDashboard::class)->name('organizer.dashboard')->middleware(['auth', 'approved']);
 

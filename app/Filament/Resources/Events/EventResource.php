@@ -10,6 +10,7 @@ use App\Filament\Resources\Events\RelationManagers\InstructorsRelationManager;
 use App\Filament\Resources\Events\RelationManagers\RegistrationsRelationManager;
 use App\Filament\Resources\Events\RelationManagers\ResourcesRelationManager;
 use App\Models\Event;
+use App\Services\ImageOptimizer;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -29,6 +30,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 
 class EventResource extends Resource
@@ -61,6 +63,8 @@ class EventResource extends Resource
                 FileUpload::make('banner_image')
                     ->image()
                     ->directory('events')
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'events', 1920, 1080))
                     ->maxSize(2048),
                 DateTimePicker::make('start_date')
                     ->required(),
@@ -92,6 +96,8 @@ class EventResource extends Resource
                     ->multiple()
                     ->image()
                     ->directory('events/gallery')
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'events/gallery', 1920, 1920))
                     ->maxSize(2048),
                 Toggle::make('waitlist_enabled')
                     ->label('Waitlist Enabled'),

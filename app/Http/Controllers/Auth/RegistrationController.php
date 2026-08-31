@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMemberRegistrationRequest;
 use App\Models\User;
+use App\Services\ImageOptimizer;
 use App\Services\MembershipService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -38,7 +39,7 @@ class RegistrationController extends Controller
         ];
 
         if ($request->hasFile('profile_photo')) {
-            $validated['profile_photo'] = $request->file('profile_photo')->store('profile-photos', 'public');
+            $validated['profile_photo'] = app(ImageOptimizer::class)->store($request->file('profile_photo'), 'profile-photos', 800, 800, 84);
         }
 
         unset($validated['terms']);

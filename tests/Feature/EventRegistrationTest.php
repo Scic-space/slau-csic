@@ -246,7 +246,7 @@ it('allows guests to view public events without authentication redirects', funct
 
     get(route('events.index'))
         ->assertSuccessful()
-        ->assertSeeLivewire(EventListing::class);
+        ->assertInertia(fn ($page) => $page->component('public/Events'));
 });
 
 it('organizes public events by their current lifecycle status', function () {

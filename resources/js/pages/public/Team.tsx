@@ -1,8 +1,4 @@
 import PublicLayout from '@/components/PublicLayout';
-import {
-    GlowyWavesBackground,
-    WaveSection,
-} from '@/components/ui/glowy-waves-hero-shadcnui';
 import { motion } from 'framer-motion';
 import { Link } from '@inertiajs/react';
 import {
@@ -73,7 +69,7 @@ const leadership: TeamMember[] = [
 
 const advisors: TeamMember[] = [
     {
-        name: 'Mr. Arfat',
+        name: 'Mr Kalema Arafat',
         role: 'Club Mentor',
         department: 'Advisory',
         image: '/images/club/team/club-mentor.jpg',
@@ -171,12 +167,16 @@ function MemberCard({ member, index }: { member: TeamMember; index: number }) {
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
             variants={fadeIn}
-            className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/30 hover:shadow-[0_0_40px_-10px_rgba(99,102,241,0.15)]"
+            className="group relative overflow-hidden rounded-sm border border-border bg-card/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/30 hover:shadow-[0_0_40px_-10px_rgba(99,102,241,0.15)]"
         >
             <div className="relative overflow-hidden">
                 <img
                     src={member.image}
                     alt={member.name}
+                    width="600"
+                    height="800"
+                    loading="lazy"
+                    decoding="async"
                     className="aspect-[3/4] w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
             </div>
@@ -190,11 +190,11 @@ function MemberCard({ member, index }: { member: TeamMember; index: number }) {
                         </span>
                     )}
                 </div>
-                <h3 className="text-lg font-bold tracking-tight text-white">{member.name}</h3>
+                <h3 className="text-lg font-bold tracking-tight text-foreground">{member.name}</h3>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-indigo-400">
                     {member.role}
                 </p>
-                <p className="text-sm leading-relaxed text-gray-500">{member.bio}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{member.bio}</p>
             </div>
         </motion.div>
     );
@@ -202,17 +202,17 @@ function MemberCard({ member, index }: { member: TeamMember; index: number }) {
 
 export default function Team() {
     return (
-        <PublicLayout transparentNav>
-            <GlowyWavesBackground>
+        <PublicLayout>
+            <div className="bg-background text-foreground">
                 {/* Hero */}
-                <div className="relative pt-32 pb-16 md:pt-44 md:pb-24">
+                <div className="relative border-b border-border bg-card py-16 sm:py-20">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="max-w-3xl">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5 }}
-                                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6"
+                                className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground backdrop-blur mb-6"
                             >
                                 <Users className="h-4 w-4 text-indigo-400" />
                                 Our Team
@@ -222,7 +222,7 @@ export default function Team() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.1 }}
-                                className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                                className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight"
                             >
                                 The people{' '}
                                 <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -234,7 +234,7 @@ export default function Team() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="text-lg text-white/50 mb-8 max-w-2xl leading-relaxed"
+                                className="text-lg text-muted-foreground mb-8 max-w-2xl leading-relaxed"
                             >
                                 A dedicated team of students managing everything from competitions and
                                 workshops to outreach and operations.
@@ -251,7 +251,7 @@ export default function Team() {
                                     return (
                                         <span
                                             key={dept.name}
-                                            className={`inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1.5 text-xs font-medium ${dept.color}`}
+                                            className={`inline-flex items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1.5 text-xs font-medium ${dept.color}`}
                                         >
                                             <Icon className="h-3.5 w-3.5" />
                                             {dept.name}
@@ -262,10 +262,10 @@ export default function Team() {
                         </div>
                     </div>
                 </div>
-            </GlowyWavesBackground>
+            </div>
 
             {/* Leadership */}
-            <WaveSection variant="default">
+            <section className="border-t border-border bg-background py-16 sm:py-20">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -278,7 +278,7 @@ export default function Team() {
                             <Crown className="h-3.5 w-3.5" />
                             Executive Team
                         </motion.div>
-                        <motion.h2 variants={fadeUp} className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                        <motion.h2 variants={fadeUp} className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                             Club Leadership
                         </motion.h2>
                     </motion.div>
@@ -289,10 +289,10 @@ export default function Team() {
                         ))}
                     </div>
                 </div>
-            </WaveSection>
+            </section>
 
             {/* Advisors */}
-            <WaveSection variant="default">
+            <section className="border-t border-border bg-background py-16 sm:py-20">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -305,10 +305,10 @@ export default function Team() {
                             <GraduationCap className="h-3.5 w-3.5" />
                             Advisory
                         </motion.div>
-                        <motion.h2 variants={fadeUp} className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                        <motion.h2 variants={fadeUp} className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                             Our Guides
                         </motion.h2>
-                        <motion.p variants={fadeUp} className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-500">
+                        <motion.p variants={fadeUp} className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                             The experience and support behind the club\u2019s growth.
                         </motion.p>
                     </motion.div>
@@ -319,10 +319,10 @@ export default function Team() {
                         ))}
                     </div>
                 </div>
-            </WaveSection>
+            </section>
 
             {/* Core Team */}
-            <WaveSection variant="default">
+            <section className="border-t border-border bg-background py-16 sm:py-20">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -335,7 +335,7 @@ export default function Team() {
                             <Code className="h-3.5 w-3.5" />
                             Core Team
                         </motion.div>
-                        <motion.h2 variants={fadeUp} className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                        <motion.h2 variants={fadeUp} className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                             Department Leads
                         </motion.h2>
                     </motion.div>
@@ -346,25 +346,25 @@ export default function Team() {
                         ))}
                     </div>
                 </div>
-            </WaveSection>
+            </section>
 
             {/* Join CTA */}
-            <WaveSection variant="default">
+            <section className="border-t border-border bg-background py-16 sm:py-20">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
-                        className="relative overflow-hidden rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.07] via-purple-500/[0.04] to-transparent p-8 sm:p-12 text-center"
+                        className="relative overflow-hidden rounded-sm border border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.07] via-purple-500/[0.04] to-transparent p-8 sm:p-12 text-center"
                     >
                         <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl" />
 
                         <Users className="mx-auto mb-4 h-8 w-8 text-indigo-400" />
-                        <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl mb-3">
+                        <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl mb-3">
                             Want to join the team?
                         </h2>
-                        <p className="mx-auto mb-8 max-w-lg text-gray-400 leading-relaxed">
+                        <p className="mx-auto mb-8 max-w-lg text-muted-foreground leading-relaxed">
                             We&apos;re always looking for dedicated members to take on leadership roles.
                             Get involved, contribute to the club, and grow your skills.
                         </p>
@@ -378,14 +378,14 @@ export default function Team() {
                             </Link>
                             <Link
                                 href="/contact"
-                                className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.03] px-6 py-3 text-sm font-medium text-white/80 transition-all hover:border-white/[0.2] hover:bg-white/[0.06]"
+                                className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-6 py-3 text-sm font-medium text-foreground/80 transition-all hover:border-primary/40 hover:bg-card-hover"
                             >
                                 Contact Us
                             </Link>
                         </div>
                     </motion.div>
                 </div>
-            </WaveSection>
+            </section>
         </PublicLayout>
     );
 }

@@ -22,12 +22,14 @@ it('shows the authenticated user a time-appropriate dashboard greeting', functio
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertSuccessful()
-        ->assertSee("{$greeting}, Amina Nsubuga");
+        ->assertSee('Authenticated user greeting')
+        ->assertSeeInOrder([$greeting, 'Amina Nsubuga']);
 })->with([
-    'morning before five' => ['2026-08-22 04:59:00', 'Good morning'],
+    'night before five' => ['2026-08-22 04:59:00', 'Good night'],
     'morning from five' => ['2026-08-22 05:00:00', 'Good morning'],
     'afternoon from noon' => ['2026-08-22 12:00:00', 'Good afternoon'],
     'evening from five' => ['2026-08-22 17:00:00', 'Good evening'],
+    'night from nine' => ['2026-08-22 21:00:00', 'Good night'],
 ]);
 
 it('shows the complete your profile prompt when the profile is empty', function () {

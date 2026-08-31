@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Trainings\Schemas;
 
 use App\Models\User;
+use App\Services\ImageOptimizer;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Http\UploadedFile;
 
 class TrainingForm
 {
@@ -90,6 +92,8 @@ class TrainingForm
                             ->label('Thumbnail Image')
                             ->image()
                             ->directory('trainings')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+                            ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'trainings', 1280, 720))
                             ->maxSize(2048),
                     ]),
 

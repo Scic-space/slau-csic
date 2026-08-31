@@ -22,15 +22,14 @@ class PublicHomeController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $upcomingEvents = Event::where('is_public', true)
-            ->whereIn('status', ['published', 'scheduled'])
+        $upcomingEvents = Event::query()
+            ->publiclyVisible()
             ->where('start_date', '>=', now())
-            ->with(['organizer', 'categories'])
+            ->with('categories')
             ->orderBy('start_date', 'asc')
             ->take(3)
             ->get()
             ->map(fn (Event $event) => [
-                'id' => $event->id,
                 'title' => $event->title,
                 'slug' => $event->slug,
                 'description' => $event->description,
@@ -61,7 +60,7 @@ class PublicHomeController extends Controller
 
         $projectCount = Project::count();
         $memberCount = User::query()->where('membership_status', 'active')->count();
-        $eventCount = Event::where('is_public', true)->whereIn('status', ['published', 'scheduled', 'ongoing'])->count();
+        $eventCount = Event::query()->publiclyVisible()->count();
 
         return Inertia::render('public/Home', [
             'upcomingEvents' => $upcomingEvents,

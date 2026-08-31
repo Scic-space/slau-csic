@@ -40,6 +40,157 @@
         background-color: var(--admin-sidebar);
     }
 
+    .fi-topbar {
+        min-height: 4.75rem;
+        gap: 1rem;
+        border-bottom: 1px solid var(--admin-border);
+        padding-inline: 1.5rem;
+        box-shadow: none;
+        font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
+    }
+
+    .fi-topbar-start {
+        margin-inline-end: 1rem;
+        gap: 1rem;
+    }
+
+    .fi-topbar-end {
+        gap: .625rem;
+    }
+
+    .admin-topbar-icon-button,
+    .fi-topbar-database-notifications-btn,
+    .fi-user-menu-trigger,
+    .fi-topbar-open-sidebar-btn,
+    .fi-topbar-close-sidebar-btn,
+    .fi-topbar-open-collapse-sidebar-btn,
+    .fi-topbar-close-collapse-sidebar-btn {
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        border: 1px solid var(--admin-border);
+        border-radius: .5rem;
+        background: transparent;
+        color: var(--admin-muted-foreground);
+        transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .admin-topbar-icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .admin-topbar-icon-button:hover,
+    .fi-topbar-database-notifications-btn:hover,
+    .fi-user-menu-trigger:hover,
+    .fi-topbar-open-sidebar-btn:hover,
+    .fi-topbar-close-sidebar-btn:hover,
+    .fi-topbar-open-collapse-sidebar-btn:hover,
+    .fi-topbar-close-collapse-sidebar-btn:hover {
+        border-color: color-mix(in srgb, var(--admin-muted-foreground) 35%, var(--admin-border));
+        background: var(--admin-card-hover);
+        color: var(--admin-foreground);
+    }
+
+    .admin-topbar-icon-button:focus-visible,
+    .fi-topbar-database-notifications-btn:focus-visible,
+    .fi-user-menu-trigger:focus-visible,
+    .fi-topbar-open-sidebar-btn:focus-visible,
+    .fi-topbar-close-sidebar-btn:focus-visible,
+    .fi-topbar-open-collapse-sidebar-btn:focus-visible,
+    .fi-topbar-close-collapse-sidebar-btn:focus-visible {
+        outline: 2px solid var(--primary-500);
+        outline-offset: 2px;
+    }
+
+    .fi-user-menu-trigger {
+        width: auto;
+        gap: .5rem;
+        padding: .25rem .5rem;
+    }
+
+    .fi-user-menu-trigger .fi-user-avatar {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .admin-user-name {
+        max-width: 10rem;
+        overflow: hidden;
+        color: var(--admin-foreground);
+        font-size: .875rem;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .admin-topbar-material-icon {
+        font-size: 1.375rem;
+    }
+
+    .admin-user-menu-chevron {
+        font-size: 1.125rem;
+    }
+
+    .fi-global-search {
+        display: none !important;
+    }
+
+    .admin-dashboard-greeting {
+        display: block;
+        color: var(--admin-foreground);
+        font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
+    }
+
+    .admin-dashboard-title {
+        display: block;
+    }
+
+    .admin-dashboard-greeting-copy {
+        color: var(--admin-muted-foreground);
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+    }
+
+    .admin-dashboard-greeting-name {
+        margin-inline-start: .35rem;
+        color: var(--admin-foreground);
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+    }
+
+    .admin-dashboard-title {
+        margin-top: .75rem;
+    }
+
+    @media (max-width: 639px) {
+        .fi-topbar {
+            min-height: 4rem;
+            gap: .625rem;
+            padding-inline: .75rem;
+        }
+
+        .fi-topbar-end {
+            gap: .375rem;
+        }
+
+        .admin-user-name,
+        .admin-user-menu-chevron {
+            display: none;
+        }
+
+        .admin-topbar-icon-button,
+        .fi-topbar-database-notifications-btn,
+        .fi-user-menu-trigger,
+        .fi-topbar-open-sidebar-btn,
+        .fi-topbar-close-sidebar-btn {
+            min-width: 2.25rem;
+            min-height: 2.25rem;
+        }
+    }
+
     .fi-body {
         background-color: var(--admin-background);
     }

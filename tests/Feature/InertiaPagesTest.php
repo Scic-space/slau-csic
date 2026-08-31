@@ -64,16 +64,18 @@ it('renders the verification page for unverified users', function () {
 it('renders the events index page', function () {
     Event::factory()->count(3)->create(['status' => 'published', 'is_public' => true]);
 
-    Livewire::test(\App\Livewire\EventListing::class)
-        ->assertStatus(200);
+    $this->get(route('events.index'))
+        ->assertInertia(fn ($page) => $page->component('public/Events'));
 });
 
 it('renders the event show page', function () {
-    $event = Event::factory()->create(['status' => 'published']);
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
 
     $response = $this->get(route('events.show', $event));
 
-    $response->assertSeeLivewire(App\Livewire\EventDetails::class);
+    $response->assertInertia(fn ($page) => $page
+        ->component('events/Show')
+        ->where('event.slug', $event->slug));
 });
 
 it('returns 404 for unpublished events on show page', function () {

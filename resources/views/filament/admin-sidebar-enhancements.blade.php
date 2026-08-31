@@ -151,6 +151,8 @@
 
 <script>
     (() => {
+        const adminUserName = @js(filament()->getUserName(filament()->auth()->user()));
+
         const sectionIcons = {
             Membership: 'groups',
             Events: 'calendar_month',
@@ -213,6 +215,40 @@
             return icon;
         };
 
+        const enhanceAdminTopbar = () => {
+            const userMenuTrigger = document.querySelector('.fi-user-menu-trigger');
+
+            if (userMenuTrigger && !userMenuTrigger.querySelector('.admin-user-name')) {
+                const name = document.createElement('span');
+                name.className = 'admin-user-name';
+                name.textContent = adminUserName;
+                userMenuTrigger.append(name, materialIcon('expand_more', 'admin-topbar-material-icon admin-user-menu-chevron'));
+            }
+
+            document.querySelectorAll('.fi-topbar-database-notifications-btn').forEach((button) => {
+                if (button.querySelector('.admin-topbar-material-icon')) return;
+
+                button.querySelector('.fi-icon')?.setAttribute('hidden', 'hidden');
+                button.prepend(materialIcon('notifications', 'admin-topbar-material-icon'));
+            });
+
+            const sidebarButtons = [
+                ['.fi-topbar-open-sidebar-btn', 'menu'],
+                ['.fi-topbar-close-sidebar-btn', 'close'],
+                ['.fi-topbar-open-collapse-sidebar-btn', 'menu_open'],
+                ['.fi-topbar-close-collapse-sidebar-btn', 'menu_open'],
+            ];
+
+            sidebarButtons.forEach(([selector, iconName]) => {
+                document.querySelectorAll(selector).forEach((button) => {
+                    if (button.querySelector('.admin-topbar-material-icon')) return;
+
+                    button.querySelectorAll('.fi-icon').forEach((icon) => icon.setAttribute('hidden', 'hidden'));
+                    button.prepend(materialIcon(iconName, 'admin-topbar-material-icon'));
+                });
+            });
+        };
+
         const enhanceAdminSidebar = () => {
             document.querySelectorAll('.fi-sidebar-group[data-group-label]').forEach((group) => {
                 const label = group.dataset.groupLabel;
@@ -246,7 +282,20 @@
             });
         };
 
-        queueMicrotask(enhanceAdminSidebar);
-        document.addEventListener('livewire:navigated', enhanceAdminSidebar);
+        queueMicrotask(() => {
+            enhanceAdminSidebar();
+            enhanceAdminTopbar();
+
+            const topbar = document.querySelector('.fi-topbar');
+
+            if (topbar && !topbar.dataset.enhancementObserver) {
+                topbar.dataset.enhancementObserver = 'true';
+                new MutationObserver(enhanceAdminTopbar).observe(topbar, { childList: true, subtree: true });
+            }
+        });
+        document.addEventListener('livewire:navigated', () => {
+            enhanceAdminSidebar();
+            enhanceAdminTopbar();
+        });
     })();
 </script>
