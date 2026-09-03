@@ -235,6 +235,101 @@
         border-color: var(--admin-border);
     }
 
+    /* TailAdmin-inspired Announcement form, scoped to avoid changing other resources. */
+    .announcement-form {
+        gap: 1rem;
+        color: var(--admin-foreground);
+        font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
+    }
+
+    .announcement-form .fi-section {
+        overflow: hidden;
+        border: 1px solid var(--admin-border);
+        border-radius: .25rem;
+        box-shadow: 0 1px 2px rgb(16 24 40 / .04);
+    }
+
+    .announcement-form .fi-section-header {
+        border-bottom: 1px solid var(--admin-border);
+        padding: 1rem 1.25rem;
+    }
+
+    .announcement-form .fi-section-content-ctn {
+        padding: 1.25rem;
+    }
+
+    .announcement-form-heading {
+        display: inline-flex;
+        align-items: center;
+        gap: .625rem;
+        color: var(--admin-foreground);
+        font-size: 1rem;
+        font-weight: 650;
+        line-height: 1.5rem;
+    }
+
+    .announcement-form-heading .material-symbols-outlined {
+        color: var(--primary-600);
+        font-size: 1.25rem;
+    }
+
+    .announcement-form .fi-fo-field-label-content {
+        color: var(--admin-foreground);
+        font-size: .875rem;
+        font-weight: 550;
+    }
+
+    .announcement-form .fi-input-wrp {
+        min-height: 2.75rem;
+        border-color: var(--admin-border);
+        border-radius: .25rem;
+        background: var(--admin-input);
+        box-shadow: 0 1px 2px rgb(16 24 40 / .04);
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .announcement-form .fi-input-wrp:focus-within {
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-500) 14%, transparent);
+    }
+
+    .announcement-form .fi-input,
+    .announcement-form .fi-select-input,
+    .announcement-form .fi-textarea {
+        color: var(--admin-foreground);
+    }
+
+    .announcement-form .fi-input::placeholder,
+    .announcement-form .fi-textarea::placeholder {
+        color: var(--admin-muted-foreground);
+        opacity: .8;
+    }
+
+    .announcement-form .announcement-field-icon {
+        color: var(--admin-muted-foreground);
+        font-size: 1.125rem;
+    }
+
+    .announcement-form .fi-fo-field-wrp-error-message {
+        color: rgb(217 45 32);
+        font-weight: 500;
+    }
+
+    .dark .announcement-form .fi-fo-field-wrp-error-message {
+        color: rgb(253 162 155);
+    }
+
+    .dark .announcement-form-heading .material-symbols-outlined {
+        color: var(--primary-400);
+    }
+
+    @media (max-width: 639px) {
+        .announcement-form .fi-section-header,
+        .announcement-form .fi-section-content-ctn {
+            padding: 1rem;
+        }
+    }
+
     /* Custom admin pages (e.g. the Event Calendar) predate this project's
        theme tokens and reference stray, non-standard class names — map
        them onto the same admin tokens rather than leaving them undefined. */

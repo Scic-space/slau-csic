@@ -38,7 +38,7 @@ class Announcement extends Model
             }
 
             if (empty($announcement->slug)) {
-                $announcement->slug = Str::slug($announcement->title);
+                $announcement->slug = static::generateUniqueSlug($announcement->title);
             }
         });
 
@@ -118,5 +118,19 @@ class Announcement extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public static function generateUniqueSlug(string $title): string
+    {
+        $baseSlug = Str::slug($title) ?: 'announcement';
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (static::query()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $slug;
     }
 }
