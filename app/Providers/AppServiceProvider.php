@@ -63,13 +63,15 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(NotificationSending::class, CheckNotificationPreferences::class);
 
         Event::listen(NotificationSent::class, function (NotificationSent $event): void {
-            if ($event->notifiable instanceof \Illuminate\Foundation\Auth\User) {
-                if (config('broadcasting.default') !== 'log' && config('broadcasting.default') !== 'null') {
-                    try {
-                        broadcast(new NewNotificationBroadcast($event->notification))->toOthers();
-                    } catch (\Throwable) {
-                        // Broadcasting unavailable — silently skip
-                    }
+            if ($event->notifiable instanceof \Illuminate\Foundation\Auth\User
+                && $event->channel === 'database'
+                && $event->response instanceof \Illuminate\Notifications\DatabaseNotification
+                && config('broadcasting.default') !== 'log'
+                && config('broadcasting.default') !== 'null') {
+                try {
+                    broadcast(new NewNotificationBroadcast($event->response))->toOthers();
+                } catch (\Throwable) {
+                    // Broadcasting unavailable — silently skip
                 }
             }
         });
