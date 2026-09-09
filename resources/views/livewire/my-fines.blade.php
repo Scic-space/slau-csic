@@ -93,8 +93,13 @@
                                         Notice
                                     </a>
                                     @if ($fine->payments->isNotEmpty())
-                                        @php $lastPayment = $fine->payments->first(); @endphp
-                                        @if ($lastPayment->isConfirmed() || $lastPayment->isRecorded())
+                                        @php
+                                            $lastPayment = $fine->payments
+                                                ->filter(fn ($p) => $p->isConfirmed() || $p->isRecorded())
+                                                ->sortByDesc('payment_date')
+                                                ->first();
+                                        @endphp
+                                        @if ($lastPayment)
                                             <a href="{{ route('fines.payments.receipt', $lastPayment->id) }}" target="_blank" class="text-blue-600 hover:text-blue-500 dark:text-blue-400 text-xs">
                                                 Receipt
                                             </a>

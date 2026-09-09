@@ -2,6 +2,8 @@
 
 use App\Models\CtfCompetition;
 use App\Models\CtfSubmission;
+use App\Models\Testimonial;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -81,4 +83,62 @@ it('exposes public arena stats', function () {
             ->where('stats.total_competitions', 1)
             ->where('stats.total_solves', 1)
             ->where('stats.total_participants', 1));
+});
+
+it('shows the testimonial year of study instead of a missing field', function () {
+    $member = User::factory()->create(['year_of_study' => 3]);
+
+    Testimonial::create([
+        'user_id' => $member->id,
+        'quote' => 'CTF taught me everything.',
+        'is_approved' => true,
+        'is_featured' => true,
+        'sort_order' => 1,
+    ]);
+
+    $this->get(route('ctf-arena'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('testimonials.0.role', 'Year 3 Student'));
+});
+
+it('falls back to a generic role when the member has no year of study', function () {
+    $member = User::factory()->create(['year_of_study' => null]);
+
+    Testimonial::create([
+        'user_id' => $member->id,
+        'quote' => 'Great community.',
+        'is_approved' => true,
+        'is_featured' => true,
+        'sort_order' => 1,
+    ]);
+
+    $this->get(route('ctf-arena'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('testimonials.0.role', 'SLAU-CSIC Member'));
+});
+
+it('fills quotes from approved testimonials when fewer than three are featured', function () {
+    $member = User::factory()->create(['year_of_study' => 4]);
+    $fallback = User::factory()->create(['year_of_study' => 2]);
+    $noYear = User::factory()->create(['year_of_study' => null]);
+
+    Testimonial::unguarded(fn () => Testimonial::create([
+        'user_id' => $member->id,
+        'quote' => 'Featured quote.',
+        'is_approved' => true,
+        'is_featured' => true,
+        'sort_order' => 1,
+        'created_at' => now()->subSeconds(3),
+    ]));
+    Testimonial::unguarded(fn () => Testimonial::create(['user_id' => $fallback->id, 'quote' => 'Fallback one.', 'is_approved' => true, 'is_featured' => false, 'created_at' => now()->subSeconds(2)]));
+    Testimonial::unguarded(fn () => Testimonial::create(['user_id' => $noYear->id, 'quote' => 'Fallback two.', 'is_approved' => true, 'is_featured' => false, 'created_at' => now()->subSeconds(1)]));
+
+    $this->get(route('ctf-arena'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('testimonials.0.role', 'Year 4 Student')
+            ->where('testimonials.1.role', 'SLAU-CSIC Member')
+            ->where('testimonials.2.role', 'Year 2 Student'));
 });
