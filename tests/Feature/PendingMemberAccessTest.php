@@ -38,6 +38,7 @@ it('redirects a pending member to the dashboard when accessing club activities',
 })->with([
     'events calendar' => 'events.calendar',
     'attendance calendar' => 'attendance.calendar',
+    'members directory' => 'members.index',
     'my events' => 'my-events',
     'grades' => 'grades.index',
     'trainings' => 'trainings.index',

@@ -21,7 +21,7 @@ class EventCheckInController extends Controller
         $user = auth()->user();
         abort_unless($user && $user->can('manage_attendance'), 403);
 
-        $request->validate(['code' => 'required|alpha_num|size:16']);
+        $request->validate(['code' => 'required|alpha_num|between:12,16']);
 
         $code = strtoupper($request->input('code'));
 

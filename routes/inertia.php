@@ -60,7 +60,7 @@ Route::get('/certificates/verify/{code}', [CertificateVerificationController::cl
 // Public routes
 Route::get('/events/calendar', EventCalendar::class)->name('events.calendar')->middleware(['auth', 'approved']);
 Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware(['auth', 'approved']);
-Route::get('/members', MemberDirectory::class)->name('members.index');
+Route::get('/members', MemberDirectory::class)->name('members.index')->middleware(['auth', 'approved']);
 Route::get('/events', PublicEventController::class)->name('events.index');
 
 Route::get('/events/checkin', App\Http\Controllers\EventCheckInController::class.'@showScanPage')

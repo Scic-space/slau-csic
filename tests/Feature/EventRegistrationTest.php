@@ -407,6 +407,21 @@ it('renders calendar with events for authenticated user', function () {
         ]);
 });
 
+it('renders calendar without crashing when an event has no end date', function () {
+    $user = User::factory()->create();
+    $event = Event::factory()->create([
+        'status' => 'published',
+        'is_public' => true,
+        'start_date' => now()->addDay(),
+        'end_date' => null,
+    ]);
+
+    actingAs($user)->get(route('events.calendar'))
+        ->assertOk();
+
+    expect($event->fresh()->end_date)->toBeNull();
+});
+
 // ─── My Events ────────────────────────────────────────────────────────
 
 it('shows my events for authenticated user', function () {

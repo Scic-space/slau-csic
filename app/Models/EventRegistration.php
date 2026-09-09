@@ -42,7 +42,7 @@ class EventRegistration extends Model
 
         static::creating(function ($registration) {
             if (! $registration->check_in_code) {
-                $registration->check_in_code = strtoupper(Str::random(12));
+                $registration->check_in_code = strtoupper(Str::random(16));
             }
         });
     }

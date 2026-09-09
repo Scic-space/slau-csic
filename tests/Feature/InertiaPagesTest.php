@@ -87,13 +87,19 @@ it('returns 404 for unpublished events on show page', function () {
 });
 
 it('renders the members directory page', function () {
+    $user = User::factory()->create([
+        'membership_status' => 'active',
+        'approved_at' => now(),
+    ]);
+
     User::factory()->count(3)->create([
         'membership_status' => 'active',
         'approved_at' => now(),
         'privacy_settings' => ['show_profile' => true],
     ]);
 
-    $this->get(route('members.index'))
+    $this->actingAs($user)
+        ->get(route('members.index'))
         ->assertSuccessful()
         ->assertSeeLivewire(\App\Livewire\MemberDirectory::class)
         ->assertSee('Total Members')
