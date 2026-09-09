@@ -200,7 +200,7 @@
                     for (let d = 1; d <= daysInMonth; d++) {
                         const isToday = d === today.getDate() && this.currentMonth === today.getMonth() && this.currentYear === today.getFullYear();
                         const dateStr = this.currentYear + '-' + String(this.currentMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-                        const events = this.filteredEvents.filter(e => e.start.startsWith(dateStr));
+                        const events = this.filteredEvents.filter(e => this.localDateStr(e.start) === dateStr);
                         days.push({ date: d, isCurrentMonth: true, isToday, events });
                     }
                     const remaining = 42 - days.length;
@@ -208,6 +208,11 @@
                         days.push({ date: d, isCurrentMonth: false, isToday: false, events: [] });
                     }
                     return days;
+                },
+
+                localDateStr(dateStr) {
+                    const d = new Date(dateStr);
+                    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 },
 
                 get agendaEvents() {

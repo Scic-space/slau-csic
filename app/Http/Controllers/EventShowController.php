@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventFeedback;
 use App\Models\EventRegistration;
+use App\Models\EventResource;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -77,7 +78,7 @@ class EventShowController extends Controller
         $event = Event::query()
             ->publiclyVisible()
             ->whereKey($event->getKey())
-            ->with(['organizer', 'categories', 'instructors', 'recurrence'])
+            ->with(['organizer', 'categories', 'instructors', 'recurrence', 'resources'])
             ->withCount(['registrations as registered_count' => fn ($q) => $q->where('status', 'registered')])
             ->firstOrFail();
 
@@ -147,7 +148,12 @@ class EventShowController extends Controller
                     'name' => $i->name,
                     'role' => $i->pivot->role,
                 ]),
-                'resources' => [],
+                'resources' => $event->resources->map(fn (EventResource $resource) => [
+                    'id' => $resource->id,
+                    'title' => $resource->title,
+                    'type' => $resource->type,
+                    'url' => $resource->display_url,
+                ]),
                 'user_registration' => $userRegistration ? [
                     'id' => $userRegistration->id,
                     'status' => $userRegistration->status,

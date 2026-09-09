@@ -93,6 +93,22 @@ it('allows guests to view public event details but hides non-public details', fu
     $this->get(route('events.show', $privateEvent))->assertNotFound();
 });
 
+it('shows resources attached to an event on the details page', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    \App\Models\EventResource::factory()->count(2)->create([
+        'event_id' => $event->id,
+        'type' => 'link',
+        'file_path' => null,
+        'url' => 'https://example.com/slides',
+    ]);
+
+    $this->get(route('events.show', $event))
+        ->assertInertia(fn ($page) => $page
+            ->component('events/Show')
+            ->has('event.resources', 2)
+            ->where('event.resources.0.url', 'https://example.com/slides'));
+});
+
 it('keeps event creation and admin event management protected from guests', function () {
     $this->get('/events/create')->assertRedirect(route('auth.login'));
     $this->get('/admin/manage-events')->assertRedirect(route('auth.login'));
