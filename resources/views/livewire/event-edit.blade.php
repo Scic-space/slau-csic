@@ -1,7 +1,7 @@
 <div class="py-6">
     <div class="mx-auto max-w-3xl">
         <div class="mb-6">
-            <a href="{{ route('events.show', $event->slug) }}" wire:navigate class="text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+            <a href="{{ route('events.member-show', $event->slug) }}" wire:navigate class="text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                 &larr; Back to event
             </a>
         </div>
@@ -233,7 +233,7 @@
                     <span wire:loading.remove>Update Event</span>
                     <span wire:loading>Saving...</span>
                 </button>
-                <a href="{{ route('events.show', $event->slug) }}" wire:navigate class="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover dark:focus:ring-white">
+                <a href="{{ route('events.member-show', $event->slug) }}" wire:navigate class="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover dark:focus:ring-white">
                     Cancel
                 </a>
             </div>

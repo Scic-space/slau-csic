@@ -20,7 +20,9 @@ use App\Livewire\ElectionShow;
 use App\Livewire\ElectionVoting;
 use App\Livewire\EventCalendar;
 use App\Livewire\EventCreate;
+use App\Livewire\EventDetails;
 use App\Livewire\EventEdit;
+use App\Livewire\EventListing;
 use App\Livewire\ExamCertificates;
 use App\Livewire\ExamListing;
 use App\Livewire\InstructorDashboard;
@@ -59,6 +61,8 @@ Route::get('/certificates/verify/{code}', [CertificateVerificationController::cl
 
 // Public routes
 Route::get('/events/calendar', EventCalendar::class)->name('events.calendar')->middleware(['auth', 'approved']);
+Route::get('/events/browse', EventListing::class)->name('events.browse')->middleware(['auth', 'approved']);
+Route::get('/events/{event:slug}/details', EventDetails::class)->name('events.member-show')->middleware(['auth', 'approved']);
 Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware(['auth', 'approved']);
 Route::get('/members', MemberDirectory::class)->name('members.index')->middleware(['auth', 'approved']);
 Route::get('/events', PublicEventController::class)->name('events.index');

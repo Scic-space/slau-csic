@@ -43,7 +43,7 @@
         {{-- Header --}}
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
-                <a href="{{ route('events.index') }}" wire:navigate
+                <a href="{{ route('events.browse') }}" wire:navigate
                    class="mb-3 inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     Back to Events
@@ -409,7 +409,7 @@
                             <ul class="divide-y divide-gray-50 dark:divide-gray-700/50">
                                 @foreach ($relatedEvents as $rel)
                                     <li class="py-2.5 first:pt-0 last:pb-0">
-                                        <a href="{{ route('events.show', $rel) }}" wire:navigate class="flex items-center gap-3 group">
+                                        <a href="{{ route('events.member-show', $rel) }}" wire:navigate class="flex items-center gap-3 group">
                                             <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                             </div>

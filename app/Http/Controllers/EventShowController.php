@@ -73,8 +73,12 @@ class EventShowController extends Controller
         return $cleaned;
     }
 
-    public function show(Event $event): Response
+    public function show(Event $event): Response|RedirectResponse
     {
+        if (auth()->check()) {
+            return redirect()->route('events.member-show', $event);
+        }
+
         $event = Event::query()
             ->publiclyVisible()
             ->whereKey($event->getKey())

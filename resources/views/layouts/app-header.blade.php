@@ -70,7 +70,7 @@
 
             <!-- Search Bar (desktop only) -->
             <div class="hidden xl:block">
-                <form action="{{ route('events.index') }}" method="GET" role="search">
+                <form action="{{ route('events.browse') }}" method="GET" role="search">
                     <div class="relative">
                         <span class="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
                             <!-- Search Icon -->
@@ -101,7 +101,7 @@
 
             <!-- Search Bar (mobile only) -->
             <div class="w-full xl:hidden">
-                <form action="{{ route('events.index') }}" method="GET" role="search">
+                <form action="{{ route('events.browse') }}" method="GET" role="search">
                     <div class="relative">
                         <span class="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
                             <!-- Search Icon -->

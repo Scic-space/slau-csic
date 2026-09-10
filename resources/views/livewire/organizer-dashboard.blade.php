@@ -133,7 +133,7 @@
 
                     {{-- Links --}}
                     <div class="mt-6 flex flex-wrap gap-3">
-                        <a href="{{ route('events.show', $evt['slug']) }}" wire:navigate class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">View Event</a>
+                        <a href="{{ route('events.member-show', $evt['slug']) }}" wire:navigate class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">View Event</a>
                         <a href="{{ route('events.edit', $evt['slug']) }}" wire:navigate class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">Edit Event</a>
                         <a href="{{ route('events.checkin') }}" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover">Check-In</a>
                     </div>

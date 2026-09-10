@@ -220,13 +220,13 @@
                     <ul x-cloak x-show="isSubmenuOpen('events') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Browse Events -->
                         <li>
-                            <a href="{{ route('events.index') }}" wire:navigate class="menu-item group"
+                            <a href="{{ route('events.browse') }}" wire:navigate class="menu-item group"
                                 :class="[
-                                    isActive('/events') && !isActive('/my-events') ? 'menu-item-active' : 'menu-item-inactive',
+                                    isActive('/events/browse') ? 'menu-item-active' : 'menu-item-inactive',
                                     (!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
                                     'xl:justify-center' : 'justify-start'
                                 ]">
-                                <span :class="isActive('/events') && !isActive('/my-events') ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
+                                <span :class="isActive('/events/browse') ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" fill="currentColor"></path></svg>
                                 </span>
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"

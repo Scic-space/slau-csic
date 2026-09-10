@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class PublicEventController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(): Response|RedirectResponse
     {
+        if (auth()->check()) {
+            return redirect()->route('events.browse');
+        }
+
         $events = Event::query()
             ->publiclyVisible()
             ->with('categories')

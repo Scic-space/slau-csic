@@ -15,7 +15,7 @@
                                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $event['title'] }}</p>
                                 <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ \Carbon\Carbon::parse($event['end_date'])->format('M j, Y') }}</p>
                             </div>
-                            <a href="{{ route('events.show', $event['slug']) }}" wire:navigate class="ml-4 shrink-0 rounded-lg bg-gray-900 px-4 py-2 text-xs font-medium text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
+                            <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate class="ml-4 shrink-0 rounded-lg bg-gray-900 px-4 py-2 text-xs font-medium text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
                                 Leave Feedback
                             </a>
                         </div>
@@ -29,7 +29,7 @@
                 <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Favorites ({{ $favoriteEvents->count() }})</h2>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($favoriteEvents as $event)
-                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate
+                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate
                            class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-border dark:bg-card">
                             <div class="flex items-start justify-between gap-2">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
@@ -75,7 +75,7 @@
                 <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Upcoming ({{ $upcomingEvents->count() }})</h2>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($upcomingEvents as $event)
-                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate
+                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate
                            class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-border dark:bg-card">
                             <div class="flex items-start justify-between gap-2">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
@@ -164,7 +164,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
+                                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -221,7 +221,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
+                                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -241,7 +241,7 @@
                 </div>
                 <p class="text-sm font-medium text-gray-900 dark:text-white">No events yet</p>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">You haven't registered for any events yet.</p>
-                <a href="{{ route('events.index') }}" wire:navigate class="mt-4 inline-flex items-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
+                <a href="{{ route('events.browse') }}" wire:navigate class="mt-4 inline-flex items-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
                     Browse Events
                 </a>
             </div>
