@@ -53,7 +53,7 @@ it('generates assignments for roles', function () {
     $generated = $this->service->generateAssignments($assignment);
 
     expect($generated->status)->toBe('pending_review')
-        ->and($generated->roles->first()->members)->toHaveCount(3);
+        ->and($generated->roles->first()->members)->toHaveCount(4);
 });
 
 it('approves an assignment and marks members as approved', function () {

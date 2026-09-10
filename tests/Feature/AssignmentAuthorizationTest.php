@@ -9,29 +9,29 @@ beforeEach(function () {
     $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
 });
 
-it('allows super-admin to view assignments page', function () {
+it('allows super-admin to access assignment wizard', function () {
     $user = User::factory()->create();
     $user->assignRole('super-admin');
 
     $this->actingAs($user)
-        ->get('/admin/assignments')
+        ->get('/admin/assignment-wizard')
         ->assertOk();
 });
 
-it('allows user with view_assignments permission to view assignments', function () {
+it('allows user with view_assignments permission to view role templates', function () {
     $user = User::factory()->create();
     $user->assignRole('President');
 
     $this->actingAs($user)
-        ->get('/admin/assignments')
+        ->get('/admin/role-templates')
         ->assertOk();
 });
 
-it('denies users without view_assignments permission', function () {
+it('denies users without view_assignments permission from role templates', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get('/admin/assignments')
+        ->get('/admin/role-templates')
         ->assertForbidden();
 });
 
@@ -59,22 +59,5 @@ it('denies user without manage_assignments from accessing wizard', function () {
 
     $this->actingAs($user)
         ->get('/admin/assignment-wizard')
-        ->assertForbidden();
-});
-
-it('allows user with view_assignments to view role templates', function () {
-    $user = User::factory()->create();
-    $user->assignRole('President');
-
-    $this->actingAs($user)
-        ->get('/admin/role-templates')
-        ->assertOk();
-});
-
-it('denies user without view_assignments from role templates', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->get('/admin/role-templates')
         ->assertForbidden();
 });

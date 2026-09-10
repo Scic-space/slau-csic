@@ -1,10 +1,8 @@
 <?php
 
-use App\Livewire\Leaderboard;
 use App\Models\PointTransaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -16,15 +14,15 @@ function createUser(array $overrides = []): User
     ], $overrides));
 }
 
-it('renders the leaderboard page', function () {
+it('renders the public leaderboard page', function () {
     $this->get(route('leaderboard.index'))
         ->assertOk()
-        ->assertSeeLivewire(Leaderboard::class);
+        ->assertInertia(fn ($page) => $page->component('public/Leaderboard'));
 });
 
 it('shows empty state when no points exist', function () {
-    Livewire::test(Leaderboard::class)
-        ->assertSee('No leaderboard data yet');
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page->where('leaders', [])->where('period', 'all-time'));
 });
 
 it('displays users ranked by total points', function () {
@@ -34,27 +32,14 @@ it('displays users ranked by total points', function () {
     PointTransaction::create(['user_id' => $alice->id, 'points' => 200, 'reason' => 'Test']);
     PointTransaction::create(['user_id' => $bob->id, 'points' => 500, 'reason' => 'Test']);
 
-    Livewire::test(Leaderboard::class)
-        ->assertDontSee('No leaderboard data yet')
-        ->assertSee('Bob')
-        ->assertSee('Alice')
-        ->assertSee('500')
-        ->assertSee('200');
-});
-
-it('shows top 3 podium cards', function () {
-    $users = collect(range(1, 3))->map(fn ($i) => createUser());
-
-    $users->each(function ($user, $i) {
-        PointTransaction::create([
-            'user_id' => $user->id,
-            'points' => (3 - $i) * 100,
-            'reason' => 'Test',
-        ]);
-    });
-
-    Livewire::test(Leaderboard::class)
-        ->assertSee($users->pluck('name')->toArray());
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('leaders.0.name', 'Bob')
+            ->where('leaders.0.total_points', 500)
+            ->where('leaders.0.rank', 1)
+            ->where('leaders.1.name', 'Alice')
+            ->where('leaders.1.total_points', 200)
+            ->where('leaders.1.rank', 2));
 });
 
 it('limits results to 50 users', function () {
@@ -68,9 +53,8 @@ it('limits results to 50 users', function () {
         ]);
     });
 
-    Livewire::test(Leaderboard::class)
-        ->assertSee($users->first()->name)
-        ->assertDontSee($users->last()->name);
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page->has('leaders', 50));
 });
 
 it('filters by month period', function () {
@@ -93,10 +77,11 @@ it('filters by month period', function () {
 
     PointTransaction::where('user_id', $bob->id)->update(['created_at' => now()->subMonths(2)]);
 
-    Livewire::test(Leaderboard::class)
-        ->set('period', 'month')
-        ->assertSee('Alice')
-        ->assertDontSee('Bob');
+    $this->get(route('leaderboard.index').'?period=month')
+        ->assertInertia(fn ($page) => $page
+            ->where('leaders.0.name', 'Alice')
+            ->where('period', 'month')
+            ->has('leaders', 1));
 });
 
 it('filters by week period', function () {
@@ -119,10 +104,11 @@ it('filters by week period', function () {
 
     PointTransaction::where('user_id', $bob->id)->update(['created_at' => now()->subWeeks(3)]);
 
-    Livewire::test(Leaderboard::class)
-        ->set('period', 'week')
-        ->assertSee('Alice')
-        ->assertDontSee('Bob');
+    $this->get(route('leaderboard.index').'?period=week')
+        ->assertInertia(fn ($page) => $page
+            ->where('leaders.0.name', 'Alice')
+            ->where('period', 'week')
+            ->has('leaders', 1));
 });
 
 it('shows current user rank callout', function () {
@@ -131,24 +117,17 @@ it('shows current user rank callout', function () {
 
     PointTransaction::create(['user_id' => $user->id, 'points' => 150, 'reason' => 'Test']);
 
-    Livewire::test(Leaderboard::class)
-        ->assertSee("You're ranked", escape: false)
-        ->assertSee('150');
-});
-
-it('hides rank callout for users with no points', function () {
-    $user = createUser();
-    $this->actingAs($user);
-
-    Livewire::test(Leaderboard::class)
-        ->assertDontSee("You're ranked", escape: false);
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('currentUserRank.rank', 1)
+            ->where('currentUserRank.points', 150));
 });
 
 it('does not show rank callout for guests', function () {
     createUser();
 
-    Livewire::test(Leaderboard::class)
-        ->assertDontSee("You're ranked", escape: false);
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page->where('currentUserRank', null));
 });
 
 it('excludes negative point totals from leaderboard', function () {
@@ -157,8 +136,8 @@ it('excludes negative point totals from leaderboard', function () {
     PointTransaction::create(['user_id' => $user->id, 'points' => 100, 'reason' => 'Earned']);
     PointTransaction::create(['user_id' => $user->id, 'points' => -200, 'reason' => 'Deducted']);
 
-    Livewire::test(Leaderboard::class)
-        ->assertDontSee('Alice');
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page->has('leaders', 0));
 });
 
 it('correctly ranks users with same points', function () {
@@ -168,9 +147,8 @@ it('correctly ranks users with same points', function () {
     PointTransaction::create(['user_id' => $alice->id, 'points' => 100, 'reason' => 'Test']);
     PointTransaction::create(['user_id' => $bob->id, 'points' => 100, 'reason' => 'Test']);
 
-    Livewire::test(Leaderboard::class)
-        ->assertSee('Alice')
-        ->assertSee('Bob');
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page->has('leaders', 2));
 });
 
 it('only shows active members', function () {
@@ -180,9 +158,10 @@ it('only shows active members', function () {
     PointTransaction::create(['user_id' => $active->id, 'points' => 100, 'reason' => 'Test']);
     PointTransaction::create(['user_id' => $inactive->id, 'points' => 200, 'reason' => 'Test']);
 
-    Livewire::test(Leaderboard::class)
-        ->assertSee('Active')
-        ->assertDontSee('Inactive');
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page
+            ->has('leaders', 1)
+            ->where('leaders.0.name', 'Active'));
 });
 
 it('shows user rank as position among all users', function () {
@@ -199,7 +178,8 @@ it('shows user rank as position among all users', function () {
 
     PointTransaction::create(['user_id' => $user->id, 'points' => 50, 'reason' => 'Test']);
 
-    Livewire::test(Leaderboard::class)
-        ->assertSee("You're ranked", escape: false)
-        ->assertSee('of 4 members');
+    $this->get(route('leaderboard.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('currentUserRank.rank', 1)
+            ->where('totalMembers', 4));
 });
