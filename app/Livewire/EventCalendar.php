@@ -36,7 +36,7 @@ class EventCalendar extends Component
                 'id' => (string) $event->id,
                 'title' => $event->title,
                 'start' => $event->start_date->toIso8601String(),
-                'end' => $event->end_date->toIso8601String(),
+                'end' => $event->end_date?->toIso8601String() ?? $event->start_date->toIso8601String(),
                 'color' => $event->categories->first()?->color ?? '#6366f1',
                 'textColor' => '#ffffff',
                 'type' => $event->type,

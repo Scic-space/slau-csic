@@ -58,13 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (userId && window.Echo) {
         window.Echo.private(`user.${userId}`)
             .listen('.notification.new', (event) => {
-                // Update badge count in header
-                document.querySelectorAll('[data-notification-count]').forEach((el) => {
-                    el.textContent = event.unread_count > 99 ? '99+' : event.unread_count;
-                    el.style.display = event.unread_count > 0 ? 'flex' : 'none';
-                });
-
-                // Dispatch Livewire event for components that need to refresh
+                // Bell badge and lists are Livewire-bound; refresh them
                 if (window.Livewire) {
                     window.Livewire.dispatch('notification-sent');
                     window.Livewire.dispatch('notification-updated');

@@ -27,6 +27,8 @@ class AnnouncementShow extends Component
             $announcement->markAsViewedBy($user);
         }
 
+        $this->dispatch('sidebar-badges-refresh');
+
         $this->announcement = [
             'id' => $announcement->id,
             'title' => $announcement->title,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -73,6 +74,34 @@ class Event extends Model
             'no_show_fine_amount' => 'decimal:2',
             'cancelled_at' => 'datetime',
         ];
+    }
+
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query
+            ->where('is_public', true)
+            ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed']);
+    }
+
+    public function publicStatus(): string
+    {
+        if ($this->status === 'completed') {
+            return 'completed';
+        }
+
+        if ($this->status === 'ongoing') {
+            return 'ongoing';
+        }
+
+        if ($this->start_date->isFuture()) {
+            return 'upcoming';
+        }
+
+        if ($this->end_date?->isFuture()) {
+            return 'ongoing';
+        }
+
+        return 'completed';
     }
 
     public function organizer(): BelongsTo

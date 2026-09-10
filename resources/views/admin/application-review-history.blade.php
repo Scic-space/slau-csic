@@ -1,6 +1,6 @@
 <div class="space-y-3">
     @forelse ($reviews as $review)
-        <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+        <div class="rounded-lg border border-gray-200 dark:border-border p-3">
             <div class="flex items-center justify-between">
                 <span class="text-sm font-medium">{{ $review->user->name ?? 'System' }}</span>
                 <span class="text-xs text-gray-500">{{ $review->created_at->format('M j, Y g:i A') }}</span>

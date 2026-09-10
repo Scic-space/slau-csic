@@ -85,6 +85,8 @@ class AdminPanelProvider extends PanelProvider
             )
             ->sidebarCollapsibleOnDesktop()
             ->collapsibleNavigationGroups()
+            ->globalSearch(false)
+            ->databaseNotifications()
             ->maxContentWidth(Width::ScreenTwoExtraLarge)
             ->colors([
                 'primary' => Color::Amber,
@@ -441,6 +443,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn (): string => view('filament.admin-ui-head')->render(),
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn (): string => view('filament.admin-topbar-theme-toggle')->render(),
             )
             ->renderHook(
                 \Filament\View\PanelsRenderHook::FOOTER,

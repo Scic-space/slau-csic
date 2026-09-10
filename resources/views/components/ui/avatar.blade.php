@@ -44,6 +44,6 @@
     />
     
     @if($status !== 'none')
-        <span class="absolute bottom-0 right-0 rounded-full border-[1.5px] border-white dark:border-gray-900 {{ $statusSizeClass }} {{ $statusColorClass }}"></span>
+        <span class="absolute bottom-0 right-0 rounded-full border-[1.5px] border-white dark:border-border {{ $statusSizeClass }} {{ $statusColorClass }}"></span>
     @endif
 </div>

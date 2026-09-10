@@ -21,10 +21,10 @@
         </div>
 
         {{-- Notification Card --}}
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
 
             {{-- Header --}}
-            <div class="border-b border-gray-100 px-6 py-5 dark:border-gray-700/50">
+            <div class="border-b border-gray-100 px-6 py-5 dark:border-border/50">
                 <div class="flex items-start gap-4">
                     {{-- Type Icon --}}
                     <div class="flex-shrink-0">
@@ -79,7 +79,7 @@
 
                 {{-- Data fields --}}
                 @if (count($data) > 1)
-                    <div class="mt-6 rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/50">
+                    <div class="mt-6 rounded-xl border border-gray-100 bg-background p-4 dark:border-border dark:bg-background/50">
                         <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Details</h3>
                         <dl class="mt-3 space-y-2">
                             @foreach ($data as $key => $value)
@@ -96,7 +96,7 @@
             </div>
 
             {{-- Footer Actions --}}
-            <div class="flex items-center gap-3 border-t border-gray-100 px-6 py-4 dark:border-gray-700/50">
+            <div class="flex items-center gap-3 border-t border-gray-100 px-6 py-4 dark:border-border/50">
                 @if ($actionUrl)
                     <a href="{{ url($actionUrl) }}"
                        wire:navigate
@@ -110,7 +110,7 @@
 
                 <button wire:click="deleteNotification"
                         wire:confirm="Delete this notification?"
-                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 dark:hover:border-red-800">
+                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:border-border dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 dark:hover:border-red-800">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     Delete
                 </button>

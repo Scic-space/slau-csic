@@ -1,5 +1,5 @@
-<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
         <div class="flex items-center gap-3">
             <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-100 text-sm font-bold text-primary-700 shadow-sm dark:bg-primary-900/40 dark:text-primary-300">1</span>
             <div>
@@ -21,7 +21,7 @@
                     class="group rounded-xl border-2 p-5 text-left transition-all duration-200
                         {{ $targetType === $opt['type']
                             ? 'border-primary-500 bg-primary-50 shadow-sm dark:border-primary-400 dark:bg-primary-900/20'
-                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600' }}"
+                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm dark:border-border dark:bg-card dark:hover:border-gray-600' }}"
                 >
                     <div class="mb-3 flex items-center gap-3">
                         <div class="flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200 {{ $targetType === $opt['type'] ? 'bg-primary-100 text-primary-700 shadow-sm dark:bg-primary-900/40 dark:text-primary-300' : 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' }}">
@@ -43,7 +43,7 @@
                         <select wire:model="targetId" class="block w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm shadow-sm transition focus:outline-none focus:ring-2 dark:text-white
                             {{ isset($validationErrors['targetId'])
                                 ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/30 dark:border-red-500 dark:bg-red-900/10'
-                                : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700' }}">
+                                : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700' }}">
                             <option value="">Choose an event...</option>
                             @foreach ($this->events as $event)
                                 <option value="{{ $event->id }}">{{ $event->title }} — {{ $event->start_date?->format('M j, Y') }}</option>
@@ -62,7 +62,7 @@
                         <select wire:model="targetId" class="block w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm shadow-sm transition focus:outline-none focus:ring-2 dark:text-white
                             {{ isset($validationErrors['targetId'])
                                 ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/30 dark:border-red-500 dark:bg-red-900/10'
-                                : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700' }}">
+                                : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700' }}">
                             <option value="">Choose a project...</option>
                             @foreach ($this->projects as $project)
                                 <option value="{{ $project->id }}">{{ $project->name }}</option>
@@ -85,7 +85,7 @@
                             class="block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm shadow-sm transition focus:outline-none focus:ring-2 dark:text-white
                                 {{ isset($validationErrors['customName'])
                                     ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/30 dark:border-red-500 dark:bg-red-900/10'
-                                    : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700' }}"
+                                    : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700' }}"
                         >
                     </div>
                     @if (isset($validationErrors['customName']))
@@ -99,7 +99,7 @@
                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
                     <div class="relative">
                         <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/></svg>
-                        <select wire:model="priority" class="block w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <select wire:model="priority" class="block w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700 dark:text-white">
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
                             <option value="high">High</option>
@@ -113,7 +113,7 @@
                         <input
                             type="datetime-local"
                             wire:model="deadline"
-                            class="block w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            class="block w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700 dark:text-white"
                         >
                     </div>
                     <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Optional</p>
@@ -130,7 +130,7 @@
                     rows="3"
                     placeholder="What is this assignment for? Describe the context, goals, and any special requirements."
                     maxlength="500"
-                    class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-border dark:bg-gray-700 dark:text-white"
                     x-on:input="count = $el.value.length"
                 ></textarea>
             </div>

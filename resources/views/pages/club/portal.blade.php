@@ -66,7 +66,7 @@
             </div>
         @endif
 
-        <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-8">
+        <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03] md:p-8">
             <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                 <div class="space-y-4">
                     <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-500">Club Portal</p>
@@ -76,24 +76,24 @@
                     </p>
                     <div class="flex flex-wrap gap-3">
                         <a href="{{ route('portal.ctf') }}" class="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">Open CTF Arena</a>
-                        <a href="{{ route('portal.classes') }}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-white/[0.04]">Open Class Links</a>
+                        <a href="{{ route('portal.classes') }}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-border dark:text-gray-200 dark:hover:bg-white/[0.04]">Open Class Links</a>
                     </div>
                 </div>
 
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                    <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                         <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Active tracks</div>
                         <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ $metrics['active_tracks'] }}</div>
                     </div>
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                    <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                         <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Completed tracks</div>
                         <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ $metrics['completed_tracks'] }}</div>
                     </div>
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                    <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                         <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Average progress</div>
                         <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ $metrics['average_progress'] }}%</div>
                     </div>
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                    <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                         <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Portal points</div>
                         <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ $metrics['club_points'] }}</div>
                     </div>
@@ -107,7 +107,7 @@
                     $items = $resourcesByCategory->get($category, collect());
                     $inProgress = $items->filter(fn ($item) => optional($item->user_progress)->status === 'in_progress')->count();
                 @endphp
-                <article class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-gray-800 dark:bg-white/[0.03]">
+                <article class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-border dark:bg-white/[0.03]">
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $config['title'] }}</h2>
@@ -124,7 +124,7 @@
         </section>
 
         <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]">
                 <div class="flex items-center justify-between gap-4">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Priority Access</p>
@@ -138,20 +138,20 @@
                             $resource = $resourcesByCategory->get($category, collect())->first();
                         @endphp
                         @if ($resource)
-                            <article class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                            <article class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/50">
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div>
                                         <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-500">{{ $resource->platform ?? strtoupper($category) }}</p>
                                         <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">{{ $resource->title }}</h3>
                                         <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">{{ $resource->summary }}</p>
                                     </div>
-                                    <div class="min-w-[120px] rounded-md border border-gray-200 bg-white px-3 py-3 text-right dark:border-gray-700 dark:bg-white/[0.03]">
+                                    <div class="min-w-[120px] rounded-md border border-gray-200 bg-white px-3 py-3 text-right dark:border-border dark:bg-white/[0.03]">
                                         <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Progress</div>
                                         <div class="mt-2 text-xl font-semibold text-gray-900 dark:text-white">{{ optional($resource->user_progress)->progress_percentage ?? 0 }}%</div>
                                     </div>
                                 </div>
                                 <div class="mt-4 flex flex-wrap gap-3">
-                                    <a href="{{ $categoryConfig[$category]['route'] }}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 dark:border-gray-700 dark:text-gray-200">Open section</a>
+                                    <a href="{{ $categoryConfig[$category]['route'] }}" class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 dark:border-border dark:text-gray-200">Open section</a>
                                     @if ($resource->external_url && $resource->external_url !== '#')
                                         <a href="{{ $resource->external_url }}" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-slate-950">{{ $resource->cta_label ?: 'Launch' }}</a>
                                     @endif
@@ -162,20 +162,20 @@
                 </div>
             </div>
 
-            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]">
                 <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Member Snapshot</p>
                 <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                    <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                         <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Events attended</div>
                         <div class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{{ $metrics['events_attended'] }}</div>
                     </div>
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                    <div class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                         <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Competition entries</div>
                         <div class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{{ $metrics['competition_entries'] }}</div>
                     </div>
                 </div>
 
-                <div class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+                <div class="mt-6 rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Useful extras</h3>
                     <ul class="mt-4 space-y-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
                         <li>Use the profile page to keep your public member bio and achievements updated.</li>

@@ -34,7 +34,7 @@
         </div>
 
         @if ($this->activities->isNotEmpty())
-            <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-border dark:bg-card">
                 <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
                     Membership History
                 </h2>

@@ -241,7 +241,7 @@ it('does not show unseen indicator after announcement is read', function () {
         ->assertDontSee('Read Announcement</h3>'); // check the title renders but without the "New" badge
 });
 
-it('shows expired badge for expired announcements', function () {
+it('hides expired announcements from the listing', function () {
     Announcement::factory()->create([
         'title' => 'Expired Announcement',
         'is_published' => true,
@@ -251,7 +251,7 @@ it('shows expired badge for expired announcements', function () {
 
     Livewire::actingAs($this->user)
         ->test(AnnouncementListing::class)
-        ->assertSee('Expired');
+        ->assertDontSee('Expired Announcement');
 });
 
 it('shows active badge for non-expired announcements', function () {

@@ -3,26 +3,26 @@
 @section('content')
 <div class="space-y-6">
     {{-- Header --}}
-    <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+    <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]">
         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-500">My CTF Dashboard</p>
         <h1 class="mt-2 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Your CTF Stats</h1>
     </section>
 
     {{-- Global stats --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Total Solves</p>
             <p class="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $globalStats['total_solves'] }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Total Points</p>
             <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ $globalStats['total_points'] }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Incorrect Attempts</p>
             <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ $globalStats['total_incorrect'] }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Competitions</p>
             <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ $globalStats['competitions_participated'] }}</p>
         </div>
@@ -37,7 +37,7 @@
                 $competition = $data['competition'];
                 $pct = $data['total_challenges'] > 0 ? round(($data['solved_count'] / $data['total_challenges']) * 100) : 0;
             @endphp
-            <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-border dark:bg-white/[0.03]">
                 <div class="flex items-start justify-between gap-4">
                     <div class="min-w-0 flex-1">
                         <a href="{{ route('ctf.competition', $competition) }}" class="text-base font-semibold text-gray-900 hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400">{{ $competition->title }}</a>
@@ -88,7 +88,7 @@
                     <div class="flex flex-wrap gap-1.5">
                         @foreach ($data['unsolved_challenges']->take(10) as $chal)
                         <a href="{{ route('ctf.competition', $competition) }}#{{ $chal->slug }}"
-                           class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] text-gray-600 hover:border-emerald-300 hover:text-emerald-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-emerald-700 dark:hover:text-emerald-400">
+                           class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] text-gray-600 hover:border-emerald-300 hover:text-emerald-600 dark:border-border dark:bg-card dark:text-gray-400 dark:hover:border-emerald-700 dark:hover:text-emerald-400">
                             {{ $chal->title }}
                             <span class="text-gray-400 dark:text-gray-500">{{ $chal->points }}pts</span>
                         </a>
@@ -101,7 +101,7 @@
                 @endif
             </div>
         @empty
-            <div class="rounded-lg border border-gray-200 bg-gray-50 p-12 text-center dark:border-gray-800 dark:bg-gray-900/60">
+            <div class="rounded-lg border border-gray-200 bg-background p-12 text-center dark:border-border dark:bg-background/60">
                 <p class="text-gray-600 dark:text-gray-400">No competitions found.</p>
             </div>
         @endforelse
@@ -109,11 +109,11 @@
 
     {{-- Recent activity --}}
     @if ($recentActivity->count() > 0)
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h2>
         <div class="space-y-2">
             @foreach ($recentActivity as $submission)
-            <div class="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50 px-4 py-2.5 dark:border-gray-800 dark:bg-gray-900/60">
+            <div class="flex items-center justify-between rounded-md border border-gray-100 bg-background px-4 py-2.5 dark:border-border dark:bg-background/60">
                 <div class="flex items-center gap-3 min-w-0">
                     @if ($submission->is_correct)
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500">

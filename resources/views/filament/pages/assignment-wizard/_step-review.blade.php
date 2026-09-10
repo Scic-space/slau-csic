@@ -1,5 +1,5 @@
-<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-100 text-sm font-bold text-primary-700 shadow-sm dark:bg-primary-900/40 dark:text-primary-300">5</span>
@@ -73,8 +73,8 @@
             >
                 <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
                     @foreach ($generatedResults['roles'] ?? [] as $role)
-                        <div class="rounded-lg border border-gray-200 dark:border-gray-700">
-                            <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50/50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/30">
+                        <div class="rounded-lg border border-gray-200 dark:border-border">
+                            <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50/50 px-4 py-3 dark:border-border dark:bg-gray-900/30">
                                 <div class="flex items-center gap-2.5">
                                     <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900/40 dark:text-primary-300">
                                         {{ strtoupper(substr($role['name'], 0, 1)) }}
@@ -94,8 +94,8 @@
                             >
                                 @forelse ($role['members'] as $member)
                                     <div
-                                        class="member-card cursor-grab rounded-lg border bg-white px-3 py-2.5 shadow-sm transition active:cursor-grabbing dark:bg-gray-800
-                                            {{ $member['status'] === 'approved' ? 'border-green-200 dark:border-green-800' : 'border-gray-200 dark:border-gray-700' }}
+                                        class="member-card cursor-grab rounded-lg border bg-white px-3 py-2.5 shadow-sm transition active:cursor-grabbing dark:bg-card
+                                            {{ $member['status'] === 'approved' ? 'border-green-200 dark:border-green-800' : 'border-gray-200 dark:border-border' }}
                                             hover:shadow-md hover:border-primary-300 dark:hover:border-primary-700"
                                         draggable="true"
                                         data-member-id="{{ $member['id'] }}"
@@ -131,7 +131,7 @@
                                                 @if (! empty($member['conflict_flags']))
                                                     <div class="group relative">
                                                         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400" title="{{ implode(', ', $member['conflict_flags']) }}">!</span>
-                                                        <div class="absolute right-0 top-full z-10 mt-1 hidden w-48 rounded-lg border border-red-200 bg-white p-2 shadow-lg group-hover:block dark:border-red-800 dark:bg-gray-800">
+                                                        <div class="absolute right-0 top-full z-10 mt-1 hidden w-48 rounded-lg border border-red-200 bg-white p-2 shadow-lg group-hover:block dark:border-red-800 dark:bg-card">
                                                             <p class="text-xs text-red-600 dark:text-red-400">
                                                                 @foreach ($member['conflict_flags'] as $flag)
                                                                     &bull; {{ $flag }}<br>
@@ -163,7 +163,7 @@
                 </div>
             </div>
         @else
-            <div class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-16 dark:border-gray-700">
+            <div class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-16 dark:border-border">
                 <svg class="mb-4 h-14 w-14 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
                 <h3 class="text-lg font-semibold text-gray-400 dark:text-gray-500">No members assigned yet</h3>
                 <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">Go to the Assign step to add members, then come back here to review.</p>

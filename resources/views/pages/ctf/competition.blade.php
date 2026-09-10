@@ -73,7 +73,7 @@
     @endif
 
     {{-- Competition header --}}
-    <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]"
+    <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]"
         x-data="{
             remaining: '',
             startDate: '{{ $competition->start_date?->timestamp }}',
@@ -111,7 +111,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-                <a href="{{ route('ctf.scoreboard', $competition) }}" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3.5 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-white/[0.04]">
+                <a href="{{ route('ctf.scoreboard', $competition) }}" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3.5 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-border dark:text-gray-200 dark:hover:bg-white/[0.04]">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
@@ -148,19 +148,19 @@
         $totalPoints = collect($challengesByCategory)->flatten()->sum(fn($c) => $c->points);
     @endphp
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Challenges</p>
             <p class="mt-0.5 text-xl font-semibold text-gray-900 dark:text-white">{{ $totalChallenges }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Solved</p>
             <p class="mt-0.5 text-xl font-semibold text-emerald-600 dark:text-emerald-400">{{ $solvedCount }}/{{ $totalChallenges }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Points</p>
             <p class="mt-0.5 text-xl font-semibold text-gray-900 dark:text-white">{{ collect($challengesByCategory)->flatten()->filter(fn($c) => in_array($c->id, $userSolved))->sum('points') }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-border dark:bg-white/[0.03]">
             <p class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Progress</p>
             <p class="mt-0.5 text-xl font-semibold text-gray-900 dark:text-white">{{ $totalChallenges > 0 ? round(($solvedCount / $totalChallenges) * 100) : 0 }}%</p>
         </div>
@@ -173,9 +173,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
             <input type="text" x-model="search" placeholder="Search challenges..."
-                   class="w-full rounded-md border border-gray-300 py-2 pl-9 pr-3 text-sm dark:border-gray-700 dark:bg-gray-800">
+                   class="w-full rounded-md border border-gray-300 py-2 pl-9 pr-3 text-sm dark:border-border dark:bg-card">
         </div>
-        <select x-model="category" class="rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800">
+        <select x-model="category" class="rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-border dark:bg-card">
             <option value="">All Categories</option>
             @foreach ($categories as $cat)
             <option value="{{ $cat }}">{{ $cat }}</option>
@@ -195,7 +195,7 @@
             'Binary' => ['bg' => 'bg-red-500', 'light' => 'bg-red-50 dark:bg-red-500/5', 'border' => 'border-red-200 dark:border-red-800', 'text' => 'text-red-600 dark:text-red-400', 'badge' => 'bg-red-500/10 text-red-600 dark:text-red-400'],
             'Reversing' => ['bg' => 'bg-orange-500', 'light' => 'bg-orange-50 dark:bg-orange-500/5', 'border' => 'border-orange-200 dark:border-orange-800', 'text' => 'text-orange-600 dark:text-orange-400', 'badge' => 'bg-orange-500/10 text-orange-600 dark:text-orange-400'],
             'OSINT' => ['bg' => 'bg-cyan-500', 'light' => 'bg-cyan-50 dark:bg-cyan-500/5', 'border' => 'border-cyan-200 dark:border-cyan-800', 'text' => 'text-cyan-600 dark:text-cyan-400', 'badge' => 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'],
-            'Misc' => ['bg' => 'bg-gray-500', 'light' => 'bg-gray-50 dark:bg-gray-500/5', 'border' => 'border-gray-200 dark:border-gray-700', 'text' => 'text-gray-600 dark:text-gray-400', 'badge' => 'bg-gray-500/10 text-gray-600 dark:text-gray-400'],
+            'Misc' => ['bg' => 'bg-gray-500', 'light' => 'bg-gray-50 dark:bg-gray-500/5', 'border' => 'border-gray-200 dark:border-border', 'text' => 'text-gray-600 dark:text-gray-400', 'badge' => 'bg-gray-500/10 text-gray-600 dark:text-gray-400'],
         ];
     @endphp
 
@@ -263,7 +263,7 @@
                             class="group relative flex flex-col rounded-lg border-2 p-4 text-left transition-all duration-150
                                 {{ $isSolved
                                     ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-900/10 opacity-70 hover:opacity-100'
-                                    : 'border-gray-200 bg-white hover:border-emerald-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900/40 dark:hover:border-emerald-700'
+                                    : 'border-gray-200 bg-white hover:border-emerald-300 hover:shadow-md dark:border-border dark:bg-card/40 dark:hover:border-emerald-700'
                                 }}">
 
                             {{-- Solved badge --}}
@@ -340,7 +340,7 @@
                 </div>
             </section>
         @empty
-        <div class="rounded-lg border border-gray-200 bg-gray-50 p-12 text-center dark:border-gray-800 dark:bg-gray-900/60">
+        <div class="rounded-lg border border-gray-200 bg-background p-12 text-center dark:border-border dark:bg-background/60">
             <p class="text-gray-600 dark:text-gray-400">No active challenges in this competition.</p>
         </div>
         @endforelse
@@ -348,7 +348,7 @@
 
     {{-- Teams section --}}
     @if ($competition->allow_teams && isset($teams))
-    <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+    <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-border dark:bg-white/[0.03]">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Teams</h2>
             @if (!$userTeam)
@@ -360,15 +360,15 @@
         </div>
 
         {{-- Create team form --}}
-        <form id="create-team-form-competition" method="POST" action="{{ route('ctf.team.create', $competition) }}" class="hidden mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+        <form id="create-team-form-competition" method="POST" action="{{ route('ctf.team.create', $competition) }}" class="hidden mb-4 rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/40">
             @csrf
             <input type="text" name="name" placeholder="Team name" required
-                   class="mb-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800">
+                   class="mb-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-border dark:bg-card">
             <textarea name="description" rows="2" placeholder="Team description (optional)"
-                      class="mb-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800"></textarea>
+                      class="mb-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-border dark:bg-card"></textarea>
             <div class="flex gap-2">
                 <button type="submit" class="rounded-md bg-indigo-500 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-600">Create</button>
-                <button type="button" onclick="this.closest('form').classList.add('hidden')" class="rounded-md border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 dark:border-gray-700 dark:text-gray-300">Cancel</button>
+                <button type="button" onclick="this.closest('form').classList.add('hidden')" class="rounded-md border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 dark:border-border dark:text-gray-300">Cancel</button>
             </div>
         </form>
 
@@ -397,9 +397,9 @@
             <form id="team-settings-form" method="POST" action="{{ route('ctf.team.settings', $competition) }}" class="hidden mb-3 rounded-md border border-indigo-200 bg-indigo-100/50 p-3 dark:border-indigo-800 dark:bg-indigo-900/30">
                 @csrf
                 <label class="block text-xs font-medium text-indigo-700 dark:text-indigo-300 mb-1">Team Name</label>
-                <input type="text" name="name" value="{{ $userTeam->name }}" required class="mb-2 w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-800">
+                <input type="text" name="name" value="{{ $userTeam->name }}" required class="mb-2 w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs dark:border-border dark:bg-card">
                 <label class="flex items-center gap-2 text-xs text-indigo-700 dark:text-indigo-300 mb-2">
-                    <input type="checkbox" name="is_open" value="1" {{ $userTeam->is_open ? 'checked' : '' }} class="rounded border-gray-300 dark:border-gray-700">
+                    <input type="checkbox" name="is_open" value="1" {{ $userTeam->is_open ? 'checked' : '' }} class="rounded border-gray-300 dark:border-border">
                     Open for new members
                 </label>
                 <button type="submit" class="rounded-md bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-600">Save</button>
@@ -431,14 +431,14 @@
         @else
         <form method="POST" action="{{ route('ctf.team.join', $competition) }}" class="mb-4 flex gap-2">
             @csrf
-            <input type="text" name="invite_code" placeholder="Invite code" class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-xs dark:border-gray-700 dark:bg-gray-800">
+            <input type="text" name="invite_code" placeholder="Invite code" class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-xs dark:border-border dark:bg-card">
             <button type="submit" class="rounded-md bg-indigo-500 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-600">Join</button>
         </form>
         @endif
 
         <div class="space-y-2">
             @forelse ($teams as $team)
-            <div class="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900/60">
+            <div class="flex items-center justify-between rounded-md border border-gray-200 bg-background px-4 py-3 dark:border-border dark:bg-background/60">
                 <div>
                     <p class="font-medium text-gray-900 dark:text-white text-sm">
                         {{ $team->name }}
@@ -562,7 +562,7 @@
                         </div>
 
                         {{-- Description --}}
-                        <div class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50 prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-pre:my-2 prose-code:before:content-none prose-code:after:content-none prose-code:bg-gray-200/50 dark:prose-code:bg-gray-700/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-[13px] prose-code:font-mono" x-html="renderMarkdown(selectedChallenge.description)"></div>
+                        <div class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-border dark:bg-card/50 prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-pre:my-2 prose-code:before:content-none prose-code:after:content-none prose-code:bg-gray-200/50 dark:prose-code:bg-gray-700/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-[13px] prose-code:font-mono" x-html="renderMarkdown(selectedChallenge.description)"></div>
 
                         {{-- Solve distribution --}}
                         <div x-show="selectedChallenge.solve_distribution?.length > 0" class="mt-3">
@@ -593,7 +593,7 @@
                             <div class="flex flex-wrap gap-2">
                                 <template x-for="file in selectedChallenge.files" :key="file.id">
                                     <a :href="file.url" target="_blank"
-                                       class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                                       class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                         </svg>
@@ -644,13 +644,13 @@
                         </div>
 
                         {{-- Flag submission --}}
-                        <div class="mt-5 border-t border-gray-200 pt-4 dark:border-gray-700">
+                        <div class="mt-5 border-t border-gray-200 pt-4 dark:border-border">
                             <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Submit Flag</p>
                             <div class="flex gap-2">
                                 <input type="text"
                                        x-model="flagInput"
                                        placeholder="SLAU_CSIC{flag}"
-                                       class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-mono placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
+                                       class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-mono placeholder:text-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-border dark:bg-card dark:text-gray-200 dark:placeholder:text-gray-500"
                                        @keydown.enter.prevent="submitFlag()">
                                 <button type="button" @click="submitFlag()" :disabled="!flagInput.trim()"
                                     class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -662,7 +662,7 @@
                         {{-- Writeup --}}
                         <div class="mt-4 flex gap-2">
                             <a :href="selectedChallenge.writeups_url"
-                               class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3.5 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                               class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3.5 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                                 </svg>

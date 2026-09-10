@@ -29,7 +29,7 @@
         @endphp
 
         @if ($applications->isEmpty())
-            <div class="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-border dark:bg-card">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">No applications yet</h2>
                 <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
                     <button type="button" wire:click="openApplicationForm" class="text-emerald-500 hover:underline">Submit an application</button>
@@ -39,7 +39,7 @@
         @else
             <div class="space-y-3">
                 @foreach ($applications as $app)
-                    <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-border dark:bg-card">
                         <div class="flex flex-wrap items-start justify-between gap-4">
                             <div class="flex-1">
                                 <p class="text-xs font-semibold uppercase tracking-widest text-emerald-500">
@@ -112,7 +112,7 @@
                                     <p class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Documents</p>
                                     <div class="mt-1 flex flex-wrap gap-2">
                                         @foreach ($app['documents'] as $i => $doc)
-                                            <a href="{{ $doc }}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300 dark:hover:bg-gray-800">
+                                            <a href="{{ $doc }}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-background px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-border dark:bg-background/60 dark:text-gray-300 dark:hover:bg-card-hover">
                                                 Document {{ $i + 1 }}
                                             </a>
                                         @endforeach
@@ -162,7 +162,7 @@
                                 </button>
                                 <div x-show="open" class="mt-2 space-y-2">
                                     @foreach ($app['reviews'] as $review)
-                                        <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/60">
+                                        <div class="rounded-lg border border-gray-200 bg-background p-3 dark:border-border dark:bg-background/60">
                                             <div class="flex items-center justify-between">
                                                 <span class="text-xs font-medium text-gray-900 dark:text-white">{{ $review['reviewer_name'] }}</span>
                                                 <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($review['created_at'])->format('M j, Y') }}</span>
@@ -208,7 +208,7 @@
                     <div class="flex-1 space-y-4 overflow-y-auto p-5">
                         <div>
                             <label for="application-position" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Position</label>
-                            <select id="application-position" wire:model="selectedElectionId" class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                            <select id="application-position" wire:model="selectedElectionId" class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white">
                                 <option value="">Select an open position...</option>
                                 @foreach ($openElections as $election)
                                     <option value="{{ $election->id }}">{{ $election->position }} &mdash; {{ $election->title }}</option>
@@ -222,19 +222,19 @@
 
                         <div>
                             <label for="application-statement" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Personal Statement</label>
-                            <textarea id="application-statement" wire:model="statement" rows="3" placeholder="Why are you running for this position? Tell members about yourself..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                            <textarea id="application-statement" wire:model="statement" rows="3" placeholder="Why are you running for this position? Tell members about yourself..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white"></textarea>
                             @error('statement') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
                             <label for="application-manifesto" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Manifesto</label>
-                            <textarea id="application-manifesto" wire:model="manifesto" rows="3" placeholder="Your vision, values, and what you stand for..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                            <textarea id="application-manifesto" wire:model="manifesto" rows="3" placeholder="Your vision, values, and what you stand for..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white"></textarea>
                             @error('manifesto') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
                             <label for="application-agenda" class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Agenda</label>
-                            <textarea id="application-agenda" wire:model="agenda" rows="3" placeholder="Specific goals, projects, and plans you will pursue..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                            <textarea id="application-agenda" wire:model="agenda" rows="3" placeholder="Specific goals, projects, and plans you will pursue..." class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white"></textarea>
                             @error('agenda') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
 
@@ -263,8 +263,8 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 border-t border-gray-200 p-5 dark:border-gray-800">
-                        <button type="button" wire:click="closeApplicationForm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    <div class="flex items-center justify-end gap-3 border-t border-gray-200 p-5 dark:border-border">
+                        <button type="button" wire:click="closeApplicationForm" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
                             Cancel
                         </button>
                         <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 transition-colors">

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Notifications\BroadcastMessage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +14,21 @@ use Illuminate\Support\Str;
 class Announcement extends Model
 {
     use HasFactory;
+
+    public const BOARD_ROLES = [
+        'President',
+        'Vice President',
+        'General Secretary',
+        'Treasurer',
+        'Technical Lead',
+        'Public Relations',
+        'Head of Projects',
+        'Events Lead',
+        'CTF Lead',
+        'Lead Developer',
+        'Workshop Coordinator',
+        'Club Mentor',
+    ];
 
     protected $fillable = [
         'title',
@@ -38,7 +55,7 @@ class Announcement extends Model
             }
 
             if (empty($announcement->slug)) {
-                $announcement->slug = Str::slug($announcement->title);
+                $announcement->slug = static::generateUniqueSlug($announcement->title);
             }
         });
 
@@ -48,9 +65,17 @@ class Announcement extends Model
             }
         });
 
-        static::saved(function (Announcement $announcement) {
+        static::created(function (Announcement $announcement) {
+            if ($announcement->is_published) {
+                \App\Jobs\PostAnnouncementToDiscord::dispatch($announcement);
+                $announcement->deliverNotifications();
+            }
+        });
+
+        static::updated(function (Announcement $announcement) {
             if ($announcement->is_published && $announcement->wasChanged('is_published')) {
                 \App\Jobs\PostAnnouncementToDiscord::dispatch($announcement);
+                $announcement->deliverNotifications();
             }
         });
     }
@@ -84,6 +109,13 @@ class Announcement extends Model
         return $query->where('is_published', true);
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where(function (Builder $q) {
+            $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+        });
+    }
+
     public function isActive(): bool
     {
         if (! $this->expires_at) {
@@ -110,6 +142,53 @@ class Announcement extends Model
         ]);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\User>
+     */
+    public function targetUsers(): Builder
+    {
+        $query = User::query();
+
+        return match ($this->audience) {
+            'active_members' => $query->where('membership_status', 'active'),
+            'board' => $query->role(self::BOARD_ROLES),
+            'specific_roles' => filled($this->target_roles)
+                ? $query->role($this->target_roles)
+                : $query->whereRaw('1 = 0'),
+            default => $query->whereNotIn('membership_status', ['rejected', 'left']),
+        };
+    }
+
+    public function deliverNotifications(): void
+    {
+        $channels = [];
+
+        if ($this->send_push) {
+            $channels[] = 'database';
+        }
+
+        if ($this->send_email) {
+            $channels[] = 'mail';
+        }
+
+        if (empty($channels)) {
+            return;
+        }
+
+        $subject = $this->title;
+        $body = Str::limit(html_entity_decode(strip_tags($this->content ?? '')), 500);
+
+        $this->targetUsers()->chunk(100, function ($users) use ($subject, $body, $channels): void {
+            foreach ($users as $user) {
+                $user->notify(new BroadcastMessage(
+                    subject: $subject,
+                    body: $body,
+                    channels: $channels,
+                ));
+            }
+        });
+    }
+
     public function getViewCountAttribute(): int
     {
         return $this->views()->count();
@@ -118,5 +197,19 @@ class Announcement extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public static function generateUniqueSlug(string $title): string
+    {
+        $baseSlug = Str::slug($title) ?: 'announcement';
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (static::query()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$suffix;
+            $suffix++;
+        }
+
+        return $slug;
     }
 }

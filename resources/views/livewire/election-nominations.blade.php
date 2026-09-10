@@ -26,14 +26,14 @@
         @endphp
 
         @if ($elections->isEmpty())
-            <div class="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-border dark:bg-card">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">No positions open for applications</h2>
                 <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">Check back later when new elections are announced.</p>
             </div>
         @else
             <div class="space-y-3">
                 @foreach ($elections as $election)
-                    <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-border dark:bg-card">
                         <div class="flex flex-wrap items-start justify-between gap-4">
                             <div class="flex-1">
                                 <p class="text-xs font-semibold uppercase tracking-widest text-emerald-500">
@@ -51,7 +51,7 @@
                                     {{ $election['candidates_count'] }} candidate(s) so far
                                 </p>
                             </div>
-                            <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-right dark:border-gray-700 dark:bg-gray-900/60">
+                            <div class="rounded-lg border border-gray-200 bg-background px-4 py-3 text-right dark:border-border dark:bg-background/60">
                                 <div class="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">Status</div>
                                 <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
                                     {{ ucfirst($election['status']) }}
@@ -60,7 +60,7 @@
                         </div>
 
                         @if ($election['user_nomination'])
-                            <div class="mt-6 space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+                            <div class="mt-6 space-y-4 rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
                                 <div class="flex items-center justify-between">
                                     <p class="text-sm font-semibold text-gray-900 dark:text-white">Your Application</p>
                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $statusBadges[$election['user_nomination']['status']]['color'] ?? 'text-gray-500 bg-gray-100' }}">
@@ -123,29 +123,29 @@
                                 </div>
 
                                 <div class="flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
-                                    <button wire:click="$set('activeTab', 'statement')" class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {{ $activeTab === 'statement' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
+                                    <button wire:click="$set('activeTab', 'statement')" class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {{ $activeTab === 'statement' ? 'bg-white text-gray-900 shadow-sm dark:bg-card dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
                                         Personal Statement
                                     </button>
-                                    <button wire:click="$set('activeTab', 'manifesto')" class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {{ $activeTab === 'manifesto' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
+                                    <button wire:click="$set('activeTab', 'manifesto')" class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors {{ $activeTab === 'manifesto' ? 'bg-white text-gray-900 shadow-sm dark:bg-card dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
                                         Manifesto &amp; Agenda
                                     </button>
                                 </div>
 
                                 @if ($activeTab === 'statement')
                                     <div>
-                                        <textarea wire:model="statements.{{ $election['id'] }}" placeholder="Why are you running for this position? Tell members about yourself..." rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                                        <textarea wire:model="statements.{{ $election['id'] }}" placeholder="Why are you running for this position? Tell members about yourself..." rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white"></textarea>
                                         @error("statements.{$election['id']}") <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                                     </div>
                                 @else
                                     <div class="space-y-4">
                                         <div>
                                             <p class="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Manifesto</p>
-                                            <textarea wire:model="manifestos.{{ $election['id'] }}" placeholder="Your vision, values, and what you stand for..." rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                                            <textarea wire:model="manifestos.{{ $election['id'] }}" placeholder="Your vision, values, and what you stand for..." rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white"></textarea>
                                             @error("manifestos.{$election['id']}") <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                                         </div>
                                         <div>
                                             <p class="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Agenda</p>
-                                            <textarea wire:model="agendas.{{ $election['id'] }}" placeholder="Specific goals, projects, and plans you will pursue..." rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+                                            <textarea wire:model="agendas.{{ $election['id'] }}" placeholder="Specific goals, projects, and plans you will pursue..." rows="4" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 dark:border-border dark:bg-card dark:text-white"></textarea>
                                             @error("agendas.{$election['id']}") <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                                         </div>
                                     </div>

@@ -10,9 +10,13 @@ class BroadcastMessage extends Notification
 {
     use Queueable;
 
+    /**
+     * @param  array<int, string>  $channels
+     */
     public function __construct(
         public string $subject,
         public string $body,
+        public array $channels = ['mail', 'database'],
     ) {}
 
     public function getPreferenceType(): string
@@ -22,7 +26,7 @@ class BroadcastMessage extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return $this->channels;
     }
 
     public function toMail(object $notifiable): MailMessage

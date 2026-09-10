@@ -23,7 +23,7 @@
     }"
     x-show="loaded"
     x-transition.opacity.duration.300ms
-    class="fixed left-0 top-0 z-999999 flex h-screen w-screen items-center justify-center bg-white dark:bg-gray-900"
+    class="fixed left-0 top-0 z-999999 flex h-screen w-screen items-center justify-center bg-white dark:bg-card"
     style="display: none;"
     x-cloak
 >

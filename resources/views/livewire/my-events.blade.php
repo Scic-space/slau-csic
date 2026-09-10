@@ -15,7 +15,7 @@
                                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $event['title'] }}</p>
                                 <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ \Carbon\Carbon::parse($event['end_date'])->format('M j, Y') }}</p>
                             </div>
-                            <a href="{{ route('events.show', $event['slug']) }}" wire:navigate class="ml-4 shrink-0 rounded-lg bg-gray-900 px-4 py-2 text-xs font-medium text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
+                            <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate class="ml-4 shrink-0 rounded-lg bg-gray-900 px-4 py-2 text-xs font-medium text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
                                 Leave Feedback
                             </a>
                         </div>
@@ -29,8 +29,8 @@
                 <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Favorites ({{ $favoriteEvents->count() }})</h2>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($favoriteEvents as $event)
-                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate
-                           class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate
+                           class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-border dark:bg-card">
                             <div class="flex items-start justify-between gap-2">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                     {{ $event['type'] === 'workshop' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : '' }}
@@ -75,8 +75,8 @@
                 <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Upcoming ({{ $upcomingEvents->count() }})</h2>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($upcomingEvents as $event)
-                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate
-                           class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate
+                           class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-border dark:bg-card">
                             <div class="flex items-start justify-between gap-2">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                     {{ $event['type'] === 'workshop' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : '' }}
@@ -113,7 +113,7 @@
                                     @endforeach
                                 </div>
                             @endif
-                            <div class="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-700">
+                            <div class="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 dark:border-border">
                                 @if ($event['registration_required'])
                                     <span class="text-xs text-gray-400">
                                         {{ $event['registered_count'] }}/{{ $event['max_participants'] ?? '∞' }}
@@ -132,10 +132,10 @@
         @if ($pastEvents->isNotEmpty())
             <div class="mb-3">
                 <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Past ({{ $pastEvents->count() }})</h2>
-                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                     <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-900">
+                        <thead class="bg-background">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Event</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Date</th>
@@ -145,7 +145,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($pastEvents as $event)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-card-hover/50 transition">
                                     <td class="px-6 py-4">
                                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $event['title'] }}</p>
                                     </td>
@@ -164,7 +164,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
+                                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -178,10 +178,10 @@
         @if ($instructedEvents->isNotEmpty())
             <div>
                 <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">Instructed ({{ $instructedEvents->count() }})</h2>
-                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                     <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-900">
+                        <thead class="bg-background">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Event</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Date</th>
@@ -192,7 +192,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($instructedEvents as $event)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-card-hover/50 transition">
                                     <td class="px-6 py-4">
                                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $event['title'] }}</p>
                                     </td>
@@ -213,15 +213,15 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                             {{ $event['status'] === 'published' || $event['status'] === 'scheduled' ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300' : '' }}
-                                            {{ $event['status'] === 'draft' ? 'bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300' : '' }}
+                                            {{ $event['status'] === 'draft' ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' : '' }}
                                             {{ $event['status'] === 'cancelled' ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300' : '' }}
                                             {{ $event['status'] === 'ongoing' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : '' }}
-                                            {{ $event['status'] === 'completed' ? 'bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300' : '' }}">
+                                            {{ $event['status'] === 'completed' ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' : '' }}">
                                             {{ ucfirst($event['status']) }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <a href="{{ route('events.show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
+                                        <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">View</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -233,7 +233,7 @@
         @endif
 
         @if ($upcomingEvents->isEmpty() && $pastEvents->isEmpty() && $instructedEvents->isEmpty())
-            <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-6 sm:p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-6 sm:p-12 text-center shadow-sm dark:border-border dark:bg-card">
                 <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -241,7 +241,7 @@
                 </div>
                 <p class="text-sm font-medium text-gray-900 dark:text-white">No events yet</p>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">You haven't registered for any events yet.</p>
-                <a href="{{ route('events.index') }}" wire:navigate class="mt-4 inline-flex items-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
+                <a href="{{ route('events.browse') }}" wire:navigate class="mt-4 inline-flex items-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
                     Browse Events
                 </a>
             </div>

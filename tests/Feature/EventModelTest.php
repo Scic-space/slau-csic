@@ -346,3 +346,13 @@ it('occurrences relationship works', function () {
 
     expect($master->occurrences)->toHaveCount(2);
 });
+
+// ─── Timezone ────────────────────────────────────────────────────────
+
+it('runs the club on East Africa Time', function () {
+    $event = Event::factory()->create(['start_date' => now()->addDay()]);
+
+    expect(now()->getTimezone()->getName())->toBe('Africa/Nairobi')
+        ->and($event->start_date->getTimezone()->getName())->toBe('Africa/Nairobi')
+        ->and($event->start_date->toIso8601String())->toEndWith('+03:00');
+});

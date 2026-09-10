@@ -91,6 +91,8 @@ class UsersTable
                     ->options([
                         'august' => 'August',
                         'january' => 'January',
+                        'february' => 'February',
+                        'may' => 'May',
                     ])
                     ->label('Intake'),
 

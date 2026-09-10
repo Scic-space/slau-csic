@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Services\ImageOptimizer;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -16,6 +17,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\StateCasts\Contracts\StateCast;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 
 class UserForm
@@ -92,6 +94,8 @@ class UserForm
                     ->imageEditor()
                     ->disk('public')
                     ->directory('profile-photos')
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'profile-photos', 800, 800, 84))
                     ->avatar()
                     ->circleCropper()
                     ->maxSize(5120),
@@ -121,6 +125,7 @@ class UserForm
                             ->options([
                                 'august' => 'August',
                                 'january' => 'January',
+                                'february' => 'February',
                                 'may' => 'May',
                             ])
                             ->placeholder('Select intake'),

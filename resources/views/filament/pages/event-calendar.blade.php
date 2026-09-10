@@ -29,7 +29,7 @@
                     <div class="flex flex-wrap gap-x-4 gap-y-2">
                         @foreach($this->categories as $cat)
                         <label class="flex cursor-pointer items-center gap-2 group">
-                            <input type="checkbox" value="{{ $cat->id }}" x-model="selectedCategories" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900">
+                            <input type="checkbox" value="{{ $cat->id }}" x-model="selectedCategories" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-border dark:bg-gray-900">
                             <span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {{ $cat->color }}"></span>
                             <span class="text-sm text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white">{{ $cat->name }}</span>
                         </label>
@@ -49,7 +49,7 @@
                     </div>
                     <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
                         <template x-for="(day, idx) in calendarDays" :key="idx">
-                            <div class="min-h-[7.5rem] bg-white p-2 dark:bg-boxdark" :class="{ 'bg-primary-50/50 dark:bg-primary-500/5': day.isToday, 'bg-gray-50/70 text-gray-400 dark:bg-gray-900/50': !day.isCurrentMonth }">
+                            <div class="min-h-[7.5rem] bg-white p-2 dark:bg-boxdark" :class="{ 'bg-primary-50/50 dark:bg-primary-500/5': day.isToday, 'bg-gray-50/70 text-gray-400 dark:bg-card/50': !day.isCurrentMonth }">
                                 <div class="mb-1">
                                     <span class="inline-flex h-6 w-6 items-center justify-center text-[11px] font-medium"
                                         :class="day.isToday ? 'rounded-full bg-primary-600 text-white font-bold' : 'text-gray-700 dark:text-gray-300'"

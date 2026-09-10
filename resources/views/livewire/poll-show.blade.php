@@ -29,11 +29,11 @@
                 @if ($isActive && !$hasVoted)
                     border-blue-200 dark:border-blue-800
                 @else
-                    border-gray-200 dark:border-gray-700
+                    border-gray-200 dark:border-border
                 @endif">
 
                 @if ($isExpired)
-                    <div class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700/50 px-6 py-2 sm:px-8">
+                    <div class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-border/50 px-6 py-2 sm:px-8">
                         <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             This poll has expired
@@ -102,7 +102,7 @@
                                 @php
                                     $percentage = $option['percentage'];
                                 @endphp
-                                <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                                <div class="rounded-lg border border-gray-200 dark:border-border p-4">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $option['label'] }}</span>
                                         <span class="text-sm font-semibold text-gray-600 dark:text-gray-300">{{ $percentage }}%</span>
@@ -133,12 +133,12 @@
                             <form wire:submit="vote">
                                 <div class="space-y-2">
                                     @foreach ($poll['options'] as $option)
-                                        <label class="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 p-4 cursor-pointer transition-all hover:border-blue-300 dark:hover:border-blue-700 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/20">
+                                        <label class="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-border p-4 cursor-pointer transition-all hover:border-blue-300 dark:hover:border-blue-700 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/20">
                                             <input type="{{ $poll['allow_multiple'] ? 'checkbox' : 'radio' }}"
                                                 name="poll_option"
                                                 value="{{ $option['id'] }}"
                                                 wire:model.live="selectedOptions"
-                                                class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700">
+                                                class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:border-border dark:bg-gray-700">
                                             <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $option['label'] }}</span>
                                         </label>
                                     @endforeach

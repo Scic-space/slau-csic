@@ -7,6 +7,342 @@
         --radius-md: 0.25rem;
         --radius-lg: 0.25rem;
         --radius-xl: 0.25rem;
+
+        /* System theme (Light/Dark) — Filament ships its own precompiled CSS
+           pipeline, separate from resources/css/app.css, so the admin panel's
+           chrome, cards, tables, modals, dropdowns and form inputs are
+           re-themed here using the same semantic values as the SPA layout. */
+        --admin-background: oklch(96.8% 0.007 247.896);
+        --admin-sidebar: #ffffff;
+        --admin-card: #ffffff;
+        --admin-card-hover: #f9fafb;
+        --admin-border: #e4e7ec;
+        --admin-input: #ffffff;
+        --admin-foreground: #101828;
+        --admin-muted-foreground: #667085;
+    }
+
+    .dark {
+        --admin-background: oklch(18% 0.035 255);
+        --admin-sidebar: oklch(14% 0.035 255);
+        --admin-card: oklch(23% 0.035 255);
+        --admin-card-hover: oklch(26% 0.04 255);
+        --admin-border: oklch(31% 0.035 255);
+        --admin-input: oklch(25% 0.035 255);
+        --admin-foreground: oklch(96% 0.01 255);
+        --admin-muted-foreground: oklch(70% 0.025 255);
+    }
+
+    .fi-body,
+    .fi-sidebar,
+    .fi-sidebar-header,
+    .fi-topbar {
+        background-color: var(--admin-sidebar);
+    }
+
+    .fi-topbar {
+        min-height: 4.75rem;
+        gap: 1rem;
+        border-bottom: 1px solid var(--admin-border);
+        padding-inline: 1.5rem;
+        box-shadow: none;
+        font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
+    }
+
+    .fi-topbar-start {
+        margin-inline-end: 1rem;
+        gap: 1rem;
+    }
+
+    .fi-topbar-end {
+        gap: .625rem;
+    }
+
+    .admin-topbar-icon-button,
+    .fi-topbar-database-notifications-btn,
+    .fi-user-menu-trigger,
+    .fi-topbar-open-sidebar-btn,
+    .fi-topbar-close-sidebar-btn,
+    .fi-topbar-open-collapse-sidebar-btn,
+    .fi-topbar-close-collapse-sidebar-btn {
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        border: 1px solid var(--admin-border);
+        border-radius: .5rem;
+        background: transparent;
+        color: var(--admin-muted-foreground);
+        transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .admin-topbar-icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .admin-topbar-icon-button:hover,
+    .fi-topbar-database-notifications-btn:hover,
+    .fi-user-menu-trigger:hover,
+    .fi-topbar-open-sidebar-btn:hover,
+    .fi-topbar-close-sidebar-btn:hover,
+    .fi-topbar-open-collapse-sidebar-btn:hover,
+    .fi-topbar-close-collapse-sidebar-btn:hover {
+        border-color: color-mix(in srgb, var(--admin-muted-foreground) 35%, var(--admin-border));
+        background: var(--admin-card-hover);
+        color: var(--admin-foreground);
+    }
+
+    .admin-topbar-icon-button:focus-visible,
+    .fi-topbar-database-notifications-btn:focus-visible,
+    .fi-user-menu-trigger:focus-visible,
+    .fi-topbar-open-sidebar-btn:focus-visible,
+    .fi-topbar-close-sidebar-btn:focus-visible,
+    .fi-topbar-open-collapse-sidebar-btn:focus-visible,
+    .fi-topbar-close-collapse-sidebar-btn:focus-visible {
+        outline: 2px solid var(--primary-500);
+        outline-offset: 2px;
+    }
+
+    .fi-user-menu-trigger {
+        width: auto;
+        gap: .5rem;
+        padding: .25rem .5rem;
+    }
+
+    .fi-user-menu-trigger .fi-user-avatar {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .admin-user-name {
+        max-width: 10rem;
+        overflow: hidden;
+        color: var(--admin-foreground);
+        font-size: .875rem;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .admin-topbar-material-icon {
+        font-size: 1.375rem;
+    }
+
+    .admin-user-menu-chevron {
+        font-size: 1.125rem;
+    }
+
+    .fi-global-search {
+        display: none !important;
+    }
+
+    .admin-dashboard-greeting {
+        display: block;
+        color: var(--admin-foreground);
+        font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
+    }
+
+    .admin-dashboard-title {
+        display: block;
+    }
+
+    .admin-dashboard-greeting-copy {
+        color: var(--admin-muted-foreground);
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+    }
+
+    .admin-dashboard-greeting-name {
+        margin-inline-start: .35rem;
+        color: var(--admin-foreground);
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+    }
+
+    .admin-dashboard-title {
+        margin-top: .75rem;
+    }
+
+    @media (max-width: 639px) {
+        .fi-topbar {
+            min-height: 4rem;
+            gap: .625rem;
+            padding-inline: .75rem;
+        }
+
+        .fi-topbar-end {
+            gap: .375rem;
+        }
+
+        .admin-user-name,
+        .admin-user-menu-chevron {
+            display: none;
+        }
+
+        .admin-topbar-icon-button,
+        .fi-topbar-database-notifications-btn,
+        .fi-user-menu-trigger,
+        .fi-topbar-open-sidebar-btn,
+        .fi-topbar-close-sidebar-btn {
+            min-width: 2.25rem;
+            min-height: 2.25rem;
+        }
+    }
+
+    .fi-body {
+        background-color: var(--admin-background);
+    }
+
+    .fi-section,
+    .fi-ta-ctn,
+    .fi-wi-stats-overview-stat,
+    .fi-modal-window,
+    .fi-dropdown-panel,
+    .fi-fo-repeater-item {
+        background-color: var(--admin-card);
+        border-color: var(--admin-border);
+    }
+
+    .fi-ta-header-cell {
+        background-color: var(--admin-sidebar);
+    }
+
+    .fi-ta-row {
+        border-color: var(--admin-border);
+    }
+
+    .dark .fi-ta-row:hover {
+        background-color: var(--admin-card-hover);
+    }
+
+    .fi-input,
+    .fi-select-input,
+    .fi-textarea {
+        background-color: var(--admin-input);
+    }
+
+    .dark .fi-section,
+    .dark .fi-ta-ctn,
+    .dark .fi-wi-stats-overview-stat,
+    .dark .fi-modal-window,
+    .dark .fi-dropdown-panel,
+    .dark .fi-ta-header-cell,
+    .dark .fi-input,
+    .dark .fi-select-input,
+    .dark .fi-textarea {
+        border-color: var(--admin-border);
+    }
+
+    /* TailAdmin-inspired Announcement form, scoped to avoid changing other resources. */
+    .announcement-form {
+        gap: 1rem;
+        color: var(--admin-foreground);
+        font-family: 'Google Sans Flex', 'Google Sans', ui-sans-serif, sans-serif;
+    }
+
+    .announcement-form .fi-section {
+        overflow: hidden;
+        border: 1px solid var(--admin-border);
+        border-radius: .25rem;
+        box-shadow: 0 1px 2px rgb(16 24 40 / .04);
+    }
+
+    .announcement-form .fi-section-header {
+        border-bottom: 1px solid var(--admin-border);
+        padding: 1rem 1.25rem;
+    }
+
+    .announcement-form .fi-section-content-ctn {
+        padding: 1.25rem;
+    }
+
+    .announcement-form-heading {
+        display: inline-flex;
+        align-items: center;
+        gap: .625rem;
+        color: var(--admin-foreground);
+        font-size: 1rem;
+        font-weight: 650;
+        line-height: 1.5rem;
+    }
+
+    .announcement-form-heading .material-symbols-outlined {
+        color: var(--primary-600);
+        font-size: 1.25rem;
+    }
+
+    .announcement-form .fi-fo-field-label-content {
+        color: var(--admin-foreground);
+        font-size: .875rem;
+        font-weight: 550;
+    }
+
+    .announcement-form .fi-input-wrp {
+        min-height: 2.75rem;
+        border-color: var(--admin-border);
+        border-radius: .25rem;
+        background: var(--admin-input);
+        box-shadow: 0 1px 2px rgb(16 24 40 / .04);
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .announcement-form .fi-input-wrp:focus-within {
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-500) 14%, transparent);
+    }
+
+    .announcement-form .fi-input,
+    .announcement-form .fi-select-input,
+    .announcement-form .fi-textarea {
+        color: var(--admin-foreground);
+    }
+
+    .announcement-form .fi-input::placeholder,
+    .announcement-form .fi-textarea::placeholder {
+        color: var(--admin-muted-foreground);
+        opacity: .8;
+    }
+
+    .announcement-form .announcement-field-icon {
+        color: var(--admin-muted-foreground);
+        font-size: 1.125rem;
+    }
+
+    .announcement-form .fi-fo-field-wrp-error-message {
+        color: rgb(217 45 32);
+        font-weight: 500;
+    }
+
+    .dark .announcement-form .fi-fo-field-wrp-error-message {
+        color: rgb(253 162 155);
+    }
+
+    .dark .announcement-form-heading .material-symbols-outlined {
+        color: var(--primary-400);
+    }
+
+    @media (max-width: 639px) {
+        .announcement-form .fi-section-header,
+        .announcement-form .fi-section-content-ctn {
+            padding: 1rem;
+        }
+    }
+
+    /* Custom admin pages (e.g. the Event Calendar) predate this project's
+       theme tokens and reference stray, non-standard class names — map
+       them onto the same admin tokens rather than leaving them undefined. */
+    .border-stroke {
+        border-color: #e4e7ec;
+    }
+
+    .dark .border-strokedark {
+        border-color: var(--admin-border);
+    }
+
+    .bg-boxdark {
+        background-color: var(--admin-card);
     }
 
     .material-symbols-outlined {
@@ -95,8 +431,8 @@
     }
 
     .dark .system-footer {
-        border-color: rgb(31 41 55);
-        color: rgb(156 163 175);
+        border-color: var(--admin-border);
+        color: var(--admin-muted-foreground);
     }
 
     @media (max-width: 639px) {

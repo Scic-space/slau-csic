@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <div class="space-y-6">
         <!-- Header with Date Range Selection -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Financial Reports</h1>
@@ -12,7 +12,7 @@
                 <div class="flex items-center gap-4">
                     <select
                         wire:model.live="dateRange"
-                        class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        class="rounded-md border-gray-300 dark:border-border dark:bg-gray-700 dark:text-white"
                     >
                         <option value="this_month">This Month</option>
                         <option value="last_month">Last Month</option>
@@ -26,13 +26,13 @@
                             <input
                                 type="date"
                                 wire:model.live="startDate"
-                                class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                class="rounded-md border-gray-300 dark:border-border dark:bg-gray-700 dark:text-white"
                             />
                             <span class="text-gray-500">to</span>
                             <input
                                 type="date"
                                 wire:model.live="endDate"
-                                class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                class="rounded-md border-gray-300 dark:border-border dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                     @endif
@@ -44,7 +44,7 @@
 
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
                 <div class="flex items-center">
                     <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
                         <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
                 <div class="flex items-center">
                     <div class="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
                         <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +76,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
                 <div class="flex items-center">
                     <div class="p-3 {{ $reportData['netIncome'] >= 0 ? 'bg-blue-100 dark:bg-blue-900' : 'bg-orange-100 dark:bg-orange-900' }} rounded-lg">
                         <svg class="w-6 h-6 {{ $reportData['netIncome'] >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
                 <div class="flex items-center">
                     <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
                         <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@
         <!-- Detailed Breakdown -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Income Breakdown -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Income Breakdown</h3>
                 <div class="space-y-3">
                     @foreach($reportData['incomeByCategory'] as $income)
@@ -130,7 +130,7 @@
             </div>
 
             <!-- Expense Breakdown -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Expense Breakdown</h3>
                 <div class="space-y-3">
                     @foreach($reportData['expensesByCategory'] as $expense)
@@ -149,7 +149,7 @@
         </div>
 
         <!-- Transactions Table -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div class="bg-white dark:bg-card rounded-lg shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Transaction Details</h3>
                 <div class="text-sm text-gray-500">

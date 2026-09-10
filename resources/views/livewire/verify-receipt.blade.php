@@ -1,7 +1,7 @@
 <div class="py-4 sm:py-5">
     <div class="space-y-3">
         {{-- Header --}}
-        <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5">
+        <div class="dashboard-card rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card sm:p-5">
             <p class="text-sm font-semibold uppercase tracking-widest text-emerald-500">Vote Verification</p>
             <h1 class="mt-1 flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 <span class="material-symbols-outlined text-brand-500" aria-hidden="true">verified_user</span>Verify your vote receipt
@@ -22,7 +22,7 @@
                         placeholder="e.g. ABC123XYZ789"
                         maxlength="64"
                         required
-                        class="mt-1.5 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center font-mono text-lg tracking-widest text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-emerald-400"
+                        class="mt-1.5 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center font-mono text-lg tracking-widest text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-border dark:bg-card dark:text-white dark:focus:border-emerald-400"
                     />
                     @error('receiptCode') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
@@ -77,7 +77,7 @@
                     </div>
                 </div>
 
-                <div class="mt-4 space-y-3 rounded-lg border border-emerald-200 bg-white p-4 dark:border-emerald-700 dark:bg-gray-800/50">
+                <div class="mt-4 space-y-3 rounded-lg border border-emerald-200 bg-white p-4 dark:border-emerald-700 dark:bg-card/50">
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-500 dark:text-gray-400">Election</span>
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $result['election_title'] }}</span>

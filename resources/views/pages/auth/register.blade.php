@@ -128,6 +128,7 @@
                                         <option value="">Select intake</option>
                                         <option value="august" @selected(old('intake') == 'august')>August</option>
                                         <option value="january" @selected(old('intake') == 'january')>January</option>
+                                        <option value="february" @selected(old('intake') == 'february')>February</option>
                                         <option value="may" @selected(old('intake') == 'may')>May</option>
                                     </select>
                                     @error('intake')

@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import PublicLayout from '@/components/PublicLayout';
-import {
-    GlowyWavesBackground,
-    WaveSection,
-} from '@/components/ui/glowy-waves-hero-shadcnui';
 import { Button } from '@/components/ui/button';
 import { GlowCard } from '@/components/ui/spotlight-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Shield, Terminal, Trophy, Users, Target, Zap,
     ArrowRight, Code, Lock, Search, Bug, Network,
-    Crown, Flame, ChevronDown, ChevronUp, CheckCircle2, Star, TrendingUp,
+    Crown, Flame, CheckCircle2, Star, TrendingUp,
     MessageSquareQuote, Footprints, Flag, Award, History, Timer,
 } from 'lucide-react';
 
@@ -95,6 +92,18 @@ const fadeUp = {
         transition: { duration: 0.4, delay: i * 0.06, ease: 'easeOut' },
     }),
 };
+
+function Icon({ children, className = '' }: { children: string; className?: string }) {
+    return <span className={`material-symbols-outlined ${className}`} aria-hidden="true">{children}</span>;
+}
+
+function WaveSection({ children, className = '', id }: { children: ReactNode; className?: string; id?: string }) {
+    return (
+        <section id={id} className={`relative px-4 sm:px-6 lg:px-8 ${className}`}>
+            <div className="mx-auto max-w-7xl">{children}</div>
+        </section>
+    );
+}
 
 const competitionBenefits = [
     { icon: TrendingUp, text: 'Build real-world cybersecurity skills employers look for' },
@@ -269,19 +278,19 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
     const displayTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
 
     return (
-        <PublicLayout transparentNav>
-            <GlowyWavesBackground>
+        <PublicLayout>
+            <div className="overflow-hidden bg-background text-foreground [&_.bg-white\/\[0.02\]]:bg-background/70 [&_.bg-white\/\[0.03\]]:bg-card/80 [&_.bg-white\/\[0.03\]]:shadow-theme-xs [&_.bg-white\/\[0.06\]]:bg-card [&_.border-white\/5]:border-transparent [&_.border-white\/10]:border-transparent [&_.rounded-2xl]:rounded-sm [&_.rounded-xl]:rounded-sm [&_.text-white]:text-foreground [&_.text-white\/30]:text-muted-foreground [&_.text-white\/40]:text-muted-foreground [&_.text-white\/50]:text-muted-foreground [&_.text-white\/60]:text-muted-foreground [&_.text-white\/70]:text-muted-foreground [&_.text-white\/80]:text-foreground dark:[&_.bg-white\/\[0.02\]]:bg-background/55 dark:[&_.bg-white\/\[0.03\]]:bg-card/70 dark:[&_.text-white]:text-white">
                 {/* Hero */}
-                <div className="relative pt-32 pb-16 md:pt-44 md:pb-24">
+                <div className="relative bg-background pb-20 pt-20 sm:pb-24 sm:pt-24">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="max-w-3xl">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5 }}
-                                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6"
+                                className="mb-6 inline-flex items-center gap-2 rounded-sm bg-brand-50 px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
                             >
-                                <Terminal className="h-4 w-4 text-indigo-400" />
+                                <Icon className="text-[19px]">flag</Icon>
                                 CTF Arena
                             </motion.div>
 
@@ -289,10 +298,10 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.1 }}
-                                className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                                className="mb-6 text-4xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl"
                             >
                                 Capture the{' '}
-                                <span className="bg-gradient-to-r from-indigo-400 to-violet-300 bg-clip-text text-transparent">
+                                <span className="text-brand-600 dark:text-brand-300">
                                     Flag
                                 </span>
                             </motion.h1>
@@ -301,7 +310,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.2 }}
-                                className="text-lg text-white/50 mb-8 max-w-2xl leading-relaxed"
+                                className="mb-8 max-w-2xl text-lg leading-8 text-muted-foreground"
                             >
                                 Test your skills against real-world security challenges. From web exploitation
                                 to cryptography, forensics to reverse engineering — our seasonal CTF competitions
@@ -314,13 +323,13 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                 transition={{ duration: 0.5, delay: 0.3 }}
                                 className="flex flex-wrap gap-3"
                             >
-                                <Button asChild size="lg" className="group gap-2 rounded-full px-8 text-base uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25">
+                                <Button asChild size="lg" className="group min-h-12 gap-2 rounded-sm bg-brand-600 px-6 py-3 text-sm font-semibold !text-white shadow-theme-sm hover:bg-[#2984D1]">
                                     <Link href="/auth/register">
                                         Join the Arena
-                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                        <Icon className="text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</Icon>
                                     </Link>
                                 </Button>
-                                <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5 px-8 text-base text-white/80 backdrop-blur transition-all hover:border-white/40 hover:bg-white/10">
+                                <Button asChild size="lg" variant="outline" className="min-h-12 rounded-sm border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-theme-xs hover:bg-card-hover">
                                     <a href="#competitions">
                                         View Competitions
                                     </a>
@@ -346,7 +355,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                 viewport={{ once: true }}
                                 variants={fadeUp}
                                 custom={i}
-                                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm text-center"
+                                className="rounded-sm bg-card/80 p-5 text-center shadow-theme-xs backdrop-blur-sm dark:bg-card/70"
                             >
                                 <stat.icon className="h-5 w-5 text-indigo-400 mx-auto mb-2" />
                                 <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
@@ -485,7 +494,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                 const Icon = getCategoryIcon(cat.slug);
                                 return (
                                     <motion.div key={cat.slug} variants={fadeUp} custom={i}>
-                                        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm text-center hover:border-white/20 transition-all">
+                                        <div className="rounded-sm bg-card/80 p-5 text-center shadow-theme-xs backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-card hover:shadow-theme-sm dark:bg-card/70">
                                             <div
                                                 className="rounded-xl p-3 inline-flex mb-3"
                                                 style={{ backgroundColor: cat.color + '20' }}
@@ -546,7 +555,8 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                         >
                                             <button
                                                 onClick={() => setExpandedId(isExpanded ? null : comp.id)}
-                                                className="w-full text-left rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/[0.06]"
+                                                aria-expanded={isExpanded}
+                                                className="w-full rounded-sm bg-card/80 text-left shadow-theme-xs backdrop-blur-sm transition-all hover:bg-card hover:shadow-theme-sm dark:bg-card/70"
                                             >
                                                 <div className="p-6">
                                                     <div className="flex items-start justify-between gap-4">
@@ -580,20 +590,20 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                                     <CountdownTimer label="Starts in" target={comp.start_date} />
                                                                 )}
                                                                 <span className="flex items-center gap-1.5">
-                                                                    <Target className="h-3.5 w-3.5" />
+                                                                    <Icon className="text-[18px]">flag</Icon>
                                                                     {comp.challenges_count} challenges
                                                                 </span>
                                                                 <span className="flex items-center gap-1.5">
-                                                                    <Trophy className="h-3.5 w-3.5 text-amber-400" />
+                                                                    <Icon className="text-[18px] text-amber-500">trophy</Icon>
                                                                     {comp.max_score} pts
                                                                 </span>
                                                                 <span className="flex items-center gap-1.5">
-                                                                    <Users className="h-3.5 w-3.5" />
+                                                                    <Icon className="text-[18px]">groups</Icon>
                                                                     {comp.teams_count} teams
                                                                 </span>
                                                                 {comp.allow_teams && (
                                                                     <span className="flex items-center gap-1.5">
-                                                                        <Users className="h-3.5 w-3.5 text-indigo-400" />
+                                                                        <Icon className="text-[18px] text-brand-500">group</Icon>
                                                                         Teams of {comp.max_team_size}
                                                                     </span>
                                                                 )}
@@ -606,7 +616,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                             </div>
                                                         </div>
 
-                                                        <ChevronDown className={`h-5 w-5 text-white/30 shrink-0 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                                                        <Icon className={`shrink-0 text-[20px] text-muted-foreground transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</Icon>
                                                     </div>
                                                 </div>
                                             </button>
@@ -621,7 +631,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                         className="overflow-hidden"
                                                     >
                                                         <div className="px-6 pb-6 -mt-2">
-                                                            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+                                                            <div className="rounded-sm bg-background/70 p-6 dark:bg-background/55">
                                                                 {comp.categories.length > 0 && (
                                                                     <div className="mb-5">
                                                                         <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-3">
@@ -685,7 +695,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                                     ) : isAuthenticated ? (
                                                                         <Button asChild
                                                                             size="sm"
-                                                                            className="gap-2 rounded-full px-5 text-xs uppercase tracking-wider bg-indigo-600 hover:bg-indigo-500 text-white"
+                                                                            className="gap-2 rounded-sm bg-brand-600 px-5 text-xs uppercase tracking-wider !text-white hover:bg-[#2984D1]"
                                                                         >
                                                                             <Link href="/ctf">
                                                                                 Enter the Arena
@@ -695,7 +705,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                                                     ) : (
                                                                         <Button asChild
                                                                             size="sm"
-                                                                            className="gap-2 rounded-full px-5 text-xs uppercase tracking-wider bg-indigo-600 hover:bg-indigo-500 text-white"
+                                                                            className="gap-2 rounded-sm bg-brand-600 px-5 text-xs uppercase tracking-wider !text-white hover:bg-[#2984D1]"
                                                                         >
                                                                             <Link href="/auth/register">
                                                                                 Join the Arena
@@ -756,7 +766,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                     variants={fadeUp}
                                     custom={i}
                                 >
-                                    <div className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm flex flex-col">
+                                    <div className="flex h-full flex-col rounded-sm bg-card/80 p-6 shadow-theme-xs backdrop-blur-sm dark:bg-card/70">
                                         <div className="flex items-center gap-3 mb-4">
                                             <div className="rounded-xl p-2 bg-amber-500/10 border border-amber-500/20">
                                                 <Trophy className="h-5 w-5 text-amber-400" />
@@ -829,7 +839,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                     variants={fadeUp}
                                     custom={i}
                                 >
-                                    <div className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm flex flex-col">
+                                    <div className="flex h-full flex-col rounded-sm bg-card/80 p-6 shadow-theme-xs backdrop-blur-sm dark:bg-card/70">
                                         <div className="mb-4">
                                             <svg className="h-8 w-8 text-indigo-500/30" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
@@ -908,7 +918,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                             viewport={{ once: true, margin: '-50px' }}
                             className="max-w-2xl mx-auto"
                         >
-                            <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden">
+                            <div className="overflow-hidden rounded-sm bg-card/80 shadow-theme-xs backdrop-blur-sm dark:bg-card/70">
                                 {topPlayers.map((player, i) => {
                                     const RankIcon = getRankIcon(player.rank);
                                     const rankColor = getRankColor(player.rank);
@@ -1002,18 +1012,14 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                                     key={faq.question}
                                     variants={fadeUp}
                                     custom={i}
-                                    className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden"
+                                    className="overflow-hidden rounded-sm bg-card/80 shadow-theme-xs backdrop-blur-sm dark:bg-card/70"
                                 >
                                     <button
                                         onClick={() => setOpenFaq(isOpen ? null : i)}
                                         className="w-full flex items-center justify-between gap-4 p-5 text-left"
                                     >
                                         <span className="text-sm font-medium text-white">{faq.question}</span>
-                                        {isOpen ? (
-                                            <ChevronUp className="h-4 w-4 text-white/40 shrink-0" />
-                                        ) : (
-                                            <ChevronDown className="h-4 w-4 text-white/40 shrink-0" />
-                                        )}
+                                        <Icon className={`shrink-0 text-[20px] text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>expand_more</Icon>
                                     </button>
                                     <AnimatePresence>
                                         {isOpen && (
@@ -1044,15 +1050,15 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true, margin: '-100px' }}
-                            className="relative mx-auto max-w-3xl text-center rounded-3xl border border-white/10 bg-white/[0.02] px-6 py-10 sm:px-8 sm:py-16 backdrop-blur-sm"
+                            className="relative mx-auto max-w-3xl rounded-sm bg-brand-600 px-6 py-10 text-center !text-white shadow-theme-lg sm:px-8 sm:py-16 [&_.text-white]:!text-white [&_.text-white\/50]:!text-brand-100"
                         >
-                            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 backdrop-blur mb-6">
-                                <Zap className="h-4 w-4 text-indigo-400" />
+                            <motion.div variants={fadeUp} custom={0} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] !text-brand-100">
+                                <Icon className="text-[20px]">rocket_launch</Icon>
                                 Ready?
                             </motion.div>
                             <motion.h2 variants={fadeUp} custom={1} className="text-3xl md:text-5xl font-bold text-white mb-4">
                                 Think You Can{' '}
-                                <span className="bg-gradient-to-r from-indigo-400 to-violet-300 bg-clip-text text-transparent">
+                                <span className="!text-brand-100">
                                     Capture It
                                 </span>?
                             </motion.h2>
@@ -1062,13 +1068,13 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                             </motion.p>
                             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Link href="/auth/register">
-                                    <Button size="lg" className="group gap-2 rounded-full px-8 text-base uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25">
+                                    <Button size="lg" className="group min-h-12 gap-2 rounded-sm bg-white px-6 py-3 text-sm font-semibold text-brand-700 shadow-theme-sm hover:bg-brand-50">
                                         Join SLAU-CSIC
-                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                        <Icon className="text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</Icon>
                                     </Button>
                                 </Link>
                                 <Link href="/leaderboard">
-                                    <Button size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5 px-8 text-base text-white/80 backdrop-blur transition-all hover:border-white/40 hover:bg-white/10">
+                                    <Button size="lg" variant="outline" className="min-h-12 rounded-sm border-white/30 bg-transparent px-6 py-3 text-sm font-semibold !text-white backdrop-blur transition-colors hover:bg-white/10">
                                         View Leaderboard
                                     </Button>
                                 </Link>
@@ -1076,7 +1082,7 @@ export default function CtfLanding({ competitions, categories, topPlayers, testi
                         </motion.div>
                     </div>
                 </WaveSection>
-            </GlowyWavesBackground>
+            </div>
         </PublicLayout>
     );
 }

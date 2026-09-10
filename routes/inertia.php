@@ -7,6 +7,7 @@ use App\Http\Controllers\ExamCertificateDownloadController;
 use App\Http\Controllers\ExamTakeController;
 use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\PublicHomeController;
 use App\Livewire\AnnouncementListing;
 use App\Livewire\AttendanceCalendar;
@@ -60,9 +61,11 @@ Route::get('/certificates/verify/{code}', [CertificateVerificationController::cl
 
 // Public routes
 Route::get('/events/calendar', EventCalendar::class)->name('events.calendar')->middleware(['auth', 'approved']);
+Route::get('/events/browse', EventListing::class)->name('events.browse')->middleware(['auth', 'approved']);
+Route::get('/events/{event:slug}/details', EventDetails::class)->name('events.member-show')->middleware(['auth', 'approved']);
 Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware(['auth', 'approved']);
-Route::get('/members', MemberDirectory::class)->name('members.index');
-Route::get('/events', EventListing::class)->name('events.index');
+Route::get('/members', MemberDirectory::class)->name('members.index')->middleware(['auth', 'approved']);
+Route::get('/events', PublicEventController::class)->name('events.index');
 
 Route::get('/events/checkin', App\Http\Controllers\EventCheckInController::class.'@showScanPage')
     ->name('events.checkin')
@@ -71,7 +74,8 @@ Route::post('/events/checkin', App\Http\Controllers\EventCheckInController::clas
     ->name('events.checkin.process')
     ->middleware(['auth', 'approved', 'throttle:10,1']);
 
-Route::get('/events/{event:slug}', EventDetails::class)->name('events.show');
+Route::get('/events/create', EventCreate::class)->name('events.create')->middleware(['auth', 'approved']);
+Route::get('/events/{event:slug}', [EventShowController::class, 'show'])->name('events.show');
 Route::get('/events/{event:slug}/certificate/{registration}', App\Http\Controllers\EventCertificateController::class)
     ->name('events.certificate')
     ->middleware(['auth', 'verified']);
@@ -80,17 +84,16 @@ Route::post('/events/{event:slug}/cancel-rsvp', [EventShowController::class, 'ca
 Route::post('/events/{event:slug}/register', [EventShowController::class, 'register'])->name('events.register')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
 Route::post('/events/{event:slug}/unregister', [EventShowController::class, 'unregister'])->name('events.unregister')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
 Route::post('/events/{event:slug}/feedback', [EventShowController::class, 'storeFeedback'])->name('events.feedback')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
-Route::get('/events/create', EventCreate::class)->name('events.create')->middleware(['auth', 'approved']);
 Route::get('/events/{event:slug}/edit', EventEdit::class)->name('events.edit')->middleware(['auth', 'approved']);
 Route::get('/organizer/dashboard', \App\Livewire\OrganizerDashboard::class)->name('organizer.dashboard')->middleware(['auth', 'approved']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth/login', [InertiaAuthController::class, 'showLogin'])->name('auth.login');
-    Route::post('/auth/login', [InertiaAuthController::class, 'login']);
+    Route::post('/auth/login', [InertiaAuthController::class, 'login'])->middleware('throttle:20,1');
     Route::get('/auth/register', [InertiaAuthController::class, 'showRegister'])->name('auth.register');
-    Route::post('/auth/register', [InertiaAuthController::class, 'register']);
+    Route::post('/auth/register', [InertiaAuthController::class, 'register'])->middleware('throttle:5,1');
     Route::get('/auth/forgot-password', [InertiaAuthController::class, 'showForgotPassword'])->name('auth.forgot-password');
-    Route::post('/auth/forgot-password', [InertiaAuthController::class, 'sendResetLink']);
+    Route::post('/auth/forgot-password', [InertiaAuthController::class, 'sendResetLink'])->middleware('throttle:6,1');
 });
 
 Route::middleware('auth')->group(function () {

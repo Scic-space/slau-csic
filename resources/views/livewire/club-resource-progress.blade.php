@@ -1,4 +1,4 @@
-<div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+<div class="rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card shadow-sm">
     <div class="p-6 md:p-8">
         <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
@@ -10,7 +10,7 @@
                 <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium
                     @if ($status === 'completed') bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-500/20
                     @elseif ($status === 'in_progress') bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-500/20
-                    @else bg-gray-50 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400 border border-gray-500/20 @endif">
+                    @else bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 border border-gray-500/20 @endif">
                     <span class="mr-1 h-1.5 w-1.5 rounded-full
                         @if ($status === 'completed') bg-green-500
                         @elseif ($status === 'in_progress') bg-blue-500
@@ -39,19 +39,19 @@
         </div>
 
         <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div class="rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-3 py-3 text-center">
+            <div class="rounded-lg border border-gray-100 dark:border-border bg-background dark:bg-background/50 px-3 py-3 text-center">
                 <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $progressPercentage }}%</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Progress</p>
             </div>
-            <div class="rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-3 py-3 text-center">
+            <div class="rounded-lg border border-gray-100 dark:border-border bg-background dark:bg-background/50 px-3 py-3 text-center">
                 <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $completedUnits }} / {{ $resource->target_total }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Units</p>
             </div>
-            <div class="rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-3 py-3 text-center">
+            <div class="rounded-lg border border-gray-100 dark:border-border bg-background dark:bg-background/50 px-3 py-3 text-center">
                 <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $score }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Score</p>
             </div>
-            <div class="rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-3 py-3 text-center">
+            <div class="rounded-lg border border-gray-100 dark:border-border bg-background dark:bg-background/50 px-3 py-3 text-center">
                 <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $ranking ?: '—' }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Ranking</p>
             </div>
@@ -70,7 +70,7 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                    <select id="status" wire:model="status" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <select id="status" wire:model="status" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="not_started">Not started</option>
                         <option value="in_progress">In progress</option>
                         <option value="completed">Completed</option>
@@ -89,7 +89,7 @@
 
                 <div>
                     <label for="completedUnits" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Completed units</label>
-                    <input id="completedUnits" type="number" wire:model="completedUnits" min="0" max="{{ $resource->target_total }}" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <input id="completedUnits" type="number" wire:model="completedUnits" min="0" max="{{ $resource->target_total }}" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                     @error('completedUnits') <span class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
                 </div>
 
@@ -99,10 +99,10 @@
                         @if (!$this->canAwardPoints()) <span class="font-normal text-gray-400 dark:text-gray-500">(staff-set)</span> @endif
                     </label>
                     @if ($this->canAwardPoints())
-                        <input id="score" type="number" wire:model="score" min="0" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input id="score" type="number" wire:model="score" min="0" class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         @error('score') <span class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
                     @else
-                        <div class="block w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400">{{ $score }}</div>
+                        <div class="block w-full rounded-lg border border-gray-200 dark:border-border bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400">{{ $score }}</div>
                     @endif
                 </div>
 
@@ -112,16 +112,16 @@
                         @if (!$this->canAwardPoints()) <span class="font-normal text-gray-400 dark:text-gray-500">(staff-set)</span> @endif
                     </label>
                     @if ($this->canAwardPoints())
-                        <input id="ranking" type="text" wire:model="ranking" placeholder="Top 10, quarter finalist..." class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-gray-400">
+                        <input id="ranking" type="text" wire:model="ranking" placeholder="Top 10, quarter finalist..." class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-gray-400">
                         @error('ranking') <span class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
                     @else
-                        <div class="block w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400">{{ $ranking ?: 'Not set' }}</div>
+                        <div class="block w-full rounded-lg border border-gray-200 dark:border-border bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400">{{ $ranking ?: 'Not set' }}</div>
                     @endif
                 </div>
 
                 <div class="md:col-span-2">
                     <label for="notes" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
-                    <textarea id="notes" wire:model="notes" rows="3" placeholder="What you solved, what blocked you, or what comes next." class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-gray-400"></textarea>
+                    <textarea id="notes" wire:model="notes" rows="3" placeholder="What you solved, what blocked you, or what comes next." class="block w-full rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-gray-400"></textarea>
                     @error('notes') <span class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
                 </div>
             </div>

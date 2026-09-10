@@ -4,7 +4,7 @@
 @endphp
 
 <aside id="sidebar"
-    class="sidebar-shell fixed left-0 top-0 z-99999 flex h-dvh flex-col border-r border-gray-200 bg-white px-3 text-gray-900 shadow-sm transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900"
+    class="sidebar-shell fixed left-0 top-0 z-99999 flex h-dvh flex-col border-r border-border bg-sidebar px-3 text-sidebar-foreground shadow-sm transition-all duration-300 ease-in-out"
     x-data="{
         openSubmenus: {},
         materialIcons: {
@@ -85,7 +85,7 @@
     @mouseleave="$store.sidebar.setHovered(false)">
 
     <!-- Logo Section -->
-    <div class="flex h-20 shrink-0 items-center border-b border-gray-100 dark:border-gray-800"
+    <div class="flex h-20 shrink-0 items-center border-b border-border"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start pl-3'">
@@ -98,7 +98,7 @@
                 <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="SLAU CSIC" width="120" height="32" />
             </div>
         </a>
-        <button type="button" class="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-sm text-gray-500 hover:bg-gray-100 xl:hidden dark:text-gray-400 dark:hover:bg-gray-800" @click="$store.sidebar.setMobileOpen(false)" aria-label="Close navigation menu">
+        <button type="button" class="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-sm text-muted hover:bg-card-hover xl:hidden" @click="$store.sidebar.setMobileOpen(false)" aria-label="Close navigation menu">
             <span class="material-symbols-outlined" aria-hidden="true">close</span>
         </button>
     </div>
@@ -113,6 +113,10 @@
         @scroll="localStorage.setItem('sidebar-scroll-position', $el.scrollTop)">
         <nav class="py-4">
             <div class="flex flex-col gap-3">
+
+                @if (! $isPendingApproval)
+                    @livewire('sidebar-badges')
+                @endif
 
                 @if ($isPendingApproval)
                     <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
@@ -220,18 +224,19 @@
                     <ul x-cloak x-show="isSubmenuOpen('events') && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-collapse class="sidebar-section-children flex flex-col gap-1">
                         <!-- Browse Events -->
                         <li>
-                            <a href="{{ route('events.index') }}" wire:navigate class="menu-item group"
+                            <a href="{{ route('events.browse') }}" wire:navigate class="menu-item group"
                                 :class="[
-                                    isActive('/events') && !isActive('/my-events') ? 'menu-item-active' : 'menu-item-inactive',
+                                    isActive('/events/browse') ? 'menu-item-active' : 'menu-item-inactive',
                                     (!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
                                     'xl:justify-center' : 'justify-start'
                                 ]">
-                                <span :class="isActive('/events') && !isActive('/my-events') ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
+                                <span :class="isActive('/events/browse') ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" fill="currentColor"></path></svg>
                                 </span>
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Browse Events
+                                    <x-sidebar.badge for="eventsToRegister" />
                                 </span>
                             </a>
                         </li>
@@ -250,6 +255,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     My Events
+                                    <x-sidebar.badge for="upcomingMyEvents" />
                                 </span>
                             </a>
                         </li>
@@ -315,6 +321,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Fines
+                                    <x-sidebar.badge for="unpaidFines" />
                                 </span>
                             </a>
                         </li>
@@ -584,6 +591,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Announcements
+                                    <x-sidebar.badge for="unreadAnnouncements" />
                                 </span>
                             </a>
                         </li>
@@ -602,6 +610,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Polls
+                                    <x-sidebar.badge for="unansweredPolls" />
                                 </span>
                             </a>
                         </li>
@@ -862,6 +871,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Meetings
+                                    <x-sidebar.badge for="upcomingMeetings" />
                                 </span>
                             </a>
                         </li>

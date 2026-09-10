@@ -7,7 +7,7 @@
 
     <!-- Notification Button -->
     <button
-        class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+        class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card-hover dark:hover:text-foreground"
         @click="toggleDropdown()"
         type="button"
         aria-label="Notifications"
@@ -19,7 +19,7 @@
             wire:loading.class="hidden"
             x-show="$wire.unreadCount > 0"
             x-text="$wire.unreadCount > 99 ? '99+' : $wire.unreadCount"
-            class="absolute -top-1 -right-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-gray-900"
+            class="absolute -top-1 -right-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-card"
             x-transition
         ></span>
 
@@ -38,14 +38,14 @@
         x-transition:leave="transition ease-in duration-100"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
         x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-        class="absolute left-0 mt-[17px] flex w-[calc(100vw-2rem)] max-w-[380px] flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900 xl:left-auto xl:right-0"
+        class="absolute left-0 mt-[17px] flex w-[calc(100vw-2rem)] max-w-[380px] flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-border dark:bg-popover xl:left-auto xl:right-0"
         role="menu"
         style="display: none;"
     >
         <!-- Header -->
-        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
             <div class="flex items-center gap-2">
-                <h5 class="text-base font-semibold text-gray-900 dark:text-white">Notifications</h5>
+                <h5 class="text-base font-semibold text-gray-900 dark:text-foreground">Notifications</h5>
                 @if ($unreadCount > 0)
                     <span class="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 dark:bg-red-900/30 dark:text-red-400">{{ $unreadCount }} new</span>
                 @endif
@@ -58,7 +58,7 @@
 
         <!-- Notification List -->
         <div class="max-h-[400px] overflow-y-auto">
-            <ul class="divide-y divide-gray-50 dark:divide-gray-800/50">
+            <ul class="divide-y divide-gray-50 dark:divide-border/50">
                 @forelse ($recentNotifications as $notification)
                     @php
                         $config = \App\Notifications\NotificationTypeConfig::for($notification->type);
@@ -67,7 +67,7 @@
                         $isUnread = is_null($notification->read_at);
                     @endphp
                     <li>
-                        <a class="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"
+                        <a class="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-card-hover"
                            href="{{ route('notifications.show', $notification->id) }}" wire:navigate>
                             {{-- Type Icon --}}
                             <div class="flex-shrink-0 mt-0.5">
@@ -92,8 +92,8 @@
 
                             {{-- Content --}}
                             <div class="min-w-0 flex-1">
-                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $message }}</p>
-                                <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $notification->created_at->diffForHumans() }}</p>
+                                <p class="text-sm font-medium text-gray-900 dark:text-foreground">{{ $message }}</p>
+                                <p class="mt-0.5 text-xs text-gray-500 dark:text-muted-foreground">{{ $notification->created_at->diffForHumans() }}</p>
                             </div>
 
                             {{-- Unread dot --}}
@@ -107,13 +107,13 @@
                 @empty
                     <li class="px-5 py-10 text-center">
                         <div class="flex flex-col items-center gap-2">
-                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                <svg class="h-6 w-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-card-hover">
+                                <svg class="h-6 w-6 text-gray-400 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                                 </svg>
                             </div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">All caught up!</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">No new notifications right now.</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-foreground">All caught up!</p>
+                            <p class="text-xs text-gray-500 dark:text-muted-foreground">No new notifications right now.</p>
                         </div>
                     </li>
                 @endforelse
@@ -121,10 +121,10 @@
         </div>
 
         <!-- Footer -->
-        <div class="border-t border-gray-100 px-3 py-2.5 dark:border-gray-800">
+        <div class="border-t border-gray-100 px-3 py-2.5 dark:border-border">
             <a href="{{ route('notifications.index') }}"
                wire:navigate
-               class="flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.05]">
+               class="flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-muted-foreground dark:hover:bg-card-hover">
                 View all notifications
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>

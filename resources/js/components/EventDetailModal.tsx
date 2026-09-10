@@ -78,7 +78,7 @@ export default function EventDetailModal({ event, onClose }: EventDetailModalPro
                 </button>
 
                 <div className="p-6">
-                    <span className="mb-2 inline-block rounded-full border border-indigo-500/20 bg-indigo-500/[0.08] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-400">
+                    <span className="mb-2 inline-block rounded-full border border-indigo-500/20 bg-indigo-500/[0.08] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
                         {typeLabels[event.type] || event.type}
                     </span>
 
@@ -88,17 +88,17 @@ export default function EventDetailModal({ event, onClose }: EventDetailModalPro
 
                     <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-white/50">
                         <span className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                            <Calendar className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-indigo-400" />
                             {formatDate(startDate)}
                         </span>
                         <span className="flex items-center gap-1.5">
-                            <Clock className="h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                            <Clock className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-indigo-400" />
                             {formatTime(startDate)}
                             {endDate && ` — ${formatTime(endDate)}`}
                         </span>
                         {event.location && (
                             <span className="flex items-center gap-1.5">
-                                <MapPin className="h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                                <MapPin className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-indigo-400" />
                                 {event.location}
                             </span>
                         )}
@@ -106,7 +106,7 @@ export default function EventDetailModal({ event, onClose }: EventDetailModalPro
 
                     <div className="mt-5 rounded-xl border border-indigo-500/10 bg-indigo-500/[0.03] p-4">
                         <div className="flex items-start gap-2.5">
-                            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-indigo-400" />
+                            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
                             <p className="text-sm leading-relaxed text-gray-600 dark:text-white/60">
                                 {teaser}
                             </p>

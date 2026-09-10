@@ -105,28 +105,28 @@ class PublicCtfController extends Controller
 
         $testimonials = Testimonial::approved()
             ->featured()
-            ->with('user')
+            ->with('user.memberProfile')
             ->orderByDesc('sort_order')
             ->take(3)
             ->get()
             ->map(fn (Testimonial $t) => [
                 'quote' => $t->quote,
                 'name' => $t->user->name,
-                'role' => $t->user->course_year ?? 'SLAU-CSIC Member',
+                'role' => $this->testimonialRole($t->user),
                 'rank' => $t->user->rank,
             ]);
 
         if ($testimonials->count() < 3) {
             $remaining = 3 - $testimonials->count();
             $fallback = Testimonial::approved()
-                ->with('user')
+                ->with('user.memberProfile')
                 ->orderByDesc('created_at')
                 ->take($remaining)
                 ->get()
                 ->map(fn (Testimonial $t) => [
                     'quote' => $t->quote,
                     'name' => $t->user->name,
-                    'role' => $t->user->course_year ?? 'SLAU-CSIC Member',
+                    'role' => $this->testimonialRole($t->user),
                     'rank' => $t->user->rank,
                 ]);
             $testimonials = $testimonials->concat($fallback);
@@ -170,5 +170,12 @@ class PublicCtfController extends Controller
                 'total_participants' => $totalParticipants,
             ],
         ]);
+    }
+
+    private function testimonialRole(User $user): string
+    {
+        $yearOfStudy = $user->year_of_study ?? $user->memberProfile?->year_of_study;
+
+        return $yearOfStudy ? 'Year '.$yearOfStudy.' Student' : 'SLAU-CSIC Member';
     }
 }

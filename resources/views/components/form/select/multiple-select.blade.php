@@ -29,7 +29,7 @@
 
         <!-- Select Input with Selected Tags -->
         <div @click="open = !open"
-            class="shadow-theme-xs flex min-h-11 cursor-pointer gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 transition dark:border-gray-700 dark:bg-gray-900">
+            class="shadow-theme-xs flex min-h-11 cursor-pointer gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 transition dark:border-border dark:bg-card">
             <!-- Selected Items as Tags -->
             <div class="flex flex-1 flex-wrap items-center gap-2">
                 <template x-for="id in selected" :key="id">
@@ -65,12 +65,12 @@
 
         <!-- Dropdown Options List -->
         <div x-show="open"
-            class="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+            class="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-border dark:bg-card"
             style="max-height: 16rem">
             <div class="overflow-y-auto" style="max-height: 16rem">
                 <template x-for="option in options" :key="option.id">
                     <div @click="toggleOption(option.id)"
-                        class="cursor-pointer border-b border-gray-200 px-4 py-3 text-sm transition last:border-b-0 dark:border-gray-800">
+                        class="cursor-pointer border-b border-gray-200 px-4 py-3 text-sm transition last:border-b-0 dark:border-border">
                         <span class="text-gray-800 dark:text-white/90" x-text="option.name"></span>
                     </div>
                 </template>

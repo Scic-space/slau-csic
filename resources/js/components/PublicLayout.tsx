@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { type ReactNode } from 'react';
 import { NavBar } from '@/components/ui/tubelight-navbar';
 import { MinimalFooter } from '@/components/ui/minimal-footer';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface AuthUser {
     id: number;
@@ -27,42 +28,43 @@ export default function PublicLayout({ children, title, transparentNav }: Public
     const user = auth?.user;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-            <nav className={transparentNav
-                ? 'fixed top-0 left-0 right-0 z-50 bg-transparent'
-                : 'border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'
-            }>
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center gap-6 lg:gap-10">
-                        <a href={user ? '/dashboard' : '/'}>
+        <div className="min-h-screen overflow-x-hidden bg-background font-sans text-foreground">
+            <nav className="fixed inset-x-0 top-0 z-50 border-b border-border bg-card/95 shadow-theme-xs backdrop-blur-xl">
+                <div className="grid h-16 w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 px-4 sm:gap-3 sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-10 lg:px-8">
+                    <div className="flex min-w-0 items-center justify-self-start">
+                        <a href={user ? '/dashboard' : '/'} className="flex shrink-0 items-center gap-2">
                             <img
                                 src="/images/club_logo.png"
                                 alt="SLAU-CSIC"
-                                className={`h-14 w-auto ${transparentNav ? 'brightness-0 invert' : ''}`}
+                            className="h-10 w-auto dark:brightness-0 dark:invert"
                             />
+                            <span className="hidden text-sm font-bold leading-tight text-foreground sm:block">SCIC <span className="block text-xs font-medium text-muted-foreground">Cyber</span></span>
                         </a>
-                        <NavBar
-                            items={[
-                                { name: user ? 'Dashboard' : 'Home', url: user ? '/dashboard' : '/' },
-                                { name: 'CTF Arena', url: user ? '/ctf' : '/ctf-arena' },
-                                { name: 'Projects', url: '/projects' },
-                                { name: 'News', url: '/news' },
-                                { name: 'Leaderboard', url: '/leaderboard' },
-                            ]}
-                            className={transparentNav ? 'text-white' : ''}
-                        />
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <NavBar
+                        className="justify-self-center"
+                        items={[
+                            { name: user ? 'Dashboard' : 'Home', url: user ? '/dashboard' : '/' },
+                            { name: 'About', url: '/about' },
+                            { name: 'Events', url: '/events' },
+                            { name: 'Courses', url: '/workshops' },
+                            { name: 'CTF Arena', url: user ? '/ctf' : '/ctf-arena' },
+                            { name: 'Contact', url: '/contact' },
+                            ...(!user ? [
+                                { name: 'Sign In', url: '/auth/login' },
+                                { name: 'Join Us', url: '/auth/register' },
+                            ] : []),
+                        ]}
+                    />
+
+                    <div className="flex items-center justify-self-end gap-2 sm:gap-3">
+                        <ThemeToggle />
                         {user ? (
                             <>
                                 <a
                                     href="/dashboard"
-                                    className={`text-sm font-medium ${
-                                        transparentNav
-                                            ? 'text-white/80 hover:text-white'
-                                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
-                                    }`}
+                                    className="inline-flex min-h-10 items-center text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground"
                                 >
                                     {user.name}
                                 </a>
@@ -70,11 +72,7 @@ export default function PublicLayout({ children, title, transparentNav }: Public
                                     href="/auth/logout"
                                     method="post"
                                     as="button"
-                                    className={`rounded-lg px-4 py-2 text-sm font-semibold ${
-                                        transparentNav
-                                            ? 'bg-white/10 text-white hover:bg-white/20'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                                    }`}
+                                    className="hidden min-h-10 items-center rounded-sm border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-card-hover sm:inline-flex"
                                 >
                                     Logout
                                 </Link>
@@ -83,21 +81,13 @@ export default function PublicLayout({ children, title, transparentNav }: Public
                             <>
                                 <Link
                                     href="/auth/login"
-                                    className={`text-sm font-medium ${
-                                        transparentNav
-                                            ? 'text-white/80 hover:text-white'
-                                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
-                                    }`}
+                                    className="hidden min-h-10 items-center text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground lg:inline-flex"
                                 >
                                     Sign In
                                 </Link>
                                 <Link
                                     href="/auth/register"
-                                    className={`rounded-lg px-4 py-2 text-sm font-semibold ${
-                                        transparentNav
-                                            ? 'bg-white/10 text-white hover:bg-white/20'
-                                            : 'bg-indigo-600 text-white hover:bg-indigo-500'
-                                    }`}
+                                    className="hidden min-h-10 items-center rounded-sm bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-brand-700 sm:inline-flex"
                                 >
                                     Join Us
                                 </Link>
@@ -107,11 +97,11 @@ export default function PublicLayout({ children, title, transparentNav }: Public
                 </div>
             </nav>
 
-            <main className={transparentNav ? 'pt-0' : ''}>
+            <main className={transparentNav ? '' : 'pt-16'}>
                 {title && (
-                    <div className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+                    <div className="border-b border-border bg-card">
                         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{title}</h1>
+                            <h1 className="text-3xl font-bold text-foreground">{title}</h1>
                         </div>
                     </div>
                 )}

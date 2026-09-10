@@ -24,7 +24,7 @@ class TreasurerDashboardTest extends TestCase
         $user->assignRole('Treasurer');
 
         $response = $this->actingAs($user)
-            ->get('/admin/treasurer-dashboard');
+            ->get('/treasurer');
 
         $response->assertStatus(200);
         $response->assertSee('TreasurerDashboard');
@@ -36,7 +36,7 @@ class TreasurerDashboardTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->get('/admin/treasurer-dashboard');
+            ->get('/treasurer');
 
         $response->assertStatus(403);
     }
@@ -52,7 +52,7 @@ class TreasurerDashboardTest extends TestCase
         Transaction::factory()->expense()->create(['amount' => 500.00]);
 
         $response = $this->actingAs($user)
-            ->get('/admin/treasurer-dashboard');
+            ->get('/treasurer');
 
         $response->assertSee('totalIncome');
         $response->assertSee('totalExpenses');
@@ -79,7 +79,7 @@ class TreasurerDashboardTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->get('/admin/treasurer-dashboard');
+            ->get('/treasurer');
 
         $response->assertSee('budgetData');
     }
@@ -94,7 +94,7 @@ class TreasurerDashboardTest extends TestCase
         Transaction::factory()->count(5)->create();
 
         $response = $this->actingAs($user)
-            ->get('/admin/treasurer-dashboard');
+            ->get('/treasurer');
 
         $response->assertSee('recentTransactions');
     }
@@ -109,7 +109,7 @@ class TreasurerDashboardTest extends TestCase
         Transaction::factory()->count(3)->create(['status' => 'pending']);
 
         $response = $this->actingAs($user)
-            ->get('/admin/treasurer-dashboard');
+            ->get('/treasurer');
 
         $response->assertSee('pendingApprovals');
     }
@@ -121,7 +121,7 @@ class TreasurerDashboardTest extends TestCase
         $user->assignRole('Treasurer');
 
         $response = $this->actingAs($user)
-            ->get('/admin/treasurer-dashboard');
+            ->get('/treasurer');
 
         $response->assertSee('spendingTrend');
     }

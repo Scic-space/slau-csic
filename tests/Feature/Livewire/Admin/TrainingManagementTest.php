@@ -55,7 +55,7 @@ class TrainingManagementTest extends TestCase
     {
         $response = $this->get('/admin/trainings');
 
-        $response->assertRedirect('/admin/login');
+        $response->assertRedirect('/auth/login');
     }
 
     public function test_list_displays_trainings(): void

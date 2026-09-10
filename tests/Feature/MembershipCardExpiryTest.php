@@ -241,6 +241,16 @@ it('expires a may intake card on may 31', function () {
     expect($user->studyExpiryDate()->toDateString())->toBe('2027-05-31');
 });
 
+it('expires a february intake card on the final day of february', function () {
+    $user = User::factory()->create([
+        'intake' => 'february',
+        'intake_year' => 2024,
+        'program' => 'Bachelor of Information Technology (BIT)',
+    ]);
+
+    expect($user->studyExpiryDate()->toDateString())->toBe('2027-02-28');
+});
+
 it('stores the intake details during registration', function () {
     Storage::fake('public');
     Event::fake();
@@ -348,6 +358,23 @@ it('accepts a may intake during registration', function () {
 
     expect($user)->not->toBeNull()
         ->and($user->intake)->toBe('may');
+});
+
+it('registers a february intake with an F registration number', function () {
+    Storage::fake('public');
+    Event::fake();
+
+    $this->post(route('auth.register'), registrationPayload([
+        'registration_number' => 'BACS/26D/U/F0001',
+        'intake' => 'february',
+    ]))
+        ->assertRedirect(route('verification.notice', absolute: false));
+
+    $user = User::query()->where('email', 'grace@example.com')->first();
+
+    expect($user)->not->toBeNull()
+        ->and($user->registration_number)->toBe('BACS/26D/U/F0001')
+        ->and($user->intake)->toBe('february');
 });
 
 it('accepts a registration number with a trailing letter', function () {

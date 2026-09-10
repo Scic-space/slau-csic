@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\ImageOptimizer;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
@@ -12,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -66,6 +68,8 @@ class MyProfile extends Page
                             ->imageEditor()
                             ->disk('public')
                             ->directory('profile-photos')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+                            ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'profile-photos', 800, 800, 84))
                             ->visibility('public')
                             ->label('Profile Photo')
                             ->columnSpanFull(),

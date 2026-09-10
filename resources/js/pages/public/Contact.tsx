@@ -1,8 +1,6 @@
 import PublicLayout from '@/components/PublicLayout';
-import { GlowyWavesBackground } from '@/components/ui/glowy-waves-hero-shadcnui';
 import { motion } from 'framer-motion';
 import { usePage, router } from '@inertiajs/react';
-import { Mail, MapPin, Send, CheckCircle, Clock, Shield, Globe, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import type { PageProps as InertiaPageProps } from '@inertiajs/react';
@@ -12,6 +10,7 @@ interface PageProps extends InertiaPageProps {
         success?: string;
         error?: string;
     };
+    errors: Record<string, string>;
 }
 
 const topics = [
@@ -31,8 +30,12 @@ const fadeUp = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
+function Icon({ children, className = '' }: { children: string; className?: string }) {
+    return <span className={`material-symbols-outlined ${className}`} aria-hidden="true">{children}</span>;
+}
+
 export default function Contact() {
-    const { flash } = usePage<PageProps>().props;
+    const { errors, flash } = usePage<PageProps>().props;
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -56,30 +59,30 @@ export default function Contact() {
     };
 
     return (
-        <PublicLayout transparentNav>
-            <GlowyWavesBackground>
+        <PublicLayout>
+            <div className="overflow-hidden bg-background text-foreground">
                 {/* Hero */}
-                <section className="relative flex w-full items-center justify-center px-6 pt-28 pb-16 md:px-8 lg:px-12">
-                    <motion.div initial="hidden" animate="visible" variants={container} className="mx-auto w-full max-w-6xl text-center">
-                        <motion.div variants={fadeUp} className="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-gray-600 dark:text-white/70 backdrop-blur mb-6">
-                            <Mail className="h-4 w-4 text-indigo-400" />
+                <section className="relative flex w-full items-center justify-center bg-background px-4 pb-16 pt-20 sm:px-6 sm:pt-24 lg:px-8">
+                    <motion.div initial="hidden" animate="visible" variants={container} className="mx-auto w-full max-w-7xl text-center">
+                        <motion.div variants={fadeUp} className="mb-6 inline-flex items-center gap-2 rounded-sm bg-brand-50 px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+                            <Icon className="text-[19px]">mail</Icon>
                             Get in Touch
                         </motion.div>
-                        <motion.h1 variants={fadeUp} className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl leading-[1.1]">
+                        <motion.h1 variants={fadeUp} className="text-4xl font-bold leading-[1.08] tracking-tight text-foreground md:text-5xl lg:text-6xl">
                             Let{' '}
-                            <span className="bg-gradient-to-r from-indigo-400 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+                            <span className="text-brand-600 dark:text-brand-300">
                                 start a conversation.
                             </span>
                         </motion.h1>
-                        <motion.p variants={fadeUp} className="mt-5 text-lg text-gray-500 dark:text-white/50 max-w-2xl mx-auto">
+                        <motion.p variants={fadeUp} className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
                             Members, speakers, partners, and campus visitors — reach out and we will get back to you.
                         </motion.p>
                     </motion.div>
                 </section>
 
                 {/* Form + Info */}
-                <section className="px-6 pb-28 md:px-8 lg:px-12">
-                    <div className="mx-auto max-w-6xl">
+                <section className="bg-background px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8">
+                    <div className="mx-auto max-w-7xl">
                         <div className="grid gap-10 lg:grid-cols-[1fr_0.7fr] items-start">
 
                             {/* Form */}
@@ -90,20 +93,30 @@ export default function Contact() {
                                 variants={container}
                             >
                                 {flash.success && (
-                                    <motion.div variants={fadeUp} className="mb-6 flex items-center gap-2 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-400">
-                                        <CheckCircle className="h-4 w-4 shrink-0" />
+                                    <motion.div variants={fadeUp} className="mb-6 flex items-center gap-2 rounded-sm bg-success-50 px-4 py-3 text-sm text-success-700 shadow-theme-xs dark:bg-success-500/10 dark:text-success-400">
+                                        <Icon className="text-[20px]">check_circle</Icon>
                                         {flash.success}
+                                    </motion.div>
+                                )}
+
+                                {(flash.error || Object.keys(errors).length > 0) && (
+                                    <motion.div variants={fadeUp} role="alert" className="mb-6 flex items-start gap-2 rounded-sm bg-error-50 px-4 py-3 text-sm text-error-700 shadow-theme-xs dark:bg-error-500/10 dark:text-error-400">
+                                        <Icon className="text-[20px]">error</Icon>
+                                        <div>
+                                            {flash.error && <p>{flash.error}</p>}
+                                            {Object.values(errors).map((error) => <p key={error}>{error}</p>)}
+                                        </div>
                                     </motion.div>
                                 )}
 
                                 <motion.form
                                     variants={fadeUp}
                                     onSubmit={handleSubmit}
-                                    className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 md:p-8 backdrop-blur-sm space-y-5"
+                                    className="space-y-5 rounded-sm bg-card/80 p-6 shadow-theme-xs backdrop-blur-sm dark:bg-card/70 md:p-8"
                                 >
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div>
-                                            <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700 dark:text-white/60">
+                                            <label htmlFor="name" className="mb-2 block text-sm font-medium text-foreground">
                                                 Full name
                                             </label>
                                             <input
@@ -113,12 +126,12 @@ export default function Contact() {
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
                                                 required
-                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.05] px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 transition-colors focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
+                                                className="w-full rounded-sm border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                                 placeholder="Your name"
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700 dark:text-white/60">
+                                            <label htmlFor="email" className="mb-2 block text-sm font-medium text-foreground">
                                                 Email
                                             </label>
                                             <input
@@ -128,14 +141,14 @@ export default function Contact() {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 required
-                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.05] px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 transition-colors focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
+                                                className="w-full rounded-sm border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                                 placeholder="you@example.com"
                                             />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label htmlFor="topic" className="mb-2 block text-sm font-medium text-gray-700 dark:text-white/60">
+                                        <label htmlFor="topic" className="mb-2 block text-sm font-medium text-foreground">
                                             What is this about?
                                         </label>
                                         <select
@@ -144,17 +157,17 @@ export default function Contact() {
                                             value={topic}
                                             onChange={(e) => setTopic(e.target.value)}
                                             required
-                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.05] px-4 py-3 text-sm text-gray-900 dark:text-white transition-colors focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
+                                            className="w-full rounded-sm border border-border bg-background px-4 py-3 text-sm text-foreground transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                         >
-                                            <option value="" className="bg-white dark:bg-[#0f172a] dark:text-white/50">Select a topic</option>
+                                            <option value="" className="bg-card text-muted-foreground">Select a topic</option>
                                             {topics.map((t) => (
-                                                <option key={t} value={t} className="bg-white dark:bg-[#0f172a] dark:text-white">{t}</option>
+                                                <option key={t} value={t} className="bg-card text-foreground">{t}</option>
                                             ))}
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label htmlFor="message" className="mb-2 block text-sm font-medium text-gray-700 dark:text-white/60">
+                                        <label htmlFor="message" className="mb-2 block text-sm font-medium text-foreground">
                                             Message
                                         </label>
                                         <textarea
@@ -164,7 +177,7 @@ export default function Contact() {
                                             value={message}
                                             onChange={(e) => setMessage(e.target.value)}
                                             required
-                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.05] px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 transition-colors focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
+                                            className="w-full rounded-sm border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                             placeholder="Tell us what you have in mind..."
                                         />
                                     </div>
@@ -172,10 +185,10 @@ export default function Contact() {
                                     <Button
                                         type="submit"
                                         disabled={submitting}
-                                        className="group gap-2 rounded-full px-8 py-5 text-sm uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 disabled:opacity-50"
+                                        className="group min-h-12 gap-2 rounded-sm bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-theme-sm hover:bg-[#2984D1] disabled:opacity-50"
                                     >
                                         {submitting ? 'Sending...' : 'Send Message'}
-                                        <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                                        <Icon className="text-[20px] transition-transform group-hover:translate-x-0.5">send</Icon>
                                     </Button>
                                 </motion.form>
                             </motion.div>
@@ -189,74 +202,88 @@ export default function Contact() {
                                 className="space-y-5"
                             >
                                 {/* Contact Info */}
-                                <motion.div variants={fadeUp} className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 backdrop-blur-sm">
-                                    <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-gray-900 dark:text-white">
+                                <motion.div variants={fadeUp} className="rounded-sm bg-card/80 p-6 shadow-theme-xs backdrop-blur-sm dark:bg-card/70">
+                                    <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
                                         Contact Information
                                     </h3>
-                                    <ul className="space-y-4 text-sm text-gray-500 dark:text-white/50">
+                                    <ul className="space-y-4 text-sm text-muted-foreground">
                                         <li className="flex items-center gap-3">
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/[0.08]">
-                                                <Mail className="h-4 w-4 text-indigo-400" />
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300">
+                                                <Icon className="text-[20px]">mail</Icon>
                                             </div>
                                             <div>
-                                                <p className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-white/30 mb-0.5">Email</p>
-                                                <a href="mailto:cyberclub@slau.ac.ug" className="text-gray-900 dark:text-white hover:text-indigo-400 transition-colors">
-                                                    cyberclub@slau.ac.ug
+                                                <p className="mb-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">Email</p>
+                                                <a href="mailto:sciccyber8@gmail.com" className="text-foreground transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+                                                    sciccyber8@gmail.com
                                                 </a>
                                             </div>
                                         </li>
+                                        <li>
+                                            <a
+                                                href="https://wa.me/254105883177"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                aria-label="Chat with SCIC Cyber on WhatsApp"
+                                                className="group inline-flex min-h-11 items-center gap-3 rounded-sm bg-success-50 px-3 py-2 font-medium text-success-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-success-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-success-600 dark:bg-success-500/10 dark:text-success-400 dark:hover:bg-success-500/15 dark:focus-visible:outline-success-400"
+                                            >
+                                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-success-100 transition-colors group-hover:bg-success-200 dark:bg-success-500/15 dark:group-hover:bg-success-500/20">
+                                                    <Icon className="text-[20px]">chat</Icon>
+                                                </span>
+                                                <span>WhatsApp Us</span>
+                                            </a>
+                                        </li>
                                         <li className="flex items-center gap-3">
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/[0.08]">
-                                                <MapPin className="h-4 w-4 text-indigo-400" />
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300">
+                                                <Icon className="text-[20px]">location_on</Icon>
                                             </div>
                                             <div>
-                                                <p className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-white/30 mb-0.5">Location</p>
-                                                <p className="text-gray-900 dark:text-white">St. Lawrence University, Kampala</p>
+                                                <p className="mb-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">Location</p>
+                                                <p className="text-foreground">St. Lawrence University, Kampala</p>
                                             </div>
                                         </li>
                                         <li className="flex items-center gap-3">
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/[0.08]">
-                                                <Clock className="h-4 w-4 text-indigo-400" />
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300">
+                                                <Icon className="text-[20px]">schedule</Icon>
                                             </div>
                                             <div>
-                                                <p className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-white/30 mb-0.5">Response Time</p>
-                                                <p className="text-gray-900 dark:text-white">Usually within 24 hours</p>
+                                                <p className="mb-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">Response Time</p>
+                                                <p className="text-foreground">Usually within 24 hours</p>
                                             </div>
                                         </li>
                                     </ul>
                                 </motion.div>
 
                                 {/* Who You'll Reach */}
-                                <motion.div variants={fadeUp} className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 backdrop-blur-sm">
-                                    <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-gray-900 dark:text-white">
+                                <motion.div variants={fadeUp} className="rounded-sm bg-card/80 p-6 shadow-theme-xs backdrop-blur-sm dark:bg-card/70">
+                                    <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
                                         Who You Will Reach
                                     </h3>
                                     <ul className="space-y-4 text-sm">
                                         <li className="flex items-start gap-3">
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/[0.08]">
-                                                <Shield className="h-4 w-4 text-indigo-400" />
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300">
+                                                <Icon className="text-[20px]">shield_person</Icon>
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-900 dark:text-white">Club Leadership</p>
-                                                <p className="text-xs text-gray-400 dark:text-white/30 mt-0.5">President, vice-president, and executive members</p>
+                                                <p className="font-medium text-foreground">Club Leadership</p>
+                                                <p className="mt-0.5 text-xs text-muted-foreground">President, vice-president, and executive members</p>
                                             </div>
                                         </li>
                                         <li className="flex items-start gap-3">
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08]">
-                                                <MessageSquare className="h-4 w-4 text-emerald-400" />
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400">
+                                                <Icon className="text-[20px]">event</Icon>
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-900 dark:text-white">Event Organizers</p>
-                                                <p className="text-xs text-gray-400 dark:text-white/30 mt-0.5">Workshop leads, CTF coordinators, and speakers bureau</p>
+                                                <p className="font-medium text-foreground">Event Organizers</p>
+                                                <p className="mt-0.5 text-xs text-muted-foreground">Workshop leads, CTF coordinators, and speakers bureau</p>
                                             </div>
                                         </li>
                                         <li className="flex items-start gap-3">
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/[0.08]">
-                                                <Globe className="h-4 w-4 text-amber-400" />
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400">
+                                                <Icon className="text-[20px]">public</Icon>
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-900 dark:text-white">Partnership Team</p>
-                                                <p className="text-xs text-gray-400 dark:text-white/30 mt-0.5">Industry collaboration, sponsorships, and campus outreach</p>
+                                                <p className="font-medium text-foreground">Partnership Team</p>
+                                                <p className="mt-0.5 text-xs text-muted-foreground">Industry collaboration, sponsorships, and campus outreach</p>
                                             </div>
                                         </li>
                                     </ul>
@@ -265,7 +292,7 @@ export default function Contact() {
                         </div>
                     </div>
                 </section>
-            </GlowyWavesBackground>
+            </div>
         </PublicLayout>
     );
 }

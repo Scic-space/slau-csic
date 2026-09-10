@@ -225,7 +225,7 @@ export function HeroContent({ stats, upcomingEvents }: HeroContentProps) {
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center text-center">
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full">
           <motion.div variants={itemVariants} className="mb-4 inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-gray-500 dark:text-white/70 backdrop-blur">
-            <Shield className="h-4 w-4 text-indigo-400" />
+            <Shield className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             {upcomingEvents && upcomingEvents.length > 0
               ? `Next: ${upcomingEvents[0].title} — ${new Date(upcomingEvents[0].start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
               : `${stats.members} Members and Growing`}
@@ -235,13 +235,13 @@ export function HeroContent({ stats, upcomingEvents }: HeroContentProps) {
             <img
               src="/images/club_logo.png"
               alt="SLAU-CSIC"
-              className="h-auto w-64 md:w-80 lg:w-96 invert brightness-[1.2] drop-shadow-[0_0_30px_rgba(99,102,241,0.4)]"
+              className="h-auto w-64 md:w-80 lg:w-96 dark:invert dark:brightness-[1.2] dark:drop-shadow-[0_0_30px_rgba(99,102,241,0.4)]"
             />
           </motion.div>
 
           <motion.h1 variants={itemVariants} className="mb-6 text-4xl font-bold tracking-tight text-gray-900 dark:text-white md:text-6xl lg:text-7xl">
             Where Cybersecurity Meets{" "}
-            <span className="bg-gradient-to-r from-indigo-400 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 dark:from-indigo-400 dark:via-indigo-300 dark:to-violet-300 bg-clip-text text-transparent">
               Innovation
             </span>
           </motion.h1>

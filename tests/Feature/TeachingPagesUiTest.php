@@ -33,8 +33,9 @@ it('uses material symbols in every teaching page', function (string $view, strin
 
 it('loads Google Sans Flex globally with suitable fallbacks', function () {
     $css = file_get_contents(resource_path('css/app.css'));
+    $layout = file_get_contents(resource_path('views/layouts/app.blade.php'));
 
     expect($css)
-        ->toContain('family=Google+Sans+Flex')
-        ->toContain("--font-sans: 'Google Sans Flex', 'Google Sans', Inter, ui-sans-serif, sans-serif");
+        ->toContain("--font-sans: 'Google Sans Flex', 'Google Sans', Inter, ui-sans-serif, sans-serif")
+        ->and($layout)->toContain('family=Google+Sans+Flex');
 });

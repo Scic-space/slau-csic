@@ -1,5 +1,5 @@
-<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+<div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
         <div class="flex items-center gap-3">
             <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-100 text-sm font-bold text-primary-700 shadow-sm dark:bg-primary-900/40 dark:text-primary-300">3</span>
             <div>
@@ -13,7 +13,7 @@
             <button
                 type="button"
                 wire:click="resetPolicyDefaults"
-                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50 dark:border-border dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
             >
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                 Reset defaults
@@ -45,7 +45,7 @@
                     $weightField = $rule['key'] . '_weight';
                     $c = $colorClasses[$rule['color']];
                 @endphp
-                <div class="rounded-xl border p-5 shadow-sm transition dark:border-gray-700 {{ $c['border'] . ' ' . $c['hover'] }} {{ !$policyWeights[$enabledField] ? 'opacity-60' : '' }}">
+                <div class="rounded-xl border p-5 shadow-sm transition dark:border-border {{ $c['border'] . ' ' . $c['hover'] }} {{ !$policyWeights[$enabledField] ? 'opacity-60' : '' }}">
                     <div class="flex items-start justify-between">
                         <div class="flex items-start gap-3">
                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ $c['lightBg'] }}">
@@ -58,7 +58,7 @@
                         </div>
                         <label class="relative inline-flex cursor-pointer items-center">
                             <input type="checkbox" wire:model="policyWeights.{{ $enabledField }}" class="peer sr-only">
-                            <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:bg-primary-600 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-700"></div>
+                            <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:bg-primary-600 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-border dark:bg-gray-700"></div>
                         </label>
                     </div>
                     @if ($policyWeights[$enabledField])
@@ -78,7 +78,7 @@
             @endforeach
         </div>
 
-        <div class="mt-6 rounded-xl border border-gray-200 bg-gray-50/50 p-5 dark:border-gray-700 dark:bg-gray-900/20">
+        <div class="mt-6 rounded-xl border border-gray-200 bg-gray-50/50 p-5 dark:border-border dark:bg-gray-900/20">
             <p class="mb-3 text-xs font-bold text-gray-600 dark:text-gray-400">Weight distribution</p>
             <div class="flex h-4 overflow-hidden rounded-full bg-gray-200 shadow-inner dark:bg-gray-700">
                 @foreach (['skill', 'fairness', 'workload', 'experience'] as $key)

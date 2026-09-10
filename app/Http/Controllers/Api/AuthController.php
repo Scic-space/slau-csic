@@ -9,23 +9,38 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $credentials = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
         ]);
 
-        if (! Auth::attempt($request->only('email', 'password'))) {
+        $accountKey = $this->loginAccountRateLimitKey($request);
+
+        if (RateLimiter::tooManyAttempts($accountKey, 5)) {
+            return response()->json([
+                'message' => 'Too many login attempts. Please try again later.',
+            ], 429);
+        }
+
+        if (! Auth::attempt($credentials)) {
+            RateLimiter::hit($accountKey, 60);
+
             return response()->json([
                 'message' => 'Invalid credentials',
             ], 401);
         }
+
+        RateLimiter::clear($accountKey);
 
         $user = Auth::user();
 
@@ -57,7 +72,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refreshToken(Request $request)
+    public function refreshToken(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -75,7 +90,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         if (! $request->user() || ! $request->user()->currentAccessToken()) {
             return response()->json([
@@ -90,7 +105,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function profile(Request $request)
+    public function profile(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -107,7 +122,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -126,5 +141,12 @@ class AuthController extends Controller
             'message' => 'Profile updated successfully',
             'user' => $user,
         ]);
+    }
+
+    protected function loginAccountRateLimitKey(Request $request): string
+    {
+        $email = Str::lower(Str::transliterate((string) $request->input('email')));
+
+        return 'api-login:account:'.hash('sha256', $email);
     }
 }

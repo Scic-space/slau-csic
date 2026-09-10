@@ -7,7 +7,7 @@
         </div>
 
         {{-- Session Header --}}
-        <div class="rounded-xl border border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-800">
+        <div class="rounded-xl border border-gray-200 bg-white p-8 dark:border-border dark:bg-card">
             <div class="flex items-start justify-between">
                 <div class="flex-1">
                     <div class="flex items-center gap-2">
@@ -54,14 +54,14 @@
             </div>
 
             @if ($meeting->description)
-                <div class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-700">
+                <div class="mt-4 border-t border-gray-100 pt-4 dark:border-border">
                     <p class="text-sm text-gray-600 dark:text-gray-400">{{ $meeting->description }}</p>
                 </div>
             @endif
         </div>
 
         {{-- Attendance Status --}}
-        <div class="rounded-xl border p-4 {{ $hasAttended ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800' }}">
+        <div class="rounded-xl border p-4 {{ $hasAttended ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' : 'border-gray-200 bg-white dark:border-border dark:bg-card' }}">
             <div class="flex items-center gap-3">
                 @if ($hasAttended)
                     <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
@@ -98,8 +98,8 @@
 
         {{-- Agenda --}}
         @if ($meeting->agendaItems->count() > 0)
-            <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+            <div class="rounded-xl border border-gray-200 bg-white dark:border-border dark:bg-card">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
                     <h2 class="font-semibold text-gray-900 dark:text-white">Agenda</h2>
                 </div>
                 <div class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -122,8 +122,8 @@
 
         {{-- Attachments --}}
         @if ($meeting->attachments->count() > 0)
-            <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+            <div class="rounded-xl border border-gray-200 bg-white dark:border-border dark:bg-card">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
                     <h2 class="font-semibold text-gray-900 dark:text-white">Materials</h2>
                 </div>
                 <div class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -142,8 +142,8 @@
         @endif
         {{-- Session Feedback --}}
         @if ($hasAttended)
-            <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+            <div class="rounded-xl border border-gray-200 bg-white dark:border-border dark:bg-card">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
                     <div class="flex items-center justify-between">
                         <h2 class="font-semibold text-gray-900 dark:text-white">Session Feedback</h2>
                         @if (! $hasSubmittedFeedback && ! $showFeedbackForm)
@@ -156,7 +156,7 @@
 
                 {{-- Feedback Form --}}
                 @if ($showFeedbackForm && ! $hasSubmittedFeedback)
-                    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
                         <form wire:submit="submitFeedback" class="space-y-4">
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Rating</label>
@@ -171,14 +171,14 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Comment (optional)</label>
-                                <textarea wire:model="comment" rows="3" maxlength="1000" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" placeholder="Share your thoughts on this session..."></textarea>
+                                <textarea wire:model="comment" rows="3" maxlength="1000" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-border dark:bg-card dark:text-white" placeholder="Share your thoughts on this session..."></textarea>
                                 @error('comment') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                             </div>
                             <div class="flex gap-2">
                                 <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" wire:loading.attr="disabled">
                                     Submit Feedback
                                 </button>
-                                <button type="button" wire:click="toggleFeedbackForm" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                                <button type="button" wire:click="toggleFeedbackForm" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300">
                                     Cancel
                                 </button>
                             </div>
@@ -188,7 +188,7 @@
 
                 {{-- Submitted Thank You --}}
                 @if ($hasSubmittedFeedback)
-                    <div class="border-b border-gray-200 px-6 py-3 dark:border-gray-700">
+                    <div class="border-b border-gray-200 px-6 py-3 dark:border-border">
                         <p class="text-sm text-green-700 dark:text-green-400">✓ Thank you for your feedback!</p>
                     </div>
                 @endif

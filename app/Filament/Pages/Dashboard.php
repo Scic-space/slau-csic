@@ -25,14 +25,12 @@ class Dashboard extends BaseDashboard
 
     public function getTitle(): string|Htmlable
     {
-        $hour = (int) now()->format('G');
-        $greeting = match (true) {
-            $hour < 12 => 'Good morning',
-            $hour < 17 => 'Good afternoon',
-            default => 'Good evening',
-        };
+        return 'Dashboard';
+    }
 
-        return $greeting.', '.auth()->user()->name;
+    public function getHeading(): string|Htmlable|null
+    {
+        return view('filament.dashboard-heading');
     }
 
     public function getWidgets(): array

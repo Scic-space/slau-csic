@@ -849,6 +849,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
         return match ($this->intake) {
             'january' => Carbon::createFromDate($graduationYear, 1, 31),
+            'february' => Carbon::createFromDate($graduationYear, 2, 1)->endOfMonth(),
             'may' => Carbon::createFromDate($graduationYear, 5, 31),
             'august' => Carbon::createFromDate($graduationYear, 8, 31),
             default => Carbon::createFromDate($graduationYear, 12, 31),

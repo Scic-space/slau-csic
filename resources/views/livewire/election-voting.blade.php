@@ -14,7 +14,7 @@
 
         {{-- Stats --}}
         <div class="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-border dark:bg-card">
                 <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</div>
                 <div class="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">ballot</span>Total Elections</div>
             </div>
@@ -26,7 +26,7 @@
                 <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['upcoming'] }}</div>
                 <div class="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">schedule</span>Upcoming</div>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-border dark:bg-card">
                 <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['user_votes_cast'] }}</div>
                 <div class="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">verified</span>Your Votes Cast</div>
             </div>
@@ -41,7 +41,7 @@
                 'past' => 'Past',
             ] as $key => $label)
                 <button wire:click="setFilter('{{ $key }}')"
-                    class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors {{ $filter === $key ? 'bg-brand-500 text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700' }}">
+                    class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors {{ $filter === $key ? 'bg-brand-500 text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-400 dark:hover:bg-card-hover' }}">
                     {{ $label }}
                 </button>
             @endforeach
@@ -49,7 +49,7 @@
 
         {{-- Election Cards --}}
         @if ($elections->isEmpty())
-            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-xl border border-gray-200 bg-white p-12 text-center dark:border-border dark:bg-card">
                 <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -68,7 +68,7 @@
             <div class="space-y-3">
                 @foreach ($elections as $election)
                     <a href="{{ route('voting.show', $election['slug']) }}" wire:navigate
-                        class="group block rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-emerald-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-emerald-600">
+                        class="group block rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-emerald-300 hover:shadow-md dark:border-border dark:bg-card dark:hover:border-emerald-600">
                         <div class="flex flex-wrap items-start justify-between gap-4">
                             <div class="flex-1 min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
@@ -136,7 +136,7 @@
                         </div>
 
                         {{-- Bottom bar: stats + actions --}}
-                        <div class="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-4 dark:border-gray-700">
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-4 dark:border-border">
                             <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                                 <span class="inline-flex items-center gap-1">
                                     <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -168,7 +168,7 @@
                                         Update Vote
                                     </span>
                                 @elseif ($election['results_visible'])
-                                    <span class="inline-flex items-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-400">
+                                    <span class="inline-flex items-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 dark:border-border dark:text-gray-400">
                                         View Results
                                     </span>
                                 @endif

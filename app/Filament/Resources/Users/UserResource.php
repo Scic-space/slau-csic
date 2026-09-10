@@ -90,6 +90,7 @@ class UserResource extends Resource
                                 ->options([
                                     'august' => 'August',
                                     'january' => 'January',
+                                    'february' => 'February',
                                     'may' => 'May',
                                 ]),
                             Select::make('intake_year')

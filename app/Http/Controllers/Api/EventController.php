@@ -10,6 +10,7 @@ use App\Models\Event;
 use App\Models\EventFeedback;
 use App\Models\EventPrerequisite;
 use App\Services\EventService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -18,21 +19,30 @@ class EventController extends Controller
         protected EventService $eventService,
     ) {}
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $query = Event::where('is_public', true)
-            ->whereIn('status', ['published', 'scheduled'])
-            ->with(['organizer', 'categories', 'instructor']);
+        $validated = $request->validate([
+            'status' => ['nullable', 'string', 'in:published,scheduled,ongoing,completed'],
+            'category' => ['nullable', 'string', 'max:100'],
+            'search' => ['nullable', 'string', 'max:255'],
+            'instructor_id' => ['nullable', 'integer', 'exists:users,id'],
+            'sort' => ['nullable', 'string', 'in:date_desc,capacity,attendees'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+        ]);
 
-        if ($status = $request->status) {
+        $query = Event::query()
+            ->publiclyVisible()
+            ->with('categories');
+
+        if ($status = $validated['status'] ?? null) {
             $query->where('status', $status);
         }
 
-        if ($category = $request->category) {
+        if ($category = $validated['category'] ?? null) {
             $query->whereHas('categories', fn ($q) => $q->where('slug', $category));
         }
 
-        if ($search = $request->search) {
+        if ($search = $validated['search'] ?? null) {
             $searchTerm = str_replace(['%', '_'], ['\\%', '\\_'], $search);
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('title', 'like', "%{$searchTerm}%")
@@ -40,11 +50,11 @@ class EventController extends Controller
             });
         }
 
-        if ($instructorId = $request->instructor_id) {
+        if ($instructorId = $validated['instructor_id'] ?? null) {
             $query->where('instructor_id', $instructorId);
         }
 
-        $sort = match ($request->sort) {
+        $sort = match ($validated['sort'] ?? null) {
             'date_desc' => ['start_date', 'desc'],
             'capacity' => ['max_participants', 'desc'],
             'attendees' => ['created_at', 'desc'],
@@ -52,8 +62,22 @@ class EventController extends Controller
         };
 
         $events = $query->orderBy(...$sort)
-            ->paginate($request->per_page ?? 20)
-            ->through(fn ($event) => $this->eventService->formatEventList($event));
+            ->paginate($validated['per_page'] ?? 20)
+            ->through(fn (Event $event): array => [
+                'title' => $event->title,
+                'slug' => $event->slug,
+                'type' => $event->type,
+                'description' => str(strip_tags($event->description))->limit(200)->toString(),
+                'start_date' => $event->start_date?->toISOString(),
+                'end_date' => $event->end_date?->toISOString(),
+                'location' => $event->location,
+                'banner_image' => $event->banner_image,
+                'status' => $event->publicStatus(),
+                'categories' => $event->categories->map(fn ($category): array => [
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                ]),
+            ]);
 
         return response()->json($events);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Services\ImageOptimizer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -137,7 +138,7 @@ class MemberProfile extends Component
             'program' => ['nullable', 'string', 'max:255'],
             'faculty' => ['nullable', 'string', 'max:255'],
             'year_of_study' => ['nullable', 'integer', 'min:1', 'max:6'],
-            'intake' => ['nullable', 'string', 'in:january,may,august'],
+            'intake' => ['nullable', 'string', 'in:january,february,may,august'],
             'intake_year' => ['nullable', 'integer', 'min:1990', 'max:'.now()->year],
             'bio' => ['nullable', 'string', 'max:1000'],
             'headline' => ['nullable', 'string', 'max:255'],
@@ -217,12 +218,13 @@ class MemberProfile extends Component
 
         if ($this->profile_photo) {
             $user = Auth::user();
+            $profilePhoto = app(ImageOptimizer::class)->store($this->profile_photo, 'profile-photos', 800, 800, 84);
 
             if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
 
-            $user->profile_photo = $this->profile_photo->store('profile-photos', 'public');
+            $user->profile_photo = $profilePhoto;
             $user->save();
 
             $this->profilePhotoUrl = $user->profile_photo_url.'?v='.now()->getTimestampMs();

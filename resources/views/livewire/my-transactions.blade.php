@@ -7,10 +7,10 @@
 
         <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex flex-col gap-2 sm:flex-row">
-                <select wire:model.live="typeFilter" aria-label="Filter by transaction type" class="block w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:w-40 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                <select wire:model.live="typeFilter" aria-label="Filter by transaction type" class="block w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:w-40 dark:border-border dark:bg-gray-700 dark:text-white">
                     <option value="">All Types</option><option value="income">Income</option><option value="expense">Expense</option>
                 </select>
-                <select wire:model.live="statusFilter" aria-label="Filter by transaction status" class="block w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:w-40 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                <select wire:model.live="statusFilter" aria-label="Filter by transaction status" class="block w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:w-40 dark:border-border dark:bg-gray-700 dark:text-white">
                     <option value="">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
                 </select>
             </div>
@@ -22,17 +22,17 @@
         </div>
 
         <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-start justify-between gap-3"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</p><span class="material-symbols-outlined text-green-500" aria-hidden="true">trending_up</span></div>
                 <p class="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">UGX {{ number_format($stats['total_income'], 0) }}</p>
             </div>
-            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-start justify-between gap-3"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expenses</p><span class="material-symbols-outlined text-red-500" aria-hidden="true">trending_down</span></div>
                 <p class="mt-2 text-3xl font-bold text-red-600 dark:text-red-400">UGX {{ number_format($stats['total_expenses'], 0) }}</p>
             </div>
         </div>
 
-        <div class="overflow-x-auto rounded-sm border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="overflow-x-auto rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
             @if ($transactions->isEmpty())
                 <div class="p-12 text-center">
                     <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
@@ -45,7 +45,7 @@
                 </div>
             @else
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-900">
+                    <thead class="bg-background">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Description</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Type</th>
@@ -56,7 +56,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach ($transactions as $t)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-card-hover/50 transition">
                                 <td class="px-6 py-4">
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $t['description'] }}</p>
                                     @if ($t['category'])
@@ -87,7 +87,7 @@
                         @endforeach
                     </tbody>
                 </table>
-                <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+                <div class="border-t border-gray-200 dark:border-border px-6 py-4">
                     {{ $transactions->links() }}
                 </div>
             @endif

@@ -117,6 +117,22 @@ it('rejects an expired verification code', function () {
     expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
 });
 
+it('rejects reuse of a verification code after successful verification', function () {
+    $user = User::factory()->unverified()->create();
+    $code = $user->generateEmailVerificationCode();
+
+    $this->actingAs($user)
+        ->post('/auth/verify-email/verify', ['code' => $code])
+        ->assertRedirect();
+
+    $user->forceFill(['email_verified_at' => null])->save();
+
+    $this->actingAs($user)
+        ->from('/auth/verify-email')
+        ->post('/auth/verify-email/verify', ['code' => $code])
+        ->assertSessionHasErrors('code');
+});
+
 it('rejects a malformed verification code', function () {
     $user = User::factory()->unverified()->create();
 
@@ -143,6 +159,24 @@ it('resends a new verification code', function () {
     expect($user->email_verification_code)->not->toBeNull();
 
     Notification::assertSentTo($user, EmailVerificationCodeNotification::class);
+});
+
+it('rate limits repeated verification code resends', function () {
+    Notification::fake();
+
+    $user = User::factory()->unverified()->create();
+
+    foreach (range(1, 6) as $attempt) {
+        $this->actingAs($user)
+            ->withServerVariables(['REMOTE_ADDR' => '203.0.113.20'])
+            ->post('/auth/verify-email/resend')
+            ->assertRedirect();
+    }
+
+    $this->actingAs($user)
+        ->withServerVariables(['REMOTE_ADDR' => '203.0.113.20'])
+        ->post('/auth/verify-email/resend')
+        ->assertTooManyRequests();
 });
 
 it('redirects verified users to the dashboard when verifying', function () {

@@ -19,7 +19,7 @@
                 x-show="showSummary"
                 x-cloak
                 x-collapse
-                class="mt-3 rounded-xl border border-gray-200 bg-gray-50/80 p-4 dark:border-gray-700 dark:bg-gray-900/40"
+                class="mt-3 rounded-xl border border-gray-200 bg-gray-50/80 p-4 dark:border-border dark:bg-gray-900/40"
             >
                 <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
                     <span class="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-400">

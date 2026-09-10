@@ -26,7 +26,16 @@ beforeEach(function () {
 
 // Dashboard
 it('loads the dashboard page', function () {
-    $this->get('/admin')->assertSuccessful();
+    $response = $this->get('/admin')
+        ->assertSuccessful()
+        ->assertSee($this->admin->name)
+        ->assertSee('Authenticated user greeting')
+        ->assertSee('admin-topbar-icon-button', false)
+        ->assertDontSee('placeholder="Search', false)
+        ->assertSeeInOrder(['Authenticated user greeting', 'Dashboard']);
+
+    expect(Filament::getCurrentPanel()->getGlobalSearchProvider())->toBeNull()
+        ->and(Filament::getCurrentPanel()->hasDatabaseNotifications())->toBeTrue();
 });
 
 // Events

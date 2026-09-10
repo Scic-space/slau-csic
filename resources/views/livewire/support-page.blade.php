@@ -49,10 +49,10 @@
                         @endphp
 
                         @foreach($faqs as $i => $faq)
-                            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-border dark:bg-card"
                                  :class="openFaq === {{ $i }} ? 'shadow-sm' : ''">
                                 <button
-                                    class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium text-gray-900 dark:text-white transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                    class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium text-gray-900 dark:text-white transition-colors hover:bg-gray-50 dark:hover:bg-card-hover/50"
                                     @click="openFaq = openFaq === {{ $i }} ? null : {{ $i }}">
                                     <span>{{ $faq['question'] }}</span>
                                     <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200"
@@ -62,7 +62,7 @@
                                     </svg>
                                 </button>
                                 <div x-show="openFaq === {{ $i }}" x-collapse x-cloak>
-                                    <div class="border-t border-gray-100 px-5 py-4 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-400">
+                                    <div class="border-t border-gray-100 px-5 py-4 text-sm text-gray-600 dark:border-border dark:text-gray-400">
                                         {{ $faq['answer'] }}
                                     </div>
                                 </div>
@@ -93,14 +93,14 @@
                                 <div>
                                     <label for="support-name" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                                     <input type="text" id="support-name" wire:model="name"
-                                           class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-indigo-400"
+                                           class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-border dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-indigo-400"
                                            placeholder="Type your name">
                                     @error('name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
                                     <label for="support-email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                                     <input type="email" id="support-email" wire:model="email"
-                                           class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-indigo-400"
+                                           class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-border dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-indigo-400"
                                            placeholder="Type your email address">
                                     @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                                 </div>
@@ -109,7 +109,7 @@
                             <div>
                                 <label for="support-subject" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Topic</label>
                                 <select id="support-subject" wire:model="topic"
-                                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-400">
+                                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-border dark:bg-gray-800 dark:text-white dark:focus:border-indigo-400">
                                     <option value="">Select a topic</option>
                                     <option value="Membership">Membership</option>
                                     <option value="Events">Events</option>
@@ -124,7 +124,7 @@
                             <div>
                                 <label for="support-message" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
                                 <textarea id="support-message" wire:model="message" rows="5"
-                                          class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-indigo-400"
+                                          class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 dark:border-border dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-indigo-400"
                                           placeholder="Describe your question or issue"></textarea>
                                 @error('message') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                             </div>
@@ -150,7 +150,7 @@
 
             {{-- Right column: Officers --}}
             <aside class="space-y-4">
-                <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-border dark:bg-card">
                     <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Club Officers</h3>
                     <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Reach out directly to the right person for your concern.</p>
 
@@ -165,7 +165,7 @@
                         @endphp
 
                         @foreach($officers as $officer)
-                            <div class="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3.5 py-3 dark:border-gray-700 dark:bg-gray-800/50">
+                            <div class="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3.5 py-3 dark:border-border dark:bg-card/50">
                                 <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/40">
                                     <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -181,7 +181,7 @@
                 </div>
 
                 {{-- Quick Links --}}
-                <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-border dark:bg-card">
                     <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Quick Links</h3>
                     <ul class="space-y-2">
                         <li>

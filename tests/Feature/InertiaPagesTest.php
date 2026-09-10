@@ -35,6 +35,20 @@ it('renders the register page', function () {
     );
 });
 
+it('uses the streamlined registration layout without the promotional panel', function () {
+    $source = file_get_contents(resource_path('js/pages/auth/Register.tsx'));
+
+    expect($source)
+        ->toContain('SCIC Cyber home')
+        ->toContain('Sign In')
+        ->toContain('<ThemeToggle />')
+        ->not->toContain('Join SCIC Cyber')
+        ->not->toContain('Create your club account.')
+        ->not->toContain('Secure registration')
+        ->not->toContain('Student learning hub')
+        ->not->toContain('Collaborative community');
+});
+
 it('renders the verification page for unverified users', function () {
     $user = User::factory()->unverified()->create();
 
@@ -50,16 +64,18 @@ it('renders the verification page for unverified users', function () {
 it('renders the events index page', function () {
     Event::factory()->count(3)->create(['status' => 'published', 'is_public' => true]);
 
-    Livewire::test(\App\Livewire\EventListing::class)
-        ->assertStatus(200);
+    $this->get(route('events.index'))
+        ->assertInertia(fn ($page) => $page->component('public/Events'));
 });
 
 it('renders the event show page', function () {
-    $event = Event::factory()->create(['status' => 'published']);
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
 
     $response = $this->get(route('events.show', $event));
 
-    $response->assertSeeLivewire(App\Livewire\EventDetails::class);
+    $response->assertInertia(fn ($page) => $page
+        ->component('events/Show')
+        ->where('event.slug', $event->slug));
 });
 
 it('returns 404 for unpublished events on show page', function () {
@@ -71,13 +87,19 @@ it('returns 404 for unpublished events on show page', function () {
 });
 
 it('renders the members directory page', function () {
+    $user = User::factory()->create([
+        'membership_status' => 'active',
+        'approved_at' => now(),
+    ]);
+
     User::factory()->count(3)->create([
         'membership_status' => 'active',
         'approved_at' => now(),
         'privacy_settings' => ['show_profile' => true],
     ]);
 
-    $this->get(route('members.index'))
+    $this->actingAs($user)
+        ->get(route('members.index'))
         ->assertSuccessful()
         ->assertSeeLivewire(\App\Livewire\MemberDirectory::class)
         ->assertSee('Total Members')

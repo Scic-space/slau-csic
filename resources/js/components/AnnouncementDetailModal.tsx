@@ -17,19 +17,19 @@ const typeConfig: Record<string, { label: string; icon: typeof Megaphone; color:
     achievement: {
         label: 'Achievement',
         icon: Trophy,
-        color: 'text-amber-400',
+        color: 'text-amber-600 dark:text-amber-400',
         accent: 'border-amber-500/20 bg-amber-500/[0.08]',
     },
     urgent: {
         label: 'Important',
         icon: AlertTriangle,
-        color: 'text-red-400',
+        color: 'text-red-600 dark:text-red-400',
         accent: 'border-red-500/20 bg-red-500/[0.08]',
     },
     default: {
         label: 'Announcement',
         icon: Megaphone,
-        color: 'text-indigo-400',
+        color: 'text-indigo-600 dark:text-indigo-400',
         accent: 'border-indigo-500/20 bg-indigo-500/[0.08]',
     },
 };

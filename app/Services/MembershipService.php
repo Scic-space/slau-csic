@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class MembershipService
 {
-    public function registerPending(User $user, array $data): Membership
+    public function registerPending(User $user): Membership
     {
         return DB::transaction(function () use ($user) {
             $membership = Membership::create([

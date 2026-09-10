@@ -43,7 +43,7 @@
         </form>
 
         <!-- Delete Account Section -->
-        <div class="mt-8 border-t border-gray-200 pt-8 dark:border-gray-700">
+        <div class="mt-8 border-t border-gray-200 pt-8 dark:border-border">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Delete account</h3>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Delete your account and all of its resources</p>
 

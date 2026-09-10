@@ -136,6 +136,8 @@ class PollShow extends Component
             ->toArray();
         $this->selectedOptions = [];
 
+        $this->dispatch('sidebar-badges-refresh');
+
         $this->successMessage = 'Your vote has been recorded.';
     }
 

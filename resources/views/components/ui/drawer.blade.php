@@ -41,7 +41,7 @@
     <div class="fixed inset-y-0 right-0 flex max-w-full">
         <div
             @click.stop
-            class="relative flex h-full w-[calc(100vw-2rem)] flex-col overflow-y-auto rounded-l-sm bg-white shadow-2xl sm:w-[70vw] {{ $desktopWidth }} dark:bg-gray-900 {{ $attributes->get('class') }}"
+            class="relative flex h-full w-[calc(100vw-2rem)] flex-col overflow-y-auto rounded-l-sm bg-white shadow-2xl sm:w-[70vw] {{ $desktopWidth }} dark:bg-popover {{ $attributes->get('class') }}"
             x-transition:enter="transform transition ease-out duration-300"
             x-transition:enter-start="translate-x-full"
             x-transition:enter-end="translate-x-0"
@@ -50,16 +50,16 @@
             x-transition:leave-end="translate-x-full"
         >
             @if ($title || $showCloseButton)
-                <div class="flex items-start justify-between border-b border-gray-200 p-5 dark:border-gray-800">
+                <div class="flex items-start justify-between border-b border-gray-200 p-5 dark:border-border">
                     @if ($title)
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $title }}</h2>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-foreground">{{ $title }}</h2>
                     @endif
                     @if ($showCloseButton)
                         <button
                             type="button"
                             @click="{{ $onClose }}"
                             aria-label="Close"
-                            class="ml-4 text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-white"
+                            class="ml-4 text-gray-400 transition-colors hover:text-gray-700 dark:text-muted dark:hover:text-foreground"
                         >
                             <span class="material-symbols-outlined" aria-hidden="true">close</span>
                         </button>
