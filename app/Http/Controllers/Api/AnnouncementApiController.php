@@ -10,6 +10,7 @@ class AnnouncementApiController extends Controller
     public function index()
     {
         $announcements = Announcement::published()
+            ->active()
             ->orderBy('published_at', 'desc')
             ->limit(20)
             ->get()

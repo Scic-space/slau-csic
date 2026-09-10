@@ -43,10 +43,8 @@ class PublicHomeController extends Controller
             ]);
 
         $announcements = Announcement::published()
+            ->active()
             ->where('audience', 'all')
-            ->where(function ($q) {
-                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
-            })
             ->orderBy('published_at', 'desc')
             ->take(2)
             ->get()

@@ -14,6 +14,7 @@ class AnnouncementListing extends Component
         $user = auth()->user();
 
         $announcements = Announcement::published()
+            ->active()
             ->orderBy('published_at', 'desc')
             ->limit(20)
             ->get()

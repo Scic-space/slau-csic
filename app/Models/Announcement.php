@@ -109,6 +109,13 @@ class Announcement extends Model
         return $query->where('is_published', true);
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where(function (Builder $q) {
+            $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+        });
+    }
+
     public function isActive(): bool
     {
         if (! $this->expires_at) {
