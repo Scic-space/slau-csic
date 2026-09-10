@@ -65,6 +65,7 @@ class EventDetails extends Component
             ]
         );
 
+        $this->dispatch('sidebar-badges-refresh');
         $this->dispatch('toast-show', message: "You're tentatively marked as 'Maybe'.", type: 'success');
     }
 
@@ -103,6 +104,7 @@ class EventDetails extends Component
             ? 'Event is full — you have been added to the waitlist.'
             : "You're confirmed for this event!";
 
+        $this->dispatch('sidebar-badges-refresh');
         $this->dispatch('toast-show', message: $message, type: 'success');
     }
 
@@ -126,6 +128,7 @@ class EventDetails extends Component
 
         $this->confirmCancelRsvpId = null;
 
+        $this->dispatch('sidebar-badges-refresh');
         $this->dispatch('toast-show', message: "You've declined this event.", type: 'success');
     }
 
@@ -173,6 +176,7 @@ class EventDetails extends Component
             ? 'Event is full — you have been added to the waitlist.'
             : 'Successfully registered for this event!';
 
+        $this->dispatch('sidebar-badges-refresh');
         $this->dispatch('toast-show', message: $message, type: 'success');
     }
 
@@ -194,6 +198,7 @@ class EventDetails extends Component
             dispatch(new PromoteFromWaitlist($this->event));
         }
 
+        $this->dispatch('sidebar-badges-refresh');
         $this->dispatch('toast-show', message: 'Successfully unregistered from event.', type: 'success');
     }
 

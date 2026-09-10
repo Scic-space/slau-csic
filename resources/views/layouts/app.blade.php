@@ -25,6 +25,9 @@
         html, body { background-color: #f9fafb; }
         html.dark, html.dark body { background-color: oklch(18% 0.035 255); }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
     @livewireStyles
     @filamentStyles
@@ -125,6 +128,18 @@
 
                 toggleCollapsedGroup(group) {
                     this.collapsedGroups[group] = !(this.collapsedGroups[group] ?? false);
+                }
+            });
+
+            Alpine.store('sidebarBadges', {
+                unreadAnnouncements: 0,
+                unansweredPolls: 0,
+                unpaidFines: 0,
+                upcomingMeetings: 0,
+                eventsToRegister: 0,
+                upcomingMyEvents: 0,
+                sync(counts) {
+                    Object.assign(this, counts);
                 }
             });
 

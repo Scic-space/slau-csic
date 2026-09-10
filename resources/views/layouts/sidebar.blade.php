@@ -114,6 +114,10 @@
         <nav class="py-4">
             <div class="flex flex-col gap-3">
 
+                @if (! $isPendingApproval)
+                    @livewire('sidebar-badges')
+                @endif
+
                 @if ($isPendingApproval)
                     <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
                         <div class="flex items-start gap-3">
@@ -232,6 +236,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Browse Events
+                                    <x-sidebar.badge for="eventsToRegister" />
                                 </span>
                             </a>
                         </li>
@@ -250,6 +255,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     My Events
+                                    <x-sidebar.badge for="upcomingMyEvents" />
                                 </span>
                             </a>
                         </li>
@@ -315,6 +321,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Fines
+                                    <x-sidebar.badge for="unpaidFines" />
                                 </span>
                             </a>
                         </li>
@@ -584,6 +591,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Announcements
+                                    <x-sidebar.badge for="unreadAnnouncements" />
                                 </span>
                             </a>
                         </li>
@@ -602,6 +610,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Polls
+                                    <x-sidebar.badge for="unansweredPolls" />
                                 </span>
                             </a>
                         </li>
@@ -862,6 +871,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Meetings
+                                    <x-sidebar.badge for="upcomingMeetings" />
                                 </span>
                             </a>
                         </li>
