@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\MemberRegistered;
 use App\Models\Membership;
 use App\Notifications\MemberRequiresApproval;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class NotifyAdminOfPendingMember
 {
@@ -18,7 +20,15 @@ class NotifyAdminOfPendingMember
             ->pluck('user');
 
         foreach ($admins as $admin) {
-            $admin->notify(new MemberRequiresApproval($event->user));
+            try {
+                $admin->notify(new MemberRequiresApproval($event->user));
+            } catch (Throwable $e) {
+                Log::warning('Approval request email could not be sent to admin', [
+                    'admin_id' => $admin->id,
+                    'pending_user_id' => $event->user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 }

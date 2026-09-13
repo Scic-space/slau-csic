@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Lab404\Impersonate\Models\Impersonate;
@@ -27,6 +28,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
+use Throwable;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
@@ -183,7 +185,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     {
         $code = $this->generateEmailVerificationCode();
 
-        $this->notify(new EmailVerificationCodeNotification($code));
+        try {
+            $this->notify(new EmailVerificationCodeNotification($code));
+        } catch (Throwable $e) {
+            Log::warning('Email verification code could not be sent', [
+                'user_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function canImpersonate(): bool
