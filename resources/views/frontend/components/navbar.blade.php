@@ -13,7 +13,7 @@
             <div class="flex items-center gap-4">
                 <a href="{{ route('home') }}" class="flex items-center gap-2">
                     <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(26,226,143,0.55)]"></span>
-                    <span class="text-sm font-bold tracking-[0.18em] text-emerald-300 sm:text-base">SLAU-CSIC</span>
+                    <span class="text-sm font-bold tracking-[0.18em] text-emerald-300 sm:text-base">SCIC</span>
                 </a>
             </div>
 
@@ -26,7 +26,7 @@
                         {{ $link['label'] }}
                     </a>
                 @endforeach
-                <a href="https://github.com/Mr-Righteousdev/slau-csic" class="home-nav-link" target="_blank" rel="noreferrer">
+                <a href="https://github.com/Scic-space" class="home-nav-link" target="_blank" rel="noreferrer">
                     GitHub
                 </a>
             </div>
@@ -65,7 +65,7 @@
                                     {{ $link['label'] }}
                                 </a>
                             @endforeach
-                            <a href="https://github.com/Mr-Righteousdev/slau-csic" class="block rounded-lg px-3 py-2 text-sm text-slate-300" target="_blank" rel="noreferrer">
+                            <a href="https://github.com/Scic-space" class="block rounded-lg px-3 py-2 text-sm text-slate-300" target="_blank" rel="noreferrer">
                                 GitHub
                             </a>
                             <div class="pt-2">

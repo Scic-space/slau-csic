@@ -8,6 +8,8 @@ use App\Events\MemberSuspended;
 use App\Notifications\EmailVerificationCodeNotification;
 use App\Notifications\MemberSuspendedNotification;
 use Carbon\Carbon;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -19,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Lab404\Impersonate\Models\Impersonate;
@@ -27,8 +30,9 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
+use Throwable;
 
-class User extends Authenticatable implements FilamentUser, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Impersonate, Notifiable;
@@ -134,7 +138,34 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'suspended_until' => 'datetime',
             'rank_changed_at' => 'datetime',
             'intake_year' => 'integer',
+            'app_authentication_secret' => 'encrypted',
+            'app_authentication_recovery_codes' => 'array',
         ];
+    }
+
+    public function getAppAuthenticationSecret(): ?string
+    {
+        return $this->app_authentication_secret;
+    }
+
+    public function saveAppAuthenticationSecret(?string $secret): void
+    {
+        $this->forceFill(['app_authentication_secret' => $secret])->save();
+    }
+
+    public function getAppAuthenticationHolderName(): string
+    {
+        return $this->name;
+    }
+
+    public function getAppAuthenticationRecoveryCodes(): ?array
+    {
+        return $this->app_authentication_recovery_codes;
+    }
+
+    public function saveAppAuthenticationRecoveryCodes(?array $codes): void
+    {
+        $this->forceFill(['app_authentication_recovery_codes' => $codes])->save();
     }
 
     protected static $logAttributes = ['name', 'email'];
@@ -183,7 +214,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     {
         $code = $this->generateEmailVerificationCode();
 
-        $this->notify(new EmailVerificationCodeNotification($code));
+        try {
+            $this->notify(new EmailVerificationCodeNotification($code));
+        } catch (Throwable $e) {
+            Log::warning('Email verification code could not be sent', [
+                'user_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function canImpersonate(): bool

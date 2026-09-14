@@ -70,22 +70,6 @@ class InertiaAuthController extends Controller
 
         $request->session()->regenerate();
 
-        $user = Auth::user();
-
-        if ($user && $user->hasAnyRole(['super-admin', 'admin', 'Treasurer', 'President'])) {
-            Auth::logout();
-
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            RateLimiter::hit($accountKey, 60);
-            RateLimiter::hit($ipKey, 60);
-
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-
         return \Inertia\Inertia::location(route('dashboard'));
     }
 
