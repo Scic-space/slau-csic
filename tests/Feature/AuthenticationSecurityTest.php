@@ -46,6 +46,20 @@ it('returns the same generic error for an unknown account and an incorrect passw
     $incorrect->assertSessionHasErrors(['email' => __('auth.failed')]);
 });
 
+it('allows panel-role accounts to sign in via the member login', function () {
+    $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+
+    $user = User::factory()->create(['password' => Hash::make('SecurePass1!')])->assignRole('Treasurer');
+
+    $this->post('/auth/login', [
+        'email' => $user->email,
+        'password' => 'SecurePass1!',
+        'remember' => true,
+    ])->assertRedirect();
+
+    $this->assertAuthenticatedAs($user);
+});
+
 it('does not authenticate or expose a database error for injection-shaped credentials', function () {
     $this->from('/auth/login')->post('/auth/login', [
         'email' => "' OR 1=1 --@example.com",

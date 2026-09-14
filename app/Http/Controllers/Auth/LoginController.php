@@ -40,14 +40,6 @@ class LoginController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if ($user && $user->hasAnyRole(['super-admin', 'admin', 'Treasurer', 'President'])) {
-            RateLimiter::hit($this->throttleKey($request));
-
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
-        }
-
         Auth::login($user, $request->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey($request));
