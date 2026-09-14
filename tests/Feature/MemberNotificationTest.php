@@ -13,7 +13,7 @@ beforeEach(function () {
     $this->seed(RolesAndPermissionsSeeder::class);
 });
 
-it('renders the approval-required email with an inline logo and no duplicated club name', function () {
+it('renders the approval-required email with a linked logo and no duplicated club name', function () {
     $admin = User::factory()->create();
     $pending = User::factory()->create(['membership_status' => 'pending', 'membership_type' => 'active']);
 
@@ -26,15 +26,15 @@ it('renders the approval-required email with an inline logo and no duplicated cl
 
     $html = (string) $mail->render();
 
-    expect($html)->toContain('data:image/png;base64,');
-    expect($html)->not->toContain('images/club_logo.png');
+    expect($html)->toContain('images/club_logo.png');
+    expect($html)->not->toContain('data:image/png;base64,');
 
     $body = preg_replace('/<head>.*?<\/head>/s', '', $html);
     $visibleText = preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $body)));
     expect(substr_count($visibleText, 'SLAU Cybersecurity & Innovations Club'))->toBe(1);
 });
 
-it('renders the approval email with the embedded logo', function () {
+it('renders the approval email with the linked logo', function () {
     $member = User::factory()->create();
     $admin = User::factory()->create();
 
@@ -42,8 +42,8 @@ it('renders the approval email with the embedded logo', function () {
 
     $html = (string) $mail->render();
 
-    expect($html)->toContain('data:image/png;base64,');
-    expect($html)->not->toContain('images/club_logo.png');
+    expect($html)->toContain('images/club_logo.png');
+    expect($html)->not->toContain('data:image/png;base64,');
     expect(html_entity_decode(strip_tags($html)))->toContain('Best regards, The Cybersecurity & Innovations Club Team');
 });
 

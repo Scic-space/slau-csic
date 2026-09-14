@@ -94,7 +94,7 @@ it('filters by week period', function () {
         'reason' => 'Test',
     ]);
 
-    PointTransaction::where('user_id', $alice->id)->update(['created_at' => now()->subDays(2)]);
+    PointTransaction::where('user_id', $alice->id)->update(['created_at' => now()->startOfWeek()->addHours(6)]);
 
     PointTransaction::create([
         'user_id' => $bob->id,
