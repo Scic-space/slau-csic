@@ -44,7 +44,6 @@ use App\Models\Fine;
 use App\Models\FineAppeal;
 use App\Models\User;
 use Filament\Actions\Action;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -81,11 +80,6 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->multiFactorAuthentication([
-                AppAuthentication::make()
-                    ->recoverable()
-                    ->brandName(config('app.name')),
-            ], isRequired: fn (): bool => ! app()->runningUnitTests())
             ->font(
                 'Google Sans Flex',
                 'https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..800&display=swap',
