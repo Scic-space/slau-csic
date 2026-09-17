@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EventAnalytics;
 use App\Filament\Pages\MeetingAnalytics;
@@ -33,6 +34,7 @@ use App\Filament\Resources\System\ContentPageResource;
 use App\Filament\Resources\System\SettingsResource;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Http\Middleware\AddSecurityHeaders;
 use App\Models\CtfCompetition;
 use App\Models\Election;
 use App\Models\Event;
@@ -78,7 +80,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->multiFactorAuthentication([
                 AppAuthentication::make()
                     ->recoverable()
@@ -468,9 +470,11 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                AddSecurityHeaders::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             ]);
     }
 }

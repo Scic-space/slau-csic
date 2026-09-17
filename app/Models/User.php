@@ -236,6 +236,10 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
 
     public function canAccessPanel(Panel $panel): bool
     {
+        if ($this->membership_status === 'suspended') {
+            return false;
+        }
+
         return $this->hasAnyRole(['super-admin', 'admin', 'Treasurer', 'President']);
     }
 
