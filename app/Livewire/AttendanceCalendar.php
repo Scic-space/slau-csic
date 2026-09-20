@@ -90,7 +90,7 @@ class AttendanceCalendar extends Component
 
     public function render(): View
     {
-        $user = auth()->user()->load('attendance.meeting');
+        $user = auth()->user()->load(['attendance.meeting', 'eventAttendance.event']);
 
         $records = $user->attendance()
             ->whereHas('meeting')
@@ -118,12 +118,35 @@ class AttendanceCalendar extends Component
             'notes' => $a->notes,
         ]);
 
-        $reminderEvents = $user->calendarReminders()
-            ->orderBy('starts_on')
+        $eventAttendanceEvents = $user->eventAttendance()
+            ->whereHas('event')
+            ->with('event')
             ->get()
-            ->map(fn (CalendarReminder $reminder) => $this->reminderEvent($reminder));
+            ->map(fn ($a) => [
+                'id' => 'event-'.$a->id,
+                'record_id' => $a->id,
+                'type' => 'attendance',
+                'title' => $a->event->title.' ('.$a->status.')',
+                'start' => $a->event->start_date?->toIso8601String() ?? now()->toIso8601String(),
+                'end' => $a->event->end_date?->toIso8601String() ?? $a->event->start_date?->toIso8601String() ?? now()->toIso8601String(),
+                'color' => match ($a->status) {
+                    'present' => '#22c55e',
+                    'absent' => '#ef4444',
+                    'excused' => '#6b7280',
+                    default => '#6b7280',
+                },
+                'textColor' => '#ffffff',
+                'status' => $a->status,
+                'meeting_title' => $a->event->title,
+                'check_in_time' => $a->checked_in_at?->format('M d, Y g:i A'),
+                'location' => $a->event->location,
+                'notes' => null,
+            ]);
 
-        $calendarEvents = $attendanceEvents->concat($reminderEvents)->values();
+        $calendarEvents = $attendanceEvents
+            ->concat($eventAttendanceEvents)
+            ->concat($reminderEvents)
+            ->values();
 
         $stats = [
             'total' => $records->count(),
