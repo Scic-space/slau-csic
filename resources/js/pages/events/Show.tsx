@@ -196,11 +196,13 @@ export default function EventShow() {
                                 transition={{ duration: 0.5, delay: 0.05 }}
                                 className="relative mb-8 overflow-hidden rounded-2xl border border-white/10"
                             >
-                                <div
-                                    className="h-64 bg-cover bg-center"
-                                    style={{ backgroundImage: `url(/storage/${event.banner_image})` }}
+                                <img
+                                    src={`/storage/${event.banner_image}`}
+                                    alt={event.title}
+                                    className="w-full object-cover"
+                                    style={{ aspectRatio: '16 / 9' }}
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent" />
+                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent" />
                             </motion.div>
                         )}
 

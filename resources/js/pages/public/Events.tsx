@@ -83,7 +83,7 @@ export default function Events({ events }: EventsProps) {
                                 {events[section.key].map((event) => (
                                         <article key={event.slug} className="group flex min-w-0 flex-col overflow-hidden rounded-sm bg-card/80 shadow-theme-xs transition duration-200 hover:-translate-y-1 hover:bg-card hover:shadow-theme-sm dark:bg-card/70">
                                             {event.banner_image ? (
-                                                <img src={`/storage/${event.banner_image}`} alt="" className="aspect-[16/8] w-full object-cover" loading="lazy" />
+                                                <img src={`/storage/${event.banner_image}`} alt="" className="aspect-video w-full object-cover" loading="lazy" />
                                             ) : (
                                                 <div className="flex aspect-[16/8] items-center justify-center bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300">
                                                     <Icon className="text-[42px]">event</Icon>

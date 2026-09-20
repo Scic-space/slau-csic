@@ -83,7 +83,8 @@
         {{-- Banner --}}
         @if ($event->banner_image)
             <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm dark:border-border">
-                <div class="h-48 sm:h-64 bg-cover bg-center" style="background-image: url({{ asset('storage/' . $event->banner_image) }})"></div>
+                <img src="{{ asset('storage/' . $event->banner_image) }}" alt="{{ $event->title }}"
+                     class="w-full object-cover" style="aspect-ratio: 16 / 9;">
             </div>
         @endif
 
