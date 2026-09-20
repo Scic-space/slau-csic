@@ -29,6 +29,8 @@ class ResourcesRelationManager extends RelationManager
                     ->required(),
                 FileUpload::make('file_path')
                     ->label('File')
+                    ->disk('public')
+                    ->visibility('public')
                     ->directory('event-resources')
                     ->maxSize(10240),
                 TextInput::make('url')
