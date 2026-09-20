@@ -84,7 +84,14 @@
         {{-- Next Upcoming Event --}}
         @if ($featuredEvent)
             <a href="{{ route('events.member-show', $featuredEvent['slug']) }}" wire:navigate
-               class="dashboard-card mb-3 block rounded-sm border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-border dark:bg-card">
+               class="dashboard-card mb-3 block overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-border dark:bg-card">
+                @if (! empty($featuredEvent['banner_image']))
+                    <div class="aspect-[16/8] w-full overflow-hidden">
+                        <img src="{{ asset('storage/' . $featuredEvent['banner_image']) }}" alt="{{ $featuredEvent['title'] }}"
+                             loading="lazy"
+                             class="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]">
+                    </div>
+                @endif
                 <div class="flex flex-col sm:flex-row">
                     <div class="flex items-center gap-4 bg-gray-50 px-6 py-4 sm:flex-col sm:justify-center sm:border-r sm:border-gray-200 sm:bg-transparent dark:bg-gray-800/50 dark:sm:border-gray-700">
                         <div class="text-center">
@@ -155,7 +162,15 @@
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($statusEvents as $event)
                     <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate
-                       class="dashboard-card group rounded-sm border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-border dark:bg-card">
+                       class="dashboard-card group flex min-w-0 flex-col overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-border dark:bg-card">
+                        @if (! empty($event['banner_image']))
+                            <div class="aspect-[16/8] w-full overflow-hidden">
+                                <img src="{{ asset('storage/' . $event['banner_image']) }}" alt="{{ $event['title'] }}"
+                                     loading="lazy"
+                                     class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]">
+                            </div>
+                        @endif
+                        <div class="flex flex-1 flex-col p-5">
                         <div class="flex items-start justify-between gap-2">
                             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                 {{ $event['type'] === 'workshop' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : '' }}
@@ -205,6 +220,7 @@
                                     {{ $event['registered_count'] }}/{{ $event['max_participants'] ?? '∞' }}
                                 </span>
                             @endif
+                        </div>
                         </div>
                     </a>
                 @endforeach

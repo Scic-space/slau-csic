@@ -91,6 +91,7 @@ class TrainingForm
                         FileUpload::make('thumbnail')
                             ->label('Thumbnail Image')
                             ->image()
+                            ->disk('public')
                             ->directory('trainings')
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
                             ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'trainings', 1280, 720))

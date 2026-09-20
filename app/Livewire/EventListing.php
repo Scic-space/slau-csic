@@ -129,6 +129,7 @@ class EventListing extends Component
                 'start_date' => $event->start_date->toIso8601String(),
                 'end_date' => $event->end_date?->toIso8601String(),
                 'location' => $event->location,
+                'banner_image' => $event->banner_image,
                 'description' => str($event->description)->limit(200),
                 'max_participants' => $event->max_participants,
                 'registered_count' => $event->registered_count,

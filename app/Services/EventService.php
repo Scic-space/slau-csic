@@ -261,6 +261,8 @@ class EventService
             'slug' => $event->slug,
             'type' => $event->type,
             'description' => str($event->description)->limit(200),
+            'banner_image' => $event->banner_image,
+            'gallery' => $event->gallery ?? [],
             'start_date' => $event->start_date?->toISOString(),
             'end_date' => $event->end_date?->toISOString(),
             'location' => $event->location,

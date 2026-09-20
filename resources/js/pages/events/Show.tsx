@@ -16,6 +16,7 @@ interface EventData {
     end_date: string | null;
     location: string | null;
     banner_image: string | null;
+    gallery: string[];
     max_participants: number | null;
     registration_required: boolean;
     waitlist_enabled: boolean;
@@ -97,6 +98,7 @@ export default function EventShow() {
         });
 
     const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [selectedGalleryImage, setSelectedGalleryImage] = useState<number | null>(null);
     const [feedbackData, setFeedbackData] = useState({
         rating: 5,
         content_quality: 0,
@@ -293,6 +295,29 @@ export default function EventShow() {
                                                                 </a>
                                                             )}
                                                         </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {event.gallery.length > 0 && (
+                                            <div>
+                                                <h2 className="text-lg font-semibold text-white mb-3">Gallery</h2>
+                                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                                    {event.gallery.map((image, index) => (
+                                                        <button
+                                                            key={image}
+                                                            type="button"
+                                                            onClick={() => setSelectedGalleryImage(index)}
+                                                            className="group relative cursor-pointer overflow-hidden rounded-xl border border-white/10"
+                                                        >
+                                                            <img
+                                                                src={`/storage/${image}`}
+                                                                alt={`${event.title} gallery image ${index + 1}`}
+                                                                loading="lazy"
+                                                                className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                            />
+                                                        </button>
                                                     ))}
                                                 </div>
                                             </div>
@@ -592,6 +617,42 @@ export default function EventShow() {
                         </motion.div>
                     </div>
                 </section>
+
+                {selectedGalleryImage !== null && event.gallery.length > 0 && (
+                    <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/80 backdrop-blur-sm" onClick={() => setSelectedGalleryImage(null)}>
+                        <div className="flex min-h-full p-4 sm:p-6">
+                            <div className="relative m-auto w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                    onClick={() => setSelectedGalleryImage(null)}
+                                    aria-label="Close image"
+                                    className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
+                                >
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                                <div className="flex items-center justify-between gap-2 px-1 mb-2">
+                                    <button
+                                        onClick={() => setSelectedGalleryImage((selectedGalleryImage + event.gallery.length - 1) % event.gallery.length)}
+                                        aria-label="Previous image"
+                                        className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                    </button>
+                                    <span className="text-sm text-white/70">
+                                        {selectedGalleryImage + 1} / {event.gallery.length}
+                                    </span>
+                                    <button
+                                        onClick={() => setSelectedGalleryImage((selectedGalleryImage + 1) % event.gallery.length)}
+                                        aria-label="Next image"
+                                        className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white/80 transition-colors hover:bg-black/80 hover:text-white"
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                    </button>
+                                </div>
+                                <img src={`/storage/${event.gallery[selectedGalleryImage]}`} alt={`${event.title} gallery image ${selectedGalleryImage + 1}`} className="mx-auto max-h-[80vh] w-auto max-w-full rounded-sm shadow-theme-lg" />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </GlowyWavesBackground>
         </PublicLayout>
     );

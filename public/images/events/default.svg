@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="Event placeholder">
+  <rect width="600" height="300" fill="#1e2a4a"/>
+  <g fill="#64748b">
+    <rect x="250" y="90" width="100" height="80" rx="8"/>
+    <path d="M250 90h100v80H250zM258 98h84v64h-84z" fill="#1e2a4a"/>
+  </g>
+  <rect x="238" y="78" width="16" height="30" rx="3" fill="#3b82f6"/>
+  <rect x="346" y="78" width="16" height="30" rx="3" fill="#3b82f6"/>
+  <line x1="258" y1="132" x2="342" y2="132" stroke="#3b82f6" stroke-width="4"/>
+  <line x1="258" y1="112" x2="342" y2="112" stroke="#3b82f6" stroke-width="4"/>
+  <circle cx="295" cy="120" r="5" fill="#facc15"/>
+  <circle cx="320" cy="150" r="5" fill="#34d399"/>
+  <circle cx="275" cy="150" r="5" fill="#34d399"/>
+  <text x="300" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#94a3b8">Event</text>
+</svg>

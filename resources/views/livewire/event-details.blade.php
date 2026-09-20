@@ -211,6 +211,27 @@
                     </div>
                 @endif
 
+                {{-- Gallery card --}}
+                @if (! empty($event->gallery))
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
+                            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Gallery</h2>
+                        </div>
+                        <div class="px-5 py-4">
+                            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                @foreach ($event->gallery as $image)
+                                    <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener noreferrer"
+                                       class="group overflow-hidden rounded-lg border border-gray-200 dark:border-border">
+                                        <img src="{{ asset('storage/' . $image) }}" alt="Gallery image"
+                                             loading="lazy"
+                                             class="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Community Feedback --}}
                 @if ($feedbackStats['feedback_count'] > 0)
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
