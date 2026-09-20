@@ -1,4 +1,4 @@
-<div class="py-8">
+<div class="py-8" wire:poll.30s="$refresh">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         @php
@@ -82,9 +82,9 @@
 
         {{-- Banner --}}
         @if ($event->banner_image)
-            <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm dark:border-border">
+            <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-gray-900 shadow-sm dark:border-border">
                 <img src="{{ asset('storage/' . $event->banner_image) }}" alt="{{ $event->title }}"
-                     class="w-full object-cover" style="aspect-ratio: 16 / 9;">
+                     class="mx-auto h-auto w-full object-contain" style="max-height: min(70vh, 480px);">
             </div>
         @endif
 
@@ -101,7 +101,7 @@
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">About</h2>
                         </div>
                         <div class="px-5 py-4">
-                            <div class="prose prose-sm max-w-none text-gray-600 dark:text-gray-400 leading-relaxed">
+                            <div class="prose prose-sm max-w-none text-gray-600 dark:prose-invert dark:text-gray-400 leading-relaxed">
                                 {!! $event->description !!}
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Requirements</h2>
                         </div>
                         <div class="px-5 py-4">
-                            <div class="prose prose-sm max-w-none text-gray-600 dark:text-gray-400 leading-relaxed">
+                            <div class="prose prose-sm max-w-none text-gray-600 dark:prose-invert dark:text-gray-400 leading-relaxed">
                                 {!! $event->requirements !!}
                             </div>
                         </div>

@@ -86,10 +86,10 @@
             <a href="{{ route('events.member-show', $featuredEvent['slug']) }}" wire:navigate
                class="dashboard-card mb-3 block overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-border dark:bg-card">
                 @if (! empty($featuredEvent['banner_image']))
-                    <div class="aspect-[16/8] w-full overflow-hidden">
+                    <div class="flex h-48 w-full items-center justify-center overflow-hidden bg-gray-900">
                         <img src="{{ asset('storage/' . $featuredEvent['banner_image']) }}" alt="{{ $featuredEvent['title'] }}"
                              loading="lazy"
-                             class="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]">
+                             class="h-full w-full object-contain transition-transform duration-300 hover:scale-[1.02]">
                     </div>
                 @endif
                 <div class="flex flex-col sm:flex-row">
@@ -164,10 +164,10 @@
                     <a href="{{ route('events.member-show', $event['slug']) }}" wire:navigate
                        class="dashboard-card group flex min-w-0 flex-col overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-border dark:bg-card">
                         @if (! empty($event['banner_image']))
-                            <div class="aspect-[16/8] w-full overflow-hidden">
+                            <div class="flex h-44 w-full items-center justify-center overflow-hidden bg-gray-900">
                                 <img src="{{ asset('storage/' . $event['banner_image']) }}" alt="{{ $event['title'] }}"
                                      loading="lazy"
-                                     class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]">
+                                     class="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]">
                             </div>
                         @endif
                         <div class="flex flex-1 flex-col p-5">
