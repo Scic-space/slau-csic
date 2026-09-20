@@ -11,7 +11,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Http\UploadedFile;
@@ -144,16 +143,6 @@ class MyProfile extends Page
                             ->revealable()
                             ->label('Confirm New Password'),
                     ]),
-
-                Section::make('Two-Factor Authentication')
-                    ->description('Secure your account with an authenticator app (e.g. Google Authenticator, Authy).')
-                    ->schema(fn (): array => array_map(
-                        fn ($provider): Group => Group::make($provider->getManagementSchemaComponents())->statePath($provider->getId()),
-                        collect(\Filament\Facades\Filament::getMultiFactorAuthenticationProviders())
-                            ->sort(fn ($provider): int => $provider->isEnabled(auth()->user()) ? 0 : 1)
-                            ->values()
-                            ->all(),
-                    )),
             ]);
     }
 

@@ -127,6 +127,7 @@ class EventShowController extends Controller
                 'end_date' => $event->end_date?->toIso8601String(),
                 'location' => $event->location,
                 'banner_image' => $event->banner_image,
+                'gallery' => $event->gallery ?? [],
                 'max_participants' => $event->max_participants,
                 'registration_required' => $event->registration_required,
                 'waitlist_enabled' => $event->waitlist_enabled,

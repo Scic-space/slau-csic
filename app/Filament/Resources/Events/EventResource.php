@@ -62,6 +62,7 @@ class EventResource extends Resource
                     ->required(),
                 FileUpload::make('banner_image')
                     ->image()
+                    ->disk('public')
                     ->directory('events')
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
                     ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'events', 1920, 1080))
@@ -95,6 +96,7 @@ class EventResource extends Resource
                     ->label('Gallery Images')
                     ->multiple()
                     ->image()
+                    ->disk('public')
                     ->directory('events/gallery')
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
                     ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'events/gallery', 1920, 1920))
@@ -189,7 +191,7 @@ class EventResource extends Resource
                     ->label('Image')
                     ->size(60)
                     ->circular()
-                    ->defaultImageUrl(url('/images/events/default.jpg')),
+                    ->defaultImageUrl(url('/images/events/default.svg')),
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),

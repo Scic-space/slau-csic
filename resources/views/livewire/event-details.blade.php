@@ -1,4 +1,4 @@
-<div class="py-8">
+<div class="py-8" wire:poll.30s="$refresh">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         @php
@@ -82,8 +82,9 @@
 
         {{-- Banner --}}
         @if ($event->banner_image)
-            <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm dark:border-border">
-                <div class="h-48 sm:h-64 bg-cover bg-center" style="background-image: url({{ asset('storage/' . $event->banner_image) }})"></div>
+            <div class="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-gray-900 shadow-sm dark:border-border">
+                <img src="{{ asset('storage/' . $event->banner_image) }}" alt="{{ $event->title }}"
+                     class="mx-auto h-auto w-full object-contain" style="max-height: min(70vh, 480px);">
             </div>
         @endif
 
@@ -100,7 +101,7 @@
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">About</h2>
                         </div>
                         <div class="px-5 py-4">
-                            <div class="prose prose-sm max-w-none text-gray-600 dark:text-gray-400 leading-relaxed">
+                            <div class="prose prose-sm max-w-none text-gray-600 dark:prose-invert dark:text-gray-400 leading-relaxed">
                                 {!! $event->description !!}
                             </div>
                         </div>
@@ -114,7 +115,7 @@
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Requirements</h2>
                         </div>
                         <div class="px-5 py-4">
-                            <div class="prose prose-sm max-w-none text-gray-600 dark:text-gray-400 leading-relaxed">
+                            <div class="prose prose-sm max-w-none text-gray-600 dark:prose-invert dark:text-gray-400 leading-relaxed">
                                 {!! $event->requirements !!}
                             </div>
                         </div>
@@ -207,6 +208,27 @@
                                     </li>
                                 @endforeach
                             </ul>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Gallery card --}}
+                @if (! empty($event->gallery))
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
+                            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Gallery</h2>
+                        </div>
+                        <div class="px-5 py-4">
+                            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                @foreach ($event->gallery as $image)
+                                    <a href="{{ asset('storage/' . $image) }}" target="_blank" rel="noopener noreferrer"
+                                       class="group overflow-hidden rounded-lg border border-gray-200 dark:border-border">
+                                        <img src="{{ asset('storage/' . $image) }}" alt="Gallery image"
+                                             loading="lazy"
+                                             class="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 @endif

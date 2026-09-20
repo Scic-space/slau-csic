@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EventAnalytics;
 use App\Filament\Pages\MeetingAnalytics;
@@ -33,6 +34,7 @@ use App\Filament\Resources\System\ContentPageResource;
 use App\Filament\Resources\System\SettingsResource;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Http\Middleware\AddSecurityHeaders;
 use App\Models\CtfCompetition;
 use App\Models\Election;
 use App\Models\Event;
@@ -42,7 +44,6 @@ use App\Models\Fine;
 use App\Models\FineAppeal;
 use App\Models\User;
 use Filament\Actions\Action;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -78,12 +79,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
-            ->multiFactorAuthentication([
-                AppAuthentication::make()
-                    ->recoverable()
-                    ->brandName(config('app.name')),
-            ], isRequired: fn (): bool => ! app()->runningUnitTests())
+            ->login(Login::class)
             ->font(
                 'Google Sans Flex',
                 'https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..800&display=swap',
@@ -468,9 +464,11 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                AddSecurityHeaders::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             ]);
     }
 }
