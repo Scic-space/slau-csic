@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\CertificateEligibility;
 use App\Models\Exam;
 use App\Models\Training;
 use App\Models\TrainingEnrollment;
@@ -31,7 +32,7 @@ class TrainingStatsWidget extends BaseWidget
         $completionRate = $totalEnrollments > 0 ? round(($completedEnrollments / $totalEnrollments) * 100, 1) : 0;
 
         $totalExams = Exam::count();
-        $certificatesIssued = \App\Models\CertificateEligibility::where('status', 'issued')->count();
+        $certificatesIssued = CertificateEligibility::eligible()->count();
 
         return [
             Stat::make('Active Courses', $activeCourses)
