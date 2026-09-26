@@ -1,7 +1,11 @@
 <?php
 
+use App\Livewire\EventListing;
 use App\Models\Event;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -60,6 +64,94 @@ it('shows published public events grouped by their dates to guests', function ()
             ->where('events.ongoing.0.slug', $ongoing->slug)
             ->where('events.completed.0.slug', $completed->slug));
 });
+
+it('moves ended events into completed public and member listings regardless of their stored status', function (string $status, int $endOffset) {
+    $this->freezeSecond();
+
+    $ended = Event::factory()->create([
+        'status' => $status,
+        'is_public' => true,
+        'start_date' => now()->subHours(2),
+        'end_date' => now()->addSeconds($endOffset),
+    ]);
+    $ongoing = Event::factory()->create([
+        'status' => 'ongoing',
+        'is_public' => true,
+        'start_date' => now()->subHour(),
+        'end_date' => null,
+    ]);
+
+    $this->get(route('events.index'))
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page
+            ->component('public/Events')
+            ->has('events.completed', 1)
+            ->where('events.completed.0.slug', $ended->slug)
+            ->has('events.ongoing', 1)
+            ->where('events.ongoing.0.slug', $ongoing->slug));
+
+    Livewire::actingAs(User::factory()->create())
+        ->test(EventListing::class)
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => collect($events->items())
+            ->firstWhere('id', $ended->id)['display_status'] === 'completed')
+        ->set('filter', 'ongoing')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => collect($events->items())->pluck('id')->all() === [$ongoing->id])
+        ->set('filter', 'completed')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => collect($events->items())->pluck('id')->all() === [$ended->id])
+        ->set('filter', 'past')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => collect($events->items())->pluck('id')->all() === [$ended->id])
+        ->set('filter', 'upcoming')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => $events->isEmpty());
+})->with(['published', 'scheduled', 'ongoing'])->with([
+    'past end time' => -60,
+    'exact end time' => 0,
+]);
+
+it('keeps started events without an end time ongoing until the admin marks them completed', function (string $status) {
+    $this->freezeSecond();
+
+    $event = Event::factory()->create([
+        'status' => $status,
+        'is_public' => true,
+        'start_date' => now()->subHour(),
+        'end_date' => null,
+        'registration_deadline' => null,
+        'rsvp_deadline' => null,
+    ]);
+
+    $this->get(route('events.index'))
+        ->assertInertia(fn ($page) => $page
+            ->has('events.ongoing', 1)
+            ->where('events.ongoing.0.slug', $event->slug)
+            ->has('events.completed', 0));
+
+    $this->get(route('events.show', $event))
+        ->assertInertia(fn ($page) => $page
+            ->where('event.has_ended', false)
+            ->where('event.can_register', true)
+            ->where('event.can_rsvp', true));
+
+    $listing = Livewire::actingAs(User::factory()->create())
+        ->test(EventListing::class)
+        ->set('filter', 'ongoing')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => count($events->items()) === 1
+            && $events->items()[0]['display_status'] === 'ongoing')
+        ->set('filter', 'completed')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => $events->isEmpty());
+
+    $event->update(['status' => 'completed']);
+
+    expect($event->hasEnded())->toBeTrue()
+        ->and($event->publicStatus())->toBe('completed')
+        ->and($event->acceptsRegistrations())->toBeFalse()
+        ->and($event->acceptsRsvps())->toBeFalse();
+
+    $listing->call('$refresh')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => count($events->items()) === 1
+            && $events->items()[0]['display_status'] === 'completed')
+        ->set('filter', 'ongoing')
+        ->assertViewHas('events', fn (LengthAwarePaginator $events): bool => $events->isEmpty());
+})->with(['published', 'scheduled', 'ongoing']);
 
 it('never lists draft unpublished private or deleted events publicly', function (array $attributes) {
     $event = Event::factory()->create($attributes);

@@ -1,4 +1,40 @@
-<div class="py-8" wire:poll.30s="$refresh">
+<div class="py-8" wire:poll.30s="$refresh"
+     data-event-server-time="{{ now()->getTimestampMs() }}"
+     data-event-end-time="{{ $event->end_date?->getTimestampMs() }}"
+     data-event-ended="{{ $hasEnded ? 'true' : 'false' }}"
+     data-event-cancelled="{{ $event->status === 'cancelled' ? 'true' : 'false' }}"
+     x-data="{
+         eventEnded: @js($hasEnded),
+         timer: null,
+         serverClock: null,
+         clockSyncedAt: 0,
+         init() {
+             this.updateEndState();
+             this.timer = setInterval(() => this.updateEndState(), 1000);
+         },
+         updateEndState() {
+             const serverTime = Number(this.$el.dataset.eventServerTime);
+
+             if (this.serverClock !== serverTime) {
+                 this.serverClock = serverTime;
+                 this.clockSyncedAt = performance.now();
+             }
+
+             const endTime = this.$el.dataset.eventEndTime;
+             const currentTime = this.serverClock + performance.now() - this.clockSyncedAt;
+             const ended = this.$el.dataset.eventEnded === 'true'
+                 || (this.$el.dataset.eventCancelled !== 'true' && endTime !== '' && currentTime >= Number(endTime));
+             const justEnded = ended && !this.eventEnded;
+             this.eventEnded = ended;
+
+             if (justEnded && this.$el.dataset.eventEnded !== 'true') {
+                 this.$wire.$refresh();
+             }
+         },
+         destroy() {
+             clearInterval(this.timer);
+         }
+     }">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         @php
@@ -76,7 +112,8 @@
                         <svg class="w-4 h-4 {{ $isFavorited ? 'text-red-500 fill-red-500' : 'text-gray-500' }}" viewBox="0 0 24 24" fill="{{ $isFavorited ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                     </button>
                 @endif
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$displayStatus] ?? 'bg-gray-50 text-gray-600' }}">
+                <span x-text="eventEnded ? 'Completed' : @js(ucfirst($displayStatus))"
+                      class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$displayStatus] ?? 'bg-gray-50 text-gray-600' }}">
                     {{ ucfirst($displayStatus) }}
                 </span>
             </div>
@@ -545,7 +582,7 @@
 
                 {{-- Countdown --}}
                 @if ($isFuture && !$registrationClosed)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card"
+                    <div x-show="!eventEnded" class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card"
                          x-data="{
                              target: new Date('{{ $event->start_date->format('Y/m/d H:i:s') }}').getTime(),
                              now: new Date().getTime(),
@@ -645,7 +682,7 @@
 
                 {{-- QR Code --}}
                 @if ($checkInCode && !$registrationClosed)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                    <div x-show="!eventEnded" class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Your Check-In Code</h3>
                         </div>
@@ -661,6 +698,7 @@
                 {{-- External Link --}}
                 @if ($event->external_link && !$registrationClosed)
                     <a href="{{ $event->external_link }}" target="_blank" rel="noopener noreferrer"
+                       x-show="!eventEnded"
                        class="dashboard-card flex items-center justify-center gap-2 rounded-sm border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md dark:border-border dark:bg-card focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Register on External Site</span>
                         <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -668,8 +706,17 @@
                 @endif
 
                 {{-- Registration --}}
+                @if (!$registrationClosed)
+                    <div x-cloak x-show="eventEnded" class="dashboard-card rounded-sm border border-gray-200 bg-white p-5 shadow-sm dark:border-border dark:bg-card">
+                        <button type="button" disabled
+                                class="w-full cursor-not-allowed rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                            Completed
+                        </button>
+                    </div>
+                @endif
                 @if ($registrationClosed || ($event->registration_required && !$event->external_link))
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                    <div @if (!$registrationClosed) x-show="!eventEnded" @endif
+                         class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="px-5 py-4 text-center">
                             @if ($registrationClosed)
                                 <button type="button" disabled
@@ -765,7 +812,7 @@
 
                 {{-- RSVP card --}}
                 @if (!$registrationClosed)
-                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                    <div x-show="!eventEnded" class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">RSVP</h3>
                         </div>

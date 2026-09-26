@@ -90,7 +90,7 @@ class Event extends Model
 
     public function publicStatus(): string
     {
-        if ($this->status === 'completed') {
+        if ($this->hasEnded()) {
             return 'completed';
         }
 
@@ -102,11 +102,7 @@ class Event extends Model
             return 'upcoming';
         }
 
-        if ($this->end_date?->isFuture()) {
-            return 'ongoing';
-        }
-
-        return 'completed';
+        return 'ongoing';
     }
 
     public function organizer(): BelongsTo

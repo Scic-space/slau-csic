@@ -230,6 +230,68 @@ it('removes RSVP and QR when an open member page refreshes after the end time', 
         ->assertDontSeeHtml('wire:click="rsvpMaybe"');
 });
 
+it('updates an open member page when an administrator completes the event early', function () {
+    $event = Event::factory()->create([
+        'status' => 'ongoing',
+        'start_date' => now()->subHour(),
+        'end_date' => now()->addHour(),
+    ]);
+    $registration = EventRegistration::factory()->create(['event_id' => $event->id]);
+    $this->actingAs($registration->user);
+
+    $component = Livewire::test(EventDetails::class, ['event' => $event])
+        ->assertSee('Your Check-In Code')
+        ->assertSee($registration->check_in_code)
+        ->assertSee('RSVP');
+
+    $event->update(['status' => 'completed']);
+
+    $component->call('$refresh')
+        ->assertSee('Completed')
+        ->assertDontSee('Register Now')
+        ->assertDontSee('Your Check-In Code')
+        ->assertDontSee($registration->check_in_code)
+        ->assertDontSeeHtml('wire:click="rsvp"')
+        ->assertDontSeeHtml('wire:click="rsvpMaybe"')
+        ->assertDontSeeHtml('wire:click="unregister"');
+
+    $document = new DOMDocument;
+    @$document->loadHTML($component->html());
+    $xpath = new DOMXPath($document);
+
+    expect($xpath->query('//button[@disabled and normalize-space(.)="Completed"]')->length)->toBe(1)
+        ->and($xpath->query('//h3[normalize-space(.)="RSVP"]')->length)->toBe(0);
+});
+
+it('refreshes remaining spots on an open member page as other members register', function () {
+    $event = Event::factory()->create([
+        'status' => 'published',
+        'max_participants' => 3,
+        'waitlist_enabled' => false,
+    ]);
+    $viewer = User::factory()->create();
+    $this->actingAs($viewer);
+
+    $component = Livewire::test(EventDetails::class, ['event' => $event])
+        ->assertSee('3 spots remaining');
+
+    foreach ([2, 1, 0] as $remaining) {
+        $this->actingAs(User::factory()->create())
+            ->post(route('events.register', $event))
+            ->assertRedirect()
+            ->assertSessionMissing('flash.error');
+        $this->actingAs($viewer);
+
+        $component->call('$refresh')
+            ->assertSee($remaining.' spot'.($remaining === 1 ? '' : 's').' remaining');
+
+        expect($event->fresh()->remaining_spots)->toBe($remaining);
+    }
+
+    $component->assertDontSee('Register Now');
+    expect($event->registrations()->count())->toBe(3);
+});
+
 it('counts attended and no show registrations as occupied spots in public and member details', function () {
     $event = Event::factory()->create([
         'status' => 'published',

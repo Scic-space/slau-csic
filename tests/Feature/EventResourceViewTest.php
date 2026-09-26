@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\EventDetails;
 use App\Models\Event;
 use App\Models\EventResource;
 use App\Models\User;
@@ -8,6 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -257,6 +259,50 @@ it('shows uploaded Word lesson content instead of a missing storage page', funct
         ->assertSee('Run pwd to locate your directory.')
         ->assertSee('Download DOCX')
         ->assertSee(route('events.resources.download', [$event, $resource]), false);
+});
+
+it('views updated administrator work from an open member page and keeps it available after the event ends', function () {
+    $this->freezeSecond();
+    $event = Event::factory()->create([
+        'status' => 'ongoing',
+        'is_public' => false,
+        'start_date' => now()->subHour(),
+        'end_date' => now()->addMinute(),
+    ]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'title' => 'Linux OS',
+        'file_path' => 'event-resources/linux-os-initial.docx',
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, app(WordDocument::class)->create('<p>Original Linux shell exercise.</p>'));
+    $this->actingAs(User::factory()->create());
+    $viewUrl = route('events.resources.show', [$event, $resource]);
+
+    $component = Livewire::test(EventDetails::class, ['event' => $event])
+        ->assertSee('Linux OS')
+        ->assertSeeHtml($viewUrl);
+    $this->get($viewUrl)->assertOk()->assertSee('Original Linux shell exercise.');
+
+    $replacementPath = 'event-resources/linux-os-updated.docx';
+    Storage::disk('public')->put($replacementPath, app(WordDocument::class)->create('<h2>Linux OS</h2><p>Updated administrator exercise: use chmod to set file permissions.</p>'));
+    $resource->update(['file_path' => $replacementPath]);
+
+    $component->call('$refresh')->assertSeeHtml($viewUrl);
+    $this->get($viewUrl)
+        ->assertOk()
+        ->assertSee('Updated administrator exercise: use chmod to set file permissions.')
+        ->assertDontSee('Original Linux shell exercise.');
+
+    $this->travelTo($event->end_date);
+
+    $component->call('$refresh')
+        ->assertSee('Completed')
+        ->assertSee('Linux OS')
+        ->assertSeeHtml($viewUrl);
+    $this->get($viewUrl)
+        ->assertOk()
+        ->assertSee('Updated administrator exercise: use chmod to set file permissions.');
 });
 
 it('opens and downloads legacy resource paths from the stored lesson location', function (string $disk, string $recordPath) {
