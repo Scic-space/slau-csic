@@ -359,7 +359,7 @@ export default function EventShow() {
                                         {event.resources.length > 0 && (
                                             <div>
                                                 <h2 className="text-lg font-semibold text-white mb-1">Resources</h2>
-                                                <p className="text-sm text-white/50 mb-3">View lesson notes or download them as a PDF before, during, and after the lesson.</p>
+                                                <p className="text-sm text-white/50 mb-3">View lesson notes or download them as a Word document before, during, and after the lesson.</p>
                                                 <div className="flex flex-col gap-2">
                                                     {event.resources.map((res) => (
                                                         <div key={res.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
@@ -374,10 +374,10 @@ export default function EventShow() {
                                                                     </a>
                                                                 )}
                                                                 {res.download_url && (
-                                                                    <a href={res.download_url} download
+                                                                    <a href={res.download_url}
                                                                         aria-label={`Download ${res.title}`}
                                                                         className="text-sm text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1">
-                                                                        Download PDF <Download className="h-3 w-3" />
+                                                                        Download DOCX <Download className="h-3 w-3" />
                                                                     </a>
                                                                 )}
                                                             </div>

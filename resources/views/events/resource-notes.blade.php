@@ -25,9 +25,9 @@
                     <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Lesson notes</p>
                     <h1 class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $resource->title }}</h1>
                 </div>
-                <a href="{{ route('events.resources.download', [$event, $resource]) }}" download
+                <a href="{{ route('events.resources.download', [$event, $resource]) }}"
                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                    Download PDF
+                    Download DOCX
                 </a>
             </header>
             <div class="prose max-w-none overflow-x-auto p-5 text-gray-700 dark:prose-invert dark:text-gray-300 sm:p-8">

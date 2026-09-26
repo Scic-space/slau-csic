@@ -3,6 +3,7 @@
 use App\Models\Event;
 use App\Models\EventResource;
 use App\Models\User;
+use App\Services\WordDocument;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Storage::fake('public');
+    Storage::fake('local');
 });
 
 it('offers resource downloads before during and after a lesson without registration', function (string $status, string $startDate, string $endDate, bool $isMember) {
@@ -25,11 +27,11 @@ it('offers resource downloads before during and after a lesson without registrat
         'event_id' => $event->id,
         'title' => 'Lecture Slides',
         'type' => 'slide',
-        'file_path' => 'event-resources/lecture.pdf',
+        'file_path' => 'event-resources/lecture.docx',
         'url' => null,
     ]);
-    $pdf = Pdf::loadHTML('<h1>Lesson slides</h1>')->output();
-    Storage::disk('public')->put($resource->file_path, $pdf);
+    $document = app(WordDocument::class)->create('<h1>Lesson slides</h1><p>Linux OS commands.</p>');
+    Storage::disk('public')->put($resource->file_path, $document);
     $downloadUrl = route('events.resources.download', [$event, $resource]);
 
     if ($isMember) {
@@ -48,10 +50,11 @@ it('offers resource downloads before during and after a lesson without registrat
 
     $response = $this->get($downloadUrl)
         ->assertOk()
-        ->assertHeader('Content-Type', 'application/pdf')
-        ->assertDownload('lecture-slides.pdf');
+        ->assertHeader('Content-Type', WordDocument::MIME_TYPE)
+        ->assertDownload('lecture-slides.docx');
 
-    expect($response->streamedContent())->toBe($pdf)->toStartWith('%PDF-');
+    expect($response->streamedContent())->toBe($document)->toStartWith('PK');
+    expect(eventResourceDocumentXml($response->streamedContent()))->toContain('Linux OS commands.');
     expect($event->registrations()->exists())->toBeFalse();
 })->with([
     'before published lesson' => ['published', '+1 day', '+1 day +2 hours'],
@@ -173,7 +176,7 @@ it('returns not found for a missing resource', function () {
     $this->get(route('events.resources.download', [$event, 999]))->assertNotFound();
 });
 
-it('converts uploaded lesson notes into PDF downloads', function (string $extension, string $notes) {
+it('converts uploaded lesson notes into real Word downloads', function (string $extension, string $notes) {
     $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
     $resource = EventResource::factory()->create([
         'event_id' => $event->id,
@@ -196,13 +199,15 @@ it('converts uploaded lesson notes into PDF downloads', function (string $extens
 
     $response = $this->get($downloadUrl)
         ->assertOk()
-        ->assertHeader('Content-Type', 'application/pdf')
-        ->assertDownload('network-security-notes.pdf');
+        ->assertHeader('Content-Type', WordDocument::MIME_TYPE)
+        ->assertDownload('network-security-notes.docx');
 
-    expect($response->getContent())
-        ->toStartWith('%PDF-')
-        ->toContain('/FlateDecode')
-        ->not->toStartWith('<!DOCTYPE html');
+    expect($response->getContent())->toStartWith('PK');
+    expect(eventResourceDocumentXml($response->getContent()))
+        ->toContain('Network security')
+        ->toContain('Protect ')
+        ->toContain('each')
+        ->toContain('connection.');
 })->with([
     'HTML document' => ['html', '<!DOCTYPE html><html><head><title>Lesson</title><style>body { color: red; }</style></head><body><main><section><h1>Network security</h1><p>Protect each connection.</p></section></main></body></html>'],
     'HTM document' => ['htm', '<h1>Network security</h1><p>Protect each connection.</p>'],
@@ -225,7 +230,7 @@ it('rejects HTML files disguised as PDFs without serving raw HTML', function () 
         ->assertDontSee('raw-html-marker');
 });
 
-it('does not offer a PDF download for unsupported resource files', function (string $extension) {
+it('does not offer a Word download for unsupported resource files', function (string $extension) {
     $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
     $resource = EventResource::factory()->create([
         'event_id' => $event->id,
@@ -245,4 +250,68 @@ it('does not offer a PDF download for unsupported resource files', function (str
         ->assertDontSee($downloadUrl, false);
 
     $this->get($downloadUrl)->assertUnsupportedMediaType();
-})->with(['zip', 'docx', 'mp4']);
+})->with(['zip', 'mp4']);
+
+it('converts an uploaded PDF to a Word document containing its lesson content', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'title' => 'Linux OS',
+        'file_path' => 'event-resources/linux-os.pdf',
+        'url' => null,
+    ]);
+    $pdf = Pdf::loadHTML('<h1>Linux OS</h1><p>Use pwd to display the current directory.</p><p>Use ls to list files.</p>')->output();
+    Storage::disk('public')->put($resource->file_path, $pdf);
+
+    $response = $this->get(route('events.resources.download', [$event, $resource]))
+        ->assertOk()
+        ->assertHeader('Content-Type', WordDocument::MIME_TYPE)
+        ->assertDownload('linux-os.docx');
+
+    expect($response->getContent())->toStartWith('PK')->not->toStartWith('%PDF-');
+    $xml = eventResourceDocumentXml($response->getContent());
+    $document = new DOMDocument;
+    expect($document->loadXML($xml, LIBXML_NONET))->toBeTrue();
+    expect($document->textContent)
+        ->toContain('Linux OS')
+        ->toContain('Use pwd to display the current directory.')
+        ->toContain('Use ls to list files.');
+});
+
+it('rejects malformed Word files without serving their raw contents', function (string $contents) {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'file_path' => 'event-resources/disguised.docx',
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, $contents);
+
+    $this->get(route('events.resources.download', [$event, $resource]))
+        ->assertUnsupportedMediaType()
+        ->assertDontSee('invalid-word-document-marker');
+})->with([
+    'renamed HTML' => '<h1>invalid-word-document-marker</h1>',
+    'invalid ZIP' => 'PK invalid-word-document-marker',
+]);
+
+function eventResourceDocumentXml(string $contents): string
+{
+    $path = tempnam(sys_get_temp_dir(), 'event-resource-docx-');
+    file_put_contents($path, $contents);
+    $archive = new ZipArchive;
+
+    try {
+        expect($archive->open($path))->toBeTrue();
+        expect($archive->getFromName('[Content_Types].xml'))
+            ->toContain('application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml');
+        expect($archive->getFromName('_rels/.rels'))->toBeString();
+        $xml = $archive->getFromName('word/document.xml');
+        expect($xml)->toBeString()->toContain('http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+
+        return $xml;
+    } finally {
+        $archive->close();
+        unlink($path);
+    }
+}

@@ -33,10 +33,12 @@ class EventResource extends Model
         return ! is_null($this->url);
     }
 
-    public function supportsPdfDownload(): bool
+    public function supportsDocxDownload(): bool
     {
-        return $this->file_path && in_array(strtolower(pathinfo($this->file_path, PATHINFO_EXTENSION)), [
-            'pdf', 'html', 'htm', 'txt', 'md', 'markdown',
+        $path = parse_url((string) $this->file_path, PHP_URL_PATH);
+
+        return $path && in_array(strtolower(pathinfo(rawurldecode($path), PATHINFO_EXTENSION)), [
+            'docx', 'pdf', 'html', 'htm', 'txt', 'md', 'markdown',
         ], true);
     }
 

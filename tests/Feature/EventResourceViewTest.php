@@ -3,6 +3,7 @@
 use App\Models\Event;
 use App\Models\EventResource;
 use App\Models\User;
+use App\Services\WordDocument;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Storage::fake('public');
+    Storage::fake('local');
 });
 
 it('opens administrator resource notes before during and after lessons', function (string $status, bool $isMember) {
@@ -229,4 +231,118 @@ it('returns not found for a missing resource view', function () {
     $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
 
     $this->get(route('events.resources.show', [$event, 999]))->assertNotFound();
+});
+
+it('shows uploaded Word lesson content instead of a missing storage page', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'title' => 'Linux OS',
+        'file_path' => 'event-resources/linux-os.docx',
+        'url' => null,
+    ]);
+    $document = app(WordDocument::class)->create('<h1>Linux OS</h1><p>Learn the <strong>Linux file system</strong>.</p><ul><li>Run pwd to locate your directory.</li></ul>');
+    Storage::disk('public')->put($resource->file_path, $document);
+    $viewUrl = route('events.resources.show', [$event, $resource]);
+
+    $this->get(route('events.show', $event))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('event.resources.0.url', $viewUrl));
+
+    $this->get($viewUrl)
+        ->assertOk()
+        ->assertViewIs('events.resource-notes')
+        ->assertSee('Linux OS')
+        ->assertSee('Linux file system')
+        ->assertSee('Run pwd to locate your directory.')
+        ->assertSee('Download DOCX')
+        ->assertSee(route('events.resources.download', [$event, $resource]), false);
+});
+
+it('opens and downloads legacy resource paths from the stored lesson location', function (string $disk, string $recordPath) {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'title' => 'Linux OS',
+        'file_path' => $recordPath,
+        'url' => null,
+    ]);
+    $document = app(WordDocument::class)->create('<h1>Linux OS</h1><p>Linux legacy file location.</p>');
+    Storage::disk($disk)->put('event-resources/linux-os.docx', $document);
+
+    $this->get(route('events.resources.show', [$event, $resource]))
+        ->assertOk()
+        ->assertSee('Linux legacy file location.');
+
+    $response = $this->get(route('events.resources.download', [$event, $resource]))
+        ->assertOk()
+        ->assertHeader('Content-Type', WordDocument::MIME_TYPE)
+        ->assertDownload('linux-os.docx');
+
+    expect($response->streamedContent())->toBe($document);
+})->with([
+    'public disk prefix' => ['public', 'public/event-resources/linux-os.docx'],
+    'storage prefix' => ['public', 'storage/event-resources/linux-os.docx'],
+    'absolute storage prefix' => ['public', '/storage/event-resources/linux-os.docx'],
+    'older local disk' => ['local', 'event-resources/linux-os.docx'],
+]);
+
+it('does not serve private files through traversal or unrelated local paths', function (string $recordPath, string $routeName) {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'file_path' => $recordPath,
+        'url' => null,
+    ]);
+    Storage::disk('local')->put('private-notes.txt', 'Private file outside resource uploads.');
+
+    $this->get(route($routeName, [$event, $resource]))
+        ->assertNotFound()
+        ->assertDontSee('Private file outside resource uploads.');
+})->with([
+    'parent directory traversal' => '../private-notes.txt',
+    'nested directory traversal' => 'event-resources/../private-notes.txt',
+    'local path outside resource uploads' => 'private-notes.txt',
+])->with(['events.resources.show', 'events.resources.download']);
+
+it('rejects malformed Word resources when opening the preview', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'file_path' => 'event-resources/invalid.docx',
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, '<script>invalid-preview-marker</script>');
+
+    $this->get(route('events.resources.show', [$event, $resource]))
+        ->assertUnsupportedMediaType()
+        ->assertDontSee('invalid-preview-marker');
+});
+
+it('does not force a missing resource response to download as an HTML file', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'file_path' => 'event-resources/missing-linux.docx',
+        'url' => null,
+    ]);
+    $downloadUrl = route('events.resources.download', [$event, $resource]);
+    $page = $this->actingAs(User::factory()->create())
+        ->get(route('events.member-show', $event))->assertOk();
+    $document = new DOMDocument;
+    $previousErrorHandling = libxml_use_internal_errors(true);
+
+    try {
+        $document->loadHTML($page->getContent(), LIBXML_NONET);
+    } finally {
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorHandling);
+    }
+
+    $downloadLink = (new DOMXPath($document))->query('//a[@href="'.$downloadUrl.'"]')->item(0);
+
+    expect($downloadLink)->not->toBeNull();
+    expect($downloadLink->hasAttribute('download'))->toBeFalse();
+
+    $this->get($downloadUrl)->assertNotFound()->assertHeaderMissing('Content-Disposition');
 });

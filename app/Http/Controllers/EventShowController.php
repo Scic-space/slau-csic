@@ -169,7 +169,7 @@ class EventShowController extends Controller
                     'url' => $resource->file_path
                         ? route('events.resources.show', [$event, $resource])
                         : $resource->url,
-                    'download_url' => $resource->supportsPdfDownload()
+                    'download_url' => $resource->supportsDocxDownload()
                         ? route('events.resources.download', [$event, $resource])
                         : null,
                 ]),
