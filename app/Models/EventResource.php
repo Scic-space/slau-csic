@@ -33,6 +33,13 @@ class EventResource extends Model
         return ! is_null($this->url);
     }
 
+    public function supportsPdfDownload(): bool
+    {
+        return $this->file_path && in_array(strtolower(pathinfo($this->file_path, PATHINFO_EXTENSION)), [
+            'pdf', 'html', 'htm', 'txt', 'md', 'markdown',
+        ], true);
+    }
+
     public function getDisplayUrlAttribute(): ?string
     {
         return $this->file_path ? asset('storage/'.$this->file_path) : $this->url;

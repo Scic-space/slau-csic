@@ -32,9 +32,19 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">After saving, users can download this description as a compact PDF from the event page.</p>
-                        <textarea wire:model="description" rows="5" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:placeholder-gray-500 dark:focus:border-white dark:focus:ring-white"></textarea>
+                        <label for="description-file" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lesson PDF</label>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload lesson notes as a PDF (up to 10 MB). Members can view and download the PDF before, during, and after the lesson.</p>
+                        @if ($event->description_file_path)
+                            <div class="mt-2 flex flex-wrap items-center gap-3 text-sm">
+                                <a href="{{ route('events.description.show', $event->slug) }}" target="_blank" rel="noopener" class="font-medium text-gray-900 underline dark:text-white">View current PDF</a>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Upload another PDF to replace it.</span>
+                            </div>
+                        @elseif (filled($event->description))
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">The existing lesson notes remain available until you upload a PDF.</p>
+                        @endif
+                        <input id="description-file" type="file" wire:model="descriptionFile" accept="application/pdf,.pdf" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:focus:border-white dark:focus:ring-white">
+                        <p wire:loading wire:target="descriptionFile" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Uploading PDF...</p>
+                        @error('descriptionFile') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\EventRegistered;
 use App\Http\Requests\StoreEventFeedbackRequest;
-use App\Jobs\PromoteFromWaitlist;
 use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventFeedback;
 use App\Models\EventRegistration;
 use App\Models\EventResource;
 use App\Services\EventDescriptionDocument;
+use App\Services\EventRegistrationService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -84,7 +84,7 @@ class EventShowController extends Controller
             ->publiclyVisible()
             ->whereKey($event->getKey())
             ->with(['organizer', 'categories', 'instructors', 'recurrence', 'resources'])
-            ->withCount(['registrations as registered_count' => fn ($q) => $q->where('status', 'registered')])
+            ->withCount(['registrations as registered_count' => fn ($q) => $q->occupyingSpot()])
             ->firstOrFail();
 
         $userRegistration = null;
@@ -122,9 +122,15 @@ class EventShowController extends Controller
                 'id' => $event->id,
                 'title' => $event->title,
                 'slug' => $event->slug,
-                'description_download_url' => $document->html($event->description) !== null
+                'description_download_url' => $document->hasDocument($event)
                     ? route('events.description.download', $event)
                     : null,
+                'description_view_url' => $document->hasDocument($event)
+                    ? route('events.description.show', $event)
+                    : null,
+                'has_ended' => $event->hasEnded(),
+                'can_register' => $event->acceptsRegistrations(),
+                'can_rsvp' => $event->acceptsRsvps(),
                 'type' => $event->type,
                 'start_date' => $event->start_date->toIso8601String(),
                 'end_date' => $event->end_date?->toIso8601String(),
@@ -160,8 +166,10 @@ class EventShowController extends Controller
                     'id' => $resource->id,
                     'title' => $resource->title,
                     'type' => $resource->type,
-                    'url' => $resource->display_url,
-                    'download_url' => $resource->file_path
+                    'url' => $resource->file_path
+                        ? route('events.resources.show', [$event, $resource])
+                        : $resource->url,
+                    'download_url' => $resource->supportsPdfDownload()
                         ? route('events.resources.download', [$event, $resource])
                         : null,
                 ]),
@@ -196,131 +204,60 @@ class EventShowController extends Controller
 
     public function rsvp(string $slug): RedirectResponse
     {
-        $event = Event::where('slug', $slug)->firstOrFail();
-
-        if (! auth()->check()) {
-            return redirect()->route('auth.login');
-        }
-
-        if ($event->registration_deadline && now()->isAfter($event->registration_deadline)) {
-            return redirect()->back()->with('flash', [
-                'error' => 'Registration for this event has closed.',
-            ]);
-        }
-
-        $data = [
-            'status' => ($event->is_full && $event->waitlist_enabled) ? 'waitlist' : 'registered',
-            'rsvp_status' => 'attending',
-            'registered_at' => now(),
-            'waitlisted_at' => ($event->is_full && $event->waitlist_enabled) ? now() : null,
-        ];
-
-        EventRegistration::updateOrCreate(
-            [
-                'event_id' => $event->id,
-                'user_id' => auth()->id(),
-            ],
-            $data
-        );
-
-        EventRegistered::dispatch(auth()->user(), $event);
-
-        $message = $event->is_full && $event->waitlist_enabled
-            ? 'Event is full — you have been added to the waitlist.'
-            : "You're confirmed for this event!";
-
-        return redirect()->back()->with('flash', ['success' => $message]);
+        return $this->saveRegistration($slug, true);
     }
 
     public function cancelRsvp(string $slug): RedirectResponse
     {
-        $event = Event::where('slug', $slug)->firstOrFail();
-
-        if (! auth()->check()) {
-            return redirect()->route('auth.login');
-        }
-
-        $registration = EventRegistration::where('event_id', $event->id)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        if ($registration) {
-            $registration->update(['rsvp_status' => 'not_attending', 'status' => 'cancelled']);
-
-            dispatch(new PromoteFromWaitlist($event));
-        }
-
-        return redirect()->back()->with('flash', ['success' => "You've declined this event."]);
+        return $this->cancelRegistration($slug, "You've declined this event.");
     }
 
     public function register(string $slug): RedirectResponse
     {
-        $event = Event::where('slug', $slug)->firstOrFail();
-
-        if (! auth()->check()) {
-            return redirect()->route('auth.login');
-        }
-
-        if ($event->registration_deadline && now()->isAfter($event->registration_deadline)) {
-            return redirect()->back()->with('flash', [
-                'error' => 'Registration for this event has closed.',
-            ]);
-        }
-
-        if ($event->is_full && ! $event->waitlist_enabled) {
-            return redirect()->back()->with('flash', ['error' => 'This event is full.']);
-        }
-
-        $existing = EventRegistration::where('event_id', $event->id)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        if ($existing) {
-            return redirect()->back()->with('flash', ['error' => 'You are already registered for this event.']);
-        }
-
-        $data = [
-            'event_id' => $event->id,
-            'user_id' => auth()->id(),
-            'status' => $event->is_full ? 'waitlist' : 'registered',
-            'registered_at' => now(),
-            'waitlisted_at' => $event->is_full ? now() : null,
-        ];
-
-        if ($event->is_full) {
-            EventRegistration::create($data);
-
-            EventRegistered::dispatch(auth()->user(), $event);
-
-            return redirect()->back()->with('flash', ['success' => 'Event is full — you have been added to the waitlist.']);
-        }
-
-        EventRegistration::create($data);
-
-        EventRegistered::dispatch(auth()->user(), $event);
-
-        return redirect()->back()->with('flash', ['success' => 'Successfully registered for this event!']);
+        return $this->saveRegistration($slug);
     }
 
     public function unregister(string $slug): RedirectResponse
     {
-        $event = Event::where('slug', $slug)->firstOrFail();
+        return $this->cancelRegistration($slug, 'Successfully unregistered from event.');
+    }
+
+    private function saveRegistration(string $slug, bool $isRsvp = false): RedirectResponse
+    {
+        $event = Event::query()->where('slug', $slug)->firstOrFail();
 
         if (! auth()->check()) {
             return redirect()->route('auth.login');
         }
 
-        $registration = EventRegistration::where('event_id', $event->id)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        if ($registration) {
-            $registration->update(['status' => 'cancelled']);
-
-            dispatch(new PromoteFromWaitlist($event));
+        try {
+            $registration = app(EventRegistrationService::class)->register($event, auth()->user(), $isRsvp);
+        } catch (ValidationException $exception) {
+            return redirect()->back()->with('flash', ['error' => $exception->validator->errors()->first()]);
         }
 
-        return redirect()->back()->with('flash', ['success' => 'Successfully unregistered from event.']);
+        $message = $registration->isWaitlisted()
+            ? 'Event is full — you have been added to the waitlist.'
+            : ($isRsvp ? "You're confirmed for this event!" : 'Successfully registered for this event!');
+
+        return redirect()->back()->with('flash', ['success' => $message]);
+    }
+
+    private function cancelRegistration(string $slug, string $message): RedirectResponse
+    {
+        $event = Event::query()->where('slug', $slug)->firstOrFail();
+
+        if (! auth()->check()) {
+            return redirect()->route('auth.login');
+        }
+
+        try {
+            app(EventRegistrationService::class)->cancel($event, auth()->user());
+        } catch (ValidationException $exception) {
+            return redirect()->back()->with('flash', ['error' => $exception->validator->errors()->first()]);
+        }
+
+        return redirect()->back()->with('flash', ['success' => $message]);
     }
 
     public function storeFeedback(string $slug, StoreEventFeedbackRequest $request): RedirectResponse

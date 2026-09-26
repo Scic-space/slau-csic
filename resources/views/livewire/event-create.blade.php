@@ -17,9 +17,11 @@
                         @error('title') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">After saving, users can download this description as a compact PDF from the event page.</p>
-                        <textarea wire:model="description" rows="4" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:focus:border-white dark:focus:ring-white" placeholder="Describe your event..."></textarea>
+                        <label for="description-file" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lesson PDF *</label>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload lesson notes as a PDF (up to 10 MB). Members can view and download the PDF before, during, and after the lesson.</p>
+                        <input id="description-file" type="file" wire:model="descriptionFile" accept="application/pdf,.pdf" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:focus:border-white dark:focus:ring-white">
+                        <p wire:loading wire:target="descriptionFile" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Uploading PDF...</p>
+                        @error('descriptionFile') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>

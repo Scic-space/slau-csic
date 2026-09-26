@@ -2,14 +2,14 @@
 
 namespace App\Livewire;
 
-use App\Events\EventRegistered;
-use App\Jobs\PromoteFromWaitlist;
 use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventFeedback;
 use App\Models\EventRegistration;
 use App\Services\EventDescriptionDocument;
+use App\Services\EventRegistrationService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class EventDetails extends Component
@@ -45,27 +45,17 @@ class EventDetails extends Component
 
     public function rsvpMaybe(): void
     {
-        $this->ensureAuthenticated();
-
-        if (! $this->ensureApproved()) {
+        if (! $this->ensureAuthenticated() || ! $this->ensureApproved()) {
             return;
         }
 
-        if ($this->event->rsvp_deadline && now()->isAfter($this->event->rsvp_deadline)) {
-            $this->dispatch('toast-show', message: 'RSVP for this event has closed.', type: 'error');
+        try {
+            app(EventRegistrationService::class)->maybe($this->event, auth()->user());
+        } catch (ValidationException $exception) {
+            $this->dispatch('toast-show', message: $exception->validator->errors()->first(), type: 'error');
 
             return;
         }
-
-        EventRegistration::updateOrCreate(
-            [
-                'event_id' => $this->event->id,
-                'user_id' => auth()->id(),
-            ],
-            [
-                'rsvp_status' => 'maybe',
-            ]
-        );
 
         $this->dispatch('sidebar-badges-refresh');
         $this->dispatch('toast-show', message: "You're tentatively marked as 'Maybe'.", type: 'success');
@@ -73,135 +63,63 @@ class EventDetails extends Component
 
     public function rsvp(): void
     {
-        $this->ensureAuthenticated();
-
-        if (! $this->ensureApproved()) {
-            return;
-        }
-
-        if ($this->event->registration_deadline && now()->isAfter($this->event->registration_deadline)) {
-            $this->dispatch('toast-show', message: 'Registration for this event has closed.', type: 'error');
-
-            return;
-        }
-
-        $data = [
-            'status' => ($this->event->is_full && $this->event->waitlist_enabled) ? 'waitlist' : 'registered',
-            'rsvp_status' => 'attending',
-            'registered_at' => now(),
-            'waitlisted_at' => ($this->event->is_full && $this->event->waitlist_enabled) ? now() : null,
-        ];
-
-        EventRegistration::updateOrCreate(
-            [
-                'event_id' => $this->event->id,
-                'user_id' => auth()->id(),
-            ],
-            $data
-        );
-
-        EventRegistered::dispatch(auth()->user(), $this->event);
-
-        $message = $this->event->is_full && $this->event->waitlist_enabled
-            ? 'Event is full — you have been added to the waitlist.'
-            : "You're confirmed for this event!";
-
-        $this->dispatch('sidebar-badges-refresh');
-        $this->dispatch('toast-show', message: $message, type: 'success');
+        $this->saveRegistration(true);
     }
 
     public function cancelRsvp(): void
     {
-        $this->ensureAuthenticated();
-
-        if (! $this->ensureApproved()) {
-            return;
-        }
-
-        $registration = EventRegistration::where('event_id', $this->event->id)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        if ($registration) {
-            $registration->update(['rsvp_status' => 'not_attending', 'status' => 'cancelled']);
-
-            dispatch(new PromoteFromWaitlist($this->event));
-        }
-
-        $this->confirmCancelRsvpId = null;
-
-        $this->dispatch('sidebar-badges-refresh');
-        $this->dispatch('toast-show', message: "You've declined this event.", type: 'success');
+        $this->cancelRegistration("You've declined this event.");
     }
 
     public function register(): void
     {
-        $this->ensureAuthenticated();
+        $this->saveRegistration();
+    }
 
-        if (! $this->ensureApproved()) {
+    public function unregister(): void
+    {
+        $this->cancelRegistration('Successfully unregistered from event.');
+    }
+
+    private function saveRegistration(bool $isRsvp = false): void
+    {
+        if (! $this->ensureAuthenticated() || ! $this->ensureApproved()) {
             return;
         }
 
-        if ($this->event->registration_deadline && now()->isAfter($this->event->registration_deadline)) {
-            $this->dispatch('toast-show', message: 'Registration for this event has closed.', type: 'error');
-
-            return;
-        }
-
-        if ($this->event->is_full && ! $this->event->waitlist_enabled) {
-            $this->dispatch('toast-show', message: 'This event is full.', type: 'error');
-
-            return;
-        }
-
-        $existing = EventRegistration::where('event_id', $this->event->id)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        if ($existing) {
-            $this->dispatch('toast-show', message: 'You are already registered for this event.', type: 'error');
+        try {
+            $registration = app(EventRegistrationService::class)->register($this->event, auth()->user(), $isRsvp);
+        } catch (ValidationException $exception) {
+            $this->dispatch('toast-show', message: $exception->validator->errors()->first(), type: 'error');
 
             return;
         }
 
-        EventRegistration::create([
-            'event_id' => $this->event->id,
-            'user_id' => auth()->id(),
-            'status' => $this->event->is_full ? 'waitlist' : 'registered',
-            'registered_at' => now(),
-            'waitlisted_at' => $this->event->is_full ? now() : null,
-        ]);
-
-        EventRegistered::dispatch(auth()->user(), $this->event);
-
-        $message = $this->event->is_full
+        $message = $registration->isWaitlisted()
             ? 'Event is full — you have been added to the waitlist.'
-            : 'Successfully registered for this event!';
+            : ($isRsvp ? "You're confirmed for this event!" : 'Successfully registered for this event!');
 
         $this->dispatch('sidebar-badges-refresh');
         $this->dispatch('toast-show', message: $message, type: 'success');
     }
 
-    public function unregister(): void
+    private function cancelRegistration(string $message): void
     {
-        $this->ensureAuthenticated();
-
-        if (! $this->ensureApproved()) {
+        if (! $this->ensureAuthenticated() || ! $this->ensureApproved()) {
             return;
         }
 
-        $registration = EventRegistration::where('event_id', $this->event->id)
-            ->where('user_id', auth()->id())
-            ->first();
+        try {
+            app(EventRegistrationService::class)->cancel($this->event, auth()->user());
+        } catch (ValidationException $exception) {
+            $this->dispatch('toast-show', message: $exception->validator->errors()->first(), type: 'error');
 
-        if ($registration) {
-            $registration->update(['status' => 'cancelled']);
-
-            dispatch(new PromoteFromWaitlist($this->event));
+            return;
         }
 
+        $this->confirmCancelRsvpId = null;
         $this->dispatch('sidebar-badges-refresh');
-        $this->dispatch('toast-show', message: 'Successfully unregistered from event.', type: 'success');
+        $this->dispatch('toast-show', message: $message, type: 'success');
     }
 
     public function submitFeedback(): void
@@ -314,7 +232,10 @@ class EventDetails extends Component
 
         $agendaItems = $this->event->agendaItems;
 
-        $checkInCode = $userRegistration?->check_in_code;
+        $hasEnded = $this->event->hasEnded();
+        $checkInCode = ! $hasEnded && $userRegistration?->status === 'registered'
+            ? $userRegistration->check_in_code
+            : null;
 
         $hasCertificate = $user && $userRegistration && $userRegistration->hasAttended()
             && $this->event->end_date && $this->event->end_date->isPast();
@@ -364,9 +285,15 @@ class EventDetails extends Component
         ];
 
         return view('livewire.event-details', [
-            'descriptionDownloadUrl' => app(EventDescriptionDocument::class)->html($this->event->description) !== null
+            'descriptionDownloadUrl' => app(EventDescriptionDocument::class)->hasDocument($this->event)
                 ? route('events.description.download', $this->event)
                 : null,
+            'descriptionViewUrl' => app(EventDescriptionDocument::class)->hasDocument($this->event)
+                ? route('events.description.show', $this->event)
+                : null,
+            'hasEnded' => $hasEnded,
+            'canRegister' => $this->event->acceptsRegistrations(),
+            'canRsvp' => $this->event->acceptsRsvps(),
             'userRegistration' => $userRegistration,
             'userFeedback' => $userFeedback,
             'canSubmitFeedback' => $canSubmitFeedback,
@@ -382,11 +309,15 @@ class EventDetails extends Component
         ]);
     }
 
-    private function ensureAuthenticated(): void
+    private function ensureAuthenticated(): bool
     {
         if (! auth()->check()) {
             $this->redirectRoute('auth.login');
+
+            return false;
         }
+
+        return true;
     }
 
     private function ensureApproved(): bool

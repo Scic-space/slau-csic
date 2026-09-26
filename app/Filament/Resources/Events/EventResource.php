@@ -58,9 +58,16 @@ class EventResource extends Resource
                         'hackathon' => 'Hackathon',
                     ])
                     ->required(),
-                RichEditor::make('description')
-                    ->helperText('After saving, users can download this description as a compact PDF from the event page.')
-                    ->required(),
+                FileUpload::make('description_file_path')
+                    ->label('Lesson PDF')
+                    ->helperText('Upload lesson notes as a PDF (up to 10 MB). Members can view and download the PDF before, during, and after the lesson.')
+                    ->disk('local')
+                    ->visibility('private')
+                    ->directory('event-documents')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->rules(['mimes:pdf'])
+                    ->maxSize(10240)
+                    ->required(fn (?Event $record): bool => blank($record?->description)),
                 FileUpload::make('banner_image')
                     ->image()
                     ->disk('public')

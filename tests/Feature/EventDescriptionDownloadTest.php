@@ -23,7 +23,7 @@ it('offers a compressed description PDF before during and after lessons without 
         $this->actingAs(User::factory()->create())
             ->get(route('events.member-show', $event))
             ->assertOk()
-            ->assertSee('Download description (PDF)')
+            ->assertSee('Download PDF')
             ->assertSee($downloadUrl, false)
             ->assertDontSee('Protect every connection.');
     } else {
@@ -103,7 +103,7 @@ it('does not offer or download descriptions without readable content', function 
     $this->actingAs(User::factory()->create())
         ->get(route('events.member-show', $event))
         ->assertOk()
-        ->assertDontSee('Download description (PDF)')
+        ->assertDontSee('Download PDF')
         ->assertDontSee(route('events.description.download', $event), false);
 
     $this->get(route('events.description.download', $event))->assertNotFound();

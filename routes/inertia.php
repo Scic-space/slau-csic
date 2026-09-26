@@ -3,7 +3,9 @@
 use App\Http\Controllers\Auth\InertiaAuthController;
 use App\Http\Controllers\CertificateVerificationController;
 use App\Http\Controllers\EventDescriptionDownloadController;
+use App\Http\Controllers\EventDescriptionViewController;
 use App\Http\Controllers\EventResourceDownloadController;
+use App\Http\Controllers\EventResourceViewController;
 use App\Http\Controllers\EventShowController;
 use App\Http\Controllers\ExamCertificateDownloadController;
 use App\Http\Controllers\ExamTakeController;
@@ -80,6 +82,11 @@ Route::get('/events/create', EventCreate::class)->name('events.create')->middlew
 Route::get('/events/{event:slug}', [EventShowController::class, 'show'])->name('events.show');
 Route::get('/events/{event:slug}/description/download', EventDescriptionDownloadController::class)
     ->name('events.description.download');
+Route::get('/events/{event:slug}/description/view', EventDescriptionViewController::class)
+    ->name('events.description.show');
+Route::get('/events/{event:slug}/resources/{resource}/view', EventResourceViewController::class)
+    ->name('events.resources.show')
+    ->scopeBindings();
 Route::get('/events/{event:slug}/resources/{resource}/download', EventResourceDownloadController::class)
     ->name('events.resources.download')
     ->scopeBindings();

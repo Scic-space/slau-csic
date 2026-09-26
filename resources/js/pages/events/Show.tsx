@@ -1,5 +1,5 @@
-import { Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link, router, usePage, usePoll } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import PublicLayout from '@/components/PublicLayout';
 import { GlowyWavesBackground } from '@/components/ui/glowy-waves-hero-shadcnui';
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ interface EventData {
     title: string;
     slug: string;
     description_download_url: string | null;
+    description_view_url: string | null;
     type: string;
     start_date: string;
     end_date: string | null;
@@ -23,6 +24,9 @@ interface EventData {
     registration_deadline: string | null;
     is_public: boolean;
     status: string;
+    has_ended: boolean;
+    can_register: boolean;
+    can_rsvp: boolean;
     requirements: string | null;
     registration_fee: number | null;
     external_link: string | null;
@@ -75,6 +79,44 @@ export default function EventShow() {
     const [confirmingCancel, setConfirmingCancel] = useState(false);
     const [registering, setRegistering] = useState(false);
     const [rsvpLoading, setRsvpLoading] = useState(false);
+    const [hasReachedEndTime, setHasReachedEndTime] = useState(false);
+
+    usePoll(30000, { only: ['event'] });
+
+    useEffect(() => {
+        setHasReachedEndTime(false);
+
+        if (!event.end_date) {
+            return;
+        }
+
+        const endTime = Date.parse(event.end_date);
+
+        if (!Number.isFinite(endTime)) {
+            return;
+        }
+
+        let timeout: number;
+        const updateEndTime = () => {
+            const remainingTime = endTime - Date.now();
+
+            if (remainingTime <= 0) {
+                setHasReachedEndTime(true);
+                return;
+            }
+
+            timeout = window.setTimeout(updateEndTime, Math.min(remainingTime, 2147483647));
+        };
+
+        updateEndTime();
+
+        return () => window.clearTimeout(timeout);
+    }, [event.end_date]);
+
+    const isCancelled = event.status === 'cancelled';
+    const hasEnded = !isCancelled && (event.has_ended || hasReachedEndTime);
+    const registrationClosed = hasEnded || isCancelled;
+    const displayStatus = hasEnded ? 'completed' : event.status;
 
     const isAuthenticated = !!auth.user;
     const isOrganizer = isAuthenticated && auth.user?.id === event.organizer?.id;
@@ -137,6 +179,10 @@ export default function EventShow() {
     };
 
     const submitRsvp = () => {
+        if (registrationClosed || !event.can_rsvp) {
+            return;
+        }
+
         setRsvpLoading(true);
         router.post(`/events/${event.slug}/rsvp`, {}, {
             preserveScroll: true,
@@ -146,6 +192,10 @@ export default function EventShow() {
     };
 
     const cancelRsvp = () => {
+        if (registrationClosed || !event.can_rsvp) {
+            return;
+        }
+
         setRsvpLoading(true);
         router.post(`/events/${event.slug}/cancel-rsvp`, {}, {
             preserveScroll: true,
@@ -155,6 +205,10 @@ export default function EventShow() {
     };
 
     const submitRegister = () => {
+        if (registrationClosed || !event.can_register) {
+            return;
+        }
+
         setRegistering(true);
         router.post(`/events/${event.slug}/register`, {}, {
             preserveScroll: true,
@@ -163,6 +217,10 @@ export default function EventShow() {
     };
 
     const submitUnregister = () => {
+        if (registrationClosed) {
+            return;
+        }
+
         setRegistering(true);
         router.post(`/events/${event.slug}/unregister`, {}, {
             preserveScroll: true,
@@ -240,8 +298,8 @@ export default function EventShow() {
                                                 Edit
                                             </Link>
                                         )}
-                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[event.status] || 'bg-white/10 text-white/70'}`}>
-                                            {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[displayStatus] || 'bg-white/10 text-white/70'}`}>
+                                            {displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1)}
                                         </span>
                                     </div>
                                 </div>
@@ -253,13 +311,21 @@ export default function EventShow() {
                                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                                     <div className="min-w-0">
                                                         <h2 className="text-lg font-semibold text-white">Lesson document</h2>
-                                                        <p className="mt-1 text-sm text-white/60">The full description in a compact PDF, available before, during, and after the lesson.</p>
+                                                        <p className="mt-1 text-sm text-white/60">PDF lesson notes, available before, during, and after the lesson.</p>
                                                     </div>
-                                                    <a href={event.description_download_url} download
-                                                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-400">
-                                                        <Download className="h-4 w-4" aria-hidden="true" />
-                                                        Download description (PDF)
-                                                    </a>
+                                                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                                                        {event.description_view_url && (
+                                                            <a href={event.description_view_url} target="_blank" rel="noopener noreferrer"
+                                                                className="inline-flex items-center justify-center rounded-lg border border-white/10 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10">
+                                                                View PDF
+                                                            </a>
+                                                        )}
+                                                        <a href={event.description_download_url} download
+                                                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-400">
+                                                            <Download className="h-4 w-4" aria-hidden="true" />
+                                                            Download PDF
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
@@ -293,7 +359,7 @@ export default function EventShow() {
                                         {event.resources.length > 0 && (
                                             <div>
                                                 <h2 className="text-lg font-semibold text-white mb-1">Resources</h2>
-                                                <p className="text-sm text-white/50 mb-3">Download lesson materials before, during, and after the lesson.</p>
+                                                <p className="text-sm text-white/50 mb-3">View lesson notes or download them as a PDF before, during, and after the lesson.</p>
                                                 <div className="flex flex-col gap-2">
                                                     {event.resources.map((res) => (
                                                         <div key={res.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
@@ -311,7 +377,7 @@ export default function EventShow() {
                                                                     <a href={res.download_url} download
                                                                         aria-label={`Download ${res.title}`}
                                                                         className="text-sm text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1">
-                                                                        Download <Download className="h-3 w-3" />
+                                                                        Download PDF <Download className="h-3 w-3" />
                                                                     </a>
                                                                 )}
                                                             </div>
@@ -393,10 +459,10 @@ export default function EventShow() {
                                                         <div className="h-2 w-full rounded-full bg-white/10">
                                                             <div
                                                                 className={`h-2 rounded-full ${event.is_full ? 'bg-red-500' : 'bg-green-500'}`}
-                                                                style={{ width: `${(event.registered_count / event.max_participants) * 100}%` }}
+                                                                style={{ width: `${Math.min(100, (event.registered_count / event.max_participants) * 100)}%` }}
                                                             />
                                                         </div>
-                                                        <p className="text-xs text-white/50 mt-1">
+                                                        <p className="text-xs text-white/50 mt-1" aria-live="polite">
                                                             {event.remaining_spots} spot{event.remaining_spots !== 1 ? 's' : ''} remaining
                                                         </p>
                                                     </div>
@@ -404,16 +470,21 @@ export default function EventShow() {
                                             </div>
                                         </div>
 
-                                        {event.external_link && (
+                                        {event.external_link && !registrationClosed && (
                                             <a href={event.external_link} target="_blank" rel="noopener noreferrer"
                                                 className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-500">
                                                 Register on External Site <ExternalLink className="h-4 w-4" />
                                             </a>
                                         )}
 
-                                        {event.registration_required && !event.external_link && (
+                                        {(registrationClosed || (event.registration_required && !event.external_link)) && (
                                             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                                                {!isAuthenticated ? (
+                                                {registrationClosed ? (
+                                                    <button type="button" disabled
+                                                        className="w-full cursor-not-allowed rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white/50">
+                                                        {hasEnded ? 'Completed' : 'Cancelled'}
+                                                    </button>
+                                                ) : !isAuthenticated ? (
                                                     <div className="text-center">
                                                         <p className="text-sm text-white/60 mb-3">Login to register</p>
                                                         <Link href="/auth/login"
@@ -458,7 +529,9 @@ export default function EventShow() {
                                                                 ? 'Event is full — join the waitlist'
                                                                 : event.is_full
                                                                     ? 'This event is full'
-                                                                    : `${event.remaining_spots} spot${event.remaining_spots !== 1 ? 's' : ''} remaining`
+                                                                    : event.max_participants
+                                                                        ? `${event.remaining_spots} spot${event.remaining_spots !== 1 ? 's' : ''} remaining`
+                                                                        : 'Open registration'
                                                             }
                                                         </p>
                                                         {event.registration_deadline && (
@@ -468,6 +541,11 @@ export default function EventShow() {
                                                         )}
                                                         {event.is_full && !event.waitlist_enabled ? (
                                                             <p className="text-sm font-medium text-red-400">This event is full</p>
+                                                        ) : !event.can_register ? (
+                                                            <button type="button" disabled
+                                                                className="mt-2 cursor-not-allowed rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white/50">
+                                                                Registration Closed
+                                                            </button>
                                                         ) : (
                                                         <button onClick={submitRegister} disabled={registering}
                                                             className={`mt-2 rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 ${
@@ -483,47 +561,51 @@ export default function EventShow() {
                                             </div>
                                         )}
 
-                                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                                            <h3 className="font-semibold text-white mb-3">RSVP</h3>
-                                            {!isAuthenticated ? (
-                                                <p className="text-sm text-white/50">Login to RSVP</p>
-                                            ) : isAttending ? (
-                                                <div>
-                                                    <div className="flex items-center gap-2 mb-3">
-                                                        <span className="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-3 py-1 text-sm font-medium text-green-300">
-                                                            Going
-                                                        </span>
-                                                    </div>
-                                                    {confirmingCancel ? (
-                                                        <div className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                                                            <p className="text-sm text-white/70">Cancel your RSVP?</p>
-                                                            <div className="flex gap-2">
-                                                                <button onClick={cancelRsvp} disabled={rsvpLoading}
-                                                                    className="flex-1 rounded-xl bg-red-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50">
-                                                                    {rsvpLoading ? 'Processing...' : 'Yes, Cancel'}
-                                                                </button>
-                                                                <button onClick={() => setConfirmingCancel(false)} disabled={rsvpLoading}
-                                                                    className="flex-1 rounded-xl bg-white/10 px-3 py-1.5 text-sm font-medium text-white/70 hover:bg-white/20 disabled:opacity-50">
-                                                                    Keep
-                                                                </button>
-                                                            </div>
+                                        {!registrationClosed && (
+                                            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                                                <h3 className="font-semibold text-white mb-3">RSVP</h3>
+                                                {!isAuthenticated ? (
+                                                    <p className="text-sm text-white/50">Login to RSVP</p>
+                                                ) : !event.can_rsvp ? (
+                                                    <p className="text-sm font-medium text-red-400">RSVP Closed</p>
+                                                ) : isAttending ? (
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            <span className="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-3 py-1 text-sm font-medium text-green-300">
+                                                                Going
+                                                            </span>
                                                         </div>
-                                                    ) : (
-                                                        <button onClick={() => setConfirmingCancel(true)}
-                                                            className="text-sm text-white/60 hover:text-white">
-                                                            Can't Go
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            ) : event.is_full && !event.waitlist_enabled ? (
-                                                <p className="text-sm font-medium text-red-400">Event Full</p>
-                                            ) : (
-                                                <button onClick={submitRsvp} disabled={rsvpLoading}
-                                                    className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50">
-                                                    {rsvpLoading ? 'Processing...' : 'RSVP'}
-                                                </button>
-                                            )}
-                                        </div>
+                                                        {confirmingCancel ? (
+                                                            <div className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                                                                <p className="text-sm text-white/70">Cancel your RSVP?</p>
+                                                                <div className="flex gap-2">
+                                                                    <button onClick={cancelRsvp} disabled={rsvpLoading}
+                                                                        className="flex-1 rounded-xl bg-red-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50">
+                                                                        {rsvpLoading ? 'Processing...' : 'Yes, Cancel'}
+                                                                    </button>
+                                                                    <button onClick={() => setConfirmingCancel(false)} disabled={rsvpLoading}
+                                                                        className="flex-1 rounded-xl bg-white/10 px-3 py-1.5 text-sm font-medium text-white/70 hover:bg-white/20 disabled:opacity-50">
+                                                                        Keep
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <button onClick={() => setConfirmingCancel(true)}
+                                                                className="text-sm text-white/60 hover:text-white">
+                                                                Can't Go
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ) : event.is_full && !event.waitlist_enabled ? (
+                                                    <p className="text-sm font-medium text-red-400">Event Full</p>
+                                                ) : (
+                                                    <button onClick={submitRsvp} disabled={rsvpLoading}
+                                                        className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50">
+                                                        {rsvpLoading ? 'Processing...' : 'RSVP'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
 
                                         {event.user_feedback ? (
                                             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">

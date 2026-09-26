@@ -3,6 +3,7 @@
 use App\Models\Event;
 use App\Models\EventResource;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -27,7 +28,8 @@ it('offers resource downloads before during and after a lesson without registrat
         'file_path' => 'event-resources/lecture.pdf',
         'url' => null,
     ]);
-    Storage::disk('public')->put($resource->file_path, 'Lesson slides');
+    $pdf = Pdf::loadHTML('<h1>Lesson slides</h1>')->output();
+    Storage::disk('public')->put($resource->file_path, $pdf);
     $downloadUrl = route('events.resources.download', [$event, $resource]);
 
     if ($isMember) {
@@ -46,9 +48,10 @@ it('offers resource downloads before during and after a lesson without registrat
 
     $response = $this->get($downloadUrl)
         ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
         ->assertDownload('lecture-slides.pdf');
 
-    expect($response->streamedContent())->toBe('Lesson slides');
+    expect($response->streamedContent())->toBe($pdf)->toStartWith('%PDF-');
     expect($event->registrations()->exists())->toBeFalse();
 })->with([
     'before published lesson' => ['published', '+1 day', '+1 day +2 hours'],
@@ -169,3 +172,77 @@ it('returns not found for a missing resource', function () {
 
     $this->get(route('events.resources.download', [$event, 999]))->assertNotFound();
 });
+
+it('converts uploaded lesson notes into PDF downloads', function (string $extension, string $notes) {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'title' => 'Network Security Notes',
+        'type' => 'document',
+        'file_path' => 'event-resources/network-notes.'.$extension,
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, $notes);
+    $downloadUrl = route('events.resources.download', [$event, $resource]);
+
+    $this->get(route('events.show', $event))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('event.resources.0.download_url', $downloadUrl));
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('events.member-show', $event))
+        ->assertOk()
+        ->assertSee($downloadUrl, false);
+
+    $response = $this->get($downloadUrl)
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertDownload('network-security-notes.pdf');
+
+    expect($response->getContent())
+        ->toStartWith('%PDF-')
+        ->toContain('/FlateDecode')
+        ->not->toStartWith('<!DOCTYPE html');
+})->with([
+    'HTML document' => ['html', '<!DOCTYPE html><html><head><title>Lesson</title><style>body { color: red; }</style></head><body><main><section><h1>Network security</h1><p>Protect each connection.</p></section></main></body></html>'],
+    'HTM document' => ['htm', '<h1>Network security</h1><p>Protect each connection.</p>'],
+    'plain text document' => ['txt', "Network security\nProtect each connection.\n1 < 2 & 3 > 2"],
+    'Markdown short extension' => ['md', "# Network security\n\nProtect **each** connection."],
+    'Markdown long extension' => ['markdown', "# Network security\n\nProtect **each** connection."],
+]);
+
+it('rejects HTML files disguised as PDFs without serving raw HTML', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'file_path' => 'event-resources/disguised.pdf',
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, '<!DOCTYPE html><html><body>raw-html-marker</body></html>');
+
+    $this->get(route('events.resources.download', [$event, $resource]))
+        ->assertUnsupportedMediaType()
+        ->assertDontSee('raw-html-marker');
+});
+
+it('does not offer a PDF download for unsupported resource files', function (string $extension) {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'file_path' => 'event-resources/archive.'.$extension,
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, 'Unsupported resource bytes');
+    $downloadUrl = route('events.resources.download', [$event, $resource]);
+
+    $this->get(route('events.show', $event))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('event.resources.0.download_url', null));
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('events.member-show', $event))
+        ->assertOk()
+        ->assertDontSee($downloadUrl, false);
+
+    $this->get($downloadUrl)->assertUnsupportedMediaType();
+})->with(['zip', 'docx', 'mp4']);

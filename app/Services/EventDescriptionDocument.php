@@ -6,6 +6,7 @@ use App\Models\Event;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DOMDocument;
 use DOMElement;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
@@ -13,6 +14,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EventDescriptionDocument
 {
+    public function hasDocument(Event $event): bool
+    {
+        return filled($event->description_file_path) || $this->html($event->description) !== null;
+    }
+
     public function html(?string $description): ?string
     {
         if ($description === null || trim($description) === '') {
@@ -22,6 +28,8 @@ class EventDescriptionDocument
         if (! preg_match('/<\/?[a-z][^>]*>/i', $description)) {
             $description = nl2br(e($description, false), false);
         }
+
+        $description = $this->documentBody($description);
 
         $config = (new HtmlSanitizerConfig)
             ->withMaxInputLength(-1)
@@ -33,7 +41,7 @@ class EventDescriptionDocument
             ->allowMediaSchemes(['http', 'https'])
             ->allowRelativeMedias();
 
-        foreach (['p', 'br', 'b', 'i', 'u', 'strong', 'em', 's', 'del', 'sub', 'sup', 'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'span', 'div', 'hr', 'table', 'caption', 'thead', 'tbody', 'tfoot', 'tr', 'figure', 'figcaption'] as $tag) {
+        foreach (['p', 'br', 'b', 'i', 'u', 'strong', 'em', 's', 'del', 'sub', 'sup', 'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'span', 'div', 'main', 'article', 'section', 'header', 'footer', 'hr', 'table', 'caption', 'thead', 'tbody', 'tfoot', 'tr', 'figure', 'figcaption'] as $tag) {
             $config = $config->allowElement($tag);
         }
 
@@ -46,13 +54,62 @@ class EventDescriptionDocument
 
     public function download(Event $event): Response
     {
+        if (filled($event->description_file_path)) {
+            return $this->uploadedPdf($event, 'attachment');
+        }
+
         $descriptionHtml = $this->html($event->description);
 
         abort_if($descriptionHtml === null, 404);
 
+        $filename = (Str::slug($event->title) ?: 'event-'.$event->getKey()).'-description.pdf';
+
+        return $this->downloadHtml($event, $descriptionHtml, $filename);
+    }
+
+    public function preview(Event $event): Response
+    {
+        if (filled($event->description_file_path)) {
+            return $this->uploadedPdf($event, 'inline');
+        }
+
+        $response = $this->download($event);
+        $response->headers->set('Content-Disposition', str_replace('attachment;', 'inline;', $response->headers->get('Content-Disposition')));
+
+        return $response;
+    }
+
+    private function uploadedPdf(Event $event, string $disposition): Response
+    {
+        $disk = Storage::disk('local');
+
+        abort_unless($disk->exists($event->description_file_path), 404);
+
+        $stream = $disk->readStream($event->description_file_path);
+
+        abort_unless(is_resource($stream), 404);
+
+        try {
+            abort_unless(fread($stream, 5) === '%PDF-', 415);
+        } finally {
+            fclose($stream);
+        }
+
+        $filename = (Str::slug($event->title) ?: 'event-'.$event->getKey()).'-description.pdf';
+
+        return $disk->response($event->description_file_path, $filename, [
+            'Content-Type' => 'application/pdf',
+            'X-Content-Type-Options' => 'nosniff',
+        ], $disposition);
+    }
+
+    public function downloadHtml(Event $event, string $descriptionHtml, string $filename, ?string $title = null): Response
+    {
         $pdf = Pdf::loadView('pdf.event-description', [
             'event' => $event,
             'descriptionHtml' => $descriptionHtml,
+            'documentTitle' => $title ?? $event->title,
+            'documentLabel' => $title === null ? 'Lesson description' : $event->title,
         ])
             ->setPaper('a4')
             ->setOption('isFontSubsettingEnabled', true)
@@ -60,9 +117,38 @@ class EventDescriptionDocument
             ->setOption('isPhpEnabled', false)
             ->setOption('isJavascriptEnabled', false);
 
-        $filename = (Str::slug($event->title) ?: 'event-'.$event->getKey()).'-description.pdf';
-
         return $pdf->download($filename);
+    }
+
+    private function documentBody(string $html): string
+    {
+        if (! preg_match('/<(?:!doctype\b|\/?(?:html|head|body)\b)/i', $html)) {
+            return $html;
+        }
+
+        $previousErrorHandling = libxml_use_internal_errors(true);
+        $document = new DOMDocument;
+
+        try {
+            $document->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NONET);
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousErrorHandling);
+        }
+
+        $body = $document->getElementsByTagName('body')->item(0);
+
+        if ($body === null) {
+            return '';
+        }
+
+        $html = '';
+
+        foreach ($body->childNodes as $child) {
+            $html .= $document->saveHTML($child);
+        }
+
+        return $html;
     }
 
     private function replaceImagesWithLinks(string $html): string

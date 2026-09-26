@@ -38,7 +38,7 @@ class EventCheckInController extends Controller
 
         $event = $registration->event;
 
-        if (! in_array($event->status, ['published', 'scheduled', 'ongoing'])) {
+        if ($event->hasEnded() || ! in_array($event->status, ['published', 'scheduled', 'ongoing'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'This event is not active.',
@@ -55,6 +55,13 @@ class EventCheckInController extends Controller
                     'checked_in_at' => $registration->attended_at?->toIso8601String(),
                 ],
             ], 409);
+        }
+
+        if ($registration->status !== 'registered') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This registration is not confirmed.',
+            ], 403);
         }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($registration, $event) {

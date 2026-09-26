@@ -13,6 +13,8 @@
             $isWaitlisted = $registration && $registration->status === 'waitlist';
             $isAttending = $registration && $registration->rsvp_status === 'attending';
             $isMaybe = $registration && $registration->rsvp_status === 'maybe';
+            $registrationClosed = $hasEnded || $event->status === 'cancelled';
+            $displayStatus = $hasEnded ? 'completed' : $event->status;
 
             $statusColors = [
                 'scheduled' => 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
@@ -74,8 +76,8 @@
                         <svg class="w-4 h-4 {{ $isFavorited ? 'text-red-500 fill-red-500' : 'text-gray-500' }}" viewBox="0 0 24 24" fill="{{ $isFavorited ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                     </button>
                 @endif
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$event->status] ?? 'bg-gray-50 text-gray-600' }}">
-                    {{ ucfirst($event->status) }}
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$displayStatus] ?? 'bg-gray-50 text-gray-600' }}">
+                    {{ ucfirst($displayStatus) }}
                 </span>
             </div>
         </div>
@@ -103,13 +105,21 @@
                         <div class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                             <div class="min-w-0">
                                 <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $event->title }}</p>
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The full description in a compact PDF, available before, during, and after the lesson.</p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PDF lesson notes, available before, during, and after the lesson.</p>
                             </div>
-                            <a href="{{ $descriptionDownloadUrl }}" download
-                               class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v4h14v-4"/></svg>
-                                Download description (PDF)
-                            </a>
+                            <div class="flex shrink-0 flex-wrap items-center gap-2">
+                                @if ($descriptionViewUrl)
+                                    <a href="{{ $descriptionViewUrl }}" target="_blank" rel="noopener noreferrer"
+                                       class="inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
+                                        View PDF
+                                    </a>
+                                @endif
+                                <a href="{{ $descriptionDownloadUrl }}" download
+                                   class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v4h14v-4"/></svg>
+                                    Download PDF
+                                </a>
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -196,7 +206,7 @@
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Resources</h2>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Download lesson materials before, during, and after the lesson.</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">View lesson notes or download them as a PDF before, during, and after the lesson.</p>
                         </div>
                         <div class="px-5 py-4">
                             <ul class="divide-y divide-gray-50 dark:divide-gray-700/50">
@@ -207,18 +217,18 @@
                                             <p class="text-xs text-gray-500">{{ ucfirst($res->type) }}</p>
                                         </div>
                                         <div class="flex shrink-0 flex-wrap items-center gap-2">
-                                            @if ($res->display_url)
-                                                <a href="{{ $res->display_url }}" target="_blank" rel="noopener noreferrer"
+                                            @if ($res->file_path || $res->url)
+                                                <a href="{{ $res->file_path ? route('events.resources.show', [$event, $res]) : $res->url }}" target="_blank" rel="noopener noreferrer"
                                                    aria-label="View {{ $res->title }}"
                                                    class="rounded border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
                                                     View
                                                 </a>
                                             @endif
-                                            @if ($res->file_path)
+                                            @if ($res->supportsPdfDownload())
                                                 <a href="{{ route('events.resources.download', [$event, $res]) }}" download
                                                    aria-label="Download {{ $res->title }}"
                                                    class="rounded bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                                                    Download
+                                                    Download PDF
                                                 </a>
                                             @endif
                                         </div>
@@ -525,7 +535,7 @@
                                     <div class="h-2 rounded-full bg-gray-900 dark:bg-white"
                                          style="width: {{ min(100, ($event->registered_count / $event->max_participants) * 100) }}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" aria-live="polite">
                                     {{ $event->remaining_spots }} spot{{ $event->remaining_spots !== 1 ? 's' : '' }} remaining
                                 </p>
                             </div>
@@ -534,7 +544,7 @@
                 </div>
 
                 {{-- Countdown --}}
-                @if ($isFuture)
+                @if ($isFuture && !$registrationClosed)
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card"
                          x-data="{
                              target: new Date('{{ $event->start_date->format('Y/m/d H:i:s') }}').getTime(),
@@ -634,7 +644,7 @@
                 @endif
 
                 {{-- QR Code --}}
-                @if ($checkInCode)
+                @if ($checkInCode && !$registrationClosed)
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Your Check-In Code</h3>
@@ -649,7 +659,7 @@
                 @endif
 
                 {{-- External Link --}}
-                @if ($event->external_link)
+                @if ($event->external_link && !$registrationClosed)
                     <a href="{{ $event->external_link }}" target="_blank" rel="noopener noreferrer"
                        class="dashboard-card flex items-center justify-center gap-2 rounded-sm border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md dark:border-border dark:bg-card focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Register on External Site</span>
@@ -658,10 +668,22 @@
                 @endif
 
                 {{-- Registration --}}
-                @if ($event->registration_required && !$event->external_link)
+                @if ($registrationClosed || ($event->registration_required && !$event->external_link))
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="px-5 py-4 text-center">
-                            @if (!$isAuthenticated)
+                            @if ($registrationClosed)
+                                <button type="button" disabled
+                                        class="w-full cursor-not-allowed rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                                    {{ $hasEnded ? 'Completed' : 'Cancelled' }}
+                                </button>
+                                @if ($hasCertificate)
+                                    <a href="{{ route('events.certificate', [$event->slug, 'registration' => $registration?->id]) }}"
+                                       target="_blank"
+                                       class="mt-3 block rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500 focus:ring-2 focus:ring-green-600 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-400">
+                                        Download Certificate
+                                    </a>
+                                @endif
+                            @elseif (!$isAuthenticated)
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Login to register</p>
                                 <a href="{{ route('auth.login') }}"
                                    class="block rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white text-center">
@@ -709,7 +731,9 @@
                                         ? 'Event is full — join the waitlist'
                                         : ($event->is_full
                                             ? 'This event is full'
-                                            : $event->remaining_spots . ' spot' . ($event->remaining_spots !== 1 ? 's' : '') . ' remaining')
+                                            : ($event->max_participants
+                                                ? $event->remaining_spots . ' spot' . ($event->remaining_spots !== 1 ? 's' : '') . ' remaining'
+                                                : 'Open registration'))
                                     }}
                                 </p>
                                 @if ($event->registration_deadline)
@@ -719,6 +743,11 @@
                                 @endif
                                 @if ($event->is_full && !$event->waitlist_enabled)
                                     <p class="text-sm font-medium text-red-600 dark:text-red-400">This event is full</p>
+                                @elseif (!$canRegister)
+                                    <button type="button" disabled
+                                            class="mt-2 cursor-not-allowed rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                                        Registration Closed
+                                    </button>
                                 @else
                                     <button wire:click="register" wire:loading.attr="disabled"
                                             class="mt-2 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 focus:ring-2 focus:ring-offset-2
@@ -735,104 +764,106 @@
                 @endif
 
                 {{-- RSVP card --}}
-                <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
-                    <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">RSVP</h3>
-                    </div>
-                    <div class="px-5 py-4">
-                        @if (!$isAuthenticated)
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Login to RSVP</p>
-                        @elseif ($event->rsvp_deadline && $event->rsvp_deadline->isPast())
-                            <p class="text-sm font-medium text-red-600 dark:text-red-400">RSVP Closed</p>
-                        @elseif ($isAttending)
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                    Going
-                                </span>
-                                <div class="flex gap-2">
-                                    <button wire:click="rsvpMaybe" wire:loading.attr="disabled"
-                                            class="text-sm text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
-                                        Maybe
-                                    </button>
-                                    <button wire:click="$set('confirmCancelRsvpId', '{{ $registration->id }}')"
-                                            class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
-                                        Can't Go
-                                    </button>
-                                </div>
-                            </div>
-                            @if ($confirmCancelRsvpId === $registration?->id)
-                                <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-border dark:bg-card/50">
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">Cancel your RSVP?</p>
-                                    <div class="flex gap-2">
-                                        <button wire:click="cancelRsvp" wire:loading.attr="disabled"
-                                                class="flex-1 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
-                                            <span wire:loading.remove>Yes, Cancel</span>
-                                            <span wire:loading>Processing...</span>
-                                        </button>
-                                        <button wire:click="$set('confirmCancelRsvpId', null)" wire:loading.attr="disabled"
-                                                class="flex-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
-                                            Keep
-                                        </button>
-                                    </div>
-                                </div>
-                            @endif
-                        @elseif ($isMaybe)
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                                    Tentative
-                                </span>
-                                <div class="flex gap-2">
-                                    <button wire:click="rsvp" wire:loading.attr="disabled"
-                                            class="text-sm text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                @if (!$registrationClosed)
+                    <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                        <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">RSVP</h3>
+                        </div>
+                        <div class="px-5 py-4">
+                            @if (!$isAuthenticated)
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Login to RSVP</p>
+                            @elseif (!$canRsvp)
+                                <p class="text-sm font-medium text-red-600 dark:text-red-400">RSVP Closed</p>
+                            @elseif ($isAttending)
+                                <div class="flex items-center justify-between">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                         Going
-                                    </button>
-                                    <button wire:click="$set('confirmCancelRsvpId', '{{ $registration->id }}')"
-                                            class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
-                                        Can't Go
-                                    </button>
-                                </div>
-                            </div>
-                            @if ($confirmCancelRsvpId === $registration?->id)
-                                <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-border dark:bg-card/50">
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">Cancel your RSVP?</p>
+                                    </span>
                                     <div class="flex gap-2">
-                                        <button wire:click="cancelRsvp" wire:loading.attr="disabled"
-                                                class="flex-1 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
-                                            <span wire:loading.remove>Yes, Cancel</span>
+                                        <button wire:click="rsvpMaybe" wire:loading.attr="disabled"
+                                                class="text-sm text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                            Maybe
+                                        </button>
+                                        <button wire:click="$set('confirmCancelRsvpId', '{{ $registration->id }}')"
+                                                class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                            Can't Go
+                                        </button>
+                                    </div>
+                                </div>
+                                @if ($confirmCancelRsvpId === $registration?->id)
+                                    <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-border dark:bg-card/50">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Cancel your RSVP?</p>
+                                        <div class="flex gap-2">
+                                            <button wire:click="cancelRsvp" wire:loading.attr="disabled"
+                                                    class="flex-1 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
+                                                <span wire:loading.remove>Yes, Cancel</span>
+                                                <span wire:loading>Processing...</span>
+                                            </button>
+                                            <button wire:click="$set('confirmCancelRsvpId', null)" wire:loading.attr="disabled"
+                                                    class="flex-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                                Keep
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            @elseif ($isMaybe)
+                                <div class="flex items-center justify-between">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                        Tentative
+                                    </span>
+                                    <div class="flex gap-2">
+                                        <button wire:click="rsvp" wire:loading.attr="disabled"
+                                                class="text-sm text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                            Going
+                                        </button>
+                                        <button wire:click="$set('confirmCancelRsvpId', '{{ $registration->id }}')"
+                                                class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                            Can't Go
+                                        </button>
+                                    </div>
+                                </div>
+                                @if ($confirmCancelRsvpId === $registration?->id)
+                                    <div class="mt-3 space-y-2 rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-border dark:bg-card/50">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Cancel your RSVP?</p>
+                                        <div class="flex gap-2">
+                                            <button wire:click="cancelRsvp" wire:loading.attr="disabled"
+                                                    class="flex-1 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
+                                                <span wire:loading.remove>Yes, Cancel</span>
+                                                <span wire:loading>Processing...</span>
+                                            </button>
+                                            <button wire:click="$set('confirmCancelRsvpId', null)" wire:loading.attr="disabled"
+                                                    class="flex-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
+                                                Keep
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            @elseif ($event->rsvp_deadline && $event->rsvp_deadline->isPast())
+                                <p class="text-sm font-medium text-red-600 dark:text-red-400">RSVP Closed</p>
+                            @elseif ($event->is_full && !$event->waitlist_enabled)
+                                <p class="text-sm font-medium text-red-600 dark:text-red-400">Event Full</p>
+                            @else
+                                <div class="flex flex-col gap-2">
+                                    @if ($event->rsvp_deadline)
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">RSVP by {{ $event->rsvp_deadline->format('M j, Y g:i A') }}</p>
+                                    @endif
+                                    <div class="flex gap-2">
+                                        <button wire:click="rsvp" wire:loading.attr="disabled"
+                                                class="flex-1 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
+                                            <span wire:loading.remove>Going</span>
                                             <span wire:loading>Processing...</span>
                                         </button>
-                                        <button wire:click="$set('confirmCancelRsvpId', null)" wire:loading.attr="disabled"
-                                                class="flex-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white">
-                                            Keep
+                                        <button wire:click="rsvpMaybe" wire:loading.attr="disabled"
+                                                class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">
+                                            <span wire:loading.remove>Maybe</span>
+                                            <span wire:loading>Processing...</span>
                                         </button>
                                     </div>
                                 </div>
                             @endif
-                        @elseif ($event->rsvp_deadline && $event->rsvp_deadline->isPast())
-                            <p class="text-sm font-medium text-red-600 dark:text-red-400">RSVP Closed</p>
-                        @elseif ($event->is_full && !$event->waitlist_enabled)
-                            <p class="text-sm font-medium text-red-600 dark:text-red-400">Event Full</p>
-                        @else
-                            <div class="flex flex-col gap-2">
-                                @if ($event->rsvp_deadline)
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">RSVP by {{ $event->rsvp_deadline->format('M j, Y g:i A') }}</p>
-                                @endif
-                                <div class="flex gap-2">
-                                    <button wire:click="rsvp" wire:loading.attr="disabled"
-                                            class="flex-1 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 dark:focus:ring-white">
-                                        <span wire:loading.remove>Going</span>
-                                        <span wire:loading>Processing...</span>
-                                    </button>
-                                    <button wire:click="rsvpMaybe" wire:loading.attr="disabled"
-                                            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-border dark:bg-card dark:text-gray-300 dark:hover:bg-card-hover focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white">
-                                        <span wire:loading.remove>Maybe</span>
-                                        <span wire:loading>Processing...</span>
-                                    </button>
-                                </div>
-                            </div>
-                        @endif
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>

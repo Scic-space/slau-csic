@@ -15,6 +15,10 @@ class Event extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'description' => '',
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -29,6 +33,7 @@ class Event extends Model
     protected $fillable = [
         'title',
         'description',
+        'description_file_path',
         'type',
         'start_date',
         'end_date',
@@ -379,7 +384,26 @@ class Event extends Model
 
     public function getRegisteredCountAttribute(): int
     {
-        return $this->registrations()->where('status', 'registered')->count();
+        return $this->registrations()->occupyingSpot()->count();
+    }
+
+    public function hasEnded(): bool
+    {
+        return $this->status !== 'cancelled'
+            && ($this->status === 'completed' || ($this->end_date !== null && $this->end_date->lessThanOrEqualTo(now())));
+    }
+
+    public function acceptsRegistrations(): bool
+    {
+        return in_array($this->status, ['published', 'scheduled', 'ongoing'], true)
+            && ! $this->hasEnded()
+            && ($this->registration_deadline === null || $this->registration_deadline->isFuture());
+    }
+
+    public function acceptsRsvps(): bool
+    {
+        return $this->acceptsRegistrations()
+            && ($this->rsvp_deadline === null || $this->rsvp_deadline->isFuture());
     }
 
     public function getWaitlistedCountAttribute(): int

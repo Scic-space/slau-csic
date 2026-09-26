@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>{{ $event->title }} — Description</title>
+    <title>{{ $documentTitle }} — {{ $documentLabel }}</title>
     <style>
         @page { margin: 32pt 36pt; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 10pt; color: #1e293b; line-height: 1.4; }
@@ -31,8 +31,8 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ $event->title }}</h1>
-        <p class="metadata">Lesson description</p>
+        <h1>{{ $documentTitle }}</h1>
+        <p class="metadata">{{ $documentLabel }}</p>
         @if ($event->start_date)
             <p class="metadata">{{ $event->start_date->format('F j, Y · g:i A') }}</p>
         @endif

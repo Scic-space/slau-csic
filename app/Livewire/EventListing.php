@@ -63,7 +63,7 @@ class EventListing extends Component
         $query = Event::where('is_public', true)
             ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed'])
             ->with(['organizer', 'categories', 'recurrence'])
-            ->withCount(['registrations as registered_count' => fn ($q) => $q->where('status', 'registered')])
+            ->withCount(['registrations as registered_count' => fn ($q) => $q->occupyingSpot()])
             ->when($featured, fn ($q) => $q->where('id', '!=', $featured->id));
 
         if ($this->search) {
