@@ -158,6 +158,9 @@ class EventShowController extends Controller
                     'title' => $resource->title,
                     'type' => $resource->type,
                     'url' => $resource->display_url,
+                    'download_url' => $resource->file_path
+                        ? route('events.resources.download', [$event, $resource])
+                        : null,
                 ]),
                 'user_registration' => $userRegistration ? [
                     'id' => $userRegistration->id,

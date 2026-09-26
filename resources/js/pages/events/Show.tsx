@@ -3,7 +3,7 @@ import { useState } from 'react';
 import PublicLayout from '@/components/PublicLayout';
 import { GlowyWavesBackground } from '@/components/ui/glowy-waves-hero-shadcnui';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, ExternalLink, DollarSign } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Users, ExternalLink, DollarSign, Download } from 'lucide-react';
 import type { PageProps as InertiaPageProps } from '@inertiajs/react';
 
 interface EventData {
@@ -33,7 +33,7 @@ interface EventData {
     organizer: { id: number; name: string } | null;
     categories: { id: number; name: string; slug: string; color: string }[];
     instructors: { id: number; name: string; role: string }[];
-    resources: { id: number; title: string; type: string; url: string | null }[];
+    resources: { id: number; title: string; type: string; url: string | null; download_url: string | null }[];
     user_registration: {
         id: number;
         status: string;
@@ -283,18 +283,29 @@ export default function EventShow() {
 
                                         {event.resources.length > 0 && (
                                             <div>
-                                                <h2 className="text-lg font-semibold text-white mb-3">Resources</h2>
-                                                <div className="space-y-2">
+                                                <h2 className="text-lg font-semibold text-white mb-1">Resources</h2>
+                                                <p className="text-sm text-white/50 mb-3">Download lesson materials before, during, and after the lesson.</p>
+                                                <div className="flex flex-col gap-2">
                                                     {event.resources.map((res) => (
                                                         <div key={res.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
                                                             <p className="text-sm font-medium text-white">{res.title}</p>
                                                             <p className="text-xs text-white/50 mb-1">{res.type}</p>
-                                                            {res.url && (
-                                                                <a href={res.url} target="_blank" rel="noopener noreferrer"
-                                                                    className="text-sm text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1">
-                                                                    View Resource <ExternalLink className="h-3 w-3" />
-                                                                </a>
-                                                            )}
+                                                            <div className="flex flex-wrap items-center gap-3">
+                                                                {res.url && (
+                                                                    <a href={res.url} target="_blank" rel="noopener noreferrer"
+                                                                        aria-label={`View ${res.title}`}
+                                                                        className="text-sm text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1">
+                                                                        View Resource <ExternalLink className="h-3 w-3" />
+                                                                    </a>
+                                                                )}
+                                                                {res.download_url && (
+                                                                    <a href={res.download_url} download
+                                                                        aria-label={`Download ${res.title}`}
+                                                                        className="text-sm text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1">
+                                                                        Download <Download className="h-3 w-3" />
+                                                                    </a>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>

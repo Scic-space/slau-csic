@@ -33,7 +33,7 @@ class EventResource extends Model
         return ! is_null($this->url);
     }
 
-    public function getDisplayUrlAttribute(): string
+    public function getDisplayUrlAttribute(): ?string
     {
         return $this->file_path ? asset('storage/'.$this->file_path) : $this->url;
     }

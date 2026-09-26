@@ -190,21 +190,32 @@
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Resources</h2>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Download lesson materials before, during, and after the lesson.</p>
                         </div>
                         <div class="px-5 py-4">
                             <ul class="divide-y divide-gray-50 dark:divide-gray-700/50">
                                 @foreach ($event->resources as $res)
-                                    <li class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                                    <li wire:key="event-resource-{{ $res->id }}" class="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
                                         <div class="min-w-0 flex-1">
                                             <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $res->title }}</p>
                                             <p class="text-xs text-gray-500">{{ ucfirst($res->type) }}</p>
                                         </div>
-                                        @if ($res->display_url)
-                                            <a href="{{ $res->display_url }}" target="_blank" rel="noopener noreferrer"
-                                               class="ml-3 shrink-0 rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                                                View
-                                            </a>
-                                        @endif
+                                        <div class="flex shrink-0 flex-wrap items-center gap-2">
+                                            @if ($res->display_url)
+                                                <a href="{{ $res->display_url }}" target="_blank" rel="noopener noreferrer"
+                                                   aria-label="View {{ $res->title }}"
+                                                   class="rounded border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
+                                                    View
+                                                </a>
+                                            @endif
+                                            @if ($res->file_path)
+                                                <a href="{{ route('events.resources.download', [$event, $res]) }}" download
+                                                   aria-label="Download {{ $res->title }}"
+                                                   class="rounded bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                                                    Download
+                                                </a>
+                                            @endif
+                                        </div>
                                     </li>
                                 @endforeach
                             </ul>

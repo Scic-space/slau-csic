@@ -13,13 +13,15 @@ beforeEach(function () {
     $this->seed(RolesAndPermissionsSeeder::class);
 });
 
-it('blocks unverified admins from the panel and redirects them to verify their email', function () {
-    $admin = User::factory()->unverified()->create()->assignRole('super-admin');
+it('allows unverified admins to access the panel', function (string $role) {
+    $admin = User::factory()->unverified()->create()->assignRole($role);
 
     $this->actingAs($admin)
         ->get('/admin')
-        ->assertRedirect(route('verification.notice'));
-});
+        ->assertSuccessful();
+
+    expect($admin->fresh()->email_verified_at)->toBeNull();
+})->with(['admin', 'super-admin', 'Treasurer', 'President']);
 
 it('allows verified admins to access the panel', function () {
     $admin = User::factory()->create()->assignRole('super-admin');
@@ -30,7 +32,7 @@ it('allows verified admins to access the panel', function () {
 });
 
 it('blocks suspended admins from the panel', function () {
-    $admin = User::factory()->create([
+    $admin = User::factory()->unverified()->create([
         'membership_status' => 'suspended',
         'suspension_reason' => 'Testing denial of access',
     ])->assignRole('super-admin');
@@ -40,9 +42,22 @@ it('blocks suspended admins from the panel', function () {
         ->assertForbidden();
 });
 
-it('enforces email verification on authenticated panel routes', function () {
+it('blocks members without a panel role from accessing the panel', function () {
+    $member = User::factory()->unverified()->create();
+
+    $this->actingAs($member)
+        ->get('/admin')
+        ->assertForbidden();
+});
+
+it('requires guests to log in before accessing the panel', function () {
+    $this->get('/admin')
+        ->assertRedirect(route('auth.login'));
+});
+
+it('does not require email verification on authenticated panel routes', function () {
     expect(Filament::getPanel('admin')->getAuthMiddleware())
-        ->toContain(EnsureEmailIsVerified::class);
+        ->not->toContain(EnsureEmailIsVerified::class);
 });
 
 it('applies the security headers middleware to the admin panel', function () {
