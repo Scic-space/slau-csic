@@ -10,6 +10,7 @@ use App\Models\EventCategory;
 use App\Models\EventFeedback;
 use App\Models\EventRegistration;
 use App\Models\EventResource;
+use App\Services\EventDescriptionDocument;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -73,7 +74,7 @@ class EventShowController extends Controller
         return $cleaned;
     }
 
-    public function show(Event $event): Response|RedirectResponse
+    public function show(Event $event, EventDescriptionDocument $document): Response|RedirectResponse
     {
         if (auth()->check()) {
             return redirect()->route('events.member-show', $event);
@@ -121,7 +122,9 @@ class EventShowController extends Controller
                 'id' => $event->id,
                 'title' => $event->title,
                 'slug' => $event->slug,
-                'description' => $this->sanitizeHtml($event->description),
+                'description_download_url' => $document->html($event->description) !== null
+                    ? route('events.description.download', $event)
+                    : null,
                 'type' => $event->type,
                 'start_date' => $event->start_date->toIso8601String(),
                 'end_date' => $event->end_date?->toIso8601String(),

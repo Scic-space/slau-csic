@@ -59,6 +59,7 @@ class EventResource extends Resource
                     ])
                     ->required(),
                 RichEditor::make('description')
+                    ->helperText('After saving, users can download this description as a compact PDF from the event page.')
                     ->required(),
                 FileUpload::make('banner_image')
                     ->image()

@@ -8,6 +8,8 @@ use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventFeedback;
 use App\Models\EventRegistration;
+use App\Services\EventDescriptionDocument;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class EventDetails extends Component
@@ -281,7 +283,7 @@ class EventDetails extends Component
         }
     }
 
-    public function render()
+    public function render(): View
     {
         $user = auth()->user();
 
@@ -362,6 +364,9 @@ class EventDetails extends Component
         ];
 
         return view('livewire.event-details', [
+            'descriptionDownloadUrl' => app(EventDescriptionDocument::class)->html($this->event->description) !== null
+                ? route('events.description.download', $this->event)
+                : null,
             'userRegistration' => $userRegistration,
             'userFeedback' => $userFeedback,
             'canSubmitFeedback' => $canSubmitFeedback,

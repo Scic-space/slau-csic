@@ -94,16 +94,22 @@
             {{-- Left Column — Main Details --}}
             <div class="space-y-6 lg:col-span-2">
 
-                {{-- About card --}}
-                @if ($event->description)
+                {{-- Description document --}}
+                @if ($descriptionDownloadUrl)
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
-                            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">About</h2>
+                            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Lesson document</h2>
                         </div>
-                        <div class="px-5 py-4">
-                            <div class="prose prose-sm max-w-none text-gray-600 dark:prose-invert dark:text-gray-400 leading-relaxed">
-                                {!! $event->description !!}
+                        <div class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $event->title }}</p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The full description in a compact PDF, available before, during, and after the lesson.</p>
                             </div>
+                            <a href="{{ $descriptionDownloadUrl }}" download
+                               class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v4h14v-4"/></svg>
+                                Download description (PDF)
+                            </a>
                         </div>
                     </div>
                 @endif

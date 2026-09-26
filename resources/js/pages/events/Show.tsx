@@ -10,7 +10,7 @@ interface EventData {
     id: number;
     title: string;
     slug: string;
-    description: string | null;
+    description_download_url: string | null;
     type: string;
     start_date: string;
     end_date: string | null;
@@ -248,10 +248,19 @@ export default function EventShow() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div className="md:col-span-2 space-y-6">
-                                        {event.description && (
-                                            <div>
-                                                <h2 className="text-lg font-semibold text-white mb-2">About</h2>
-                                                <div className="prose prose-invert text-white/60 leading-relaxed max-w-none" dangerouslySetInnerHTML={{ __html: event.description }} />
+                                        {event.description_download_url && (
+                                            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="min-w-0">
+                                                        <h2 className="text-lg font-semibold text-white">Lesson document</h2>
+                                                        <p className="mt-1 text-sm text-white/60">The full description in a compact PDF, available before, during, and after the lesson.</p>
+                                                    </div>
+                                                    <a href={event.description_download_url} download
+                                                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-400">
+                                                        <Download className="h-4 w-4" aria-hidden="true" />
+                                                        Download description (PDF)
+                                                    </a>
+                                                </div>
                                             </div>
                                         )}
 

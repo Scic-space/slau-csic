@@ -18,6 +18,7 @@
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">After saving, users can download this description as a compact PDF from the event page.</p>
                         <textarea wire:model="description" rows="4" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:focus:border-white dark:focus:ring-white" placeholder="Describe your event..."></textarea>
                     </div>
                     <div>
