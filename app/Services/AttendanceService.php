@@ -65,25 +65,27 @@ class AttendanceService
             'device_info' => $deviceInfo,
         ]);
 
-        $user->update([
-            'attendance_count' => DB::raw('attendance_count + 1'),
-        ]);
-
-        if ($bonusPoints > 0) {
+        if ($attendance->isPresentOrLate()) {
             $user->update([
-                'bonus_points' => DB::raw('bonus_points + '.$bonusPoints),
+                'attendance_count' => DB::raw('attendance_count + 1'),
             ]);
+
+            if ($bonusPoints > 0) {
+                $user->update([
+                    'bonus_points' => DB::raw('bonus_points + '.$bonusPoints),
+                ]);
+            }
+
+            $this->gamification->awardPoints(
+                $user,
+                20,
+                "Checked in: {$meeting->title}",
+                Meeting::class,
+                $meeting->id,
+            );
         }
 
         $this->updateStreak($user, $meeting);
-
-        $this->gamification->awardPoints(
-            $user,
-            20,
-            "Checked in: {$meeting->title}",
-            Meeting::class,
-            $meeting->id,
-        );
 
         return [
             'success' => true,

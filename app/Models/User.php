@@ -479,17 +479,36 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function getAttendanceRate(): float
     {
-        $totalMeetings = Meeting::where('scheduled_at', '<=', now())
-            ->where('created_at', '>=', Carbon::parse($this->joined_at))
+        $joinedAt = $this->joined_at ? Carbon::parse($this->joined_at) : null;
+
+        $totalMeetings = Meeting::query()
+            ->whereNull('cancelled_at')
+            ->where('scheduled_at', '<=', now())
+            ->when($joinedAt, fn ($query) => $query->where('scheduled_at', '>=', $joinedAt))
             ->count();
 
         if ($totalMeetings === 0) {
             return 0;
         }
 
-        $attendedMeetings = $this->attendance()->count();
+        $attendedMeetings = $this->attendance()
+            ->whereIn('status', ['present', 'late'])
+            ->whereHas('meeting', function ($query) use ($joinedAt) {
+                $query->whereNull('cancelled_at')
+                    ->where('scheduled_at', '<=', now())
+                    ->when($joinedAt, fn ($meetingQuery) => $meetingQuery->where('scheduled_at', '>=', $joinedAt));
+            })
+            ->distinct('meeting_id')
+            ->count('meeting_id');
 
-        return round(($attendedMeetings / $totalMeetings) * 100, 2);
+        return round(min(100, ($attendedMeetings / $totalMeetings) * 100), 2);
+    }
+
+    public function attendedMeetingsCount(): int
+    {
+        return $this->attendance()
+            ->whereIn('status', ['present', 'late'])
+            ->count();
     }
 
     public function hasAttendedMeeting(Meeting $meeting): bool
@@ -541,10 +560,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     // ATTENDANCE METHODS
     // ============================================
 
-    public function updateAttendanceCount()
+    public function updateAttendanceCount(): void
     {
         $this->update([
-            'attendance_count' => $this->attendance()->count(),
+            'attendance_count' => $this->attendedMeetingsCount(),
         ]);
     }
 
@@ -920,7 +939,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         $portalProgress = $this->clubResourceProgress()->get();
 
         return [
-            'total_attendance' => $this->attendance()->count(),
+            'total_attendance' => $this->attendedMeetingsCount(),
             'attendance_rate' => $this->getAttendanceRate(),
             'events_attended' => $this->eventsAttendedCount(),
             'projects_led' => $this->projects()->count(),

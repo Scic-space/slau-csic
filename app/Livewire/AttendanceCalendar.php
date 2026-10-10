@@ -149,12 +149,22 @@ class AttendanceCalendar extends Component
             ->concat($reminderEvents)
             ->values();
 
+        $presentMeetings = $records->where('status', 'present')->count();
+        $lateMeetings = $records->where('status', 'late')->count();
+        $absentMeetings = $records->where('status', 'absent')->count();
+        $attendedEvents = $eventAttendanceEvents->count();
+
+        $totalSessions = $presentMeetings + $lateMeetings + $absentMeetings + $attendedEvents;
+        $presentSessions = $presentMeetings + $attendedEvents;
+
         $stats = [
-            'total' => $records->count(),
-            'present' => $records->where('status', 'present')->count(),
-            'late' => $records->where('status', 'late')->count(),
-            'absent' => $records->where('status', 'absent')->count(),
-            'rate' => $user->getAttendanceRate(),
+            'total' => $totalSessions,
+            'present' => $presentSessions,
+            'late' => $lateMeetings,
+            'absent' => $absentMeetings,
+            'rate' => $totalSessions > 0
+                ? round((($presentSessions + $lateMeetings) / $totalSessions) * 100, 2)
+                : 0,
             'streak' => $user->current_streak,
         ];
 

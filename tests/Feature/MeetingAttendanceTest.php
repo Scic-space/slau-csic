@@ -2,6 +2,7 @@
 
 use App\Models\Attendance;
 use App\Models\Meeting;
+use App\Models\PointTransaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -30,6 +31,26 @@ it('records attendance via QR code', function () {
         'user_id' => $user->id,
         'check_in_method' => 'qr_code',
     ]);
+});
+
+it('does not count or reward a check-in that resolves to absent', function () {
+    $meeting = Meeting::factory()->ongoing()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subHours(2),
+        'late_threshold_minutes' => 15,
+    ]);
+    $user = User::factory()->create();
+
+    actingAs($user);
+    $response = $this->post("/attendance/verify/{$meeting->meeting_code}");
+
+    $response->assertJson(['success' => true, 'status' => 'absent']);
+
+    $user->refresh();
+
+    expect($user->attendance_count)->toBe(0)
+        ->and((int) $user->bonus_points)->toBe(0)
+        ->and(PointTransaction::where('user_id', $user->id)->count())->toBe(0);
 });
 
 it('prevents duplicate attendance', function () {
@@ -83,6 +104,50 @@ it('allows all users when no restriction is set', function () {
     $user = User::factory()->create();
 
     expect($meeting->canUserAttend($user))->toBeTrue();
+});
+
+it('excludes absences from a member attendance rate', function () {
+    $member = User::factory()->create(['joined_at' => now()->subMonth()]);
+
+    $presentMeeting = Meeting::factory()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subDays(10),
+    ]);
+    $absentMeeting = Meeting::factory()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subDays(5),
+    ]);
+
+    Attendance::create([
+        'meeting_id' => $presentMeeting->id,
+        'user_id' => $member->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subDays(10),
+    ]);
+
+    Attendance::create([
+        'meeting_id' => $absentMeeting->id,
+        'user_id' => $member->id,
+        'status' => 'absent',
+        'is_auto_absent' => true,
+    ]);
+
+    $member->refresh();
+
+    expect($member->getAttendanceRate())->toBe(50.0)
+        ->and($member->attendedMeetingsCount())->toBe(1)
+        ->and($member->getMemberStats()['total_attendance'])->toBe(1);
+});
+
+it('ignores cancelled meetings when computing the attendance rate', function () {
+    $member = User::factory()->create(['joined_at' => now()->subMonth()]);
+
+    $held = Meeting::factory()->create(['created_by' => $this->admin->id, 'scheduled_at' => now()->subDays(10)]);
+    $cancelled = Meeting::factory()->cancelled()->create(['created_by' => $this->admin->id, 'scheduled_at' => now()->subDays(5)]);
+
+    Attendance::create(['meeting_id' => $held->id, 'user_id' => $member->id, 'status' => 'present', 'checked_in_at' => now()->subDays(10)]);
+
+    expect($member->fresh()->getAttendanceRate())->toBe(100.0);
 });
 
 it('computes attendance statistics correctly', function () {
