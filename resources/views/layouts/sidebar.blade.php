@@ -620,7 +620,7 @@
                 </div>
 
                 <!-- Teacher Menu Items -->
-                @can('content.view')
+                @can('teacher.dashboard.view')
                     <div>
                         <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('teaching') }" @click="toggleSubmenu('teaching')" :aria-expanded="isSubmenuOpen('teaching').toString()">
                             <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">co_present</span>

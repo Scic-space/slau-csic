@@ -143,6 +143,11 @@ class AttendanceCalendar extends Component
                 'notes' => null,
             ]);
 
+        $reminderEvents = $user->calendarReminders()
+            ->orderBy('starts_on')
+            ->get()
+            ->map(fn (CalendarReminder $reminder) => $this->reminderEvent($reminder));
+
         $calendarEvents = $attendanceEvents
             ->concat($eventAttendanceEvents)
             ->concat($reminderEvents)

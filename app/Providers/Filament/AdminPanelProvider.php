@@ -6,6 +6,8 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EventAnalytics;
 use App\Filament\Pages\MeetingAnalytics;
+use App\Filament\Pages\MemberExport;
+use App\Filament\Pages\MembershipStatistics;
 use App\Filament\Pages\MyProfile;
 use App\Filament\Pages\SystemOverview;
 use App\Filament\Resources\Announcements\AnnouncementResource;
@@ -157,6 +159,20 @@ class AdminPanelProvider extends PanelProvider
                                     ->visible(fn (): bool => auth()->user()?->can('viewAny', \App\Models\Badge::class) ?? false)
                                     ->url(fn (): string => BadgeResource::getUrl())
                                     ->isActiveWhen(fn (): bool => request()->routeIs(BadgeResource::getRouteBaseName().'*')),
+                                NavigationItem::make('Membership Statistics')
+                                    ->icon('heroicon-o-chart-bar-square')
+                                    ->group('Membership')
+                                    ->sort(6)
+                                    ->visible(fn (): bool => auth()->user()?->can('view_users') ?? false)
+                                    ->url(fn (): string => MembershipStatistics::getUrl())
+                                    ->isActiveWhen(fn (): bool => request()->routeIs(MembershipStatistics::getRouteName())),
+                                NavigationItem::make('Export Members')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->group('Membership')
+                                    ->sort(7)
+                                    ->visible(fn (): bool => auth()->user()?->can('view_users') ?? false)
+                                    ->url(fn (): string => MemberExport::getUrl())
+                                    ->isActiveWhen(fn (): bool => request()->routeIs(MemberExport::getRouteName())),
                             ]),
                         NavigationGroup::make('Events')
                             ->collapsible()

@@ -14,6 +14,11 @@ class InstructorSessions extends Component
 
     public string $filter = 'upcoming';
 
+    public function mount(): void
+    {
+        abort_unless(auth()->user()?->can('teacher.dashboard.view'), 403);
+    }
+
     public function updatedFilter(): void
     {
         $this->resetPage();

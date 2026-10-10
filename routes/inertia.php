@@ -191,10 +191,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/polls/{slug}', \App\Livewire\PollShow::class)->name('polls.show')->middleware('approved');
 
     // Instructor routes
-    Route::get('/instructor', InstructorDashboard::class)->name('instructor.dashboard')->middleware('can:content.view');
-    Route::get('/instructor/trainings', InstructorTrainings::class)->name('instructor.trainings')->middleware('can:content.view');
-    Route::get('/instructor/sessions', InstructorSessions::class)->name('instructor.sessions')->middleware('can:content.view');
-    Route::get('/instructor/materials', InstructorMaterials::class)->name('instructor.materials')->middleware('can:content.view');
+    Route::get('/instructor', InstructorDashboard::class)->name('instructor.dashboard')->middleware('can:teacher.dashboard.view');
+    Route::get('/instructor/trainings', InstructorTrainings::class)->name('instructor.trainings')->middleware('can:teacher.dashboard.view');
+    Route::get('/instructor/sessions', InstructorSessions::class)->name('instructor.sessions')->middleware('can:teacher.dashboard.view');
+    Route::get('/instructor/materials', InstructorMaterials::class)->name('instructor.materials')->middleware('can:teacher.dashboard.view');
     Route::get('/teacher/portfolios', TeacherPortfolios::class)->name('teacher.portfolios')->middleware('can:portfolio.view');
     Route::get('/portfolios/{slug}', \App\Livewire\PortfolioShow::class)->name('portfolios.show');
 });
