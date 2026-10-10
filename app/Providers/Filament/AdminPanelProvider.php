@@ -13,6 +13,7 @@ use App\Filament\Resources\Attendance\EventAttendanceResource;
 use App\Filament\Resources\Attendance\MeetingAttendanceResource;
 use App\Filament\Resources\Badges\BadgeResource;
 use App\Filament\Resources\BudgetCategories\BudgetCategoryResource;
+use App\Filament\Resources\CertificateEligibilities\CertificateEligibilityResource;
 use App\Filament\Resources\CtfCategories\CtfCategoryResource;
 use App\Filament\Resources\CtfCompetitions\CtfCompetitionResource;
 use App\Filament\Resources\CtfSubmissions\CtfSubmissionResource;
@@ -20,18 +21,21 @@ use App\Filament\Resources\CtfWriteups\CtfWriteupResource;
 use App\Filament\Resources\Elections\ElectionResource as ElectionFilamentResource;
 use App\Filament\Resources\EventCategories\EventCategoryResource;
 use App\Filament\Resources\Events\EventResource;
+use App\Filament\Resources\ExamAttempts\ExamAttemptResource;
 use App\Filament\Resources\Exams\ExamResource;
 use App\Filament\Resources\FineAppeals\FineAppealResource;
 use App\Filament\Resources\Fines\FineResource;
 use App\Filament\Resources\FineTypes\FineTypeResource;
 use App\Filament\Resources\Meetings\MeetingResource;
 use App\Filament\Resources\News\NewsResource;
+use App\Filament\Resources\QuestionBankQuestions\QuestionBankQuestionResource;
 use App\Filament\Resources\Registrations\EventRegistrationResource;
 use App\Filament\Resources\Roles\RoleResource;
 use App\Filament\Resources\RoleTemplates\RoleTemplateResource;
 use App\Filament\Resources\System\AuditLogResource;
 use App\Filament\Resources\System\ContentPageResource;
 use App\Filament\Resources\System\SettingsResource;
+use App\Filament\Resources\Trainings\TrainingResource;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Http\Middleware\AddSecurityHeaders;
@@ -42,6 +46,7 @@ use App\Models\EventAttendance;
 use App\Models\EventRegistration;
 use App\Models\Fine;
 use App\Models\FineAppeal;
+use App\Models\Training;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\FontProviders\GoogleFontProvider;
@@ -274,6 +279,17 @@ class AdminPanelProvider extends PanelProvider
                                     ->isActiveWhen(fn (): bool => request()->routeIs(FineAppealResource::getRouteBaseName().'*')),
                             ]),
 
+                        NavigationGroup::make('Training')
+                            ->collapsible()
+                            ->items([
+                                NavigationItem::make('Training Programs')
+                                    ->icon('heroicon-o-academic-cap')
+                                    ->group('Training')
+                                    ->sort(1)
+                                    ->visible(fn (): bool => auth()->user()?->can('viewAny', Training::class) ?? false)
+                                    ->url(fn (): string => TrainingResource::getUrl())
+                                    ->isActiveWhen(fn (): bool => request()->routeIs(TrainingResource::getRouteBaseName().'*')),
+                            ]),
                         NavigationGroup::make('Exams')
                             ->collapsible()
                             ->items([
@@ -281,9 +297,30 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-document-text')
                                     ->group('Exams')
                                     ->sort(1)
-                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin']) ?? false)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'President', 'CTF Lead']) ?? false)
                                     ->url(fn (): string => ExamResource::getUrl())
                                     ->isActiveWhen(fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'*')),
+                                NavigationItem::make('Question Bank')
+                                    ->icon('heroicon-o-rectangle-stack')
+                                    ->group('Exams')
+                                    ->sort(2)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'President', 'CTF Lead']) ?? false)
+                                    ->url(fn (): string => QuestionBankQuestionResource::getUrl())
+                                    ->isActiveWhen(fn (): bool => request()->routeIs(QuestionBankQuestionResource::getRouteBaseName().'*')),
+                                NavigationItem::make('Submissions')
+                                    ->icon('heroicon-o-clipboard-document-check')
+                                    ->group('Exams')
+                                    ->sort(3)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'President', 'CTF Lead']) ?? false)
+                                    ->url(fn (): string => ExamAttemptResource::getUrl())
+                                    ->isActiveWhen(fn (): bool => request()->routeIs(ExamAttemptResource::getRouteBaseName().'*')),
+                                NavigationItem::make('Certificates')
+                                    ->icon('heroicon-o-check-badge')
+                                    ->group('Exams')
+                                    ->sort(4)
+                                    ->visible(fn (): bool => auth()->user()?->hasAnyRole(['admin', 'super-admin', 'President', 'CTF Lead']) ?? false)
+                                    ->url(fn (): string => CertificateEligibilityResource::getUrl())
+                                    ->isActiveWhen(fn (): bool => request()->routeIs(CertificateEligibilityResource::getRouteBaseName().'*')),
                             ]),
                         NavigationGroup::make('CTF')
                             ->collapsible()

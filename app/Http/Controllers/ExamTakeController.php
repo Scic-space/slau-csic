@@ -6,78 +6,9 @@ use App\Models\Exam;
 use App\Services\ExamAttemptService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class ExamTakeController extends Controller
 {
-    public function show(Request $request, Exam $exam): Response|RedirectResponse
-    {
-        $user = $request->user();
-        $service = app(ExamAttemptService::class);
-        $existingAttempt = $service->getUserAttempt($exam, $user);
-
-        if ($existingAttempt && $existingAttempt->is_completed) {
-            return redirect()->route('exams.result', $existingAttempt);
-        }
-
-        if (! $existingAttempt) {
-            $attempt = $service->startAttempt($exam, $user);
-        } else {
-            $attempt = $existingAttempt;
-        }
-
-        $timeRemaining = $attempt->time_remaining_seconds ?? ($exam->duration_minutes * 60);
-
-        $questions = $exam->questions()->with(['question.options'])->get();
-        $questionsData = $questions->map(fn ($q) => [
-            'id' => $q->id,
-            'order' => $q->order,
-            'custom_marks' => $q->custom_marks,
-            'question' => [
-                'id' => $q->question->id,
-                'type' => $q->question->type,
-                'question_text' => $q->question->question_text,
-                'image' => $q->question->image ? \Illuminate\Support\Facades\Storage::url($q->question->image) : null,
-                'code_block' => $q->question->code_block,
-                'code_language' => $q->question->code_language,
-                'marks' => $q->question->marks,
-                'explanation' => $q->question->explanation,
-                'options' => $q->question->options->map(fn ($o) => [
-                    'id' => $o->id,
-                    'option_text' => $o->option_text,
-                    'order' => $o->order,
-                ]),
-            ],
-        ]);
-
-        $answers = [];
-        foreach ($attempt->answers as $answer) {
-            if ($answer->answer_text) {
-                $answers[$answer->exam_question_id]['text'] = $answer->answer_text;
-            }
-            if ($answer->selected_option_id) {
-                $answers[$answer->exam_question_id]['option_id'] = $answer->selected_option_id;
-            }
-        }
-
-        return Inertia::render('exams/Take', [
-            'exam' => [
-                'id' => $exam->id,
-                'title' => $exam->title,
-                'description' => $exam->description,
-                'duration_minutes' => $exam->duration_minutes,
-                'passing_score' => $exam->passing_score,
-            ],
-            'attempt' => [
-                'id' => $attempt->id,
-                'time_remaining_seconds' => $timeRemaining,
-            ],
-            'questions' => $questionsData,
-            'initialAnswers' => $answers,
-        ]);
-    }
-
     public function saveAnswer(Request $request, Exam $exam): RedirectResponse
     {
         $user = $request->user();

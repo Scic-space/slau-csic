@@ -40,4 +40,24 @@ class TrainingPolicy
     {
         return $user->can('delete_trainings');
     }
+
+    public function restore(User $user, Training $training): bool
+    {
+        return $user->can('delete_trainings');
+    }
+
+    public function forceDelete(User $user, Training $training): bool
+    {
+        return $user->can('delete_trainings');
+    }
+
+    public function restoreAny(User $user): bool
+    {
+        return $user->can('delete_trainings');
+    }
+
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->can('delete_trainings');
+    }
 }

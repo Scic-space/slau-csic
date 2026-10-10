@@ -28,7 +28,7 @@ it('renders the admin navigation groups and standalone pages', function () {
         ->assertSee('Dashboard')
         ->assertSee('My Profile');
 
-    foreach (['Membership', 'Events', 'Meetings', 'Finance', 'Fines', 'Exams', 'CTF', 'Testimonials', 'Elections', 'Assignments', 'Projects', 'System'] as $section) {
+    foreach (['Membership', 'Events', 'Meetings', 'Finance', 'Fines', 'Training', 'Exams', 'CTF', 'Testimonials', 'Elections', 'Assignments', 'Projects', 'System'] as $section) {
         $response->assertSee("data-group-label=\"{$section}\"", false);
     }
 });
@@ -67,4 +67,8 @@ it('loads the remaining admin sidebar destinations', function (string $path) {
     'contact messages' => '/admin/contact-messages',
     'projects' => '/admin/projects',
     'news' => '/admin/manage-news',
+    'training programs' => '/admin/trainings',
+    'question bank' => '/admin/questions',
+    'exam submissions' => '/admin/exam-attempts',
+    'certificates' => '/admin/certificates',
 ]);
