@@ -118,28 +118,24 @@ class AttendanceCalendar extends Component
             'notes' => $a->notes,
         ]);
 
-        $eventAttendanceEvents = $user->eventAttendance()
+        $eventAttendanceEvents = $user->eventRegistrations()
+            ->whereNotNull('attended_at')
             ->whereHas('event')
             ->with('event')
             ->get()
-            ->map(fn ($a) => [
-                'id' => 'event-'.$a->id,
-                'record_id' => $a->id,
+            ->map(fn ($registration) => [
+                'id' => 'event-'.$registration->id,
+                'record_id' => $registration->id,
                 'type' => 'attendance',
-                'title' => $a->event->title.' ('.$a->status.')',
-                'start' => $a->event->start_date?->toIso8601String() ?? now()->toIso8601String(),
-                'end' => $a->event->end_date?->toIso8601String() ?? $a->event->start_date?->toIso8601String() ?? now()->toIso8601String(),
-                'color' => match ($a->status) {
-                    'present' => '#22c55e',
-                    'absent' => '#ef4444',
-                    'excused' => '#6b7280',
-                    default => '#6b7280',
-                },
+                'title' => $registration->event->title.' (present)',
+                'start' => $registration->event->start_date?->toIso8601String() ?? $registration->attended_at->toIso8601String(),
+                'end' => $registration->event->end_date?->toIso8601String() ?? $registration->event->start_date?->toIso8601String() ?? $registration->attended_at->toIso8601String(),
+                'color' => '#22c55e',
                 'textColor' => '#ffffff',
-                'status' => $a->status,
-                'meeting_title' => $a->event->title,
-                'check_in_time' => $a->checked_in_at?->format('M d, Y g:i A'),
-                'location' => $a->event->location,
+                'status' => 'present',
+                'meeting_title' => $registration->event->title,
+                'check_in_time' => $registration->attended_at?->format('M d, Y g:i A'),
+                'location' => $registration->event->location,
                 'notes' => null,
             ]);
 

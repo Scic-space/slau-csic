@@ -1,6 +1,8 @@
 <?php
 
 use App\Livewire\MemberDashboard;
+use App\Models\Event;
+use App\Models\EventRegistration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -60,6 +62,23 @@ it('renders meaningful Material Symbols for dashboard cards', function () {
         ]);
 });
 
+it('does not count profile fields that live on the users table columns only', function () {
+    $user = User::factory()->create([
+        'registration_number' => 'BACS/26D/U/A0000',
+        'profile_photo' => 'profile-photos/avatar.jpg',
+    ]);
+
+    $user->update([
+        'phone' => '0700000001',
+        'program' => 'Bachelor of Science in Computer Science (BSCS)',
+        'bio' => 'A keen security enthusiast.',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertSee('Your profile is 31% complete.');
+});
+
 it('counts profile fields stored on member_profiles and social_links', function () {
     $user = User::factory()->create([
         'registration_number' => 'BACS/26D/U/A0000',
@@ -86,19 +105,39 @@ it('counts profile fields stored on member_profiles and social_links', function 
         ->assertDontSee('Complete Your Profile');
 });
 
-it('does not count profile fields that live on the users table columns only', function () {
-    $user = User::factory()->create([
-        'registration_number' => 'BACS/26D/U/A0000',
-        'profile_photo' => 'profile-photos/avatar.jpg',
+it('counts events attended from the attended_at marker, not meetings or status', function () {
+    $user = User::factory()->create();
+
+    $attended = Event::factory()->create(['status' => 'completed']);
+    $mislabeled = Event::factory()->create(['status' => 'completed']);
+
+    EventRegistration::factory()->create([
+        'event_id' => $attended->id,
+        'user_id' => $user->id,
+        'status' => 'registered',
+        'attended_at' => now(),
     ]);
 
-    $user->update([
-        'phone' => '0700000001',
-        'program' => 'Bachelor of Science in Computer Science (BSCS)',
-        'bio' => 'A keen security enthusiast.',
+    EventRegistration::factory()->create([
+        'event_id' => $mislabeled->id,
+        'user_id' => $user->id,
+        'status' => 'attended',
+        'attended_at' => null,
     ]);
+
+    expect($user->eventsAttendedCount())->toBe(1);
 
     Livewire::actingAs($user)
         ->test(MemberDashboard::class)
-        ->assertSee('Your profile is 31% complete.');
+        ->assertViewHas('stats', fn (array $stats) => $stats['events_attended'] === 1);
+});
+
+it('renders the my events section with attendance and feedback prompts', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertSee('My Events')
+        ->assertSee('Recently Attended')
+        ->assertSee('Awaiting Feedback');
 });

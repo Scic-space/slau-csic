@@ -44,6 +44,7 @@ class PublicLeaderboardController extends Controller
             ->whereIn('id', $pointsByUser->keys())
             ->with('earnedBadges')
             ->withCount('earnedBadges')
+            ->withCount(['eventRegistrations as events_attended_count' => fn ($q) => $q->whereNotNull('attended_at')])
             ->get()
             ->keyBy('id');
 
@@ -66,7 +67,7 @@ class PublicLeaderboardController extends Controller
                     'icon' => $b->icon,
                 ]),
                 'badge_count' => $user->earned_badges_count,
-                'events_attended' => $user->gamificationStats?->attendance_count ?? 0,
+                'events_attended' => (int) ($user->events_attended_count ?? 0),
                 'streak' => $user->gamificationStats?->current_streak ?? 0,
             ];
         })

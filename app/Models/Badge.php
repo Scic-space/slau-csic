@@ -105,11 +105,7 @@ class Badge extends Model
 
     private function checkEventsAttended(User $user): bool
     {
-        $count = $user->eventRegistrations()
-            ->where('status', 'attended')
-            ->count();
-
-        return $count >= $this->criteria_value;
+        return $user->eventsAttendedCount() >= $this->criteria_value;
     }
 
     private function checkCtfCompleted(User $user): bool

@@ -133,6 +133,9 @@
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">stars</span>
                 </div>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['score'] }}</p>
+                @if (!empty($stats['rank']))
+                    <p class="text-[11px] capitalize text-gray-400 dark:text-gray-500">{{ $stats['rank'] }} tier</p>
+                @endif
             </div>
             <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
@@ -370,6 +373,89 @@
                         @if ($unearnedBadgeCount > 0)
                             <p class="mt-3 text-xs text-gray-400 dark:text-gray-500">{{ $unearnedBadgeCount }} more badges you can earn</p>
                         @endif
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- My Events --}}
+        <div class="dashboard-card mb-4 rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4 dark:border-border">
+                <div>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">event</span>
+                        My Events
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Your registrations, attendance and feedback</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <span><span class="font-semibold text-gray-900 dark:text-white">{{ $stats['events_attended'] }}</span> attended</span>
+                    <span><span class="font-semibold text-gray-900 dark:text-white">{{ $myUpcomingEvents->count() }}</span> upcoming</span>
+                    @if ($favoriteEventsCount > 0)
+                        <span><span class="font-semibold text-gray-900 dark:text-white">{{ $favoriteEventsCount }}</span> favorite{{ $favoriteEventsCount !== 1 ? 's' : '' }}</span>
+                    @endif
+                </div>
+            </div>
+            <div class="grid grid-cols-1 divide-y divide-gray-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-border">
+                {{-- Registered upcoming --}}
+                <div class="px-5 py-4">
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Upcoming</p>
+                    @if ($myUpcomingEvents->isEmpty())
+                        <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No registrations yet.</p>
+                        <a href="{{ route('events.browse') }}" wire:navigate class="text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400">Browse events</a>
+                    @else
+                        <ul class="space-y-3">
+                            @foreach ($myUpcomingEvents as $event)
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined mt-0.5 text-base text-gray-300 dark:text-gray-600" aria-hidden="true">event_upcoming</span>
+                                    <div class="min-w-0 flex-1">
+                                        <a href="{{ route('events.member-show', $event) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $event->title }}</a>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $event->start_date->format('D, M j · g:i A') }}</p>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+                {{-- Recently attended --}}
+                <div class="px-5 py-4">
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Recently Attended</p>
+                    @if ($myAttendedEvents->isEmpty())
+                        <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No events attended yet.</p>
+                    @else
+                        <ul class="space-y-3">
+                            @foreach ($myAttendedEvents as $registration)
+                                @php $attendedEvent = $registration->event; @endphp
+                                @if ($attendedEvent)
+                                    <li class="flex items-start gap-2">
+                                        <span class="material-symbols-outlined mt-0.5 text-base text-green-500" aria-hidden="true">check_circle</span>
+                                        <div class="min-w-0 flex-1">
+                                            <a href="{{ route('events.member-show', $attendedEvent) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedEvent->title }}</a>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $registration->attended_at->format('M j, Y') }}</p>
+                                        </div>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+                {{-- Pending feedback --}}
+                <div class="px-5 py-4">
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Awaiting Feedback</p>
+                    @if ($pendingFeedbackEvents->isEmpty())
+                        <p class="py-2 text-xs text-gray-400 dark:text-gray-500">All caught up.</p>
+                    @else
+                        <ul class="space-y-3">
+                            @foreach ($pendingFeedbackEvents as $event)
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined mt-0.5 text-base text-amber-500" aria-hidden="true">rate_review</span>
+                                    <div class="min-w-0 flex-1">
+                                        <a href="{{ route('events.member-show', $event) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $event->title }}</a>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Share your feedback</p>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
                     @endif
                 </div>
             </div>

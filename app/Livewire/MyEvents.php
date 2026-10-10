@@ -32,7 +32,12 @@ class MyEvents extends Component
             ->get()
             ->map(fn ($e) => $this->mapEvent($e));
 
-        $instructedEvents = Event::where('organizer_id', $user->id)
+        $instructedEvents = Event::where(function ($query) use ($user) {
+            $query->where('organizer_id', $user->id)
+                ->orWhere('instructor_id', $user->id)
+                ->orWhereHas('instructors', fn ($q) => $q->where('users.id', $user->id));
+        })
+            ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed'])
             ->with('categories')
             ->withCount(['registrations as registered_count' => fn ($q) => $q->where('status', 'registered')])
             ->orderBy('start_date', 'desc')

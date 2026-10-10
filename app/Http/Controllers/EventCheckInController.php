@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EventAttended;
 use App\Models\EventAttendance;
 use App\Models\EventRegistration;
 use Illuminate\Http\Request;
@@ -78,6 +79,8 @@ class EventCheckInController extends Controller
                 'recorded_at' => now(),
             ]);
         });
+
+        EventAttended::dispatch($registration->user, $event, $registration);
 
         return response()->json([
             'success' => true,

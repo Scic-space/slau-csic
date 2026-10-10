@@ -901,6 +901,19 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     }
 
     // Member Statistics Methods
+
+    /**
+     * Count the events this user has actually attended.
+     *
+     * `attended_at` is the canonical marker for attendance (set by every
+     * check-in path), so we count on it rather than the `status` column
+     * which is not always kept in sync.
+     */
+    public function eventsAttendedCount(): int
+    {
+        return $this->eventRegistrations()->whereNotNull('attended_at')->count();
+    }
+
     public function getMemberStats(): array
     {
         $competitionParticipations = $this->competitionParticipations()->count();
@@ -909,7 +922,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return [
             'total_attendance' => $this->attendance()->count(),
             'attendance_rate' => $this->getAttendanceRate(),
-            'events_attended' => $this->eventRegistrations()->where('status', 'attended')->count(),
+            'events_attended' => $this->eventsAttendedCount(),
             'projects_led' => $this->projects()->count(),
             'projects_participated' => $this->projectMemberships()->count(),
             'competition_entries' => $competitionParticipations,

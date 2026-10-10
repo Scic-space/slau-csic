@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\EventAttended;
 use App\Events\EventRegistered;
 use App\Jobs\PromoteFromWaitlist;
 use App\Models\Event;
@@ -14,14 +15,10 @@ class EventService
 {
     public function createEvent(array $data, User $organizer): Event
     {
-        $event = Event::create(array_merge($data, [
+        return Event::create(array_merge($data, [
             'organizer_id' => $organizer->id,
             'end_date' => $data['end_date'] ?? $data['start_date'],
         ]));
-
-        event(new EventRegistered($organizer, $event));
-
-        return $event;
     }
 
     public function updateEvent(Event $event, array $data): Event
@@ -131,12 +128,14 @@ class EventService
     {
         $registration = EventRegistration::where('event_id', $event->id)
             ->where('user_id', $memberId)
-            ->where('status', 'registered')
+            ->whereIn('status', ['registered', 'attended'])
             ->first();
 
         if (! $registration) {
             abort(400, 'Member is not registered for this event');
         }
+
+        $alreadyAttended = $registration->hasAttended();
 
         $attendance = EventAttendance::updateOrCreate(
             ['event_id' => $event->id, 'member_id' => $memberId],
@@ -148,7 +147,14 @@ class EventService
         );
 
         if ($status === 'present') {
-            $registration->update(['attended_at' => now()]);
+            $registration->update([
+                'attended_at' => $registration->attended_at ?? now(),
+                'status' => 'attended',
+            ]);
+
+            if (! $alreadyAttended) {
+                EventAttended::dispatch($registration->user, $event, $registration);
+            }
         }
 
         return $attendance;
