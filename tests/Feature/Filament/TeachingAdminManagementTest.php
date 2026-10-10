@@ -1,0 +1,231 @@
+<?php
+
+use App\Filament\Resources\CertificateEligibilities\Pages\ListCertificateEligibilities;
+use App\Filament\Resources\ExamAttempts\Pages\EditExamAttempt;
+use App\Filament\Resources\ExamAttempts\RelationManagers\AnswersRelationManager;
+use App\Filament\Resources\QuestionBankQuestions\Pages\CreateQuestionBankQuestion;
+use App\Filament\Resources\Trainings\Pages\CreateTraining;
+use App\Filament\Resources\Trainings\Pages\GradeBook;
+use App\Models\CertificateEligibility;
+use App\Models\Exam;
+use App\Models\ExamAnswer;
+use App\Models\ExamAttempt;
+use App\Models\ExamQuestion;
+use App\Models\QuestionBankQuestion;
+use App\Models\Training;
+use App\Models\TrainingEnrollment;
+use App\Models\User;
+use App\Services\CertificateService;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Filament\Facades\Filament;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $this->admin = User::factory()->create([
+        'membership_status' => 'active',
+        'membership_type' => 'active',
+    ]);
+    $this->admin->assignRole('super-admin');
+
+    $this->actingAs($this->admin);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+});
+
+it('loads every teaching admin list and create page', function (string $path) {
+    $this->get($path)->assertSuccessful();
+})->with([
+    'trainings' => '/admin/trainings',
+    'create training' => '/admin/trainings/create',
+    'exams' => '/admin/exams',
+    'create exam' => '/admin/exams/create',
+    'submissions' => '/admin/exam-attempts',
+    'question bank' => '/admin/questions',
+    'create question' => '/admin/questions/create',
+    'certificates' => '/admin/certificates',
+]);
+
+it('loads the training edit and grade book pages', function () {
+    $training = Training::factory()->create();
+
+    $this->get("/admin/trainings/{$training->id}/edit")->assertSuccessful();
+    $this->get("/admin/trainings/{$training->id}/grade-book")->assertSuccessful();
+});
+
+it('loads the exam edit page', function () {
+    $exam = Exam::factory()->create();
+
+    $this->get("/admin/exams/{$exam->id}/edit")->assertSuccessful();
+});
+
+it('creates a training with an uploaded thumbnail', function () {
+    Storage::fake('public');
+
+    Livewire::test(CreateTraining::class)
+        ->fillForm([
+            'title' => 'Advanced Blue Team Operations',
+            'category' => 'network_security',
+            'description' => 'Hands-on defensive security training.',
+            'difficulty' => 'advanced',
+            'duration_hours' => 8,
+            'instructor_id' => $this->admin->id,
+            'is_published' => true,
+            'thumbnail' => UploadedFile::fake()->image('thumb.jpg', 800, 600),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $training = Training::where('title', 'Advanced Blue Team Operations')->first();
+
+    expect($training)->not->toBeNull()
+        ->and($training->thumbnail)->not->toBeNull();
+
+    Storage::disk('public')->assertExists($training->thumbnail);
+});
+
+it('creates a multiple choice question with options and an image', function () {
+    Storage::fake('public');
+
+    Livewire::test(CreateQuestionBankQuestion::class)
+        ->fillForm([
+            'type' => 'multiple_choice',
+            'marks' => 5,
+            'question_text' => 'Which header mitigates XSS?',
+            'image' => UploadedFile::fake()->image('question.png', 600, 400),
+        ])
+        ->set('data.options', [
+            'option-a' => ['option_text' => 'Content-Security-Policy', 'is_correct' => true],
+            'option-b' => ['option_text' => 'X-Powered-By', 'is_correct' => false],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $question = QuestionBankQuestion::where('question_text', 'Which header mitigates XSS?')->first();
+
+    expect($question)->not->toBeNull()
+        ->and($question->type)->toBe('multiple_choice')
+        ->and($question->user_id)->toBe($this->admin->id)
+        ->and($question->options()->count())->toBe(2)
+        ->and($question->image)->not->toBeNull();
+
+    Storage::disk('public')->assertExists($question->image);
+});
+
+it('creates a true or false question with generated options', function () {
+    Livewire::test(CreateQuestionBankQuestion::class)
+        ->fillForm([
+            'type' => 'true_false',
+            'marks' => 2,
+            'question_text' => 'TLS provides confidentiality.',
+            'correct_answer' => 'true',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $question = QuestionBankQuestion::where('question_text', 'TLS provides confidentiality.')->first();
+
+    expect($question)->not->toBeNull()
+        ->and($question->type)->toBe('true_false')
+        ->and($question->options()->count())->toBe(2)
+        ->and($question->options()->where('is_correct', true)->first()->option_text)->toBe('True');
+});
+
+it('loads the exam attempt review page and grades an answer manually', function () {
+    $question = QuestionBankQuestion::factory()->shortAnswer()->create(['marks' => 10]);
+    $exam = Exam::factory()->create(['passing_score' => 50]);
+    $examQuestion = ExamQuestion::factory()->create([
+        'exam_id' => $exam->id,
+        'question_bank_question_id' => $question->id,
+        'custom_marks' => null,
+    ]);
+
+    $attempt = ExamAttempt::factory()->completed()->create([
+        'exam_id' => $exam->id,
+        'total_score' => 0,
+    ]);
+
+    $answer = ExamAnswer::factory()->pendingGrading()->create([
+        'exam_attempt_id' => $attempt->id,
+        'exam_question_id' => $examQuestion->id,
+        'answer_text' => 'Confidentiality, integrity and availability.',
+    ]);
+
+    Livewire::test(EditExamAttempt::class, ['record' => $attempt->getRouteKey()])
+        ->assertSuccessful();
+
+    Livewire::test(AnswersRelationManager::class, [
+        'ownerRecord' => $attempt,
+        'pageClass' => EditExamAttempt::class,
+    ])
+        ->callTableAction('edit', $answer, data: [
+            'marks_awarded' => 8,
+            'is_correct' => true,
+        ])
+        ->assertHasNoTableActionErrors();
+
+    $answer->refresh();
+
+    expect($answer->marks_awarded)->toBe(8)
+        ->and($answer->is_correct)->toBeTrue();
+
+    Livewire::test(EditExamAttempt::class, ['record' => $attempt->getRouteKey()])
+        ->callAction('recalculate')
+        ->assertHasNoActionErrors();
+
+    expect($attempt->refresh()->total_score)->toBe(8)
+        ->and($attempt->passed)->toBeTrue();
+});
+
+it('saves a score through the grade book', function () {
+    $training = Training::factory()->create();
+    $member = User::factory()->create();
+
+    $enrollment = TrainingEnrollment::create([
+        'training_id' => $training->id,
+        'user_id' => $member->id,
+        'status' => 'enrolled',
+        'progress_percentage' => 0,
+        'enrolled_at' => now(),
+        'score' => null,
+    ]);
+
+    Livewire::test(GradeBook::class, ['record' => $training->id])
+        ->assertSuccessful()
+        ->callTableAction('update_score', $enrollment, data: [
+            'score' => 88,
+        ])
+        ->assertHasNoTableActionErrors();
+
+    expect($enrollment->refresh()->score)->toBe(88);
+});
+
+it('downloads a certificate pdf from the admin panel', function () {
+    $attempt = ExamAttempt::factory()->passed()->create();
+    $eligibility = CertificateEligibility::factory()->create([
+        'exam_attempt_id' => $attempt->id,
+        'user_id' => $attempt->user_id,
+        'exam_id' => $attempt->exam_id,
+        'eligible' => true,
+    ]);
+
+    $response = app(CertificateService::class)->downloadPdf($eligibility);
+
+    expect($response->getStatusCode())->toBe(200)
+        ->and($response->headers->get('Content-Type'))->toBe('application/pdf');
+});
+
+it('revokes a certificate from the admin panel', function () {
+    $eligibility = CertificateEligibility::factory()->create(['eligible' => true]);
+
+    Livewire::test(ListCertificateEligibilities::class)
+        ->callTableAction('revoke', $eligibility)
+        ->assertHasNoTableActionErrors();
+
+    expect($eligibility->refresh()->eligible)->toBeFalse();
+});

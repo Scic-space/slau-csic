@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\QuestionBankQuestions\Schemas;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -21,7 +22,7 @@ class QuestionBankQuestionForm
                     ->schema([
                         Select::make('type')
                             ->options([
-                                'mcq' => 'Multiple Choice',
+                                'multiple_choice' => 'Multiple Choice',
                                 'true_false' => 'True/False',
                                 'short_answer' => 'Short Answer',
                                 'code_snippet' => 'Code Snippet',
@@ -39,6 +40,15 @@ class QuestionBankQuestionForm
                 Textarea::make('question_text')
                     ->required()
                     ->rows(4)
+                    ->columnSpanFull(),
+
+                FileUpload::make('image')
+                    ->label('Image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('question-images')
+                    ->visibility('public')
+                    ->nullable()
                     ->columnSpanFull(),
 
                 Textarea::make('code_block')
@@ -70,7 +80,7 @@ class QuestionBankQuestionForm
                     ->minItems(2)
                     ->maxItems(6)
                     ->addActionLabel('Add Option')
-                    ->visible(fn (Get $get): bool => $get('type') === 'mcq'),
+                    ->visible(fn (Get $get): bool => $get('type') === 'multiple_choice'),
 
                 Select::make('correct_answer')
                     ->label('Correct Answer')

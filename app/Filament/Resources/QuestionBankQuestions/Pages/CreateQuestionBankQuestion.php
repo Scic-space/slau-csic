@@ -9,6 +9,13 @@ class CreateQuestionBankQuestion extends CreateRecord
 {
     protected static string $resource = QuestionBankQuestionResource::class;
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['user_id'] = auth()->id();
+
+        return $data;
+    }
+
     protected function afterCreate(): void
     {
         if ($this->data['type'] === 'true_false') {
