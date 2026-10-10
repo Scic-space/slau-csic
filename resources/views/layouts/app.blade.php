@@ -138,6 +138,7 @@
                 upcomingMeetings: 0,
                 eventsToRegister: 0,
                 upcomingMyEvents: 0,
+                examsToTake: 0,
                 sync(counts) {
                     Object.assign(this, counts);
                 }

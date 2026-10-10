@@ -4,6 +4,8 @@ use App\Livewire\SidebarBadges;
 use App\Models\Announcement;
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\Fine;
 use App\Models\Meeting;
 use App\Models\Poll;
@@ -143,6 +145,46 @@ it('counts upcoming meetings only for admin roles', function () {
 
     Livewire::test(SidebarBadges::class)
         ->assertSet('upcomingMeetings', 1);
+});
+
+it('counts published exams the member has not completed', function () {
+    Exam::factory()->published()->create();
+    Exam::factory()->published()->create();
+    Exam::factory()->create();
+    Exam::factory()->archived()->create();
+
+    Livewire::test(SidebarBadges::class)
+        ->assertSet('examsToTake', 2);
+});
+
+it('excludes exams the member has already completed', function () {
+    $taken = Exam::factory()->published()->create();
+    ExamAttempt::factory()->completed()->create([
+        'exam_id' => $taken->id,
+        'user_id' => $this->user->id,
+    ]);
+
+    Exam::factory()->published()->create();
+
+    Livewire::test(SidebarBadges::class)
+        ->assertSet('examsToTake', 1);
+});
+
+it('counts exams only when in progress, not completed', function () {
+    $inProgress = Exam::factory()->published()->create();
+    ExamAttempt::factory()->create([
+        'exam_id' => $inProgress->id,
+        'user_id' => $this->user->id,
+    ]);
+
+    $done = Exam::factory()->published()->create();
+    ExamAttempt::factory()->completed()->create([
+        'exam_id' => $done->id,
+        'user_id' => $this->user->id,
+    ]);
+
+    Livewire::test(SidebarBadges::class)
+        ->assertSet('examsToTake', 1);
 });
 
 it('refreshes counts when the sidebar-badges-refresh event fires', function () {

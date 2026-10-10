@@ -432,6 +432,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Exams
+                                    <x-sidebar.badge for="examsToTake" />
                                 </span>
                             </a>
                         </li>

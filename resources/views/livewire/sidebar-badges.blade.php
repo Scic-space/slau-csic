@@ -8,5 +8,6 @@
          upcomingMeetings: $wire.upcomingMeetings,
          eventsToRegister: $wire.eventsToRegister,
          upcomingMyEvents: $wire.upcomingMyEvents,
+         examsToTake: $wire.examsToTake,
      })">
 </div>

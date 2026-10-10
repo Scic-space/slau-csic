@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Announcement;
 use App\Models\Event;
+use App\Models\Exam;
 use App\Models\Fine;
 use App\Models\Meeting;
 use App\Models\Poll;
@@ -25,6 +26,8 @@ class SidebarBadges extends Component
 
     public int $upcomingMyEvents = 0;
 
+    public int $examsToTake = 0;
+
     public function mount(): void
     {
         $this->refreshCounts();
@@ -36,7 +39,7 @@ class SidebarBadges extends Component
         $user = Auth::user();
 
         if (! $user) {
-            $this->reset(['unreadAnnouncements', 'unansweredPolls', 'unpaidFines', 'upcomingMeetings', 'eventsToRegister', 'upcomingMyEvents']);
+            $this->reset(['unreadAnnouncements', 'unansweredPolls', 'unpaidFines', 'upcomingMeetings', 'eventsToRegister', 'upcomingMyEvents', 'examsToTake']);
 
             return;
         }
@@ -68,6 +71,10 @@ class SidebarBadges extends Component
         $this->upcomingMyEvents = Event::whereHas('registrations', fn ($q) => $q->where('user_id', $user->id)->where('status', 'registered'))
             ->where('start_date', '>', now())
             ->where('status', '!=', 'cancelled')
+            ->count();
+
+        $this->examsToTake = Exam::published()
+            ->whereDoesntHave('attempts', fn ($q) => $q->where('user_id', $user->id)->completed())
             ->count();
     }
 
