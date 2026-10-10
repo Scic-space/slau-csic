@@ -26,7 +26,6 @@ class ExamService
 
     public function toggleStatus(Exam $exam): string
     {
-        $wasPublished = $exam->status === 'published';
         $newStatus = match ($exam->status) {
             'draft' => 'published',
             'published' => 'archived',
@@ -35,10 +34,6 @@ class ExamService
         };
 
         $exam->update(['status' => $newStatus]);
-
-        if ($newStatus === 'published' && ! $wasPublished) {
-            $this->notifyPublished($exam);
-        }
 
         return $newStatus;
     }
@@ -123,7 +118,7 @@ class ExamService
         return $exam->questions->sum(fn ($eq) => $eq->effective_marks);
     }
 
-    protected function notifyPublished(Exam $exam): void
+    public function notifyPublished(Exam $exam): void
     {
         try {
             $users = User::whereHas('roles', fn ($q) => $q->whereIn('name', ['member', 'associate']))->get();

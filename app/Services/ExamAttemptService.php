@@ -97,6 +97,18 @@ class ExamAttemptService
         return $elapsed >= $duration;
     }
 
+    public function remainingSeconds(ExamAttempt $attempt): int
+    {
+        if (! $attempt->started_at) {
+            return $attempt->exam->duration_minutes * 60;
+        }
+
+        $duration = $attempt->exam->duration_minutes * 60;
+        $elapsed = now()->diffInSeconds($attempt->started_at, true);
+
+        return max(0, $duration - $elapsed);
+    }
+
     protected function handleCertificateEligibility(ExamAttempt $attempt): void
     {
         try {

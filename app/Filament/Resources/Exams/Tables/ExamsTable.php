@@ -3,9 +3,12 @@
 namespace App\Filament\Resources\Exams\Tables;
 
 use App\Models\Exam;
+use App\Services\ExamService;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -62,6 +65,23 @@ class ExamsTable
                     ]),
             ])
             ->recordActions([
+                Action::make('toggle_status')
+                    ->label('Toggle Status')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->action(function (Exam $record): void {
+                        $newStatus = app(ExamService::class)->toggleStatus($record);
+
+                        $label = ucfirst($newStatus);
+
+                        Notification::make()
+                            ->title("Exam is now {$label}")
+                            ->body($newStatus === 'published' ? 'Members have been notified.' : null)
+                            ->success()
+                            ->send();
+                    }),
+
                 EditAction::make(),
             ])
             ->toolbarActions([

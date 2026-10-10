@@ -12,6 +12,9 @@ class ExamTakeController extends Controller
     public function saveAnswer(Request $request, Exam $exam): RedirectResponse
     {
         $user = $request->user();
+
+        abort_unless($user->can('take', $exam), 403);
+
         $service = app(ExamAttemptService::class);
         $attempt = $service->getUserAttempt($exam, $user);
 
@@ -43,6 +46,9 @@ class ExamTakeController extends Controller
     public function submit(Request $request, Exam $exam, ExamAttemptService $service): RedirectResponse
     {
         $user = $request->user();
+
+        abort_unless($user->can('take', $exam), 403);
+
         $attempt = $service->getUserAttempt($exam, $user);
 
         abort_unless($attempt && ! $attempt->is_completed, 403);
