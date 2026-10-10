@@ -128,6 +128,15 @@ class EventResourceDocument
         return $response;
     }
 
+    public function rawDownload(EventResource $resource): Response
+    {
+        [$disk, $path] = $this->storedFile($resource);
+
+        return $disk->download($path, $this->filename($resource, strtolower(pathinfo($path, PATHINFO_EXTENSION))), [
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     /**
      * @return array{FilesystemAdapter, string}
      */

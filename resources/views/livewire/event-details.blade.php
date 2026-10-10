@@ -243,7 +243,7 @@
                     <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                         <div class="border-b border-gray-100 px-5 py-4 dark:border-border">
                             <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Resources</h2>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">View lesson notes or download them as a Word document before, during, and after the lesson.</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">View, download the original file, or save the notes as a Word document before, during, and after the lesson.</p>
                         </div>
                         <div class="px-5 py-4">
                             <ul class="divide-y divide-gray-50 dark:divide-gray-700/50">
@@ -261,11 +261,18 @@
                                                     View
                                                 </a>
                                             @endif
+                                            @if ($res->isFile())
+                                                <a href="{{ route('events.resources.file', [$event, $res]) }}"
+                                                   aria-label="Download {{ $res->title }}"
+                                                   class="rounded border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-border dark:text-gray-300 dark:hover:bg-card-hover">
+                                                    Download
+                                                </a>
+                                            @endif
                                             @if ($res->supportsDocxDownload())
                                                 <a href="{{ route('events.resources.download', [$event, $res]) }}"
-                                                   aria-label="Download {{ $res->title }}"
+                                                   aria-label="Download {{ $res->title }} as Word"
                                                    class="rounded bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                                                    Download DOCX
+                                                    Download Word
                                                 </a>
                                             @endif
                                         </div>

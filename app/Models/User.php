@@ -511,6 +511,34 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             ->count();
     }
 
+    /**
+     * Attendance rate across both meetings and events.
+     *
+     * Events only have a single positive signal (`attended_at`), so they count
+     * as present sessions. This mirrors the Attendance Calendar so the member
+     * dashboard and calendar never disagree.
+     */
+    public function getOverallAttendanceRate(): float
+    {
+        $presentMeetings = $this->attendance()
+            ->whereIn('status', ['present', 'late'])
+            ->whereHas('meeting')
+            ->count();
+
+        $totalMeetings = $this->attendance()
+            ->whereHas('meeting')
+            ->count();
+
+        $attendedEvents = $this->eventsAttendedCount();
+        $total = $totalMeetings + $attendedEvents;
+
+        if ($total === 0) {
+            return 0;
+        }
+
+        return round(min(100, (($presentMeetings + $attendedEvents) / $total) * 100), 2);
+    }
+
     public function hasAttendedMeeting(Meeting $meeting): bool
     {
         return $this->attendance()
@@ -940,7 +968,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
         return [
             'total_attendance' => $this->attendedMeetingsCount(),
-            'attendance_rate' => $this->getAttendanceRate(),
+            'attendance_rate' => $this->getOverallAttendanceRate(),
             'events_attended' => $this->eventsAttendedCount(),
             'projects_led' => $this->projects()->count(),
             'projects_participated' => $this->projectMemberships()->count(),

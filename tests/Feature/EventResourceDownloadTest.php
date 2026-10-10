@@ -295,6 +295,50 @@ it('rejects malformed Word files without serving their raw contents', function (
     'invalid ZIP' => 'PK invalid-word-document-marker',
 ]);
 
+it('downloads the original attached file for any resource type', function (string $extension) {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'title' => 'Weekly Resource',
+        'file_path' => 'event-resources/attachment.'.$extension,
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, 'original-attachment-bytes');
+
+    $response = $this->get(route('events.resources.file', [$event, $resource]))
+        ->assertOk()
+        ->assertDownload('weekly-resource.'.$extension);
+
+    expect($response->streamedContent())->toBe('original-attachment-bytes');
+})->with(['zip', 'mp4', 'pptx', 'docx']);
+
+it('shows a download link for the original file even when no Word version is available', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'title' => 'Session Archive',
+        'file_path' => 'event-resources/session.zip',
+        'url' => null,
+    ]);
+    Storage::disk('public')->put($resource->file_path, 'zip-bytes');
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('events.member-show', $event))
+        ->assertOk()
+        ->assertSee(route('events.resources.file', [$event, $resource]), false);
+});
+
+it('does not offer an original file download for external links', function () {
+    $event = Event::factory()->create(['status' => 'published', 'is_public' => true]);
+    $resource = EventResource::factory()->create([
+        'event_id' => $event->id,
+        'file_path' => null,
+        'url' => 'https://example.com/slides',
+    ]);
+
+    $this->get(route('events.resources.file', [$event, $resource]))->assertNotFound();
+});
+
 function eventResourceDocumentXml(string $contents): string
 {
     $path = tempnam(sys_get_temp_dir(), 'event-resource-docx-');

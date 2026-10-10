@@ -37,7 +37,7 @@ interface EventData {
     organizer: { id: number; name: string } | null;
     categories: { id: number; name: string; slug: string; color: string }[];
     instructors: { id: number; name: string; role: string }[];
-    resources: { id: number; title: string; type: string; url: string | null; download_url: string | null }[];
+    resources: { id: number; title: string; type: string; url: string | null; download_url: string | null; file_url: string | null }[];
     user_registration: {
         id: number;
         status: string;
@@ -359,7 +359,7 @@ export default function EventShow() {
                                         {event.resources.length > 0 && (
                                             <div>
                                                 <h2 className="text-lg font-semibold text-white mb-1">Resources</h2>
-                                                <p className="text-sm text-white/50 mb-3">View lesson notes or download them as a Word document before, during, and after the lesson.</p>
+                                                <p className="text-sm text-white/50 mb-3">View, download the original file, or save the notes as a Word document before, during, and after the lesson.</p>
                                                 <div className="flex flex-col gap-2">
                                                     {event.resources.map((res) => (
                                                         <div key={res.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
@@ -373,11 +373,18 @@ export default function EventShow() {
                                                                         View Resource <ExternalLink className="h-3 w-3" />
                                                                     </a>
                                                                 )}
+                                                                {res.file_url && (
+                                                                    <a href={res.file_url}
+                                                                        aria-label={`Download ${res.title}`}
+                                                                        className="rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-white/80 hover:bg-white/10 transition inline-flex items-center gap-1">
+                                                                        Download <Download className="h-3 w-3" />
+                                                                    </a>
+                                                                )}
                                                                 {res.download_url && (
                                                                     <a href={res.download_url}
-                                                                        aria-label={`Download ${res.title}`}
-                                                                        className="text-sm text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1">
-                                                                        Download DOCX <Download className="h-3 w-3" />
+                                                                        aria-label={`Download ${res.title} as Word`}
+                                                                        className="rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-white/80 hover:bg-white/10 transition inline-flex items-center gap-1">
+                                                                        Download Word <Download className="h-3 w-3" />
                                                                     </a>
                                                                 )}
                                                             </div>

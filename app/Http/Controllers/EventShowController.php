@@ -172,6 +172,9 @@ class EventShowController extends Controller
                     'download_url' => $resource->supportsDocxDownload()
                         ? route('events.resources.download', [$event, $resource])
                         : null,
+                    'file_url' => $resource->isFile()
+                        ? route('events.resources.file', [$event, $resource])
+                        : null,
                 ]),
                 'user_registration' => $userRegistration ? [
                     'id' => $userRegistration->id,

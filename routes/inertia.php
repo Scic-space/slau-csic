@@ -90,6 +90,9 @@ Route::get('/events/{event:slug}/resources/{resource}/view', EventResourceViewCo
 Route::get('/events/{event:slug}/resources/{resource}/download', EventResourceDownloadController::class)
     ->name('events.resources.download')
     ->scopeBindings();
+Route::get('/events/{event:slug}/resources/{resource}/file', App\Http\Controllers\EventResourceFileController::class)
+    ->name('events.resources.file')
+    ->scopeBindings();
 Route::get('/events/{event:slug}/certificate/{registration}', App\Http\Controllers\EventCertificateController::class)
     ->name('events.certificate')
     ->middleware(['auth', 'verified']);

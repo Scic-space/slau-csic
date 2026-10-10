@@ -162,9 +162,7 @@ class AttendanceCalendar extends Component
             'present' => $presentSessions,
             'late' => $lateMeetings,
             'absent' => $absentMeetings,
-            'rate' => $totalSessions > 0
-                ? round((($presentSessions + $lateMeetings) / $totalSessions) * 100, 2)
-                : 0,
+            'rate' => $user->getOverallAttendanceRate(),
             'streak' => $user->current_streak,
         ];
 

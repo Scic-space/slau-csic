@@ -1,8 +1,10 @@
 <?php
 
 use App\Livewire\MemberDashboard;
+use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Models\Meeting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -130,6 +132,46 @@ it('counts events attended from the attended_at marker, not meetings or status',
     Livewire::actingAs($user)
         ->test(MemberDashboard::class)
         ->assertViewHas('stats', fn (array $stats) => $stats['events_attended'] === 1);
+});
+
+it('reports an attendance rate that combines meetings and events like the calendar', function () {
+    $user = User::factory()->create();
+
+    $meeting = Meeting::factory()->create(['created_by' => $user->id]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subDay(),
+    ]);
+
+    $absentMeeting = Meeting::factory()->create(['created_by' => $user->id]);
+    Attendance::create([
+        'meeting_id' => $absentMeeting->id,
+        'user_id' => $user->id,
+        'status' => 'absent',
+        'is_auto_absent' => true,
+    ]);
+
+    $event = Event::factory()->create(['status' => 'completed']);
+    EventRegistration::factory()->create([
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+        'status' => 'registered',
+        'attended_at' => now(),
+    ]);
+
+    expect($user->getOverallAttendanceRate())->toBe(66.67);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertViewHas('stats', fn (array $stats) => $stats['attendance_rate'] === 66.67);
+});
+
+it('returns a zero attendance rate when there are no sessions', function () {
+    $user = User::factory()->create();
+
+    expect($user->getOverallAttendanceRate())->toBe(0.0);
 });
 
 it('renders the my events section with attendance and feedback prompts', function () {
