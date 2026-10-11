@@ -59,8 +59,8 @@
             </div>
 
             @if ($meeting->description)
-                <div class="mt-4 border-t border-gray-100 pt-4 dark:border-border">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ $meeting->description }}</p>
+                <div class="mt-4 border-t border-gray-100 pt-4 text-sm text-gray-600 dark:border-border dark:text-gray-400">
+                    {!! $meeting->description !!}
                 </div>
             @endif
         </div>
@@ -167,7 +167,7 @@
                                 <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Rating</label>
                                 <div class="flex gap-1">
                                     @foreach ([1, 2, 3, 4, 5] as $star)
-                                        <button type="button" wire:click="rating = {{ $star }}" class="text-2xl {{ $rating >= $star ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600' }} transition-colors hover:text-yellow-400">
+                                        <button type="button" wire:click="setRating({{ $star }})" class="text-2xl {{ $rating >= $star ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600' }} transition-colors hover:text-yellow-400">
                                             ★
                                         </button>
                                     @endforeach

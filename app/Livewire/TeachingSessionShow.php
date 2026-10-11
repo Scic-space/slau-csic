@@ -28,9 +28,18 @@ class TeachingSessionShow extends Component
     {
         abort_unless($meeting->isTeachingSession(), 404);
 
-        $this->meeting = $meeting->load(['creator', 'training', 'agendaItems', 'attachments', 'feedback.user']);
+        $user = Auth::user();
 
-        $this->hasAttended = $meeting->hasUserAttended(Auth::user());
+        $this->hasAttended = $meeting->attendance()
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['present', 'late'])
+            ->exists();
+
+        $isStaff = $user->hasAnyRole(['admin', 'super-admin']) || $meeting->created_by === $user->id;
+
+        abort_unless($this->hasAttended || $isStaff, 403);
+
+        $this->meeting = $meeting->load(['creator', 'training', 'agendaItems', 'attachments', 'feedback.user']);
 
         $this->hasSubmittedFeedback = MeetingFeedback::where('meeting_id', $meeting->id)
             ->where('user_id', Auth::id())
@@ -40,6 +49,11 @@ class TeachingSessionShow extends Component
     public function toggleFeedbackForm(): void
     {
         $this->showFeedbackForm = ! $this->showFeedbackForm;
+    }
+
+    public function setRating(int $value): void
+    {
+        $this->rating = max(1, min(5, $value));
     }
 
     public function submitFeedback(): void
