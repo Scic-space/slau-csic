@@ -174,6 +174,26 @@ it('returns a zero attendance rate when there are no sessions', function () {
     expect($user->getOverallAttendanceRate())->toBe(0.0);
 });
 
+it('lists recently attended internal classes on the dashboard', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'title' => 'Past Linux Class',
+        'scheduled_at' => now()->subWeek(),
+    ]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertViewHas('myAttendedMeetings', fn ($attendances) => $attendances->contains(fn ($a) => $a->meeting_id === $meeting->id))
+        ->assertSee('My Classes')
+        ->assertSee('Past Linux Class');
+});
+
 it('renders the my events section with attendance and feedback prompts', function () {
     $user = User::factory()->create();
 

@@ -461,6 +461,42 @@
             </div>
         </div>
 
+        {{-- My Classes --}}
+        <div class="dashboard-card mb-4 rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4 dark:border-border">
+                <div>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">school</span>
+                        My Classes
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Internal classes you attended</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <span><span class="font-semibold text-gray-900 dark:text-white">{{ $myAttendedMeetings->count() }}</span> shown</span>
+                </div>
+            </div>
+            <div class="px-5 py-4">
+                @if ($myAttendedMeetings->isEmpty())
+                    <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No classes attended yet. Classes you attend will appear here.</p>
+                @else
+                    <ul class="space-y-3">
+                        @foreach ($myAttendedMeetings as $attendance)
+                            @php $attendedMeeting = $attendance->meeting; @endphp
+                            @if ($attendedMeeting)
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined mt-0.5 text-base {{ $attendance->status === 'late' ? 'text-amber-500' : 'text-green-500' }}" aria-hidden="true">{{ $attendance->status === 'late' ? 'schedule' : 'check_circle' }}</span>
+                                    <div class="min-w-0 flex-1">
+                                        <a href="{{ route('classes.show', $attendedMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedMeeting->title }}</a>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $attendedMeeting->scheduled_at?->format('D, M j · g:i A') }} · {{ ucfirst($attendance->status) }}</p>
+                                    </div>
+                                </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        </div>
+
         {{-- Club Activity --}}
         <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
             <div class="border-b border-gray-100 px-5 py-4 dark:border-border">

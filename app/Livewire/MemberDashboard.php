@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Attendance;
 use App\Models\Badge;
 use App\Models\Election;
 use App\Models\Event;
@@ -108,6 +109,15 @@ class MemberDashboard extends Component
             ->limit(5)
             ->get();
 
+        $myAttendedMeetings = Attendance::query()
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['present', 'late'])
+            ->whereHas('meeting', fn ($q) => $q->teachingSessions()->notCancelled())
+            ->with('meeting:id,title,scheduled_at,type,location')
+            ->latest('checked_in_at')
+            ->limit(5)
+            ->get();
+
         $favoriteEventsCount = $user->favoriteEvents()->count();
 
         $finesSummary = [
@@ -158,6 +168,7 @@ class MemberDashboard extends Component
             'upcomingEvents' => $upcomingEvents,
             'myUpcomingEvents' => $myUpcomingEvents,
             'myAttendedEvents' => $myAttendedEvents,
+            'myAttendedMeetings' => $myAttendedMeetings,
             'pendingFeedbackEvents' => $pendingFeedbackEvents,
             'favoriteEventsCount' => $favoriteEventsCount,
             'finesSummary' => $finesSummary,
