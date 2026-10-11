@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Meetings\Schemas\MeetingForm;
 use App\Models\Attendance;
 use App\Models\Meeting;
 use App\Models\PointTransaction;
@@ -260,6 +261,23 @@ it('finalizes absences for meetings that were opened', function () {
     User::factory()->create();
 
     expect(app(AttendanceService::class)->finalizeAbsences($meeting))->toBeGreaterThan(0);
+});
+
+it('selects attendance pickers by member year', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+    $noYear = User::factory()->create();
+
+    expect(MeetingForm::memberIdsForYear(1))->toBe([$yearOne->id])
+        ->and(MeetingForm::memberIdsAboveYear(1))->toBe([$yearThree->id]);
+
+    $options = MeetingForm::memberOptions();
+
+    expect($options[$yearOne->id])->toContain('(Y1)')
+        ->and($options[$yearThree->id])->toContain('(Y3)')
+        ->and($options[$noYear->id])->not->toContain('(Y');
 });
 
 it('refuses to backfill cancelled or future meetings', function () {

@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Meetings\Schemas;
 
+use App\Models\Meeting;
 use App\Models\User;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -14,6 +16,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class MeetingForm
@@ -29,6 +32,69 @@ class MeetingForm
         } catch (\Exception) {
             return false;
         }
+    }
+
+    /**
+     * @return array<int, string> Member ID to "Name (Y2)" labels.
+     */
+    public static function memberOptions(?Meeting $meeting = null): array
+    {
+        $users = ($meeting && $meeting->allowedAttendees()->exists())
+            ? $meeting->allowedAttendees()->with('memberProfile')->get()
+            : User::activeMembers()->with('memberProfile')->get();
+
+        return $users
+            ->sortBy('name')
+            ->mapWithKeys(fn (User $user) => [
+                $user->id => $user->name.($user->memberProfile?->year_of_study
+                    ? " (Y{$user->memberProfile->year_of_study})"
+                    : ''),
+            ])
+            ->all();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public static function memberIdsForYear(int $year): array
+    {
+        return User::activeMembers()
+            ->whereHas('memberProfile', fn ($query) => $query->where('year_of_study', $year))
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public static function memberIdsAboveYear(int $year): array
+    {
+        return User::activeMembers()
+            ->whereHas('memberProfile', fn ($query) => $query->where('year_of_study', '>', $year))
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    /**
+     * Quick-select actions (Year 1 / Year 2+ / Clear) for an attendance picker.
+     *
+     * @return list<Action>
+     */
+    public static function attendanceBulkActions(string $field): array
+    {
+        return [
+            Action::make("{$field}_year_1")
+                ->label('Y1')
+                ->action(fn (Set $set) => $set($field, self::memberIdsForYear(1))),
+            Action::make("{$field}_year_above")
+                ->label('Y2+')
+                ->action(fn (Set $set) => $set($field, self::memberIdsAboveYear(1))),
+            Action::make("{$field}_clear")
+                ->label('Clear')
+                ->action(fn (Set $set) => $set($field, [])),
+        ];
     }
 
     public static function configure(Schema $schema): Schema
@@ -147,15 +213,17 @@ class MeetingForm
                     ->schema([
                         CheckboxList::make('present_ids')
                             ->label('Present')
-                            ->options(fn (): array => User::activeMembers()->orderBy('name')->pluck('name', 'id')->all())
+                            ->options(fn (): array => self::memberOptions())
                             ->searchable()
                             ->columns(2)
+                            ->hintActions(self::attendanceBulkActions('present_ids'))
                             ->visible(fn (Get $get): bool => self::isPastScheduled($get('scheduled_at'))),
                         CheckboxList::make('late_ids')
                             ->label('Late')
-                            ->options(fn (): array => User::activeMembers()->orderBy('name')->pluck('name', 'id')->all())
+                            ->options(fn (): array => self::memberOptions())
                             ->searchable()
                             ->columns(2)
+                            ->hintActions(self::attendanceBulkActions('late_ids'))
                             ->visible(fn (Get $get): bool => self::isPastScheduled($get('scheduled_at'))),
                     ]),
 

@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Meetings\Pages;
 
 use App\Filament\Resources\Meetings\MeetingResource;
-use App\Models\User;
+use App\Filament\Resources\Meetings\Schemas\MeetingForm;
 use App\Notifications\MeetingCancelledNotification;
 use App\Notifications\MeetingRescheduledNotification;
 use App\Services\AttendanceService;
@@ -69,17 +69,7 @@ class EditMeeting extends EditRecord
      */
     protected function backfillMemberOptions(): array
     {
-        if ($this->record->allowedAttendees()->exists()) {
-            return $this->record->allowedAttendees()
-                ->orderBy('users.name')
-                ->pluck('users.name', 'users.id')
-                ->all();
-        }
-
-        return User::activeMembers()
-            ->orderBy('name')
-            ->pluck('name', 'id')
-            ->all();
+        return MeetingForm::memberOptions($this->record);
     }
 
     protected function getHeaderActions(): array
@@ -118,12 +108,14 @@ class EditMeeting extends EditRecord
                             ->label('Present')
                             ->options($this->backfillMemberOptions())
                             ->searchable()
-                            ->columns(2),
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('present_ids')),
                         CheckboxList::make('late_ids')
                             ->label('Late')
                             ->options($this->backfillMemberOptions())
                             ->searchable()
-                            ->columns(2),
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('late_ids')),
                     ])
                     ->action(function (array $data) {
                         $summary = app(AttendanceService::class)->backfillAttendance(

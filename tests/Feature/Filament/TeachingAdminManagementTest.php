@@ -8,6 +8,7 @@ use App\Filament\Resources\Meetings\Pages\EditMeeting;
 use App\Filament\Resources\QuestionBankQuestions\Pages\CreateQuestionBankQuestion;
 use App\Filament\Resources\Trainings\Pages\CreateTraining;
 use App\Filament\Resources\Trainings\Pages\GradeBook;
+use App\Models\Attendance;
 use App\Models\CertificateEligibility;
 use App\Models\Exam;
 use App\Models\ExamAnswer;
@@ -315,6 +316,37 @@ it('records attendance while creating a past class', function () {
         'user_id' => $member->id,
         'status' => 'present',
     ]);
+});
+
+it('bulk-selects year one members on the create attendance picker', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    Livewire::test(CreateMeeting::class)
+        ->fillForm([
+            'title' => 'Year One Catch-up Class',
+            'type' => 'teaching_session',
+            'scheduled_at' => now()->subWeek()->format('Y-m-d H:i:s'),
+            'created_by' => $this->admin->id,
+            'is_recurring' => false,
+        ])
+        ->callFormComponentAction('present_ids', 'present_ids_year_1')
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $meeting = Meeting::where('title', 'Year One Catch-up Class')->first();
+
+    expect($meeting)->not->toBeNull();
+
+    $this->assertDatabaseHas('attendance', [
+        'meeting_id' => $meeting->id,
+        'user_id' => $yearOne->id,
+        'status' => 'present',
+    ]);
+
+    expect(Attendance::where('meeting_id', $meeting->id)->where('user_id', $yearThree->id)->exists())->toBeFalse();
 });
 
 it('does not create a recurrence rule for one-off meetings', function () {
