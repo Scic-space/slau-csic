@@ -2,11 +2,16 @@
 
 use App\Filament\Pages\MemberExport;
 use App\Filament\Pages\MembershipStatistics;
+use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
+use Symfony\Component\Mailer\Exception\TransportException;
+use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Mime\RawMessage;
 
 uses(RefreshDatabase::class);
 
@@ -77,4 +82,31 @@ it('forbids users without permission from the membership admin pages', function 
 
     $this->get('/admin/membership-statistics')->assertForbidden();
     $this->get('/admin/member-export')->assertForbidden();
+});
+
+it('rejects a pending member even when the notification mail fails', function () {
+    config(['mail.default' => 'throwing']);
+
+    Mail::extend('throwing', fn () => new class implements TransportInterface
+    {
+        public function send(RawMessage $message, ?\Symfony\Component\Mailer\Envelope $envelope = null): ?\Symfony\Component\Mailer\SentMessage
+        {
+            throw new TransportException('Mail is down.');
+        }
+
+        public function __toString(): string
+        {
+            return 'throwing';
+        }
+    });
+
+    $member = User::factory()->create(['membership_status' => 'pending', 'membership_type' => 'active']);
+
+    Livewire::test(ListUsers::class)
+        ->callTableAction('reject', $member, data: [
+            'rejection_notes' => 'Incomplete application.',
+        ])
+        ->assertHasNoTableActionErrors();
+
+    expect($member->fresh()->membership_status)->toBe('inactive');
 });

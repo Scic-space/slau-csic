@@ -15,6 +15,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -138,8 +139,16 @@ class UsersTable
                     ->extraAttributes(self::accessibleActionAttributes('Approve'))
                     ->visible(fn (User $record): bool => $record->membership_status === 'pending')
                     ->requiresConfirmation()
-                    ->action(function (User $record) {
-                        $record->approve(auth()->user());
+                    ->action(function (User $record, Action $action) {
+                        if (! $record->approve(auth()->user())) {
+                            Notification::make()
+                                ->title('Approval failed')
+                                ->body('The member could not be approved. Check the logs and try again.')
+                                ->danger()
+                                ->send();
+
+                            $action->halt();
+                        }
                     }),
 
                 Action::make('reject')
@@ -155,8 +164,21 @@ class UsersTable
                             ->label('Rejection Notes')
                             ->required(),
                     ])
-                    ->action(function (array $data, User $record) {
-                        $record->reject(auth()->user(), $data['rejection_notes']);
+                    ->action(function (array $data, User $record, Action $action) {
+                        if (! $record->reject(auth()->user(), $data['rejection_notes'])) {
+                            Notification::make()
+                                ->title('Rejection failed')
+                                ->body('The member could not be rejected. Check the logs and try again.')
+                                ->danger()
+                                ->send();
+
+                            $action->halt();
+                        }
+
+                        Notification::make()
+                            ->title('Member rejected')
+                            ->success()
+                            ->send();
                     }),
 
                 Action::make('suspend')
@@ -174,12 +196,22 @@ class UsersTable
                         DateTimePicker::make('suspended_until')
                             ->label('Suspend Until (optional)'),
                     ])
-                    ->action(function (array $data, User $record) {
-                        $record->suspend(
+                    ->action(function (array $data, User $record, Action $action) {
+                        $suspended = $record->suspend(
                             $data['reason'],
                             auth()->user(),
                             $data['suspended_until'] ? Carbon::parse($data['suspended_until']) : null,
                         );
+
+                        if (! $suspended) {
+                            Notification::make()
+                                ->title('Suspension failed')
+                                ->body('The member could not be suspended. Check the logs and try again.')
+                                ->danger()
+                                ->send();
+
+                            $action->halt();
+                        }
                     }),
 
                 Action::make('reactivate')

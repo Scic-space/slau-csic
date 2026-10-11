@@ -750,15 +750,27 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             ]);
 
             $this->assignRole('member');
-
-            $this->notify(new \App\Notifications\MemberApprovalNotification($approver, $notes));
-
-            MemberApproved::dispatch($this, $this->membership, $approver ?? $this);
-
-            return true;
         } catch (\Exception $e) {
+            report($e);
+
             return false;
         }
+
+        try {
+            if ($approver) {
+                $this->notify(new \App\Notifications\MemberApprovalNotification($approver, $notes));
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        try {
+            MemberApproved::dispatch($this, $this->membership, $approver ?? $this);
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return true;
     }
 
     public function reject(?User $rejecter = null, ?string $notes = null): bool
@@ -776,15 +788,27 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'approved_at' => now(),
                 'approval_notes' => $notes,
             ]);
-
-            $this->notify(new \App\Notifications\MemberRejectionNotification($rejecter, $notes));
-
-            MemberRejected::dispatch($this, $this->membership, $rejecter ?? $this);
-
-            return true;
         } catch (\Exception $e) {
+            report($e);
+
             return false;
         }
+
+        try {
+            if ($rejecter) {
+                $this->notify(new \App\Notifications\MemberRejectionNotification($rejecter, $notes));
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        try {
+            MemberRejected::dispatch($this, $this->membership, $rejecter ?? $this);
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return true;
     }
 
     public function suspend(string $reason, ?User $suspender = null, ?\DateTime $until = null): bool
@@ -803,15 +827,25 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'suspended_until' => $until,
                 'suspended_by' => $suspender?->id,
             ]);
-
-            $this->notify(new MemberSuspendedNotification($reason, $until));
-
-            MemberSuspended::dispatch($this, $this->membership, $suspender ?? $this);
-
-            return true;
         } catch (\Exception $e) {
+            report($e);
+
             return false;
         }
+
+        try {
+            $this->notify(new MemberSuspendedNotification($reason, $until));
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        try {
+            MemberSuspended::dispatch($this, $this->membership, $suspender ?? $this);
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return true;
     }
 
     // Auto-alumni detection
