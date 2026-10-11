@@ -60,7 +60,10 @@ class GamificationService
     }
 
     /**
-     * Award points once for a given user/reference combination.
+     * Award points once for a given user/reference/reason combination.
+     *
+     * The reason is part of the guard so a single reference can carry
+     * distinct awards (for example a check-in and its early-bird bonus).
      */
     public function awardOnce(User $user, int $points, string $reason, string $referenceType, int $referenceId): ?PointTransaction
     {
@@ -68,6 +71,7 @@ class GamificationService
             ->where('user_id', $user->id)
             ->where('reference_type', $referenceType)
             ->where('reference_id', $referenceId)
+            ->where('reason', $reason)
             ->where('points', '>', 0)
             ->exists();
 
