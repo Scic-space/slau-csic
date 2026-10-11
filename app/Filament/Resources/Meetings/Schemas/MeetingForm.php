@@ -119,6 +119,16 @@ class MeetingForm
                             ])
                             ->required(),
 
+                        Select::make('audience')
+                            ->label('Target Audience')
+                            ->options([
+                                'all' => 'All members',
+                                'year_1' => 'Year 1 only',
+                                'year_2_plus' => 'Year 2 and above',
+                            ])
+                            ->default('all')
+                            ->helperText('Restricts QR check-in and scopes the attendance lists to this audience.'),
+
                         DateTimePicker::make('scheduled_at')
                             ->label('Scheduled At')
                             ->required()

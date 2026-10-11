@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Attendance;
 use App\Models\ClubResource;
 use App\Models\ClubResourceProgress;
+use App\Models\Meeting;
 use App\Models\PointTransaction;
 use App\Models\User;
 use App\Services\GamificationService;
@@ -70,6 +72,31 @@ it('stores member progress for club resources', function () {
     expect($progress->progress_percentage)->toBe(55)
         ->and($progress->ranking)->toBe('Top 10')
         ->and($progress->status)->toBe('in_progress');
+});
+
+it('shows past attended classes on the internal classes page', function () {
+    $user = User::factory()->create();
+    $attended = Meeting::factory()->teachingSession()->create([
+        'title' => 'Attended Bash Class',
+        'scheduled_at' => now()->subWeek(),
+    ]);
+    Attendance::create([
+        'meeting_id' => $attended->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+    $missed = Meeting::factory()->teachingSession()->create([
+        'title' => 'Missed Python Class',
+        'scheduled_at' => now()->subWeek(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('portal.classes'))
+        ->assertOk()
+        ->assertSee('Attended Bash Class')
+        ->assertSee(route('classes.show', $attended))
+        ->assertDontSee('Missed Python Class');
 });
 
 it('awards learning-track points only once when a track is completed', function () {

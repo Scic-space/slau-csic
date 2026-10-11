@@ -14,6 +14,11 @@
                         <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
                             Teaching Session
                         </span>
+                        @if ($meeting->audience_label)
+                            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                For {{ $meeting->audience_label }}
+                            </span>
+                        @endif
                         @php
                             $statusColors = [
                                 'completed' => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',

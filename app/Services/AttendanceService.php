@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Attendance;
 use App\Models\Meeting;
+use App\Models\PointTransaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -240,6 +241,75 @@ class AttendanceService
             'absent' => 0,
             'skipped' => $skipped,
         ];
+    }
+
+    /**
+     * Correct a member's attendance status, keeping points and counters fair.
+     *
+     * The base check-in award is replaced to match the new status while
+     * previously earned early-bird bonuses are left untouched. Streaks are
+     * not rewritten.
+     */
+    public function setAttendanceStatus(Meeting $meeting, User $user, string $status, ?User $markedBy = null): Attendance
+    {
+        if (! in_array($status, ['present', 'late', 'absent'], true)) {
+            throw new \InvalidArgumentException('Invalid attendance status.');
+        }
+
+        $user->refresh();
+
+        $record = Attendance::firstOrNew([
+            'meeting_id' => $meeting->id,
+            'user_id' => $user->id,
+        ]);
+
+        $previouslyCounted = $record->exists && in_array($record->status, ['present', 'late'], true);
+        $nowCounted = in_array($status, ['present', 'late'], true);
+
+        $record->fill([
+            'checked_in_at' => $status === 'absent' ? null : ($record->checked_in_at ?? $meeting->scheduled_at ?? now()),
+            'check_in_method' => $record->check_in_method ?? 'admin_override',
+            'status' => $status,
+            'late_threshold_minutes' => $record->late_threshold_minutes ?? $meeting->getLateThresholdMinutes(),
+            'marked_by' => $markedBy?->id ?? $record->marked_by,
+        ]);
+        $record->save();
+
+        if ($nowCounted && ! $previouslyCounted) {
+            $user->update([
+                'attendance_count' => DB::raw('attendance_count + 1'),
+                'total_sessions_attended' => DB::raw('total_sessions_attended + 1'),
+            ]);
+        } elseif (! $nowCounted && $previouslyCounted) {
+            $user->update([
+                'attendance_count' => max(0, (int) $user->attendance_count - 1),
+                'total_sessions_attended' => max(0, (int) $user->total_sessions_attended - 1),
+            ]);
+        }
+
+        PointTransaction::query()
+            ->where('user_id', $user->id)
+            ->where('reference_type', Meeting::class)
+            ->where('reference_id', $meeting->id)
+            ->where('reason', "Checked in: {$meeting->title}")
+            ->where('points', '>', 0)
+            ->delete();
+
+        if ($nowCounted) {
+            $this->gamification->awardPoints(
+                $user,
+                $status === 'late'
+                    ? GamificationService::POINTS_MEETING_LATE
+                    : GamificationService::POINTS_MEETING_PRESENT,
+                "Checked in: {$meeting->title}",
+                Meeting::class,
+                $meeting->id,
+            );
+        } else {
+            $this->gamification->checkRankUpgrade($user);
+        }
+
+        return $record->fresh();
     }
 
     public function finalizeAbsences(Meeting $session): int

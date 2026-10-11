@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CastElectionVoteRequest;
 use App\Http\Requests\UpdateClubResourceProgressRequest;
+use App\Models\Attendance;
 use App\Models\ClubResource;
 use App\Models\ClubResourceProgress;
 use App\Models\CtfCompetition;
@@ -138,11 +139,25 @@ class ClubPortalController extends Controller
                 ->keyBy('event_id');
         }
 
+        $pastClasses = collect();
+
+        if (auth()->check()) {
+            $pastClasses = Attendance::query()
+                ->where('user_id', auth()->id())
+                ->whereIn('status', ['present', 'late'])
+                ->whereHas('meeting', fn ($query) => $query->teachingSessions()->notCancelled())
+                ->with('meeting')
+                ->orderByDesc('checked_in_at')
+                ->limit(20)
+                ->get();
+        }
+
         return view('pages.club.classes', [
             'title' => 'Internal Online Classes',
             'resources' => $this->resourcesWithProgress()->where('category', 'class')->values(),
             'classes' => $classes,
             'userRegistrations' => $userRegistrations,
+            'pastClasses' => $pastClasses,
         ]);
     }
 

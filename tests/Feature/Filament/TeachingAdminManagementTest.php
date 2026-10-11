@@ -5,6 +5,7 @@ use App\Filament\Resources\ExamAttempts\Pages\EditExamAttempt;
 use App\Filament\Resources\ExamAttempts\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\Meetings\Pages\CreateMeeting;
 use App\Filament\Resources\Meetings\Pages\EditMeeting;
+use App\Filament\Resources\Meetings\RelationManagers\AttendeesRelationManager;
 use App\Filament\Resources\QuestionBankQuestions\Pages\CreateQuestionBankQuestion;
 use App\Filament\Resources\Trainings\Pages\CreateTraining;
 use App\Filament\Resources\Trainings\Pages\GradeBook;
@@ -347,6 +348,26 @@ it('bulk-selects year one members on the create attendance picker', function () 
     ]);
 
     expect(Attendance::where('meeting_id', $meeting->id)->where('user_id', $yearThree->id)->exists())->toBeFalse();
+});
+
+it('changes an attendee status from the attendees tab', function () {
+    $meeting = Meeting::factory()->teachingSession()->create(['created_by' => $this->admin->id]);
+    $member = User::factory()->create();
+    $attendance = Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $member->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subDay(),
+    ]);
+
+    Livewire::test(AttendeesRelationManager::class, [
+        'ownerRecord' => $meeting,
+        'pageClass' => EditMeeting::class,
+    ])
+        ->callTableAction('change_status', $attendance, data: ['status' => 'late'])
+        ->assertHasNoTableActionErrors();
+
+    expect($attendance->fresh()->status)->toBe('late');
 });
 
 it('does not create a recurrence rule for one-off meetings', function () {

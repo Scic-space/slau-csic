@@ -280,6 +280,70 @@ it('selects attendance pickers by member year', function () {
         ->and($options[$noYear->id])->not->toContain('(Y');
 });
 
+it('changes attendance status while keeping points fair', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+    ]);
+    $user = User::factory()->create();
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+    PointTransaction::create([
+        'user_id' => $user->id,
+        'points' => GamificationService::POINTS_MEETING_PRESENT,
+        'reason' => "Checked in: {$meeting->title}",
+        'reference_type' => Meeting::class,
+        'reference_id' => $meeting->id,
+    ]);
+    $user->update(['attendance_count' => 1, 'total_sessions_attended' => 1]);
+
+    app(AttendanceService::class)->setAttendanceStatus($meeting, $user, 'absent', $this->admin);
+
+    expect($user->fresh()->attendance_count)->toBe(0)
+        ->and(PointTransaction::where('user_id', $user->id)->sum('points'))->toBe(0);
+
+    app(AttendanceService::class)->setAttendanceStatus($meeting, $user, 'late', $this->admin);
+
+    expect($user->fresh()->attendance_count)->toBe(1)
+        ->and(PointTransaction::where('user_id', $user->id)->sum('points'))
+        ->toBe(GamificationService::POINTS_MEETING_LATE);
+});
+
+it('counts only attended members in the attended total', function () {
+    $meeting = Meeting::factory()->teachingSession()->create(['created_by' => $this->admin->id]);
+    Attendance::create(['meeting_id' => $meeting->id, 'user_id' => User::factory()->create()->id, 'status' => 'present', 'checked_in_at' => now()]);
+    Attendance::create(['meeting_id' => $meeting->id, 'user_id' => User::factory()->create()->id, 'status' => 'absent', 'is_auto_absent' => true]);
+
+    expect($meeting->getAttendedCount())->toBe(1)
+        ->and($meeting->getAttendanceCount())->toBe(2);
+});
+
+it('syncs the restricted check-in list from the meeting audience', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'audience' => 'year_1',
+    ]);
+    $meeting->syncAudienceAllowList();
+
+    expect($meeting->canUserAttend($yearOne))->toBeTrue()
+        ->and($meeting->canUserAttend($yearThree))->toBeFalse();
+
+    $meeting->update(['audience' => 'all']);
+    $meeting->syncAudienceAllowList();
+
+    expect($meeting->allowedAttendees()->exists())->toBeFalse()
+        ->and($meeting->canUserAttend($yearThree))->toBeTrue();
+});
+
 it('refuses to backfill cancelled or future meetings', function () {
     $cancelled = Meeting::factory()->teachingSession()->create([
         'created_by' => $this->admin->id,

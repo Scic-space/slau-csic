@@ -39,6 +39,8 @@ class CreateMeeting extends CreateRecord
 
     protected function afterCreate(): void
     {
+        $this->record->syncAudienceAllowList();
+
         if ($this->record->is_recurring) {
             $this->record->recurrence()->create([
                 'pattern' => $this->recurrenceData['pattern'],

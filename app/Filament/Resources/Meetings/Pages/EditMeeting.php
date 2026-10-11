@@ -49,6 +49,8 @@ class EditMeeting extends EditRecord
 
     protected function afterSave(): void
     {
+        $this->record->syncAudienceAllowList();
+
         $this->record->recurrence()->delete();
 
         if (! $this->record->is_recurring) {

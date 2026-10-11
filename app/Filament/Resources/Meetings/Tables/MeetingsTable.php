@@ -53,9 +53,9 @@ class MeetingsTable
                     ->formatStateUsing(fn ($state) => $state ? "{$state} min" : '-')
                     ->toggleable(),
 
-                TextColumn::make('getAttendanceCount')
+                TextColumn::make('getAttendedCount')
                     ->label('Attended')
-                    ->getStateUsing(fn (Meeting $record): int => $record->getAttendanceCount())
+                    ->getStateUsing(fn (Meeting $record): int => $record->getAttendedCount())
                     ->sortable(),
 
                 TextColumn::make('status')

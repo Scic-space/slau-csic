@@ -41,6 +41,7 @@ class Meeting extends Model
         'cancellation_reason',
         'minutes_status',
         'training_id',
+        'audience',
     ];
 
     protected function casts(): array
@@ -262,6 +263,43 @@ class Meeting extends Model
     public function getAttendanceCount(): int
     {
         return $this->attendance()->count();
+    }
+
+    public function getAttendedCount(): int
+    {
+        return $this->attendance()->whereIn('status', ['present', 'late'])->count();
+    }
+
+    public function getAudienceLabelAttribute(): ?string
+    {
+        return match ($this->audience) {
+            'year_1' => 'Year 1 only',
+            'year_2_plus' => 'Year 2 and above',
+            default => null,
+        };
+    }
+
+    /**
+     * Rebuild the restricted check-in list from the target audience.
+     * Meetings open to everyone carry no restriction.
+     */
+    public function syncAudienceAllowList(): void
+    {
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            $this->allowedAttendees()->detach();
+
+            return;
+        }
+
+        $ids = User::activeMembers()
+            ->when(
+                $this->audience === 'year_1',
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', 1)),
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', '>', 1)),
+            )
+            ->pluck('users.id');
+
+        $this->allowedAttendees()->sync($ids);
     }
 
     public function getAttendanceRate(): float
