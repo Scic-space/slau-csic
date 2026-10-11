@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Meetings\Schemas;
 
+use App\Models\User;
+use Carbon\Carbon;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
@@ -15,6 +18,19 @@ use Filament\Schemas\Schema;
 
 class MeetingForm
 {
+    protected static function isPastScheduled(mixed $value): bool
+    {
+        if (blank($value)) {
+            return false;
+        }
+
+        try {
+            return Carbon::parse($value)->isPast();
+        } catch (\Exception) {
+            return false;
+        }
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -39,7 +55,8 @@ class MeetingForm
 
                         DateTimePicker::make('scheduled_at')
                             ->label('Scheduled At')
-                            ->required(),
+                            ->required()
+                            ->live(),
 
                         TextInput::make('location')
                             ->maxLength(255),
@@ -122,6 +139,24 @@ class MeetingForm
                             ->label('Repeat Until (optional)')
                             ->minDate(now()->toDateString())
                             ->visible(fn (Get $get): bool => (bool) $get('is_recurring')),
+                    ]),
+
+                Section::make('Past Attendance')
+                    ->description('Only for classes that already happened. Select who attended; everyone else is marked absent and the meeting is completed on save. Leave empty to record attendance later.')
+                    ->visible($schema->getOperation() === 'create')
+                    ->schema([
+                        CheckboxList::make('present_ids')
+                            ->label('Present')
+                            ->options(fn (): array => User::activeMembers()->orderBy('name')->pluck('name', 'id')->all())
+                            ->searchable()
+                            ->columns(2)
+                            ->visible(fn (Get $get): bool => self::isPastScheduled($get('scheduled_at'))),
+                        CheckboxList::make('late_ids')
+                            ->label('Late')
+                            ->options(fn (): array => User::activeMembers()->orderBy('name')->pluck('name', 'id')->all())
+                            ->searchable()
+                            ->columns(2)
+                            ->visible(fn (Get $get): bool => self::isPastScheduled($get('scheduled_at'))),
                     ]),
 
                 Section::make('Description & Agenda')

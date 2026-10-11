@@ -288,6 +288,35 @@ it('records past attendance from the meeting edit page', function () {
     ]);
 });
 
+it('records attendance while creating a past class', function () {
+    $member = User::factory()->create();
+
+    Livewire::test(CreateMeeting::class)
+        ->fillForm([
+            'title' => 'Last Week Linux Class',
+            'type' => 'teaching_session',
+            'scheduled_at' => now()->subWeek()->format('Y-m-d H:i:s'),
+            'created_by' => $this->admin->id,
+            'is_recurring' => false,
+            'present_ids' => [$member->id],
+            'late_ids' => [],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $meeting = Meeting::where('title', 'Last Week Linux Class')->first();
+
+    expect($meeting)->not->toBeNull()
+        ->and($meeting->attendance_open)->toBeFalse()
+        ->and($meeting->ended_at)->not->toBeNull();
+
+    $this->assertDatabaseHas('attendance', [
+        'meeting_id' => $meeting->id,
+        'user_id' => $member->id,
+        'status' => 'present',
+    ]);
+});
+
 it('does not create a recurrence rule for one-off meetings', function () {
     Livewire::test(CreateMeeting::class)
         ->fillForm([
