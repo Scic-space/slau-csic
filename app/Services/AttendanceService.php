@@ -141,11 +141,11 @@ class AttendanceService
     /**
      * Record attendance for a past meeting that was never opened for check-in.
      *
-     * Members in $presentIds/$lateIds earn the standard check-in points
-     * (late arrivals earn the reduced rate, no early-bird bonus); every
-     * other eligible member is marked absent. Members that already have an
-     * attendance row or points for the meeting are skipped, so re-running
-     * is safe. The meeting is closed and marked completed.
+     * Only the members in $presentIds/$lateIds appear in the meeting's
+     * attendance. They earn the standard check-in points (late arrivals
+     * earn the reduced rate, no early-bird bonus). Members that already
+     * have an attendance row or points for the meeting are skipped, so
+     * re-running is safe. The meeting is closed and marked completed.
      *
      * @param  list<int>  $presentIds
      * @param  list<int>  $lateIds
@@ -229,24 +229,6 @@ class AttendanceService
             }
         }
 
-        $absent = 0;
-        $attendedIds = $meeting->attendance()->pluck('user_id')->map(fn ($id) => (int) $id)->all();
-
-        foreach (array_diff($eligibleIds, $attendedIds) as $userId) {
-            Attendance::create([
-                'meeting_id' => $meeting->id,
-                'user_id' => $userId,
-                'checked_in_at' => null,
-                'check_in_method' => 'admin_override',
-                'status' => 'absent',
-                'is_auto_absent' => true,
-                'late_threshold_minutes' => $meeting->getLateThresholdMinutes(),
-                'marked_by' => $admin->id,
-            ]);
-
-            $absent++;
-        }
-
         $meeting->update([
             'attendance_open' => false,
             'ended_at' => $meeting->ended_at ?? now(),
@@ -255,13 +237,17 @@ class AttendanceService
         return [
             'present' => $present,
             'late' => $late,
-            'absent' => $absent,
+            'absent' => 0,
             'skipped' => $skipped,
         ];
     }
 
     public function finalizeAbsences(Meeting $session): int
     {
+        if (! $session->started_at) {
+            return 0;
+        }
+
         $members = User::activeMembers();
 
         if ($session->allowedAttendees()->exists()) {

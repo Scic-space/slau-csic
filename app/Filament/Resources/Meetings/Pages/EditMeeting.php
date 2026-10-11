@@ -133,9 +133,15 @@ class EditMeeting extends EditRecord
                             array_map('intval', $data['late_ids'] ?? []),
                         );
 
+                        $parts = ["{$summary['present']} present", "{$summary['late']} late"];
+
+                        if ($summary['skipped'] > 0) {
+                            $parts[] = "{$summary['skipped']} skipped";
+                        }
+
                         Notification::make()
                             ->title('Past attendance recorded')
-                            ->body("{$summary['present']} present, {$summary['late']} late, {$summary['absent']} absent, {$summary['skipped']} skipped. Meeting marked completed.")
+                            ->body(implode(', ', $parts).'. Meeting marked completed.')
                             ->success()
                             ->send();
                     }),

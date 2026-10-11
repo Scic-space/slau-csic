@@ -195,8 +195,11 @@ it('backfills past attendance, awards points once, and completes the meeting', f
 
     expect($summary['present'])->toBe(1)
         ->and($summary['late'])->toBe(1)
-        ->and($summary['absent'])->toBe(2)
+        ->and($summary['absent'])->toBe(0)
         ->and($summary['skipped'])->toBe(0);
+
+    expect(Attendance::where('meeting_id', $meeting->id)->count())->toBe(2)
+        ->and(Attendance::where('meeting_id', $meeting->id)->where('status', 'absent')->count())->toBe(0);
 
     expect(PointTransaction::where('user_id', $present->id)->sum('points'))
         ->toBe(GamificationService::POINTS_MEETING_PRESENT)
@@ -213,6 +216,50 @@ it('backfills past attendance, awards points once, and completes the meeting', f
     expect($rerun['skipped'])->toBe(2)
         ->and(PointTransaction::where('user_id', $present->id)->sum('points'))
         ->toBe(GamificationService::POINTS_MEETING_PRESENT);
+});
+
+it('leaves unselected members out of backfilled attendance entirely', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'started_at' => null,
+        'attendance_open' => false,
+        'ended_at' => null,
+    ]);
+    $present = User::factory()->create();
+    $other = User::factory()->create();
+
+    app(AttendanceService::class)->backfillAttendance($meeting, $this->admin, [$present->id]);
+
+    expect(Attendance::where('meeting_id', $meeting->id)->pluck('user_id')->all())
+        ->toBe([$present->id])
+        ->and(Attendance::where('meeting_id', $meeting->id)->where('user_id', $other->id)->exists())->toBeFalse();
+});
+
+it('does not finalize absences for meetings that were never opened', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'started_at' => null,
+        'attendance_open' => false,
+        'ended_at' => now()->subWeek(),
+    ]);
+    User::factory()->create();
+
+    expect(app(AttendanceService::class)->finalizeAbsences($meeting))->toBe(0)
+        ->and(Attendance::where('meeting_id', $meeting->id)->count())->toBe(0);
+});
+
+it('finalizes absences for meetings that were opened', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'started_at' => now()->subWeek(),
+        'attendance_open' => true,
+    ]);
+    User::factory()->create();
+
+    expect(app(AttendanceService::class)->finalizeAbsences($meeting))->toBeGreaterThan(0);
 });
 
 it('refuses to backfill cancelled or future meetings', function () {
