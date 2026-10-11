@@ -9,9 +9,9 @@ class AwardPointsForEventAttendance
 {
     public function handle(EventAttended $event): void
     {
-        app(GamificationService::class)->awardPoints(
+        app(GamificationService::class)->awardOnce(
             $event->user,
-            50,
+            GamificationService::POINTS_EVENT_ATTENDANCE,
             "Attended event: {$event->event->title}",
             $event->event::class,
             $event->event->id,

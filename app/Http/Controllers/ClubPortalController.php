@@ -224,6 +224,10 @@ class ClubPortalController extends Controller
             ],
         );
 
+        if ($request->validated('status') === 'completed') {
+            app(\App\Services\GamificationService::class)->awardTrackCompletion($request->user(), $clubResource);
+        }
+
         return back()->with('status', 'Progress updated successfully.');
     }
 

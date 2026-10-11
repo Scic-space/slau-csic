@@ -35,6 +35,7 @@ class ExamAttemptService
 
             if ($gradingResult['passed']) {
                 $this->handleCertificateEligibility($attempt);
+                $this->awardExamPoints($attempt, $gradingResult);
             }
 
             $this->sendGradedNotification($attempt);
@@ -51,6 +52,7 @@ class ExamAttemptService
 
         if ($gradingResult['passed']) {
             $this->handleCertificateEligibility($attempt);
+            $this->awardExamPoints($attempt, $gradingResult);
         }
 
         $this->sendGradedNotification($attempt);
@@ -107,6 +109,27 @@ class ExamAttemptService
         $elapsed = now()->diffInSeconds($attempt->started_at, true);
 
         return max(0, $duration - $elapsed);
+    }
+
+    protected function awardExamPoints(ExamAttempt $attempt, array $gradingResult): void
+    {
+        if (! $gradingResult['passed']) {
+            return;
+        }
+
+        $totalMarks = $attempt->exam->questions->sum(fn ($question) => $question->effective_marks);
+        $percentage = $totalMarks > 0 ? (($gradingResult['total_score'] / $totalMarks) * 100) : 0;
+        $points = $percentage >= 80
+            ? GamificationService::POINTS_EXAM_DISTINCTION
+            : GamificationService::POINTS_EXAM_PASSED;
+
+        app(GamificationService::class)->awardOnce(
+            $attempt->user,
+            $points,
+            "Passed exam: {$attempt->exam->title}",
+            ExamAttempt::class,
+            $attempt->id,
+        );
     }
 
     protected function handleCertificateEligibility(ExamAttempt $attempt): void

@@ -8,6 +8,7 @@ use App\Notifications\ExamGradedNotification;
 use App\Notifications\ExamPublishedNotification;
 use App\Services\ExamAttemptService;
 use App\Services\ExamService;
+use App\Services\GamificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Role;
@@ -306,6 +307,17 @@ describe('Exam taking', function () {
         expect($result['passed'])->toBeTrue();
         expect($result['total_score'])->toBeGreaterThanOrEqual(1);
         expect($attempt->fresh()->submitted_at)->not->toBeNull();
+        expect($user->pointTransactions()
+            ->where('reference_type', ExamAttempt::class)
+            ->where('reference_id', $attempt->id)
+            ->sum('points'))->toBe(GamificationService::POINTS_EXAM_DISTINCTION);
+
+        $service->submitAttempt($attempt->fresh());
+
+        expect($user->pointTransactions()
+            ->where('reference_type', ExamAttempt::class)
+            ->where('reference_id', $attempt->id)
+            ->count())->toBe(1);
     });
 
     it('prevents saving answers after timer expires', function () {

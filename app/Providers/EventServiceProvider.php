@@ -3,11 +3,9 @@
 namespace App\Providers;
 
 use App\Events\EventAttended;
-use App\Events\EventRegistered;
 use App\Events\MemberRegistered;
 use App\Events\MemberSuspended;
 use App\Listeners\AwardPointsForEventAttendance;
-use App\Listeners\AwardPointsForEventRegistration;
 use App\Listeners\LogMembershipActivity;
 use App\Listeners\NotifyAdminOfPendingMember;
 use App\Listeners\SendWelcomeNotification;
@@ -22,9 +20,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         MemberSuspended::class => [
             //
-        ],
-        EventRegistered::class => [
-            AwardPointsForEventRegistration::class,
         ],
         EventAttended::class => [
             AwardPointsForEventAttendance::class,

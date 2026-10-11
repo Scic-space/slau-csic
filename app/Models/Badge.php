@@ -70,6 +70,9 @@ class Badge extends Model
             BadgeCriteriaType::TeachingSessions => $this->checkTeachingSessions($user),
             BadgeCriteriaType::StreakDays => $this->checkStreakDays($user),
             BadgeCriteriaType::CtfScore => $this->checkCtfScore($user),
+            BadgeCriteriaType::ClubTracks => $this->checkClubTracks($user),
+            BadgeCriteriaType::ExamPassed => $this->checkExamPassed($user),
+            BadgeCriteriaType::Competition => $this->checkCompetition($user),
             BadgeCriteriaType::Custom => false,
             default => false,
         };
@@ -140,5 +143,25 @@ class Badge extends Model
             ->sum('points_awarded');
 
         return $totalScore >= $this->criteria_value;
+    }
+
+    private function checkClubTracks(User $user): bool
+    {
+        return $user->clubResourceProgress()
+            ->where('status', 'completed')
+            ->count() >= $this->criteria_value;
+    }
+
+    private function checkExamPassed(User $user): bool
+    {
+        return ExamAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('passed', true)
+            ->count() >= $this->criteria_value;
+    }
+
+    private function checkCompetition(User $user): bool
+    {
+        return $user->competitionParticipations()->count() >= $this->criteria_value;
     }
 }

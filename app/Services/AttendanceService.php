@@ -70,15 +70,27 @@ class AttendanceService
                 'attendance_count' => DB::raw('attendance_count + 1'),
             ]);
 
+            $attendancePoints = $attendance->status === 'late'
+                ? GamificationService::POINTS_MEETING_LATE
+                : GamificationService::POINTS_MEETING_PRESENT;
+
             if ($bonusPoints > 0) {
                 $user->update([
                     'bonus_points' => DB::raw('bonus_points + '.$bonusPoints),
                 ]);
+
+                $this->gamification->awardPoints(
+                    $user,
+                    GamificationService::POINTS_EARLY_CHECKIN,
+                    "Early check-in bonus: {$meeting->title}",
+                    Meeting::class,
+                    $meeting->id,
+                );
             }
 
             $this->gamification->awardPoints(
                 $user,
-                20,
+                $attendancePoints,
                 "Checked in: {$meeting->title}",
                 Meeting::class,
                 $meeting->id,

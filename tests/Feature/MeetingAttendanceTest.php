@@ -4,6 +4,7 @@ use App\Models\Attendance;
 use App\Models\Meeting;
 use App\Models\PointTransaction;
 use App\Models\User;
+use App\Services\GamificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\actingAs;
@@ -167,4 +168,49 @@ it('computes attendance statistics correctly', function () {
     expect($meeting->getAttendanceCount())->toBe(10);
     expect($meeting->getAttendanceRate())->toBe(50.0);
     expect($meeting->getPresentCount())->toBe(10);
+});
+
+it('awards reduced ledger points for a late check-in', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subMinutes(5),
+        'started_at' => now()->subMinutes(5),
+        'attendance_open' => true,
+        'late_threshold_minutes' => 15,
+    ]);
+    $user = User::factory()->create();
+
+    actingAs($user);
+    $response = $this->post("/attendance/verify/{$meeting->meeting_code}");
+
+    $response->assertJson(['success' => true, 'status' => 'late']);
+
+    $user->refresh();
+
+    expect((int) $user->bonus_points)->toBe(0)
+        ->and(PointTransaction::where('user_id', $user->id)->count())->toBe(1)
+        ->and(PointTransaction::where('user_id', $user->id)->sum('points'))->toBe(GamificationService::POINTS_MEETING_LATE);
+});
+
+it('puts the early check-in bonus in the points ledger', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->addHour(),
+        'attendance_open' => true,
+        'late_threshold_minutes' => 15,
+    ]);
+    $user = User::factory()->create();
+
+    actingAs($user);
+    $response = $this->post("/attendance/verify/{$meeting->meeting_code}");
+
+    $response->assertJson(['success' => true, 'status' => 'present', 'bonus_earned' => GamificationService::POINTS_EARLY_CHECKIN]);
+
+    $user->refresh();
+
+    expect((int) $user->bonus_points)->toBe(GamificationService::POINTS_EARLY_CHECKIN)
+        ->and(PointTransaction::where('user_id', $user->id)->count())->toBe(2)
+        ->and(PointTransaction::where('user_id', $user->id)->sum('points'))->toBe(
+            GamificationService::POINTS_MEETING_PRESENT + GamificationService::POINTS_EARLY_CHECKIN
+        );
 });

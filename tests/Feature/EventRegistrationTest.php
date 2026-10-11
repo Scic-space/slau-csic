@@ -9,6 +9,7 @@ use App\Livewire\MyEvents;
 use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventRegistration;
+use App\Models\PointTransaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -39,6 +40,8 @@ it('allows authenticated user to register for an event', function () {
         'user_id' => $user->id,
         'status' => 'registered',
     ]);
+
+    expect(PointTransaction::where('user_id', $user->id)->count())->toBe(0);
 });
 
 it('redirects guests to login when registering', function () {

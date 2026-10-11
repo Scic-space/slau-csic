@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Badge;
+use App\Models\ClubResource;
 use App\Models\PointTransaction;
 use App\Models\User;
 use App\Models\UserBadge;
@@ -14,6 +15,20 @@ use Illuminate\Support\Facades\DB;
  */
 class GamificationService
 {
+    public const POINTS_MEETING_PRESENT = 20;
+
+    public const POINTS_MEETING_LATE = 10;
+
+    public const POINTS_EARLY_CHECKIN = 5;
+
+    public const POINTS_EVENT_ATTENDANCE = 50;
+
+    public const POINTS_EXAM_PASSED = 40;
+
+    public const POINTS_EXAM_DISTINCTION = 75;
+
+    public const POINTS_TRACK_COMPLETED = 15;
+
     /**
      * Award points to a user, log transaction, check badges, check rank upgrade.
      */
@@ -42,6 +57,39 @@ class GamificationService
 
             return $transaction;
         });
+    }
+
+    /**
+     * Award points once for a given user/reference combination.
+     */
+    public function awardOnce(User $user, int $points, string $reason, string $referenceType, int $referenceId): ?PointTransaction
+    {
+        $alreadyAwarded = PointTransaction::query()
+            ->where('user_id', $user->id)
+            ->where('reference_type', $referenceType)
+            ->where('reference_id', $referenceId)
+            ->where('points', '>', 0)
+            ->exists();
+
+        if ($alreadyAwarded) {
+            return null;
+        }
+
+        return $this->awardPoints($user, $points, $reason, $referenceType, $referenceId);
+    }
+
+    /**
+     * Award the one-time learning-track completion bonus.
+     */
+    public function awardTrackCompletion(User $user, ClubResource $resource): ?PointTransaction
+    {
+        return $this->awardOnce(
+            $user,
+            self::POINTS_TRACK_COMPLETED,
+            "Completed learning track: {$resource->title}",
+            ClubResource::class,
+            $resource->id,
+        );
     }
 
     /**

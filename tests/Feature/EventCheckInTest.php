@@ -3,8 +3,12 @@
 use App\Events\EventAttended;
 use App\Models\Badge;
 use App\Models\BadgeCriteriaType;
+use App\Models\ClubResource;
+use App\Models\ClubResourceProgress;
+use App\Models\CompetitionParticipants;
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Models\ExamAttempt;
 use App\Models\User;
 use App\Services\EventService;
 use App\Services\GamificationService;
@@ -210,4 +214,41 @@ it('unlocks an events-attended badge from real attendance records', function () 
         'user_id' => $member->id,
         'badge_id' => $badge->id,
     ]);
+});
+
+it('unlocks learning-track, exam, and competition badges from real records', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'approved_at' => now()]);
+    $resource = ClubResource::factory()->create(['slug' => 'track-badge-resource']);
+    ClubResourceProgress::factory()->create([
+        'club_resource_id' => $resource->id,
+        'user_id' => $member->id,
+        'status' => 'completed',
+    ]);
+    ExamAttempt::factory()->passed()->create(['user_id' => $member->id]);
+    CompetitionParticipants::factory()->create(['user_id' => $member->id]);
+
+    $trackBadge = Badge::factory()->create([
+        'criteria_type' => BadgeCriteriaType::ClubTracks,
+        'criteria_value' => 1,
+        'points_bonus' => 0,
+    ]);
+    $examBadge = Badge::factory()->create([
+        'criteria_type' => BadgeCriteriaType::ExamPassed,
+        'criteria_value' => 1,
+        'points_bonus' => 0,
+    ]);
+    $competitionBadge = Badge::factory()->create([
+        'criteria_type' => BadgeCriteriaType::Competition,
+        'criteria_value' => 1,
+        'points_bonus' => 0,
+    ]);
+
+    app(GamificationService::class)->checkBadges($member);
+
+    foreach ([$trackBadge, $examBadge, $competitionBadge] as $badge) {
+        $this->assertDatabaseHas('user_badges', [
+            'user_id' => $member->id,
+            'badge_id' => $badge->id,
+        ]);
+    }
 });

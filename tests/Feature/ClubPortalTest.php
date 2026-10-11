@@ -2,7 +2,9 @@
 
 use App\Models\ClubResource;
 use App\Models\ClubResourceProgress;
+use App\Models\PointTransaction;
 use App\Models\User;
+use App\Services\GamificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -68,4 +70,26 @@ it('stores member progress for club resources', function () {
     expect($progress->progress_percentage)->toBe(55)
         ->and($progress->ranking)->toBe('Top 10')
         ->and($progress->status)->toBe('in_progress');
+});
+
+it('awards learning-track points only once when a track is completed', function () {
+    $user = User::factory()->create();
+    $resource = ClubResource::factory()->create([
+        'category' => 'class',
+        'title' => 'Secure Coding Track',
+        'slug' => 'secure-coding-track',
+    ]);
+
+    $payload = [
+        'status' => 'completed',
+        'progress_percentage' => 100,
+        'completed_units' => 8,
+        'notes' => 'Finished every module.',
+    ];
+
+    $this->actingAs($user)->post(route('portal.progress.update', $resource), $payload)->assertRedirect();
+    $this->actingAs($user)->post(route('portal.progress.update', $resource), $payload)->assertRedirect();
+
+    expect(PointTransaction::where('user_id', $user->id)->count())->toBe(1)
+        ->and(PointTransaction::where('user_id', $user->id)->sum('points'))->toBe(GamificationService::POINTS_TRACK_COMPLETED);
 });
