@@ -129,6 +129,10 @@ class EditMeeting extends EditRecord
 
                         $parts = ["{$summary['present']} present", "{$summary['late']} late"];
 
+                        if ($summary['absent'] > 0) {
+                            $parts[] = "{$summary['absent']} absent";
+                        }
+
                         if ($summary['skipped'] > 0) {
                             $parts[] = "{$summary['skipped']} skipped";
                         }

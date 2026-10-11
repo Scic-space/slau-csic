@@ -237,6 +237,29 @@ it('leaves unselected members out of backfilled attendance entirely', function (
         ->and(Attendance::where('meeting_id', $meeting->id)->where('user_id', $other->id)->exists())->toBeFalse();
 });
 
+it('marks unticked audience members absent when backfilling a targeted class', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearOneMissed = User::factory()->create();
+    $yearOneMissed->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'audience' => 'year_1',
+    ]);
+
+    $summary = app(AttendanceService::class)->backfillAttendance($meeting, $this->admin, [$yearOne->id]);
+
+    expect($summary['present'])->toBe(1)
+        ->and($summary['absent'])->toBe(1);
+
+    expect(Attendance::where('meeting_id', $meeting->id)->where('user_id', $yearOneMissed->id)->where('status', 'absent')->exists())->toBeTrue()
+        ->and(Attendance::where('meeting_id', $meeting->id)->where('user_id', $yearThree->id)->exists())->toBeFalse();
+});
+
 it('does not finalize absences for meetings that were never opened', function () {
     $meeting = Meeting::factory()->teachingSession()->create([
         'created_by' => $this->admin->id,

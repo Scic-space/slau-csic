@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Attendance;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Meeting;
@@ -293,3 +294,18 @@ function otherInstructorExamAttempt(): void
     $exam = Exam::factory()->published()->create(['user_id' => $other->id]);
     ExamAttempt::factory()->completed()->create(['exam_id' => $exam->id]);
 }
+
+it('counts only attended members on the instructor sessions list', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo('teacher.dashboard.view');
+
+    $meeting = Meeting::factory()->teachingSession()->create(['created_by' => $user->id]);
+    $present = User::factory()->create();
+    $absent = User::factory()->create();
+    Attendance::create(['meeting_id' => $meeting->id, 'user_id' => $present->id, 'status' => 'present', 'checked_in_at' => now()]);
+    Attendance::create(['meeting_id' => $meeting->id, 'user_id' => $absent->id, 'status' => 'absent', 'is_auto_absent' => true]);
+
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\InstructorSessions::class)
+        ->assertViewHas('sessions', fn ($sessions) => (int) $sessions->firstWhere('id', $meeting->id)->attendance_count === 1);
+});

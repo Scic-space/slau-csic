@@ -280,24 +280,41 @@ class Meeting extends Model
     }
 
     /**
-     * Rebuild the restricted check-in list from the target audience.
-     * Meetings open to everyone carry no restriction.
+     * Active member IDs in the meeting's target audience.
+     * Empty when the meeting is open to everyone.
+     *
+     * @return list<int>
      */
-    public function syncAudienceAllowList(): void
+    public function audienceMemberIds(): array
     {
         if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
-            $this->allowedAttendees()->detach();
-
-            return;
+            return [];
         }
 
-        $ids = User::activeMembers()
+        return User::activeMembers()
             ->when(
                 $this->audience === 'year_1',
                 fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', 1)),
                 fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', '>', 1)),
             )
-            ->pluck('users.id');
+            ->pluck('users.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    /**
+     * Rebuild the restricted check-in list from the target audience.
+     * Meetings open to everyone carry no restriction.
+     */
+    public function syncAudienceAllowList(): void
+    {
+        $ids = $this->audienceMemberIds();
+
+        if ($ids === []) {
+            $this->allowedAttendees()->detach();
+
+            return;
+        }
 
         $this->allowedAttendees()->sync($ids);
     }
