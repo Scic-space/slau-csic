@@ -4,6 +4,7 @@ use App\Models\Attendance;
 use App\Models\Meeting;
 use App\Models\PointTransaction;
 use App\Models\User;
+use App\Services\AttendanceService;
 use App\Services\GamificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -177,6 +178,59 @@ it('returns zero attendance rate when expected attendees is not set', function (
     ]);
 
     expect($meeting->getAttendanceRate())->toBe(0.0);
+});
+
+it('backfills past attendance, awards points once, and completes the meeting', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'attendance_open' => false,
+        'ended_at' => null,
+    ]);
+    $present = User::factory()->create();
+    $late = User::factory()->create();
+    $absent = User::factory()->create();
+
+    $summary = app(AttendanceService::class)->backfillAttendance($meeting, $this->admin, [$present->id], [$late->id]);
+
+    expect($summary['present'])->toBe(1)
+        ->and($summary['late'])->toBe(1)
+        ->and($summary['absent'])->toBe(2)
+        ->and($summary['skipped'])->toBe(0);
+
+    expect(PointTransaction::where('user_id', $present->id)->sum('points'))
+        ->toBe(GamificationService::POINTS_MEETING_PRESENT)
+        ->and(PointTransaction::where('user_id', $late->id)->sum('points'))
+        ->toBe(GamificationService::POINTS_MEETING_LATE)
+        ->and(PointTransaction::where('user_id', $absent->id)->count())->toBe(0);
+
+    expect($present->fresh()->attendance_count)->toBe(1)
+        ->and($meeting->fresh()->attendance_open)->toBeFalse()
+        ->and($meeting->fresh()->ended_at)->not->toBeNull();
+
+    $rerun = app(AttendanceService::class)->backfillAttendance($meeting, $this->admin, [$present->id], [$late->id]);
+
+    expect($rerun['skipped'])->toBe(2)
+        ->and(PointTransaction::where('user_id', $present->id)->sum('points'))
+        ->toBe(GamificationService::POINTS_MEETING_PRESENT);
+});
+
+it('refuses to backfill cancelled or future meetings', function () {
+    $cancelled = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'cancelled_at' => now()->subWeek(),
+    ]);
+    $future = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->addWeek(),
+    ]);
+
+    expect(fn () => app(AttendanceService::class)->backfillAttendance($cancelled, $this->admin, []))
+        ->toThrow(InvalidArgumentException::class);
+
+    expect(fn () => app(AttendanceService::class)->backfillAttendance($future, $this->admin, []))
+        ->toThrow(InvalidArgumentException::class);
 });
 
 it('stamps ended_at when auto-closing past meetings', function () {

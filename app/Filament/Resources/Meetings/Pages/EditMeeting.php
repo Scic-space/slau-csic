@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\Meetings\Pages;
 
 use App\Filament\Resources\Meetings\MeetingResource;
+use App\Models\User;
 use App\Notifications\MeetingCancelledNotification;
 use App\Notifications\MeetingRescheduledNotification;
+use App\Services\AttendanceService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -61,6 +64,24 @@ class EditMeeting extends EditRecord
         ]);
     }
 
+    /**
+     * @return array<int, string>
+     */
+    protected function backfillMemberOptions(): array
+    {
+        if ($this->record->allowedAttendees()->exists()) {
+            return $this->record->allowedAttendees()
+                ->orderBy('users.name')
+                ->pluck('users.name', 'users.id')
+                ->all();
+        }
+
+        return User::activeMembers()
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -83,6 +104,40 @@ class EditMeeting extends EditRecord
                     ->action(function () {
                         $this->record->closeAttendance();
                         Notification::make()->title('Attendance closed')->success()->send();
+                    }),
+
+                Action::make('backfill_attendance')
+                    ->label('Record Past Attendance')
+                    ->color('info')
+                    ->icon('heroicon-o-clock')
+                    ->visible(fn (): bool => $this->record->scheduled_at
+                        && $this->record->scheduled_at->isPast()
+                        && ! $this->record->isCancelled())
+                    ->schema([
+                        CheckboxList::make('present_ids')
+                            ->label('Present')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2),
+                        CheckboxList::make('late_ids')
+                            ->label('Late')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2),
+                    ])
+                    ->action(function (array $data) {
+                        $summary = app(AttendanceService::class)->backfillAttendance(
+                            $this->record,
+                            auth()->user(),
+                            array_map('intval', $data['present_ids'] ?? []),
+                            array_map('intval', $data['late_ids'] ?? []),
+                        );
+
+                        Notification::make()
+                            ->title('Past attendance recorded')
+                            ->body("{$summary['present']} present, {$summary['late']} late, {$summary['absent']} absent, {$summary['skipped']} skipped. Meeting marked completed.")
+                            ->success()
+                            ->send();
                     }),
 
                 Action::make('cancel')

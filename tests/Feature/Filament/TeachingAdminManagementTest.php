@@ -4,6 +4,7 @@ use App\Filament\Resources\CertificateEligibilities\Pages\ListCertificateEligibi
 use App\Filament\Resources\ExamAttempts\Pages\EditExamAttempt;
 use App\Filament\Resources\ExamAttempts\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\Meetings\Pages\CreateMeeting;
+use App\Filament\Resources\Meetings\Pages\EditMeeting;
 use App\Filament\Resources\QuestionBankQuestions\Pages\CreateQuestionBankQuestion;
 use App\Filament\Resources\Trainings\Pages\CreateTraining;
 use App\Filament\Resources\Trainings\Pages\GradeBook;
@@ -259,6 +260,32 @@ it('creates a recurring teaching session with a recurrence rule', function () {
         ->and($recurrence->pattern)->toBe('weekly')
         ->and($recurrence->interval)->toBe(1)
         ->and($recurrence->ends_at)->not->toBeNull();
+});
+
+it('records past attendance from the meeting edit page', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'attendance_open' => false,
+        'ended_at' => null,
+    ]);
+    $member = User::factory()->create();
+
+    Livewire::test(EditMeeting::class, ['record' => $meeting->getRouteKey()])
+        ->callAction('backfill_attendance', data: [
+            'present_ids' => [$member->id],
+            'late_ids' => [],
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($meeting->fresh()->attendance_open)->toBeFalse()
+        ->and($meeting->fresh()->ended_at)->not->toBeNull();
+
+    $this->assertDatabaseHas('attendance', [
+        'meeting_id' => $meeting->id,
+        'user_id' => $member->id,
+        'status' => 'present',
+    ]);
 });
 
 it('does not create a recurrence rule for one-off meetings', function () {

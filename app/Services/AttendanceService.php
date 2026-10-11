@@ -138,6 +138,128 @@ class AttendanceService
         ]);
     }
 
+    /**
+     * Record attendance for a past meeting that was never opened for check-in.
+     *
+     * Members in $presentIds/$lateIds earn the standard check-in points
+     * (late arrivals earn the reduced rate, no early-bird bonus); every
+     * other eligible member is marked absent. Members that already have an
+     * attendance row or points for the meeting are skipped, so re-running
+     * is safe. The meeting is closed and marked completed.
+     *
+     * @param  list<int>  $presentIds
+     * @param  list<int>  $lateIds
+     * @return array{present: int, late: int, absent: int, skipped: int}
+     */
+    public function backfillAttendance(Meeting $meeting, User $admin, array $presentIds, array $lateIds = []): array
+    {
+        if ($meeting->isCancelled()) {
+            throw new \InvalidArgumentException('Cannot backfill attendance for a cancelled meeting.');
+        }
+
+        if ($meeting->scheduled_at && $meeting->scheduled_at->isFuture()) {
+            throw new \InvalidArgumentException('Backfill is only available for past meetings.');
+        }
+
+        $lateIds = array_values(array_unique(array_map('intval', $lateIds)));
+        $presentIds = array_values(array_diff(array_unique(array_map('intval', $presentIds)), $lateIds));
+
+        $eligibleIds = $meeting->allowedAttendees()->exists()
+            ? $meeting->allowedAttendees()->pluck('user_id')->map(fn ($id) => (int) $id)->all()
+            : User::activeMembers()->pluck('id')->map(fn ($id) => (int) $id)->all();
+
+        $presentIds = array_values(array_intersect($presentIds, $eligibleIds));
+        $lateIds = array_values(array_intersect($lateIds, $eligibleIds));
+
+        $existingIds = $meeting->attendance()->pluck('user_id')->map(fn ($id) => (int) $id)->all();
+        $checkInTime = $meeting->scheduled_at ?? now();
+
+        $present = 0;
+        $late = 0;
+        $skipped = 0;
+
+        foreach (['present' => $presentIds, 'late' => $lateIds] as $status => $userIds) {
+            foreach ($userIds as $userId) {
+                if (in_array($userId, $existingIds, true)) {
+                    $skipped++;
+
+                    continue;
+                }
+
+                $user = User::find($userId);
+
+                if (! $user) {
+                    $skipped++;
+
+                    continue;
+                }
+
+                Attendance::create([
+                    'meeting_id' => $meeting->id,
+                    'user_id' => $user->id,
+                    'checked_in_at' => $checkInTime,
+                    'check_in_method' => 'admin_override',
+                    'status' => $status,
+                    'late_threshold_minutes' => $meeting->getLateThresholdMinutes(),
+                    'marked_by' => $admin->id,
+                ]);
+
+                $user->update([
+                    'attendance_count' => DB::raw('attendance_count + 1'),
+                    'total_sessions_attended' => DB::raw('total_sessions_attended + 1'),
+                ]);
+
+                $this->gamification->awardOnce(
+                    $user,
+                    $status === 'late'
+                        ? GamificationService::POINTS_MEETING_LATE
+                        : GamificationService::POINTS_MEETING_PRESENT,
+                    "Checked in: {$meeting->title}",
+                    Meeting::class,
+                    $meeting->id,
+                );
+
+                $existingIds[] = $userId;
+
+                if ($status === 'late') {
+                    $late++;
+                } else {
+                    $present++;
+                }
+            }
+        }
+
+        $absent = 0;
+        $attendedIds = $meeting->attendance()->pluck('user_id')->map(fn ($id) => (int) $id)->all();
+
+        foreach (array_diff($eligibleIds, $attendedIds) as $userId) {
+            Attendance::create([
+                'meeting_id' => $meeting->id,
+                'user_id' => $userId,
+                'checked_in_at' => null,
+                'check_in_method' => 'admin_override',
+                'status' => 'absent',
+                'is_auto_absent' => true,
+                'late_threshold_minutes' => $meeting->getLateThresholdMinutes(),
+                'marked_by' => $admin->id,
+            ]);
+
+            $absent++;
+        }
+
+        $meeting->update([
+            'attendance_open' => false,
+            'ended_at' => $meeting->ended_at ?? now(),
+        ]);
+
+        return [
+            'present' => $present,
+            'late' => $late,
+            'absent' => $absent,
+            'skipped' => $skipped,
+        ];
+    }
+
     public function finalizeAbsences(Meeting $session): int
     {
         $members = User::activeMembers();
