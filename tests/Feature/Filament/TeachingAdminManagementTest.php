@@ -3,6 +3,7 @@
 use App\Filament\Resources\CertificateEligibilities\Pages\ListCertificateEligibilities;
 use App\Filament\Resources\ExamAttempts\Pages\EditExamAttempt;
 use App\Filament\Resources\ExamAttempts\RelationManagers\AnswersRelationManager;
+use App\Filament\Resources\Meetings\Pages\CreateMeeting;
 use App\Filament\Resources\QuestionBankQuestions\Pages\CreateQuestionBankQuestion;
 use App\Filament\Resources\Trainings\Pages\CreateTraining;
 use App\Filament\Resources\Trainings\Pages\GradeBook;
@@ -11,6 +12,7 @@ use App\Models\Exam;
 use App\Models\ExamAnswer;
 use App\Models\ExamAttempt;
 use App\Models\ExamQuestion;
+use App\Models\Meeting;
 use App\Models\QuestionBankQuestion;
 use App\Models\Training;
 use App\Models\TrainingEnrollment;
@@ -228,4 +230,51 @@ it('revokes a certificate from the admin panel', function () {
         ->assertHasNoTableActionErrors();
 
     expect($eligibility->refresh()->eligible)->toBeFalse();
+});
+
+it('creates a recurring teaching session with a recurrence rule', function () {
+    Livewire::test(CreateMeeting::class)
+        ->fillForm([
+            'title' => 'Weekly Linux Class',
+            'type' => 'teaching_session',
+            'scheduled_at' => now()->addWeek()->format('Y-m-d H:i:s'),
+            'duration_minutes' => 90,
+            'created_by' => $this->admin->id,
+            'is_recurring' => true,
+            'recurrence_pattern' => 'weekly',
+            'recurrence_interval' => 1,
+            'recurrence_ends_at' => now()->addMonths(2)->format('Y-m-d'),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $meeting = Meeting::where('title', 'Weekly Linux Class')->first();
+
+    expect($meeting)->not->toBeNull()
+        ->and($meeting->is_recurring)->toBeTrue();
+
+    $recurrence = $meeting->recurrence()->first();
+
+    expect($recurrence)->not->toBeNull()
+        ->and($recurrence->pattern)->toBe('weekly')
+        ->and($recurrence->interval)->toBe(1)
+        ->and($recurrence->ends_at)->not->toBeNull();
+});
+
+it('does not create a recurrence rule for one-off meetings', function () {
+    Livewire::test(CreateMeeting::class)
+        ->fillForm([
+            'title' => 'One-off Workshop',
+            'type' => 'workshop',
+            'scheduled_at' => now()->addWeek()->format('Y-m-d H:i:s'),
+            'created_by' => $this->admin->id,
+            'is_recurring' => false,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $meeting = Meeting::where('title', 'One-off Workshop')->first();
+
+    expect($meeting)->not->toBeNull()
+        ->and($meeting->recurrence()->count())->toBe(0);
 });

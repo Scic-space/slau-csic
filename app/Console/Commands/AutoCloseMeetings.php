@@ -37,7 +37,10 @@ class AutoCloseMeetings extends Command
                 $attendanceService->finalizeAbsences($meeting);
             }
 
-            $meeting->update(['attendance_open' => false]);
+            $meeting->update([
+                'attendance_open' => false,
+                'ended_at' => $meeting->ended_at ?? now(),
+            ]);
 
             $this->markNonAttendeesAsAbsent($meeting);
 

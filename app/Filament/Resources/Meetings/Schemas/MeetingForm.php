@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Meetings\Schemas;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -9,6 +10,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class MeetingForm
@@ -90,7 +92,36 @@ class MeetingForm
 
                         Toggle::make('is_recurring')
                             ->label('Mark as recurring (master)')
-                            ->default(false),
+                            ->default(false)
+                            ->live(),
+
+                        Select::make('recurrence_pattern')
+                            ->label('Recurrence Pattern')
+                            ->options([
+                                'weekly' => 'Weekly',
+                                'biweekly' => 'Every 2 Weeks',
+                                'monthly' => 'Monthly',
+                            ])
+                            ->default('weekly')
+                            ->required(fn (Get $get): bool => (bool) $get('is_recurring'))
+                            ->visible(fn (Get $get): bool => (bool) $get('is_recurring')),
+
+                        TextInput::make('recurrence_interval')
+                            ->label('Repeat Every')
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(1)
+                            ->suffix(fn (Get $get): string => match ($get('recurrence_pattern')) {
+                                'monthly' => 'month(s)',
+                                'biweekly' => 'fortnight(s)',
+                                default => 'week(s)',
+                            })
+                            ->visible(fn (Get $get): bool => (bool) $get('is_recurring')),
+
+                        DatePicker::make('recurrence_ends_at')
+                            ->label('Repeat Until (optional)')
+                            ->minDate(now()->toDateString())
+                            ->visible(fn (Get $get): bool => (bool) $get('is_recurring')),
                     ]),
 
                 Section::make('Description & Agenda')

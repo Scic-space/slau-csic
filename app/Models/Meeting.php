@@ -266,7 +266,7 @@ class Meeting extends Model
 
     public function getAttendanceRate(): float
     {
-        if ($this->expected_attendees === 0) {
+        if (! $this->expected_attendees) {
             return 0;
         }
 

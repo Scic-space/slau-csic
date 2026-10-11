@@ -170,6 +170,33 @@ it('computes attendance statistics correctly', function () {
     expect($meeting->getPresentCount())->toBe(10);
 });
 
+it('returns zero attendance rate when expected attendees is not set', function () {
+    $meeting = Meeting::factory()->create([
+        'created_by' => $this->admin->id,
+        'expected_attendees' => null,
+    ]);
+
+    expect($meeting->getAttendanceRate())->toBe(0.0);
+});
+
+it('stamps ended_at when auto-closing past meetings', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subHours(3),
+        'started_at' => now()->subHours(3),
+        'duration_minutes' => 60,
+        'attendance_open' => true,
+        'ended_at' => null,
+    ]);
+
+    $this->artisan('meetings:auto-close')->assertSuccessful();
+
+    $meeting->refresh();
+
+    expect($meeting->attendance_open)->toBeFalse()
+        ->and($meeting->ended_at)->not->toBeNull();
+});
+
 it('awards reduced ledger points for a late check-in', function () {
     $meeting = Meeting::factory()->teachingSession()->create([
         'created_by' => $this->admin->id,

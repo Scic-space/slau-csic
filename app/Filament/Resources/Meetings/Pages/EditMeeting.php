@@ -17,6 +17,50 @@ class EditMeeting extends EditRecord
 {
     protected static string $resource = MeetingResource::class;
 
+    /** @var array<string, mixed> */
+    protected array $recurrenceData = [];
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $recurrence = $this->record->recurrence()->first();
+
+        $data['recurrence_pattern'] = $recurrence?->pattern ?? 'weekly';
+        $data['recurrence_interval'] = $recurrence?->interval ?? 1;
+        $data['recurrence_ends_at'] = $recurrence?->ends_at?->format('Y-m-d');
+
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->recurrenceData = [
+            'pattern' => $data['recurrence_pattern'] ?? 'weekly',
+            'interval' => (int) ($data['recurrence_interval'] ?? 1),
+            'ends_at' => $data['recurrence_ends_at'] ?? null,
+        ];
+
+        unset($data['recurrence_pattern'], $data['recurrence_interval'], $data['recurrence_ends_at']);
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $this->record->recurrence()->delete();
+
+        if (! $this->record->is_recurring) {
+            return;
+        }
+
+        $this->record->recurrence()->create([
+            'pattern' => $this->recurrenceData['pattern'],
+            'interval' => max(1, $this->recurrenceData['interval']),
+            'ends_at' => $this->recurrenceData['ends_at']
+                ? \Carbon\Carbon::parse($this->recurrenceData['ends_at'])->endOfDay()
+                : null,
+        ]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [
