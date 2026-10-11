@@ -103,7 +103,7 @@
                             <div class="flex flex-wrap gap-1">
                                 @foreach ($member->earnedBadges->take(4) as $badge)
                                     <span class="inline-flex items-center gap-1 rounded-md bg-white/15 px-1.5 py-0.5 text-[10px] text-white sm:px-2 sm:py-1 sm:text-xs" title="{{ $badge->description }}">
-                                        {{ $badge->icon }} {{ $badge->name }}
+                                        <span class="material-symbols-outlined text-[12px] sm:text-sm" aria-hidden="true">{{ $badge->icon }}</span> {{ $badge->name }}
                                     </span>
                                 @endforeach
                                 @if ($member->earnedBadges->count() > 4)

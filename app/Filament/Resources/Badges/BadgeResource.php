@@ -34,7 +34,8 @@ class BadgeResource extends Resource
                     ->helperText('Leave blank to auto-generate from name'),
                 Textarea::make('description'),
                 TextInput::make('icon')
-                    ->required(),
+                    ->required()
+                    ->helperText('Material Symbol name, e.g. emoji_events'),
                 Select::make('criteria_type')
                     ->options(collect(BadgeCriteriaType::cases())->mapWithKeys(fn ($case) => [$case->value => $case->label()]))
                     ->required(),

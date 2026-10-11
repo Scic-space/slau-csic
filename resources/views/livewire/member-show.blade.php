@@ -111,7 +111,7 @@
                         @foreach ($member['badges'] as $badge)
                             <div class="group relative inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                                 @if ($badge['icon'])
-                                    <span>{{ $badge['icon'] }}</span>
+                                    <span class="material-symbols-outlined text-base" aria-hidden="true">{{ $badge['icon'] }}</span>
                                 @endif
                                 {{ $badge['name'] }}
                             </div>

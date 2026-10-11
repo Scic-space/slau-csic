@@ -93,6 +93,19 @@ class Badge extends Model
     }
 
     /**
+     * Tailwind color classes for the badge icon, based on rarity.
+     */
+    public function iconColorClass(): string
+    {
+        return match ($this->rarity) {
+            BadgeRarity::Rare => 'text-blue-500 dark:text-blue-400',
+            BadgeRarity::Epic => 'text-purple-500 dark:text-purple-400',
+            BadgeRarity::Legendary => 'text-amber-500 dark:text-amber-400',
+            default => 'text-gray-500 dark:text-gray-400',
+        };
+    }
+
+    /**
      * Get all available criteria types.
      *
      * @return array<string, string>

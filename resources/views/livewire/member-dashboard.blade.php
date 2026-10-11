@@ -362,7 +362,7 @@
                         <div class="flex flex-wrap gap-2">
                             @foreach ($user->earnedBadges as $badge)
                                 <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-background px-3 py-1.5 dark:border-border" title="{{ $badge->description }}">
-                                    <span class="text-lg">{{ $badge->icon }}</span>
+                                    <span class="material-symbols-outlined text-lg {{ $badge->iconColorClass() }}" aria-hidden="true">{{ $badge->icon }}</span>
                                     <div>
                                         <p class="text-xs font-medium text-gray-900 dark:text-white">{{ $badge->name }}</p>
                                         <p class="text-[10px] text-gray-500 dark:text-gray-400">{{ $badge->rarity->name }}</p>
