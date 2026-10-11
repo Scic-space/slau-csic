@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Meetings\Tables;
 
+use App\Filament\Resources\Meetings\MeetingResource;
 use App\Models\Meeting;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -109,6 +112,18 @@ class MeetingsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('reuse_for_another_day')
+                    ->label('Reuse for another day')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->color('info')
+                    ->form([
+                        DateTimePicker::make('scheduled_at')
+                            ->label('New date & time')
+                            ->required(),
+                    ])
+                    ->successRedirectUrl(fn (Meeting $record, array $data): string => MeetingResource::getUrl('edit', [
+                        'record' => $record->replicateForDate(\Carbon\Carbon::parse($data['scheduled_at']), auth()->user())->getKey(),
+                    ])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

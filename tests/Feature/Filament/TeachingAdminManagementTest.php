@@ -5,6 +5,7 @@ use App\Filament\Resources\ExamAttempts\Pages\EditExamAttempt;
 use App\Filament\Resources\ExamAttempts\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\Meetings\Pages\CreateMeeting;
 use App\Filament\Resources\Meetings\Pages\EditMeeting;
+use App\Filament\Resources\Meetings\Pages\ListMeetings;
 use App\Filament\Resources\Meetings\RelationManagers\AttendeesRelationManager;
 use App\Filament\Resources\QuestionBankQuestions\Pages\CreateQuestionBankQuestion;
 use App\Filament\Resources\Trainings\Pages\CreateTraining;
@@ -368,6 +369,26 @@ it('changes an attendee status from the attendees tab', function () {
         ->assertHasNoTableActionErrors();
 
     expect($attendance->fresh()->status)->toBe('late');
+});
+
+it('duplicates a meeting for another day from the meetings list', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'title' => 'Bash Basics',
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+    ]);
+
+    Livewire::test(ListMeetings::class)
+        ->callTableAction('reuse_for_another_day', $meeting, data: [
+            'scheduled_at' => now()->addWeek()->format('Y-m-d H:i:s'),
+        ])
+        ->assertHasNoTableActionErrors();
+
+    $clone = Meeting::where('id', '!=', $meeting->id)->where('title', 'Bash Basics')->first();
+
+    expect($clone)->not->toBeNull()
+        ->and($clone->scheduled_at->isFuture())->toBeTrue()
+        ->and($clone->meeting_code)->not->toBe($meeting->meeting_code);
 });
 
 it('does not create a recurrence rule for one-off meetings', function () {

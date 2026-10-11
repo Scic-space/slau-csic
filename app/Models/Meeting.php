@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -213,6 +214,57 @@ class Meeting extends Model
     public function getQrCodeUrl(): string
     {
         return route('attendance.verify', ['code' => $this->meeting_code]);
+    }
+
+    /**
+     * Duplicate the class for another day, carrying content but no history.
+     *
+     * Copies details, agenda, attachments, and audience (rebuilding the
+     * restricted check-in list). Starts fresh: new code, closed
+     * attendance, no attendance rows, feedback, fines, minutes, or
+     * recurrence.
+     */
+    public function replicateForDate(\Carbon\Carbon $newDate, ?User $by = null): Meeting
+    {
+        return DB::transaction(function () use ($newDate, $by) {
+            $clone = $this->replicate([
+                'meeting_code',
+                'attendance_open',
+                'started_at',
+                'ended_at',
+                'cancelled_at',
+                'cancellation_reason',
+                'minutes',
+                'minutes_status',
+                'parent_meeting_id',
+                'is_recurring',
+                'created_by',
+                'deleted_at',
+            ]);
+
+            $clone->scheduled_at = $newDate;
+            $clone->created_by = $by?->id ?? $this->created_by;
+            $clone->attendance_open = false;
+            $clone->is_recurring = false;
+            $clone->minutes_status = 'draft';
+            $clone->save();
+
+            foreach ($this->agendaItems as $item) {
+                $itemClone = $item->replicate();
+                $itemClone->meeting_id = $clone->id;
+                $itemClone->save();
+            }
+
+            foreach ($this->attachments as $attachment) {
+                $fileClone = $attachment->replicate();
+                $fileClone->meeting_id = $clone->id;
+                $fileClone->save();
+            }
+
+            $clone->syncAudienceAllowList();
+
+            return $clone->fresh();
+        });
     }
 
     public function openAttendance(): void

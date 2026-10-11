@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -143,6 +144,19 @@ class EditMeeting extends EditRecord
                             ->success()
                             ->send();
                     }),
+
+                Action::make('reuse_for_another_day')
+                    ->label('Reuse for another day')
+                    ->color('info')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->form([
+                        DateTimePicker::make('scheduled_at')
+                            ->label('New date & time')
+                            ->required(),
+                    ])
+                    ->successRedirectUrl(fn (array $data): string => \App\Filament\Resources\Meetings\MeetingResource::getUrl('edit', [
+                        'record' => $this->record->replicateForDate(\Carbon\Carbon::parse($data['scheduled_at']), auth()->user())->getKey(),
+                    ])),
 
                 Action::make('cancel')
                     ->label('Cancel Meeting')

@@ -367,6 +367,55 @@ it('syncs the restricted check-in list from the meeting audience', function () {
         ->and($meeting->canUserAttend($yearThree))->toBeTrue();
 });
 
+it('duplicates a class for another day without its history', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'title' => 'Bash Basics',
+        'description' => '<p>Learn bash</p>',
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'location' => 'Level 3',
+        'duration_minutes' => 120,
+        'audience' => 'year_1',
+        'attendance_open' => false,
+        'ended_at' => now()->subWeek(),
+    ]);
+    $meeting->agendaItems()->create(['title' => 'Intro', 'sort_order' => 1]);
+    $meeting->attachments()->create([
+        'name' => 'Slides',
+        'file_path' => 'slides.pdf',
+        'uploaded_by' => $this->admin->id,
+    ]);
+    $meeting->syncAudienceAllowList();
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $yearOne->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+
+    $clone = $meeting->replicateForDate(now()->addWeek(), $this->admin);
+
+    expect($clone->id)->not->toBe($meeting->id)
+        ->and($clone->title)->toBe('Bash Basics')
+        ->and($clone->description)->toBe('<p>Learn bash</p>')
+        ->and($clone->location)->toBe('Level 3')
+        ->and($clone->duration_minutes)->toBe(120)
+        ->and($clone->audience)->toBe('year_1')
+        ->and($clone->scheduled_at->isFuture())->toBeTrue()
+        ->and($clone->meeting_code)->not->toBe($meeting->meeting_code)
+        ->and($clone->attendance_open)->toBeFalse()
+        ->and($clone->ended_at)->toBeNull()
+        ->and($clone->is_recurring)->toBeFalse()
+        ->and($clone->created_by)->toBe($this->admin->id)
+        ->and($clone->agendaItems()->count())->toBe(1)
+        ->and($clone->attachments()->count())->toBe(1)
+        ->and($clone->attendance()->count())->toBe(0)
+        ->and($clone->canUserAttend($yearOne))->toBeTrue();
+});
+
 it('refuses to backfill cancelled or future meetings', function () {
     $cancelled = Meeting::factory()->teachingSession()->create([
         'created_by' => $this->admin->id,
