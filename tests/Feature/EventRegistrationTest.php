@@ -44,6 +44,29 @@ it('allows authenticated user to register for an event', function () {
     expect(PointTransaction::where('user_id', $user->id)->count())->toBe(0);
 });
 
+it('blocks registration for members outside the event audience', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+    $event = Event::factory()->create([
+        'status' => 'published',
+        'audience' => 'year_1',
+        'registration_deadline' => now()->addDay(),
+    ]);
+
+    actingAs($yearOne)->post(route('events.register', $event))->assertRedirect();
+    $this->assertDatabaseHas('event_registrations', [
+        'event_id' => $event->id,
+        'user_id' => $yearOne->id,
+        'status' => 'registered',
+    ]);
+
+    actingAs($yearThree)->post(route('events.register', $event))->assertRedirect();
+
+    expect(EventRegistration::where('event_id', $event->id)->where('user_id', $yearThree->id)->exists())->toBeFalse();
+});
+
 it('redirects guests to login when registering', function () {
     $event = Event::factory()->create(['status' => 'published']);
 

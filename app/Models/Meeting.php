@@ -92,6 +92,16 @@ class Meeting extends Model
         return $this->hasMany(Attendance::class);
     }
 
+    public function interests(): HasMany
+    {
+        return $this->hasMany(MeetingInterest::class);
+    }
+
+    public function isInterested(User $user): bool
+    {
+        return $this->interests()->where('user_id', $user->id)->exists();
+    }
+
     public function attendees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'attendance')

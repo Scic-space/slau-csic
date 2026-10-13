@@ -186,6 +186,15 @@ class EventResource extends Resource
                     ->label('Allowed Members (leave empty for public)')
                     ->searchable()
                     ->preload(),
+                Select::make('audience')
+                    ->label('Target Audience')
+                    ->options([
+                        'all' => 'All members',
+                        'year_1' => 'Year 1 only',
+                        'year_2_plus' => 'Year 2 and above',
+                    ])
+                    ->default('all')
+                    ->helperText('Restricts registration and announcements when no members are hand-picked above.'),
                 Toggle::make('is_recurring')
                     ->label('Recurring Event'),
             ]);

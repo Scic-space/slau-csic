@@ -288,6 +288,19 @@ it('graded short answers are not counted as pending grading', function () {
         ->assertViewHas('stats', fn ($stats) => $stats['pending_exam_grading'] === 0);
 });
 
+it('shows average ratings on the instructor sessions list', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo('teacher.dashboard.view');
+
+    $meeting = Meeting::factory()->teachingSession()->create(['created_by' => $user->id]);
+    \App\Models\MeetingFeedback::create(['meeting_id' => $meeting->id, 'user_id' => User::factory()->create()->id, 'rating' => 5]);
+    \App\Models\MeetingFeedback::create(['meeting_id' => $meeting->id, 'user_id' => User::factory()->create()->id, 'rating' => 3]);
+
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\InstructorSessions::class)
+        ->assertViewHas('sessions', fn ($sessions) => (float) $sessions->firstWhere('id', $meeting->id)->average_rating === 4.0);
+});
+
 function otherInstructorExamAttempt(): void
 {
     $other = User::factory()->create();
@@ -299,7 +312,10 @@ it('counts only attended members on the instructor sessions list', function () {
     $user = User::factory()->create();
     $user->givePermissionTo('teacher.dashboard.view');
 
-    $meeting = Meeting::factory()->teachingSession()->create(['created_by' => $user->id]);
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $user->id,
+        'scheduled_at' => now()->addWeek(),
+    ]);
     $present = User::factory()->create();
     $absent = User::factory()->create();
     Attendance::create(['meeting_id' => $meeting->id, 'user_id' => $present->id, 'status' => 'present', 'checked_in_at' => now()]);

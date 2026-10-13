@@ -8,6 +8,7 @@ use App\Models\Election;
 use App\Models\Event;
 use App\Models\EventRegistration;
 use App\Models\Meeting;
+use App\Models\MeetingInterest;
 use App\Models\StaffNotification;
 use App\Models\TrainingEnrollment;
 use Illuminate\Support\Facades\Auth;
@@ -126,7 +127,10 @@ class MemberDashboard extends Component
             })
             ->orderBy('scheduled_at')
             ->limit(5)
+            ->withCount('interests')
             ->get();
+
+        $interestedMeetingIds = MeetingInterest::where('user_id', $user->id)->pluck('meeting_id')->all();
 
         $myAttendedMeetings = Attendance::query()
             ->where('user_id', $user->id)
@@ -134,6 +138,14 @@ class MemberDashboard extends Component
             ->whereHas('meeting', fn ($q) => $q->teachingSessions()->notCancelled())
             ->with('meeting:id,title,scheduled_at,type,location')
             ->latest('checked_in_at')
+            ->limit(5)
+            ->get();
+
+        $pendingFeedbackMeetings = Meeting::query()
+            ->whereHas('attendance', fn ($q) => $q->where('user_id', $user->id)->whereIn('status', ['present', 'late']))
+            ->whereNotNull('ended_at')
+            ->whereDoesntHave('feedback', fn ($q) => $q->where('user_id', $user->id))
+            ->orderByDesc('ended_at')
             ->limit(5)
             ->get();
 
@@ -188,7 +200,9 @@ class MemberDashboard extends Component
             'myUpcomingEvents' => $myUpcomingEvents,
             'myAttendedEvents' => $myAttendedEvents,
             'myAttendedMeetings' => $myAttendedMeetings,
+            'pendingFeedbackMeetings' => $pendingFeedbackMeetings,
             'upcomingMeetings' => $upcomingMeetings,
+            'interestedMeetingIds' => $interestedMeetingIds,
             'pendingFeedbackEvents' => $pendingFeedbackEvents,
             'favoriteEventsCount' => $favoriteEventsCount,
             'finesSummary' => $finesSummary,
@@ -196,6 +210,28 @@ class MemberDashboard extends Component
             'activeTrainings' => $activeTrainings,
             'clubActivity' => $clubActivity,
         ]);
+    }
+
+    public function toggleInterest(int $meetingId): void
+    {
+        $user = Auth::user();
+        $meeting = Meeting::findOrFail($meetingId);
+
+        abort_if($meeting->isCancelled() || $meeting->hasEnded(), 403);
+        abort_unless($meeting->canUserAttend($user), 403);
+
+        $existing = MeetingInterest::where('meeting_id', $meeting->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+        } else {
+            MeetingInterest::create([
+                'meeting_id' => $meeting->id,
+                'user_id' => $user->id,
+            ]);
+        }
     }
 
     public function markNotificationAsRead(int $notificationId): void

@@ -29,7 +29,12 @@ class InstructorSessions extends Component
         $query = Meeting::teachingSessions()
             ->where('created_by', auth()->id())
             ->with(['training', 'creator'])
-            ->withCount(['attendance as attendance_count' => fn ($query) => $query->whereIn('status', ['present', 'late'])]);
+            ->withCount([
+                'attendance as attendance_count' => fn ($query) => $query->whereIn('status', ['present', 'late']),
+                'interests',
+                'feedback',
+            ])
+            ->withAvg('feedback as average_rating', 'rating');
 
         if ($this->filter === 'upcoming') {
             $query->where('scheduled_at', '>=', now());

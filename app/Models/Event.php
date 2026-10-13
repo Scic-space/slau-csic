@@ -61,6 +61,7 @@ class Event extends Model
         'parent_event_id',
         'cancelled_at',
         'rsvp_deadline',
+        'audience',
     ];
 
     protected function casts(): array
@@ -240,6 +241,55 @@ class Event extends Model
     public function allowedMembers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'event_allowed_members');
+    }
+
+    public function getAudienceLabelAttribute(): ?string
+    {
+        return match ($this->audience) {
+            'year_1' => 'Year 1 only',
+            'year_2_plus' => 'Year 2 and above',
+            default => null,
+        };
+    }
+
+    /**
+     * Active member IDs in the event's target audience.
+     * Empty when the event is open to everyone.
+     *
+     * @return list<int>
+     */
+    public function audienceMemberIds(): array
+    {
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            return [];
+        }
+
+        return User::activeMembers()
+            ->when(
+                $this->audience === 'year_1',
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', 1)),
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', '>', 1)),
+            )
+            ->pluck('users.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    public function isEligible(User $member): bool
+    {
+        if ($this->allowedMembers()->exists()) {
+            return $this->allowedMembers()->where('user_id', $member->id)->exists();
+        }
+
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            return true;
+        }
+
+        $year = $member->memberProfile?->year_of_study;
+
+        return $this->audience === 'year_1'
+            ? $year === 1
+            : is_int($year) && $year > 1;
     }
 
     public function resources(): HasMany

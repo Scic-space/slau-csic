@@ -34,9 +34,17 @@ class EventObserver
             return;
         }
 
-        $recipients = $event->allowedMembers()->exists()
-            ? $event->allowedMembers()->get()
-            : User::activeMembers()->get();
+        $recipientIds = [];
+
+        if ($event->allowedMembers()->exists()) {
+            $recipientIds = $event->allowedMembers()->pluck('users.id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        $recipientIds = array_values(array_unique(array_merge($recipientIds, $event->audienceMemberIds())));
+
+        $recipients = $recipientIds === []
+            ? User::activeMembers()->get()
+            : User::whereIn('id', $recipientIds)->get();
 
         foreach ($recipients as $recipient) {
             try {

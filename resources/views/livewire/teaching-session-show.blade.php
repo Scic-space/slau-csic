@@ -32,6 +32,17 @@
                         </span>
                     </div>
                     <h1 class="mt-3 text-2xl font-bold text-gray-900 dark:text-white">{{ $meeting->title }}</h1>
+                    @if (! $meeting->hasEnded() && ! $meeting->isCancelled())
+                        <div class="mt-3 flex items-center gap-2">
+                            <button type="button" wire:click="toggleInterest" class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition {{ $isInterested ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-border dark:text-gray-300' }}">
+                                <span class="material-symbols-outlined text-base" aria-hidden="true">{{ $isInterested ? 'bookmark_added' : 'bookmark_add' }}</span>
+                                {{ $isInterested ? 'Interested' : 'I\'m interested' }}
+                            </button>
+                            @if ($interestCount > 0)
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $interestCount }} interested</span>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -85,6 +96,48 @@
                 @endif
             </div>
         </div>
+
+        {{-- Attendance Correction --}}
+        @if (! $hasAttended && $meeting->hasEnded())
+            <div class="rounded-xl border border-gray-200 bg-white p-4 dark:border-border dark:bg-card">
+                @if ($hasPendingCorrection)
+                    <p class="text-sm text-amber-700 dark:text-amber-400">Your correction request is pending review.</p>
+                @elseif (! $showCorrectionForm)
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Were you there but not marked present?</p>
+                        <button type="button" wire:click="toggleCorrectionForm" class="shrink-0 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300">
+                            I was there
+                        </button>
+                    </div>
+                @else
+                    <form wire:submit="requestCorrection" class="space-y-3">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Add a note for the reviewer (optional)</label>
+                        <textarea wire:model="correctionMessage" rows="2" maxlength="500" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-border dark:bg-card dark:text-white" placeholder="e.g. I sat at the back and left right at the end..."></textarea>
+                        @error('correctionMessage') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                        <div class="flex gap-2">
+                            <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" wire:loading.attr="disabled">
+                                Submit Request
+                            </button>
+                            <button type="button" wire:click="toggleCorrectionForm" class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-border dark:bg-card dark:text-gray-300">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        @endif
+
+        {{-- Certificate --}}
+        @if ($hasAttended && $meeting->hasEnded() && $attendanceId)
+            <div class="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <p class="text-sm font-medium text-green-800 dark:text-green-300">You earned a certificate for this class</p>
+                    <a href="{{ route('meetings.certificate', [$meeting, $attendanceId]) }}" target="_blank" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-400">
+                        Download Certificate
+                    </a>
+                </div>
+            </div>
+        @endif
 
         {{-- Linked Training --}}
         @if ($meeting->training)
@@ -151,6 +204,12 @@
                 <div class="border-b border-gray-200 px-6 py-4 dark:border-border">
                     <div class="flex items-center justify-between">
                         <h2 class="font-semibold text-gray-900 dark:text-white">Session Feedback</h2>
+                        @if ($feedbackCount > 0)
+                            <span class="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                                <span class="text-base text-yellow-400">★</span>
+                                {{ $averageRating }} ({{ $feedbackCount }})
+                            </span>
+                        @endif
                         @if (! $hasSubmittedFeedback && ! $showFeedbackForm)
                             <button wire:click="toggleFeedbackForm" class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">
                                 Leave Feedback

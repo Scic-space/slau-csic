@@ -2,7 +2,10 @@
 
 use App\Filament\Pages\MemberExport;
 use App\Filament\Pages\MembershipStatistics;
+use App\Filament\Resources\AttendanceCorrections\Pages\ManageAttendanceCorrections;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Models\AttendanceCorrectionRequest;
+use App\Models\Meeting;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Facades\Filament;
@@ -82,6 +85,48 @@ it('forbids users without permission from the membership admin pages', function 
 
     $this->get('/admin/membership-statistics')->assertForbidden();
     $this->get('/admin/member-export')->assertForbidden();
+});
+
+it('approves an attendance correction and records the member present', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subWeek(),
+        'ended_at' => now()->subWeek(),
+    ]);
+    $request = AttendanceCorrectionRequest::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $member->id,
+        'message' => 'I was there.',
+    ]);
+
+    Livewire::test(ManageAttendanceCorrections::class)
+        ->callTableAction('approve', $request)
+        ->assertHasNoTableActionErrors();
+
+    expect($request->fresh()->status)->toBe('approved');
+
+    $this->assertDatabaseHas('attendance', [
+        'meeting_id' => $meeting->id,
+        'user_id' => $member->id,
+        'status' => 'present',
+    ]);
+});
+
+it('declines an attendance correction without touching attendance', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $meeting = Meeting::factory()->teachingSession()->create(['created_by' => $this->admin->id]);
+    $request = AttendanceCorrectionRequest::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $member->id,
+    ]);
+
+    Livewire::test(ManageAttendanceCorrections::class)
+        ->callTableAction('reject', $request)
+        ->assertHasNoTableActionErrors();
+
+    expect($request->fresh()->status)->toBe('rejected')
+        ->and(\App\Models\Attendance::where('meeting_id', $meeting->id)->where('user_id', $member->id)->exists())->toBeFalse();
 });
 
 it('rejects a pending member even when the notification mail fails', function () {

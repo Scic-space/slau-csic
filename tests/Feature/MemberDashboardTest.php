@@ -5,6 +5,7 @@ use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\EventRegistration;
 use App\Models\Meeting;
+use App\Models\MeetingInterest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -220,6 +221,64 @@ it('shows upcoming classes only to their targeted audience', function () {
         ->test(MemberDashboard::class)
         ->assertSee('Open To All Class')
         ->assertDontSee('Year One Only Class');
+});
+
+it('toggles class interest on and off', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->addWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->call('toggleInterest', $meeting->id);
+
+    expect(MeetingInterest::where('meeting_id', $meeting->id)->where('user_id', $user->id)->exists())->toBeTrue();
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->call('toggleInterest', $meeting->id);
+
+    expect(MeetingInterest::where('meeting_id', $meeting->id)->where('user_id', $user->id)->exists())->toBeFalse();
+});
+
+it('blocks interest flags from members outside the class audience', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->addWeek(),
+        'audience' => 'year_1',
+    ]);
+    $meeting->syncAudienceAllowList();
+
+    Livewire::actingAs($yearThree)
+        ->test(MemberDashboard::class)
+        ->call('toggleInterest', $meeting->id)
+        ->assertForbidden();
+
+    expect(MeetingInterest::where('meeting_id', $meeting->id)->exists())->toBeFalse();
+});
+
+it('prompts members for missing class feedback', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'title' => 'Unreviewed Bash Class',
+        'scheduled_at' => now()->subWeek(),
+        'ended_at' => now()->subWeek(),
+    ]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertViewHas('pendingFeedbackMeetings', fn ($meetings) => $meetings->contains(fn ($m) => $m->id === $meeting->id))
+        ->assertSee('Unreviewed Bash Class');
 });
 
 it('renders the my events section with attendance and feedback prompts', function () {

@@ -96,6 +96,9 @@ Route::get('/events/{event:slug}/resources/{resource}/file', App\Http\Controller
 Route::get('/events/{event:slug}/certificate/{registration}', App\Http\Controllers\EventCertificateController::class)
     ->name('events.certificate')
     ->middleware(['auth', 'verified']);
+Route::get('/classes/{meeting}/certificate/{attendance}', App\Http\Controllers\MeetingCertificateController::class)
+    ->name('meetings.certificate')
+    ->middleware(['auth', 'verified']);
 Route::post('/events/{event:slug}/rsvp', [EventShowController::class, 'rsvp'])->name('events.rsvp')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
 Route::post('/events/{event:slug}/cancel-rsvp', [EventShowController::class, 'cancelRsvp'])->name('events.cancel-rsvp')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
 Route::post('/events/{event:slug}/register', [EventShowController::class, 'register'])->name('events.register')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);

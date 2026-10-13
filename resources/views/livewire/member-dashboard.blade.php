@@ -483,6 +483,10 @@
                                 <div class="min-w-0 flex-1">
                                     <a href="{{ route('classes.show', $upcomingMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $upcomingMeeting->title }}</a>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ $upcomingMeeting->scheduled_at?->format('D, M j · g:i A') }}</p>
+                                    <button type="button" wire:click="toggleInterest({{ $upcomingMeeting->id }})" class="mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition {{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-border dark:text-gray-400' }}">
+                                        <span class="material-symbols-outlined text-[13px]" aria-hidden="true">{{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'bookmark_added' : 'bookmark_add' }}</span>
+                                        {{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'Interested' : 'I\'m interested' }}{{ $upcomingMeeting->interests_count > 0 ? ' ('.$upcomingMeeting->interests_count.')' : '' }}
+                                    </button>
                                 </div>
                             </li>
                         @endforeach
@@ -521,6 +525,20 @@
                                     </div>
                                 </li>
                             @endif
+                        @endforeach
+                    </ul>
+                @endif
+                @if ($pendingFeedbackMeetings->isNotEmpty())
+                    <p class="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Awaiting Feedback</p>
+                    <ul class="space-y-3">
+                        @foreach ($pendingFeedbackMeetings as $feedbackMeeting)
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined mt-0.5 text-base text-amber-500" aria-hidden="true">rate_review</span>
+                                <div class="min-w-0 flex-1">
+                                    <a href="{{ route('classes.show', $feedbackMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $feedbackMeeting->title }}</a>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Share your feedback</p>
+                                </div>
+                            </li>
                         @endforeach
                     </ul>
                 @endif

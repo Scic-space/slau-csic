@@ -292,8 +292,8 @@ class EventDetails extends Component
                 ? route('events.description.show', $this->event)
                 : null,
             'hasEnded' => $hasEnded,
-            'canRegister' => $this->event->acceptsRegistrations(),
-            'canRsvp' => $this->event->acceptsRsvps(),
+            'canRegister' => $this->event->acceptsRegistrations() && $this->isEligibleViewer(),
+            'canRsvp' => $this->event->acceptsRsvps() && $this->isEligibleViewer(),
             'userRegistration' => $userRegistration,
             'userFeedback' => $userFeedback,
             'canSubmitFeedback' => $canSubmitFeedback,
@@ -307,6 +307,13 @@ class EventDetails extends Component
             'recentFeedbacks' => $recentFeedbacks,
             'feedbackStats' => $feedbackStats,
         ]);
+    }
+
+    private function isEligibleViewer(): bool
+    {
+        $user = auth()->user();
+
+        return $user === null || $this->event->isEligible($user);
     }
 
     private function ensureAuthenticated(): bool

@@ -1,9 +1,12 @@
 <?php
 
 use App\Models\Attendance;
+use App\Models\AttendanceCorrectionRequest;
 use App\Models\Meeting;
+use App\Models\MeetingFeedback;
 use App\Models\Training;
 use App\Models\User;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
@@ -90,6 +93,64 @@ it('renders the rich description as formatted text', function () {
         ->assertSee('<strong>Topic:</strong> Bash', false);
 });
 
+it('shows the average rating once feedback exists', function () {
+    $meeting = Meeting::factory()->teachingSession()->create();
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $this->user->id,
+        'status' => 'present',
+        'checked_in_at' => now(),
+    ]);
+    MeetingFeedback::create(['meeting_id' => $meeting->id, 'user_id' => $this->user->id, 'rating' => 5]);
+    MeetingFeedback::create(['meeting_id' => $meeting->id, 'user_id' => User::factory()->create()->id, 'rating' => 4]);
+
+    actingAs($this->user)
+        ->get(route('classes.show', $meeting->id))
+        ->assertOk()
+        ->assertSee('4.5 (2)');
+});
+
+it('lets an absent member request an attendance correction once', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create();
+    $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin']);
+    $admin->assignRole($adminRole);
+
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->subWeek(),
+        'ended_at' => now()->subWeek(),
+    ]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $this->user->id,
+        'status' => 'absent',
+        'is_auto_absent' => true,
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(\App\Livewire\TeachingSessionShow::class, ['meeting' => $meeting])
+        ->call('toggleCorrectionForm')
+        ->set('correctionMessage', 'I sat at the back.')
+        ->call('requestCorrection')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('attendance_correction_requests', [
+        'meeting_id' => $meeting->id,
+        'user_id' => $this->user->id,
+        'status' => 'pending',
+    ]);
+
+    Notification::assertSentTo($admin, \App\Notifications\AttendanceCorrectionRequestedNotification::class);
+
+    Livewire::actingAs($this->user)
+        ->test(\App\Livewire\TeachingSessionShow::class, ['meeting' => $meeting])
+        ->call('requestCorrection')
+        ->assertHasNoErrors();
+
+    expect(AttendanceCorrectionRequest::where('meeting_id', $meeting->id)->where('user_id', $this->user->id)->count())->toBe(1);
+});
+
 it('submits session feedback through the star rating', function () {
     $meeting = Meeting::factory()->teachingSession()->create();
     Attendance::create([
@@ -130,7 +191,7 @@ it('shows attendance status when user attended', function () {
         ->assertSee('You attended this session');
 });
 
-it('forbids the class page for members marked absent', function () {
+it('shows the correction option to members marked absent', function () {
     $meeting = Meeting::factory()->teachingSession()->create([
         'scheduled_at' => now()->subWeek(),
         'ended_at' => now()->subWeek(),
@@ -144,7 +205,8 @@ it('forbids the class page for members marked absent', function () {
 
     actingAs($this->user)
         ->get(route('classes.show', $meeting->id))
-        ->assertForbidden();
+        ->assertOk()
+        ->assertSee('I was there');
 });
 
 it('shows linked training when meeting has one', function () {

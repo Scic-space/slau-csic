@@ -458,6 +458,25 @@ it('restricts announcements to allowed members for restricted events', function 
     Notification::assertNotSentTo($other, EventPublishedNotification::class);
 });
 
+it('announces targeted events only to their audience', function () {
+    Notification::fake();
+
+    $yearOne = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    Event::factory()->create([
+        'status' => 'published',
+        'is_public' => true,
+        'start_date' => now()->addWeek(),
+        'audience' => 'year_1',
+    ]);
+
+    Notification::assertSentTo($yearOne, EventPublishedNotification::class);
+    Notification::assertNotSentTo($yearThree, EventPublishedNotification::class);
+});
+
 it('skips announcements for past events', function () {
     Notification::fake();
 

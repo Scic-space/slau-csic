@@ -59,10 +59,8 @@ class EventService
 
     public function registerMember(Event $event, User $member): EventRegistration
     {
-        $allowedCount = $event->allowedMembers()->count();
-
-        if ($allowedCount > 0 && ! $event->allowedMembers()->where('user_id', $member->id)->exists()) {
-            abort(403, 'You are not in the allowed members list for this event');
+        if (! $event->isEligible($member)) {
+            abort(403, 'You are not eligible for this event');
         }
 
         $existing = EventRegistration::where('event_id', $event->id)

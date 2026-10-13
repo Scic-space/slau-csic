@@ -22,6 +22,8 @@ class EventRegistrationService
                 $this->ensure($event->acceptsRsvps(), 'RSVP for this event has closed.');
             }
 
+            $this->ensure($event->isEligible($user), 'This event is restricted to a specific audience.');
+
             $registration = $event->registrations()->where('user_id', $user->id)->first();
 
             if ($registration && ! $registration->isCancelled()) {
