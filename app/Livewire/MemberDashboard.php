@@ -109,6 +109,25 @@ class MemberDashboard extends Component
             ->limit(5)
             ->get();
 
+        $memberYear = $user->memberProfile?->year_of_study;
+
+        $upcomingMeetings = Meeting::query()
+            ->teachingSessions()
+            ->notCancelled()
+            ->where('scheduled_at', '>=', now())
+            ->where(function ($query) use ($memberYear) {
+                $query->whereNull('audience')->orWhere('audience', 'all');
+
+                if ($memberYear === 1) {
+                    $query->orWhere('audience', 'year_1');
+                } elseif (is_int($memberYear) && $memberYear > 1) {
+                    $query->orWhere('audience', 'year_2_plus');
+                }
+            })
+            ->orderBy('scheduled_at')
+            ->limit(5)
+            ->get();
+
         $myAttendedMeetings = Attendance::query()
             ->where('user_id', $user->id)
             ->whereIn('status', ['present', 'late'])
@@ -169,6 +188,7 @@ class MemberDashboard extends Component
             'myUpcomingEvents' => $myUpcomingEvents,
             'myAttendedEvents' => $myAttendedEvents,
             'myAttendedMeetings' => $myAttendedMeetings,
+            'upcomingMeetings' => $upcomingMeetings,
             'pendingFeedbackEvents' => $pendingFeedbackEvents,
             'favoriteEventsCount' => $favoriteEventsCount,
             'finesSummary' => $finesSummary,

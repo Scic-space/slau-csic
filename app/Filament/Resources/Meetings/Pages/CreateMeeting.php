@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Meetings\Pages;
 
 use App\Filament\Resources\Meetings\MeetingResource;
+use App\Models\User;
+use App\Notifications\MeetingScheduledNotification;
 use App\Services\AttendanceService;
 use Carbon\Carbon;
 use Filament\Resources\Pages\CreateRecord;
@@ -61,6 +63,18 @@ class CreateMeeting extends CreateRecord
                 $this->attendanceData['present'],
                 $this->attendanceData['late'],
             );
+        }
+
+        if ($this->record->isTeachingSession() && ! $this->record->isCancelled()) {
+            $audienceIds = $this->record->audienceMemberIds();
+
+            $recipients = $audienceIds === []
+                ? User::activeMembers()->get()
+                : User::whereIn('id', $audienceIds)->get();
+
+            foreach ($recipients as $recipient) {
+                $recipient->notify(new MeetingScheduledNotification($this->record));
+            }
         }
     }
 }

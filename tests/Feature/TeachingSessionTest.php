@@ -33,8 +33,22 @@ it('shows a teaching session detail page to attendees', function () {
         ->assertSee('Teaching Session');
 });
 
-it('forbids the class page for members who did not attend', function () {
-    $meeting = Meeting::factory()->teachingSession()->create();
+it('shows upcoming classes to members who have not attended yet', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->addWeek(),
+        'ended_at' => null,
+    ]);
+
+    actingAs($this->user)
+        ->get(route('classes.show', $meeting->id))
+        ->assertOk();
+});
+
+it('forbids the completed class page for members who did not attend', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->subWeek(),
+        'ended_at' => now()->subWeek(),
+    ]);
 
     actingAs($this->user)
         ->get(route('classes.show', $meeting->id))
@@ -117,7 +131,10 @@ it('shows attendance status when user attended', function () {
 });
 
 it('forbids the class page for members marked absent', function () {
-    $meeting = Meeting::factory()->teachingSession()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->subWeek(),
+        'ended_at' => now()->subWeek(),
+    ]);
     Attendance::create([
         'meeting_id' => $meeting->id,
         'user_id' => $this->user->id,

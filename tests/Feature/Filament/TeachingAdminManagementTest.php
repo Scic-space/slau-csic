@@ -21,11 +21,13 @@ use App\Models\QuestionBankQuestion;
 use App\Models\Training;
 use App\Models\TrainingEnrollment;
 use App\Models\User;
+use App\Notifications\MeetingScheduledNotification;
 use App\Services\CertificateService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -389,6 +391,30 @@ it('duplicates a meeting for another day from the meetings list', function () {
     expect($clone)->not->toBeNull()
         ->and($clone->scheduled_at->isFuture())->toBeTrue()
         ->and($clone->meeting_code)->not->toBe($meeting->meeting_code);
+});
+
+it('notifies only the targeted audience when a class is scheduled', function () {
+    Notification::fake();
+
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    Livewire::test(CreateMeeting::class)
+        ->fillForm([
+            'title' => 'Year One Intro Class',
+            'type' => 'teaching_session',
+            'scheduled_at' => now()->addWeek()->format('Y-m-d H:i:s'),
+            'created_by' => $this->admin->id,
+            'is_recurring' => false,
+            'audience' => 'year_1',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    Notification::assertSentTo($yearOne, MeetingScheduledNotification::class);
+    Notification::assertNotSentTo($yearThree, MeetingScheduledNotification::class);
 });
 
 it('does not create a recurrence rule for one-off meetings', function () {

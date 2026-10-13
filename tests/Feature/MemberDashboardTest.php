@@ -194,6 +194,34 @@ it('lists recently attended internal classes on the dashboard', function () {
         ->assertSee('Past Linux Class');
 });
 
+it('shows upcoming classes only to their targeted audience', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    Meeting::factory()->teachingSession()->create([
+        'title' => 'Year One Only Class',
+        'scheduled_at' => now()->addWeek(),
+        'audience' => 'year_1',
+    ]);
+    Meeting::factory()->teachingSession()->create([
+        'title' => 'Open To All Class',
+        'scheduled_at' => now()->addWeek(),
+        'audience' => 'all',
+    ]);
+
+    Livewire::actingAs($yearOne)
+        ->test(MemberDashboard::class)
+        ->assertSee('Year One Only Class')
+        ->assertSee('Open To All Class');
+
+    Livewire::actingAs($yearThree)
+        ->test(MemberDashboard::class)
+        ->assertSee('Open To All Class')
+        ->assertDontSee('Year One Only Class');
+});
+
 it('renders the my events section with attendance and feedback prompts', function () {
     $user = User::factory()->create();
 

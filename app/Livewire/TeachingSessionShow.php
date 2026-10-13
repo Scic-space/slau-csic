@@ -35,9 +35,11 @@ class TeachingSessionShow extends Component
             ->whereIn('status', ['present', 'late'])
             ->exists();
 
-        $isStaff = $user->hasAnyRole(['admin', 'super-admin']) || $meeting->created_by === $user->id;
+        if ($meeting->hasEnded()) {
+            $isStaff = $user->hasAnyRole(['admin', 'super-admin']) || $meeting->created_by === $user->id;
 
-        abort_unless($this->hasAttended || $isStaff, 403);
+            abort_unless($this->hasAttended || $isStaff, 403);
+        }
 
         $this->meeting = $meeting->load(['creator', 'training', 'agendaItems', 'attachments', 'feedback.user']);
 
