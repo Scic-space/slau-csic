@@ -416,6 +416,41 @@ it('duplicates a class for another day without its history', function () {
         ->and($clone->canUserAttend($yearOne))->toBeTrue();
 });
 
+it('records a live roll call like member check-ins without closing the meeting', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subMinutes(10),
+        'attendance_open' => true,
+        'ended_at' => null,
+    ]);
+    $present = User::factory()->create();
+    $late = User::factory()->create();
+
+    $summary = app(AttendanceService::class)->recordRollCall($meeting, $this->admin, [$present->id], [$late->id]);
+
+    expect($summary['present'])->toBe(1)
+        ->and($summary['late'])->toBe(1)
+        ->and($summary['skipped'])->toBe(0);
+
+    expect(PointTransaction::where('user_id', $present->id)->sum('points'))
+        ->toBe(GamificationService::POINTS_MEETING_PRESENT)
+        ->and(PointTransaction::where('user_id', $late->id)->sum('points'))
+        ->toBe(GamificationService::POINTS_MEETING_LATE)
+        ->and($present->fresh()->attendance_count)->toBe(1);
+
+    $meeting->refresh();
+
+    expect($meeting->attendance_open)->toBeTrue()
+        ->and($meeting->ended_at)->toBeNull()
+        ->and(Attendance::where('meeting_id', $meeting->id)->where('status', 'absent')->count())->toBe(0);
+
+    $rerun = app(AttendanceService::class)->recordRollCall($meeting, $this->admin, [$present->id], [$late->id]);
+
+    expect($rerun['skipped'])->toBe(2)
+        ->and(PointTransaction::where('user_id', $present->id)->sum('points'))
+        ->toBe(GamificationService::POINTS_MEETING_PRESENT);
+});
+
 it('refuses to backfill cancelled or future meetings', function () {
     $cancelled = Meeting::factory()->teachingSession()->create([
         'created_by' => $this->admin->id,

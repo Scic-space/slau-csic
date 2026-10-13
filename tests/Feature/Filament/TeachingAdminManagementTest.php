@@ -353,6 +353,31 @@ it('bulk-selects year one members on the create attendance picker', function () 
     expect(Attendance::where('meeting_id', $meeting->id)->where('user_id', $yearThree->id)->exists())->toBeFalse();
 });
 
+it('takes a roll call from the meeting edit page while attendance is open', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->subMinutes(10),
+        'attendance_open' => true,
+        'ended_at' => null,
+    ]);
+    $member = User::factory()->create();
+
+    Livewire::test(EditMeeting::class, ['record' => $meeting->getRouteKey()])
+        ->callAction('roll_call', data: [
+            'present_ids' => [$member->id],
+            'late_ids' => [],
+        ])
+        ->assertHasNoActionErrors();
+
+    $this->assertDatabaseHas('attendance', [
+        'meeting_id' => $meeting->id,
+        'user_id' => $member->id,
+        'status' => 'present',
+    ]);
+
+    expect($meeting->fresh()->attendance_open)->toBeTrue();
+});
+
 it('changes an attendee status from the attendees tab', function () {
     $meeting = Meeting::factory()->teachingSession()->create(['created_by' => $this->admin->id]);
     $member = User::factory()->create();

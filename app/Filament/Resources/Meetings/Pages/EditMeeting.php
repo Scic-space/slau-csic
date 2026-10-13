@@ -99,6 +99,46 @@ class EditMeeting extends EditRecord
                         Notification::make()->title('Attendance closed')->success()->send();
                     }),
 
+                Action::make('roll_call')
+                    ->label('Take Roll Call')
+                    ->color('success')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->visible(fn (): bool => $this->record->isAttendanceOpen() && ! $this->record->isCancelled())
+                    ->schema([
+                        CheckboxList::make('present_ids')
+                            ->label('Present')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('present_ids')),
+                        CheckboxList::make('late_ids')
+                            ->label('Late')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('late_ids')),
+                    ])
+                    ->action(function (array $data) {
+                        $summary = app(AttendanceService::class)->recordRollCall(
+                            $this->record,
+                            auth()->user(),
+                            array_map('intval', $data['present_ids'] ?? []),
+                            array_map('intval', $data['late_ids'] ?? []),
+                        );
+
+                        $parts = ["{$summary['present']} present", "{$summary['late']} late"];
+
+                        if ($summary['skipped'] > 0) {
+                            $parts[] = "{$summary['skipped']} skipped";
+                        }
+
+                        Notification::make()
+                            ->title('Roll call recorded')
+                            ->body(implode(', ', $parts).'. Attendance stays open.')
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('backfill_attendance')
                     ->label('Record Past Attendance')
                     ->color('info')
