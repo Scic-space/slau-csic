@@ -58,6 +58,19 @@ it('forbids the completed class page for members who did not attend', function (
         ->assertForbidden();
 });
 
+it('uses browser history for the back button with a dashboard fallback', function () {
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->addWeek(),
+        'ended_at' => null,
+    ]);
+
+    actingAs($this->user)
+        ->get(route('classes.show', $meeting->id))
+        ->assertOk()
+        ->assertSee('history.back', false)
+        ->assertDontSee('url()->previous()', false);
+});
+
 it('allows the creator and admins to view any class page', function () {
     $meeting = Meeting::factory()->teachingSession()->create([
         'created_by' => $this->user->id,
@@ -74,6 +87,20 @@ it('allows the creator and admins to view any class page', function () {
     actingAs($admin)
         ->get(route('classes.show', $meeting->id))
         ->assertOk();
+});
+
+it('allows the assigned instructor to view the completed class page', function () {
+    $instructor = User::factory()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->subWeek(),
+        'ended_at' => now()->subWeek(),
+        'instructor_id' => $instructor->id,
+    ]);
+
+    actingAs($instructor)
+        ->get(route('classes.show', $meeting->id))
+        ->assertOk()
+        ->assertSee($instructor->name);
 });
 
 it('renders the rich description as formatted text', function () {

@@ -33,6 +33,7 @@ class Meeting extends Model
         'expected_attendees',
         'missed_fine_amount',
         'created_by',
+        'instructor_id',
         'agenda',
         'minutes',
         'late_threshold_minutes',
@@ -80,6 +81,11 @@ class Meeting extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function instructor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'instructor_id');
     }
 
     public function training(): BelongsTo

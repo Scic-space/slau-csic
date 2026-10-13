@@ -55,12 +55,14 @@ class TeachingSessionShow extends Component
 
         if ($meeting->hasEnded()) {
             $isAssociated = $meeting->hasUserAttended($user);
-            $isStaff = $user->hasAnyRole(['admin', 'super-admin']) || $meeting->created_by === $user->id;
+            $isStaff = $user->hasAnyRole(['admin', 'super-admin'])
+                || $meeting->created_by === $user->id
+                || $meeting->instructor_id === $user->id;
 
             abort_unless($this->hasAttended || $isAssociated || $isStaff, 403);
         }
 
-        $this->meeting = $meeting->load(['creator', 'training', 'agendaItems', 'attachments', 'feedback.user']);
+        $this->meeting = $meeting->load(['creator', 'instructor', 'training', 'agendaItems', 'attachments', 'feedback.user']);
 
         $this->isInterested = $meeting->isInterested($user);
         $this->interestCount = $meeting->interests()->count();

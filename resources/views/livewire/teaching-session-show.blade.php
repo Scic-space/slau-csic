@@ -1,9 +1,9 @@
 <div class="py-6">
     <div class="mx-auto max-w-3xl space-y-6">
         <div>
-            <a href="{{ url()->previous() }}" wire:navigate class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400">
+            <button type="button" onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = '{{ route('dashboard') }}'; }" class="inline-flex cursor-pointer items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400">
                 &larr; Back
-            </a>
+            </button>
         </div>
 
         {{-- Session Header --}}
@@ -65,6 +65,12 @@
                     <div>
                         <span class="text-gray-500 dark:text-gray-400">Duration</span>
                         <p class="font-medium text-gray-900 dark:text-white">{{ $meeting->duration_minutes }} min</p>
+                    </div>
+                @endif
+                @if ($meeting->instructor)
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400">Instructor</span>
+                        <p class="font-medium text-gray-900 dark:text-white">{{ $meeting->instructor->name }}</p>
                     </div>
                 @endif
             </div>

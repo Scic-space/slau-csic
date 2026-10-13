@@ -442,6 +442,27 @@ it('notifies only the targeted audience when a class is scheduled', function () 
     Notification::assertNotSentTo($yearThree, MeetingScheduledNotification::class);
 });
 
+it('assigns an instructor when creating a class', function () {
+    $instructor = User::factory()->create();
+
+    Livewire::test(CreateMeeting::class)
+        ->fillForm([
+            'title' => 'Instructor Led Class',
+            'type' => 'teaching_session',
+            'scheduled_at' => now()->addWeek()->format('Y-m-d H:i:s'),
+            'created_by' => $this->admin->id,
+            'instructor_id' => $instructor->id,
+            'is_recurring' => false,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $this->assertDatabaseHas('meetings', [
+        'title' => 'Instructor Led Class',
+        'instructor_id' => $instructor->id,
+    ]);
+});
+
 it('does not create a recurrence rule for one-off meetings', function () {
     Livewire::test(CreateMeeting::class)
         ->fillForm([

@@ -183,6 +183,14 @@ class MeetingForm
                             ->default(auth()->id())
                             ->required(),
 
+                        Select::make('instructor_id')
+                            ->label('Instructor')
+                            ->relationship('instructor', 'name')
+                            ->nullable()
+                            ->searchable()
+                            ->preload()
+                            ->helperText('The member teaching this class.'),
+
                         Toggle::make('is_recurring')
                             ->label('Mark as recurring (master)')
                             ->default(false)

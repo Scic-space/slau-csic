@@ -27,8 +27,11 @@ class InstructorSessions extends Component
     public function render()
     {
         $query = Meeting::teachingSessions()
-            ->where('created_by', auth()->id())
-            ->with(['training', 'creator'])
+            ->where(function ($query) {
+                $query->where('created_by', auth()->id())
+                    ->orWhere('instructor_id', auth()->id());
+            })
+            ->with(['training', 'creator', 'instructor'])
             ->withCount([
                 'attendance as attendance_count' => fn ($query) => $query->whereIn('status', ['present', 'late']),
                 'interests',

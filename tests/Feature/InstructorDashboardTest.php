@@ -301,6 +301,23 @@ it('shows average ratings on the instructor sessions list', function () {
         ->assertViewHas('sessions', fn ($sessions) => (float) $sessions->firstWhere('id', $meeting->id)->average_rating === 4.0);
 });
 
+it('lists classes assigned to the instructor even when created by someone else', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo('teacher.dashboard.view');
+
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'title' => 'Assigned To Me Class',
+        'created_by' => User::factory()->create()->id,
+        'instructor_id' => $user->id,
+        'scheduled_at' => now()->addWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\InstructorSessions::class)
+        ->assertViewHas('sessions', fn ($sessions) => $sessions->contains(fn ($s) => $s->id === $meeting->id))
+        ->assertSee('Assigned To Me Class');
+});
+
 function otherInstructorExamAttempt(): void
 {
     $other = User::factory()->create();
