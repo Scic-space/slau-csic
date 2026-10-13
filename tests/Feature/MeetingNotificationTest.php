@@ -6,6 +6,7 @@ use App\Notifications\MeetingCancelledNotification;
 use App\Notifications\MeetingReminderNotification;
 use App\Notifications\MeetingRescheduledNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 use function Pest\Laravel\actingAs;
@@ -72,6 +73,51 @@ it('sends reminder notification', function () {
             return $notification->type === '24h';
         }
     );
+});
+
+it('sends reminders only to the targeted audience', function () {
+    Notification::fake();
+
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->addDay()->setTime(11, 0),
+        'audience' => 'year_1',
+    ]);
+
+    $this->artisan('meetings:send-reminders', ['--type' => '24h'])->assertSuccessful();
+
+    Notification::assertSentTo($yearOne, MeetingReminderNotification::class);
+    Notification::assertNotSentTo($yearThree, MeetingReminderNotification::class);
+});
+
+it('completes reminders when a recipient mail fails', function () {
+    config(['mail.default' => 'throwing']);
+
+    Mail::extend('throwing', fn () => new class implements \Symfony\Component\Mailer\Transport\TransportInterface
+    {
+        public function send(\Symfony\Component\Mime\RawMessage $message, ?\Symfony\Component\Mailer\Envelope $envelope = null): ?\Symfony\Component\Mailer\SentMessage
+        {
+            throw new \Symfony\Component\Mailer\Exception\TransportException('Mail is down.');
+        }
+
+        public function __toString(): string
+        {
+            return 'throwing';
+        }
+    });
+
+    User::factory()->create();
+    Meeting::factory()->teachingSession()->create([
+        'created_by' => $this->admin->id,
+        'scheduled_at' => now()->addDay()->setTime(11, 0),
+    ]);
+
+    $this->artisan('meetings:send-reminders', ['--type' => '24h'])->assertSuccessful();
 });
 
 it('creates database notification on reminder', function () {

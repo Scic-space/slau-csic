@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Attendance;
 use App\Models\Meeting;
+use App\Models\User;
 use App\Notifications\MeetingReminderNotification;
 use Illuminate\Console\Command;
 
@@ -31,23 +32,35 @@ class SendMeetingReminders extends Command
             ->get();
 
         $sent = 0;
+        $failed = 0;
 
         foreach ($meetings as $meeting) {
-            $users = \App\Models\User::activeMembers()->get();
+            $audienceIds = $meeting->audienceMemberIds();
+
+            $users = $audienceIds === []
+                ? User::activeMembers()->get()
+                : User::whereIn('id', $audienceIds)->get();
 
             foreach ($users as $user) {
                 $hasAttended = Attendance::where('meeting_id', $meeting->id)
                     ->where('user_id', $user->id)
                     ->exists();
 
-                if (! $hasAttended) {
+                if ($hasAttended) {
+                    continue;
+                }
+
+                try {
                     $user->notify(new MeetingReminderNotification($meeting, $type));
                     $sent++;
+                } catch (\Exception $e) {
+                    report($e);
+                    $failed++;
                 }
             }
         }
 
-        $this->info("Sent {$sent} reminders for {$meetings->count()} meetings.");
+        $this->info("Sent {$sent} reminders for {$meetings->count()} meetings ({$failed} failed).");
 
         return Command::SUCCESS;
     }
