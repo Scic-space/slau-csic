@@ -18,13 +18,17 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 class NewsResource extends Resource
 {
@@ -38,13 +42,20 @@ class NewsResource extends Resource
             ->components([
                 TextInput::make('title')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (Set $set, Get $get, ?string $state): void {
+                        if (blank($get('slug'))) {
+                            $set('slug', Str::slug($state ?? ''));
+                        }
+                    }),
                 TextInput::make('slug')
-                    ->disabled()
-                    ->dehydrated(false),
+                    ->maxLength(255)
+                    ->unique(table: News::class, column: 'slug', ignoreRecord: true)
+                    ->helperText('Auto-generated from the title when left blank. Must stay unique.'),
                 Textarea::make('excerpt')
                     ->required()
-                    ->rows(3)
+                    ->rows(5)
                     ->maxLength(500)
                     ->helperText('Brief summary shown in the news listing cards.'),
                 RichEditor::make('content')
@@ -58,7 +69,8 @@ class NewsResource extends Resource
                         'video' => 'Video',
                     ])
                     ->required()
-                    ->default('article'),
+                    ->default('article')
+                    ->live(),
                 TextInput::make('source_name')
                     ->label('Source Name')
                     ->placeholder('e.g. The Hacker News, BleepingComputer')
@@ -84,7 +96,7 @@ class NewsResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
                     ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(ImageOptimizer::class)->store($file, 'news/thumbnails', 1280, 720))
                     ->maxSize(2048)
-                    ->visible(fn ($get) => $get('content_type') === 'video'),
+                    ->live(),
                 TextInput::make('video_url')
                     ->label('YouTube URL')
                     ->url()
@@ -97,6 +109,7 @@ class NewsResource extends Resource
                     ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg'])
                     ->maxSize(1048576)
                     ->visible(fn ($get) => $get('content_type') === 'video')
+                    ->live()
                     ->helperText('Upload an MP4, WebM, or OGG file. Max 1 GB.'),
                 Toggle::make('is_featured')
                     ->default(false),
@@ -155,7 +168,7 @@ class NewsResource extends Resource
             ])
             ->defaultSort('published_at', 'desc')
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()->modalWidth(Width::FiveExtraLarge),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
