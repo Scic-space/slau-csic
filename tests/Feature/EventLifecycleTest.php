@@ -5,6 +5,7 @@ use App\Livewire\EventDetails;
 use App\Models\Event;
 use App\Models\EventRegistration;
 use App\Models\User;
+use App\Notifications\EventPublishedNotification;
 use App\Notifications\PromotedFromWaitlist;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -181,12 +182,14 @@ it('does not promote waitlisted members after the event ends', function (string 
 })->with('ended event states');
 
 it('promotes waitlisted members only into remaining spots', function (int $capacity, bool $shouldPromote) {
-    Notification::fake();
     $event = Event::factory()->create([
         'status' => 'published',
         'max_participants' => $capacity,
         'waitlist_enabled' => true,
     ]);
+
+    Notification::fake();
+
     EventRegistration::factory()->create(['event_id' => $event->id, 'status' => 'attended']);
     $registration = EventRegistration::factory()->waitlisted()->create(['event_id' => $event->id]);
 
@@ -402,4 +405,68 @@ it('does not reserve a spot for a new tentative RSVP', function () {
     expect($event->fresh()->remaining_spots)->toBe(1)
         ->and($event->registrations()->count())->toBe(1)
         ->and($event->registrations()->first()->rsvp_status)->toBe('attending');
+});
+
+it('announces newly published events to active members', function () {
+    Notification::fake();
+
+    $member = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+
+    Event::factory()->create([
+        'status' => 'published',
+        'is_public' => true,
+        'start_date' => now()->addWeek(),
+    ]);
+
+    Notification::assertSentTo($member, EventPublishedNotification::class);
+});
+
+it('announces only once when a draft event is published', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $event = Event::factory()->create([
+        'status' => 'draft',
+        'start_date' => now()->addWeek(),
+    ]);
+
+    Notification::fake();
+
+    $event->update(['status' => 'published']);
+
+    Notification::assertSentTo($member, EventPublishedNotification::class);
+
+    $sent = Notification::sent($member, EventPublishedNotification::class)->count();
+
+    $event->update(['title' => 'Renamed event title']);
+
+    expect(Notification::sent($member, EventPublishedNotification::class)->count())->toBe($sent);
+});
+
+it('restricts announcements to allowed members for restricted events', function () {
+    $allowed = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $other = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $event = Event::factory()->create([
+        'status' => 'draft',
+        'start_date' => now()->addWeek(),
+    ]);
+    $event->allowedMembers()->attach($allowed->id);
+
+    Notification::fake();
+
+    $event->update(['status' => 'published']);
+
+    Notification::assertSentTo($allowed, EventPublishedNotification::class);
+    Notification::assertNotSentTo($other, EventPublishedNotification::class);
+});
+
+it('skips announcements for past events', function () {
+    Notification::fake();
+
+    User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+
+    Event::factory()->create([
+        'status' => 'published',
+        'start_date' => now()->subWeek(),
+    ]);
+
+    Notification::assertNothingSent();
 });
