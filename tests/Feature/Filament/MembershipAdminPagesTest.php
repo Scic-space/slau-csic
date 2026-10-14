@@ -129,6 +129,31 @@ it('declines an attendance correction without touching attendance', function () 
         ->and(\App\Models\Attendance::where('meeting_id', $meeting->id)->where('user_id', $member->id)->exists())->toBeFalse();
 });
 
+it('shows the impersonate button only for eligible members', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $fellowAdmin = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+    $fellowAdmin->assignRole('super-admin');
+
+    Livewire::test(ListUsers::class)
+        ->assertTableActionVisible('impersonate', $member)
+        ->assertTableActionHidden('impersonate', $fellowAdmin)
+        ->assertTableActionHidden('impersonate', $this->admin);
+});
+
+it('lets a super-admin impersonate a member and leave', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'membership_type' => 'active']);
+
+    $this->get(route('impersonate', $member->id))
+        ->assertRedirect();
+
+    expect(auth()->id())->toBe($member->id);
+
+    $this->get(route('impersonate.leave'))
+        ->assertRedirect();
+
+    expect(auth()->id())->toBe($this->admin->id);
+});
+
 it('rejects a pending member even when the notification mail fails', function () {
     config(['mail.default' => 'throwing']);
 

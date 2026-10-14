@@ -181,6 +181,18 @@ class UsersTable
                             ->send();
                     }),
 
+                Action::make('impersonate')
+                    ->label('Impersonate')
+                    ->icon(self::materialIcon('switch_account'))
+                    ->iconButton()
+                    ->color('info')
+                    ->tooltip('Log in as this member')
+                    ->extraAttributes(self::accessibleActionAttributes('Impersonate'))
+                    ->visible(fn (User $record): bool => auth()->user()?->canImpersonate() === true
+                        && auth()->id() !== $record->id
+                        && $record->canBeImpersonated())
+                    ->url(fn (User $record): string => route('impersonate', $record->getKey())),
+
                 Action::make('suspend')
                     ->label('Suspend')
                     ->icon(self::materialIcon('pause_circle'))
