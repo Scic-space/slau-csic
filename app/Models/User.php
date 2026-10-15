@@ -99,6 +99,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'bonus_points',
         'score',
         'rank',
+        'force_password_change',
+        'password_reset_by',
+        'password_reset_at',
     ];
 
     /**
@@ -136,6 +139,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'suspended_until' => 'datetime',
             'rank_changed_at' => 'datetime',
             'intake_year' => 'integer',
+            'force_password_change' => 'boolean',
+            'password_reset_at' => 'datetime',
         ];
     }
 
@@ -771,6 +776,37 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         }
 
         return true;
+    }
+
+    /**
+     * Reset the member's password to a temporary one the member must
+     * change on next login. Returns the plaintext temporary password
+     * (shown once to the admin relaying it).
+     */
+    public function resetPasswordByAdmin(?User $admin = null): string
+    {
+        $temporary = static::generateTemporaryPassword();
+
+        $this->update([
+            'password' => Hash::make($temporary),
+            'force_password_change' => true,
+            'password_reset_by' => $admin?->id,
+            'password_reset_at' => now(),
+        ]);
+
+        activity()
+            ->performedOn($this)
+            ->causedBy($admin ?? $this)
+            ->log("Password reset by admin for {$this->name}");
+
+        return $temporary;
+    }
+
+    protected static function generateTemporaryPassword(): string
+    {
+        $words = ['mango', 'cactus', 'river', 'eagle', 'zebra', 'pixel', 'comet', 'harbor', 'meadow', 'falcon', 'maple', 'coral'];
+
+        return $words[array_rand($words)].'-'.random_int(1000, 9999).'-'.$words[array_rand($words)];
     }
 
     public function reject(?User $rejecter = null, ?string $notes = null): bool

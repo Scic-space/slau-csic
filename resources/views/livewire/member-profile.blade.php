@@ -16,6 +16,18 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your personal information and preferences</p>
         </div>
 
+        @if ($user->force_password_change)
+            <div class="mb-4 flex items-start gap-3 rounded-sm border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+                <span class="material-symbols-outlined mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true">lock_reset</span>
+                <div>
+                    <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">Set a new password to continue</p>
+                    <p class="mt-0.5 text-sm text-amber-700 dark:text-amber-300">
+                        An administrator reset your password. Please choose a new password below. You will not be able to use the rest of the site until you do.
+                    </p>
+                </div>
+            </div>
+        @endif
+
         {{-- Photo + Identity card --}}
         <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card sm:p-5">
             <div class="flex flex-col items-center gap-4 sm:flex-row">

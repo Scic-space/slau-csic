@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Tables;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Support\AdminActionStyle;
 use App\Models\User;
+use App\Notifications\MemberPasswordResetNotification;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -192,6 +193,39 @@ class UsersTable
                         && auth()->id() !== $record->id
                         && $record->canBeImpersonated())
                     ->url(fn (User $record): string => route('impersonate', $record->getKey())),
+
+                Action::make('reset_password')
+                    ->label('Reset Password')
+                    ->icon(self::materialIcon('lock_reset'))
+                    ->iconButton()
+                    ->color('warning')
+                    ->tooltip('Reset password')
+                    ->extraAttributes(self::accessibleActionAttributes('Reset Password'))
+                    ->visible(fn (User $record): bool => auth()->id() !== $record->id
+                        && in_array($record->membership_status, ['active', 'pending', 'suspended', 'inactive'], true))
+                    ->requiresConfirmation()
+                    ->modalHeading('Reset member password')
+                    ->modalDescription('This generates a temporary password and forces the member to set a new one on their next sign in.')
+                    ->action(function (User $record) {
+                        $temporary = $record->resetPasswordByAdmin(auth()->user());
+
+                        try {
+                            $record->notify(new MemberPasswordResetNotification($temporary));
+                        } catch (\Throwable $e) {
+                            report($e);
+                        }
+
+                        Notification::make()
+                            ->title('Password reset')
+                            ->body(new HtmlString(
+                                'Temporary password for <strong>'.e($record->name).'</strong>: '
+                                .'<code>'.e($temporary).'</code>. '
+                                .'Share it with the member; they must change it on next sign in.'
+                            ))
+                            ->success()
+                            ->persistent()
+                            ->send();
+                    }),
 
                 Action::make('suspend')
                     ->label('Suspend')
