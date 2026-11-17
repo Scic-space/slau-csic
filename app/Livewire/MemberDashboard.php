@@ -113,8 +113,8 @@ class MemberDashboard extends Component
         $memberYear = $user->memberProfile?->year_of_study;
 
         $upcomingMeetings = Meeting::query()
-            ->teachingSessions()
             ->notCancelled()
+            ->whereNull('ended_at')
             ->where('scheduled_at', '>=', now())
             ->where(function ($query) use ($memberYear) {
                 $query->whereNull('audience')->orWhere('audience', 'all');
