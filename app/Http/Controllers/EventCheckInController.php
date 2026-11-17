@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EventAttended;
 use App\Models\EventAttendance;
 use App\Models\EventRegistration;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class EventCheckInController extends Controller
 
         $event = $registration->event;
 
-        if (! in_array($event->status, ['published', 'scheduled', 'ongoing'])) {
+        if ($event->hasEnded() || ! in_array($event->status, ['published', 'scheduled', 'ongoing'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'This event is not active.',
@@ -57,6 +58,13 @@ class EventCheckInController extends Controller
             ], 409);
         }
 
+        if ($registration->status !== 'registered') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This registration is not confirmed.',
+            ], 403);
+        }
+
         \Illuminate\Support\Facades\DB::transaction(function () use ($registration, $event) {
             $registration->update([
                 'attended_at' => now(),
@@ -71,6 +79,8 @@ class EventCheckInController extends Controller
                 'recorded_at' => now(),
             ]);
         });
+
+        EventAttended::dispatch($registration->user, $event, $registration);
 
         return response()->json([
             'success' => true,

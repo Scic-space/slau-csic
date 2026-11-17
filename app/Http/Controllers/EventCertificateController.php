@@ -16,6 +16,10 @@ class EventCertificateController extends Controller
             abort(403);
         }
 
+        if ($registration->event_id !== $event->id) {
+            abort(404);
+        }
+
         if (! $registration->hasAttended()) {
             abort(410, 'Attendance not confirmed for this event.');
         }
@@ -29,7 +33,10 @@ class EventCertificateController extends Controller
             'event' => $event,
             'registration' => $registration,
             'certificateId' => 'EVT-CERT-'.str_pad((string) $registration->id, 6, '0', STR_PAD_LEFT),
-        ]);
+            'clubLogo' => public_path('images/club_logo.png'),
+            'attendedAt' => ($registration->attended_at ?? $event->end_date)?->format('M j, Y') ?? 'N/A',
+            'eventType' => ucfirst((string) ($event->type ?: 'Event')),
+        ])->setPaper([0, 0, 1056, 750]);
 
         $filename = 'event-certificate-'.str($event->title)->slug('-').'.pdf';
 

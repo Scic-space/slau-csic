@@ -33,7 +33,16 @@ class EventResource extends Model
         return ! is_null($this->url);
     }
 
-    public function getDisplayUrlAttribute(): string
+    public function supportsDocxDownload(): bool
+    {
+        $path = parse_url((string) $this->file_path, PHP_URL_PATH);
+
+        return $path && in_array(strtolower(pathinfo(rawurldecode($path), PATHINFO_EXTENSION)), [
+            'docx', 'pdf', 'html', 'htm', 'txt', 'md', 'markdown',
+        ], true);
+    }
+
+    public function getDisplayUrlAttribute(): ?string
     {
         return $this->file_path ? asset('storage/'.$this->file_path) : $this->url;
     }

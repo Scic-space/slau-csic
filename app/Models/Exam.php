@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ExamService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,6 +31,31 @@ class Exam extends Model
             'passing_score' => 'integer',
             'status' => 'string',
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function (Exam $exam) {
+            if ($exam->status === 'published') {
+                app(ExamService::class)->notifyPublished($exam);
+            }
+        });
+
+        static::updated(function (Exam $exam) {
+            if ($exam->status === 'published' && $exam->wasChanged('status')) {
+                app(ExamService::class)->notifyPublished($exam);
+            }
+        });
+    }
+
+    /**
+     * Whether members can currently access and take this exam.
+     */
+    public function isAvailable(): bool
+    {
+        return $this->status === 'published';
     }
 
     public function creator(): BelongsTo

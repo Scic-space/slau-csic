@@ -83,6 +83,10 @@ class ClubResourceProgress extends Component
             $data,
         );
 
+        if ($this->status === 'completed' && auth()->user()) {
+            app(\App\Services\GamificationService::class)->awardTrackCompletion(auth()->user(), $this->resource);
+        }
+
         $this->showSaved = true;
 
         $this->dispatch('progress-saved');

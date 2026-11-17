@@ -214,10 +214,19 @@ it('renders the exams certificates page', function () {
 
 it('renders the instructor materials page', function () {
     $user = User::factory()->create();
+    $user->givePermissionTo(\Spatie\Permission\Models\Permission::findOrCreate('teacher.dashboard.view', 'web'));
 
     Livewire::actingAs($user)
         ->test(\App\Livewire\InstructorMaterials::class)
         ->assertStatus(200);
+});
+
+it('forbids the instructor materials page without teaching permission', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\InstructorMaterials::class)
+        ->assertStatus(403);
 });
 
 // ─── Auth redirects ─────────────────────────────────────────────────

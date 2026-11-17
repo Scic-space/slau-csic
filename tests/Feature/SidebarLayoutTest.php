@@ -30,10 +30,12 @@ it('keeps member navigation routes and maps them to material icons', function ()
         ->assertSee(route('profile.edit'), false)
         ->assertSee(route('members.index'), false)
         ->assertSee(route('events.index'), false)
+        ->assertSee(route('meetings.index'), false)
         ->assertSee(route('attendance.calendar'), false)
         ->assertSee(route('resources.index'), false)
         ->assertSee("'Dashboard': 'dashboard'", false)
         ->assertSee("'Attendance': 'fact_check'", false)
+        ->assertSee("'Meetings': 'groups_2'", false)
         ->assertSee("'Resource Library': 'library_books'", false)
         ->assertSee('sidebar-material-icon', false);
 });

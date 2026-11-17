@@ -58,8 +58,16 @@ class EventResource extends Resource
                         'hackathon' => 'Hackathon',
                     ])
                     ->required(),
-                RichEditor::make('description')
-                    ->required(),
+                FileUpload::make('description_file_path')
+                    ->label('Lesson PDF')
+                    ->helperText('Upload lesson notes as a PDF (up to 10 MB). Members can view and download the PDF before, during, and after the lesson.')
+                    ->disk('local')
+                    ->visibility('private')
+                    ->directory('event-documents')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->rules(['mimes:pdf'])
+                    ->maxSize(10240)
+                    ->required(fn (?Event $record): bool => blank($record?->description)),
                 FileUpload::make('banner_image')
                     ->image()
                     ->disk('public')
@@ -178,6 +186,15 @@ class EventResource extends Resource
                     ->label('Allowed Members (leave empty for public)')
                     ->searchable()
                     ->preload(),
+                Select::make('audience')
+                    ->label('Target Audience')
+                    ->options([
+                        'all' => 'All members',
+                        'year_1' => 'Year 1 only',
+                        'year_2_plus' => 'Year 2 and above',
+                    ])
+                    ->default('all')
+                    ->helperText('Restricts registration and announcements when no members are hand-picked above.'),
                 Toggle::make('is_recurring')
                     ->label('Recurring Event'),
             ]);

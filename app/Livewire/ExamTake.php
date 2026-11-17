@@ -31,6 +31,9 @@ class ExamTake extends Component
     public function mount(Exam $exam): void
     {
         $user = Auth::user();
+
+        abort_unless($user->can('take', $exam), 403);
+
         $service = app(ExamAttemptService::class);
         $existingAttempt = $service->getUserAttempt($exam, $user);
 
@@ -104,7 +107,10 @@ class ExamTake extends Component
             }
         }
 
-        $this->answers[(string) $questionId] = array_merge($this->answers[(string) $questionId] ?? [], $data);
+        $this->answers[(string) $questionId] = array_merge($this->answers[(string) $questionId] ?? [], [
+            'text' => $text,
+            'option_id' => $optionId,
+        ]);
     }
 
     public function submitExam(): void
@@ -133,7 +139,7 @@ class ExamTake extends Component
             'examTitle' => $this->exam->title,
             'attemptData' => [
                 'id' => $this->attempt->id,
-                'time_remaining_seconds' => $this->attempt->time_remaining_seconds ?? ($this->exam->duration_minutes * 60),
+                'time_remaining_seconds' => $this->examAttemptService->remainingSeconds($this->attempt),
             ],
         ]);
     }

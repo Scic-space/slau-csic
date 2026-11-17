@@ -113,6 +113,30 @@
                     </div>
                 @endif
             </div>
+
+            {{-- Recent Exam Submissions --}}
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white dark:border-border dark:bg-card">
+                <div class="border-b border-gray-200 px-5 py-4 dark:border-border">
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Recent Exam Submissions</h2>
+                </div>
+                @if ($recentExamAttempts->isEmpty())
+                    <div class="px-5 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No exam submissions yet</div>
+                @else
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @foreach ($recentExamAttempts as $attempt)
+                            <div class="px-5 py-3">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $attempt->user->name ?? 'Unknown' }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ $attempt->exam->title ?? 'Exam' }} ·
+                                    {{ $attempt->passed ? 'Passed' : 'Failed' }} ·
+                                    {{ $attempt->total_score }}%
+                                    <span> · {{ $attempt->submitted_at->diffForHumans() }}</span>
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>

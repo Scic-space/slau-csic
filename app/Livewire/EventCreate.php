@@ -6,14 +6,17 @@ use App\Livewire\Concerns\GuardsPendingMembers;
 use App\Models\Event;
 use App\Models\EventCategory;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class EventCreate extends Component
 {
     use GuardsPendingMembers;
+    use WithFileUploads;
 
     public string $title = '';
 
-    public string $description = '';
+    public ?TemporaryUploadedFile $descriptionFile = null;
 
     public string $type = 'workshop';
 
@@ -45,8 +48,11 @@ class EventCreate extends Component
 
     public function create(): void
     {
+        abort_unless(auth()->check() && ! auth()->user()->isPendingApproval(), 403);
+
         $this->validate([
             'title' => ['required', 'string', 'max:255'],
+            'descriptionFile' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:10240'],
             'type' => ['required', 'string'],
             'startDate' => ['required', 'date', 'after_or_equal:now'],
             'endDate' => ['nullable', 'date', 'after_or_equal:startDate'],
@@ -56,15 +62,20 @@ class EventCreate extends Component
             'registrationDeadline' => ['nullable', 'date'],
             'rsvpDeadline' => ['nullable', 'date'],
             'externalLink' => ['nullable', 'url'],
+        ], [
+            'descriptionFile.required' => 'Upload a PDF containing the lesson notes.',
+            'descriptionFile.mimes' => 'The lesson notes must be a PDF file.',
+            'descriptionFile.mimetypes' => 'The lesson notes must be a PDF file.',
+            'descriptionFile.max' => 'The lesson PDF must not be larger than 10 MB.',
         ]);
 
         $event = Event::create([
             'title' => $this->title,
-            'description' => $this->description,
+            'description_file_path' => $this->descriptionFile->store('event-documents', 'local'),
             'type' => $this->type,
             'start_date' => $this->startDate,
             'end_date' => $this->endDate ?: null,
-            'location' => $this->location ?: null,
+            'location' => $this->location,
             'max_participants' => $this->maxParticipants ?: null,
             'registration_required' => $this->registrationRequired,
             'waitlist_enabled' => $this->waitlistEnabled,
@@ -72,7 +83,7 @@ class EventCreate extends Component
             'registration_deadline' => $this->registrationDeadline ?: null,
             'rsvp_deadline' => $this->rsvpDeadline ?: null,
             'requirements' => $this->requirements,
-            'registration_fee' => $this->registrationFee ?: null,
+            'registration_fee' => $this->registrationFee ?? 0,
             'external_link' => $this->externalLink ?: null,
             'organizer_id' => auth()->id(),
             'status' => 'draft',

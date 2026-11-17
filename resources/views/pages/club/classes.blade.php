@@ -75,6 +75,34 @@
             </div>
 
             <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-white/[0.03]">
+                <h2 class="flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">history</span>Past classes you attended</h2>
+                <div class="mt-5 space-y-4">
+                    @forelse ($pastClasses as $attendance)
+                        @php $pastMeeting = $attendance->meeting; @endphp
+                        @if ($pastMeeting)
+                            <article class="rounded-lg border border-gray-200 bg-background p-4 dark:border-border dark:bg-background/60">
+                                <div class="flex flex-wrap items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-500">Teaching session · {{ ucfirst($attendance->status) }}</p>
+                                        <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">{{ $pastMeeting->title }}</h3>
+                                    </div>
+                                    <div class="rounded-md border border-gray-200 bg-white px-3 py-3 text-sm dark:border-border dark:bg-white/[0.03]">
+                                        <div class="text-gray-500 dark:text-gray-400">{{ $pastMeeting->scheduled_at?->format('M d, Y') ?? 'Date TBD' }}</div>
+                                        <div class="font-semibold text-gray-900 dark:text-white">{{ $pastMeeting->scheduled_at?->format('g:i A') ?? '' }}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex flex-wrap gap-3">
+                                    <a href="{{ route('classes.show', $pastMeeting) }}" class="inline-flex items-center gap-2 rounded-sm border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 dark:border-border dark:text-gray-200"><span class="material-symbols-outlined" aria-hidden="true">visibility</span>View class</a>
+                                </div>
+                            </article>
+                        @endif
+                    @empty
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Classes you attend will appear here once attendance is recorded.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-white/[0.03]">
                 <h2 class="flex items-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white"><span class="material-symbols-outlined text-emerald-500" aria-hidden="true">library_books</span>Class resource links</h2>
                 <div class="mt-5 space-y-4">
                     @foreach ($resources as $resource)

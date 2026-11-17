@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Training extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected static function boot()
     {
@@ -93,6 +94,12 @@ class Training extends Model
 
     public function getIsFullAttribute(): bool
     {
-        return $this->max_enrollments && $this->enrollment_count >= $this->max_enrollments;
+        if (! $this->max_enrollments) {
+            return false;
+        }
+
+        $count = $this->enrollments_count ?? $this->enrollment_count;
+
+        return $count >= $this->max_enrollments;
     }
 }

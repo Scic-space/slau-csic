@@ -3,11 +3,16 @@
 namespace App\Filament\Resources\Meetings\Pages;
 
 use App\Filament\Resources\Meetings\MeetingResource;
+use App\Filament\Resources\Meetings\Schemas\MeetingForm;
+use App\Models\User;
 use App\Notifications\MeetingCancelledNotification;
 use App\Notifications\MeetingRescheduledNotification;
+use App\Services\AttendanceService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -16,6 +21,71 @@ use Filament\Resources\Pages\EditRecord;
 class EditMeeting extends EditRecord
 {
     protected static string $resource = MeetingResource::class;
+
+    /** @var array<string, mixed> */
+    protected array $recurrenceData = [];
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $recurrence = $this->record->recurrence()->first();
+
+        $data['recurrence_pattern'] = $recurrence?->pattern ?? 'weekly';
+        $data['recurrence_interval'] = $recurrence?->interval ?? 1;
+        $data['recurrence_ends_at'] = $recurrence?->ends_at?->format('Y-m-d');
+
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->recurrenceData = [
+            'pattern' => $data['recurrence_pattern'] ?? 'weekly',
+            'interval' => (int) ($data['recurrence_interval'] ?? 1),
+            'ends_at' => $data['recurrence_ends_at'] ?? null,
+        ];
+
+        unset($data['recurrence_pattern'], $data['recurrence_interval'], $data['recurrence_ends_at']);
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $this->record->syncAudienceAllowList();
+
+        $this->record->recurrence()->delete();
+
+        if (! $this->record->is_recurring) {
+            return;
+        }
+
+        $this->record->recurrence()->create([
+            'pattern' => $this->recurrenceData['pattern'],
+            'interval' => max(1, $this->recurrenceData['interval']),
+            'ends_at' => $this->recurrenceData['ends_at']
+                ? \Carbon\Carbon::parse($this->recurrenceData['ends_at'])->endOfDay()
+                : null,
+        ]);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function backfillMemberOptions(): array
+    {
+        return MeetingForm::memberOptions($this->record);
+    }
+
+    protected function notifyActiveMembers(\Illuminate\Notifications\Notification $notification): void
+    {
+        User::activeMembers()->get()->each(function (User $member) use ($notification): void {
+            try {
+                $member->notify($notification);
+            } catch (\Exception $exception) {
+                report($exception);
+            }
+        });
+    }
 
     protected function getHeaderActions(): array
     {
@@ -41,6 +111,105 @@ class EditMeeting extends EditRecord
                         Notification::make()->title('Attendance closed')->success()->send();
                     }),
 
+                Action::make('roll_call')
+                    ->label('Take Roll Call')
+                    ->color('success')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->visible(fn (): bool => $this->record->isAttendanceOpen() && ! $this->record->isCancelled())
+                    ->schema([
+                        CheckboxList::make('present_ids')
+                            ->label('Present')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('present_ids')),
+                        CheckboxList::make('late_ids')
+                            ->label('Late')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('late_ids')),
+                    ])
+                    ->action(function (array $data) {
+                        $summary = app(AttendanceService::class)->recordRollCall(
+                            $this->record,
+                            auth()->user(),
+                            array_map('intval', $data['present_ids'] ?? []),
+                            array_map('intval', $data['late_ids'] ?? []),
+                        );
+
+                        $parts = ["{$summary['present']} present", "{$summary['late']} late"];
+
+                        if ($summary['skipped'] > 0) {
+                            $parts[] = "{$summary['skipped']} skipped";
+                        }
+
+                        Notification::make()
+                            ->title('Roll call recorded')
+                            ->body(implode(', ', $parts).'. Attendance stays open.')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('backfill_attendance')
+                    ->label('Record Past Attendance')
+                    ->color('info')
+                    ->icon('heroicon-o-clock')
+                    ->visible(fn (): bool => $this->record->scheduled_at
+                        && $this->record->scheduled_at->isPast()
+                        && ! $this->record->isCancelled())
+                    ->schema([
+                        CheckboxList::make('present_ids')
+                            ->label('Present')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('present_ids')),
+                        CheckboxList::make('late_ids')
+                            ->label('Late')
+                            ->options($this->backfillMemberOptions())
+                            ->searchable()
+                            ->columns(2)
+                            ->hintActions(MeetingForm::attendanceBulkActions('late_ids')),
+                    ])
+                    ->action(function (array $data) {
+                        $summary = app(AttendanceService::class)->backfillAttendance(
+                            $this->record,
+                            auth()->user(),
+                            array_map('intval', $data['present_ids'] ?? []),
+                            array_map('intval', $data['late_ids'] ?? []),
+                        );
+
+                        $parts = ["{$summary['present']} present", "{$summary['late']} late"];
+
+                        if ($summary['absent'] > 0) {
+                            $parts[] = "{$summary['absent']} absent";
+                        }
+
+                        if ($summary['skipped'] > 0) {
+                            $parts[] = "{$summary['skipped']} skipped";
+                        }
+
+                        Notification::make()
+                            ->title('Past attendance recorded')
+                            ->body(implode(', ', $parts).'. Meeting marked completed.')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('reuse_for_another_day')
+                    ->label('Reuse for another day')
+                    ->color('info')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->form([
+                        DateTimePicker::make('scheduled_at')
+                            ->label('New date & time')
+                            ->required(),
+                    ])
+                    ->successRedirectUrl(fn (array $data): string => \App\Filament\Resources\Meetings\MeetingResource::getUrl('edit', [
+                        'record' => $this->record->replicateForDate(\Carbon\Carbon::parse($data['scheduled_at']), auth()->user())->getKey(),
+                    ])),
+
                 Action::make('cancel')
                     ->label('Cancel Meeting')
                     ->color('danger')
@@ -55,12 +224,9 @@ class EditMeeting extends EditRecord
                     ->action(function (array $data) {
                         $this->record->cancel($data['cancellation_reason']);
 
-                        $this->record->attendance()
-                            ->with('user')
-                            ->get()
-                            ->each(fn ($attendance) => $attendance->user->notify(
-                                new MeetingCancelledNotification($this->record, $data['cancellation_reason'])
-                            ));
+                        $this->notifyActiveMembers(
+                            new MeetingCancelledNotification($this->record, $data['cancellation_reason'])
+                        );
 
                         Notification::make()->title('Meeting cancelled')->success()->send();
                     }),
@@ -82,16 +248,13 @@ class EditMeeting extends EditRecord
 
                         $this->record->reschedule($newDateTime);
 
-                        $this->record->attendance()
-                            ->with('user')
-                            ->get()
-                            ->each(fn ($attendance) => $attendance->user->notify(
-                                new MeetingRescheduledNotification(
-                                    $this->record,
-                                    $oldDate,
-                                    $newDateTime->format('M d, Y g:i A')
-                                )
-                            ));
+                        $this->notifyActiveMembers(
+                            new MeetingRescheduledNotification(
+                                $this->record,
+                                $oldDate,
+                                $newDateTime->format('M d, Y g:i A')
+                            )
+                        );
 
                         Notification::make()->title('Meeting rescheduled')->success()->send();
                     }),

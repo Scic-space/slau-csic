@@ -132,3 +132,36 @@ it('searches trainings by title', function () {
         ->set('search', 'Network')
         ->assertViewHas('trainings', fn ($trainings) => $trainings->contains('title', 'Network Security Basics'));
 });
+
+it('soft deletes trainings instead of removing them', function () {
+    $training = Training::factory()->create();
+
+    $training->delete();
+
+    expect(Training::find($training->id))->toBeNull();
+    expect(Training::withTrashed()->find($training->id))->not->toBeNull();
+    expect($training->fresh()->deleted_at)->not->toBeNull();
+});
+
+it('reports whether a training is full using the loaded enrollment count', function () {
+    $training = Training::factory()->create(['max_enrollments' => 2]);
+    TrainingEnrollment::create([
+        'training_id' => $training->id,
+        'user_id' => $this->user->id,
+        'status' => 'enrolled',
+        'enrolled_at' => now(),
+    ]);
+
+    $loaded = Training::withCount('enrollments')->find($training->id);
+
+    expect($loaded->is_full)->toBeFalse();
+
+    TrainingEnrollment::create([
+        'training_id' => $training->id,
+        'user_id' => User::factory()->create()->id,
+        'status' => 'enrolled',
+        'enrolled_at' => now(),
+    ]);
+
+    expect(Training::withCount('enrollments')->find($training->id)->is_full)->toBeTrue();
+});

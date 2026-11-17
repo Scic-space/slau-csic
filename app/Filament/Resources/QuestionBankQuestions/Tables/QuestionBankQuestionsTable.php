@@ -8,6 +8,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -28,7 +29,7 @@ class QuestionBankQuestionsTable
                 TextColumn::make('type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'mcq' => 'primary',
+                        'multiple_choice' => 'primary',
                         'true_false' => 'success',
                         'short_answer' => 'warning',
                         'code_snippet' => 'info',
@@ -38,6 +39,12 @@ class QuestionBankQuestionsTable
 
                 TextColumn::make('marks')
                     ->sortable(),
+
+                ImageColumn::make('image')
+                    ->label('Image')
+                    ->disk('public')
+                    ->size(40)
+                    ->square(),
 
                 TextColumn::make('options_count')
                     ->label('Options')
@@ -54,7 +61,7 @@ class QuestionBankQuestionsTable
             ->filters([
                 SelectFilter::make('type')
                     ->options([
-                        'mcq' => 'Multiple Choice',
+                        'multiple_choice' => 'Multiple Choice',
                         'true_false' => 'True/False',
                         'short_answer' => 'Short Answer',
                         'code_snippet' => 'Code Snippet',

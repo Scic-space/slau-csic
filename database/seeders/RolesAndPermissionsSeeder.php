@@ -137,6 +137,23 @@ class RolesAndPermissionsSeeder extends Seeder
             'portfolio.manage',
 
             // Teaching Sessions
+            'mark_attendance',
+            'create_teaching_session',
+            'edit_teaching_session',
+            'delete_teaching_session',
+            'start_teaching_session',
+            'end_teaching_session',
+            'view_leaderboard',
+            'checkin_via_qr',
+            'take_eligibility_snapshot',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+        // Remove legacy space-separated permission names.
+        Permission::whereIn('name', [
             'mark attendance',
             'create teaching session',
             'edit teaching session',
@@ -146,11 +163,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view leaderboard',
             'checkin via qr',
             'take eligibility snapshot',
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
-        }
+        ])->delete();
 
         $allPermissionNames = Permission::query()->pluck('name')->all();
 
@@ -189,8 +202,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'content.view', 'content.create', 'content.edit', 'content.delete',
                 'teacher.events.view', 'teacher.events.rsvp', 'teacher.reports.view', 'teacher.dashboard.view',
                 'portfolio.view', 'portfolio.manage',
-                'mark attendance', 'create teaching session', 'edit teaching session',
-                'start teaching session', 'end teaching session', 'view leaderboard',
+                'mark_attendance', 'create_teaching_session', 'edit_teaching_session',
+                'start_teaching_session', 'end_teaching_session', 'view_leaderboard',
             ],
             'Vice President' => [
                 'view_users', 'approve_members',
@@ -204,8 +217,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'access_admin_panel',
                 'view_assignments',
                 'vote_in_elections',
-                'mark attendance', 'create teaching session', 'edit teaching session',
-                'start teaching session', 'end teaching session', 'view leaderboard',
+                'mark_attendance', 'create_teaching_session', 'edit_teaching_session',
+                'start_teaching_session', 'end_teaching_session', 'view_leaderboard',
             ],
             'General Secretary' => [
                 'view_users',
@@ -216,7 +229,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_reports',
                 'access_admin_panel',
                 'vote_in_elections',
-                'mark attendance', 'view leaderboard',
+                'mark_attendance', 'view_leaderboard',
             ],
             'Treasurer' => [
                 'view_users',
@@ -274,7 +287,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_audit_logs',
                 'access_admin_panel',
                 'vote_in_elections',
-                'mark attendance', 'view leaderboard',
+                'mark_attendance', 'view_leaderboard',
             ],
             'Club Mentor' => $allPermissionNames,
             'Workshop Coordinator' => [
@@ -300,7 +313,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'content.view',
                 'teacher.events.view', 'teacher.events.rsvp',
                 'portfolio.view',
-                'checkin via qr', 'view leaderboard',
+                'checkin_via_qr', 'view_leaderboard',
             ],
             'associate' => [
                 'view_meetings',
@@ -313,7 +326,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_projects',
                 'view_trainings',
                 'portfolio.view',
-                'view leaderboard',
+                'view_leaderboard',
             ],
         ];
 

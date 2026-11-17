@@ -203,6 +203,7 @@ class MemberProfile extends Component
         }
 
         $user->password = Hash::make($this->new_password);
+        $user->force_password_change = false;
         $user->save();
 
         $this->reset('current_password', 'new_password', 'new_password_confirmation');

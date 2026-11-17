@@ -1,7 +1,10 @@
 <?php
 
 use App\Livewire\AttendanceCalendar;
+use App\Models\Attendance;
 use App\Models\CalendarReminder;
+use App\Models\EventRegistration;
+use App\Models\Meeting;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -97,4 +100,40 @@ it('renders interactive start and end date picker controls', function () {
         ->set('reminderEndsOn', '2026-09-12')
         ->assertSet('reminderStartsOn', '2026-09-10')
         ->assertSet('reminderEndsOn', '2026-09-12');
+});
+
+it('combines meeting and event attendance in the calendar stats', function () {
+    $user = User::factory()->create(['approved_at' => now()]);
+
+    $presentMeeting = Meeting::factory()->create(['created_by' => $user->id, 'scheduled_at' => now()->subDay()]);
+    $absentMeeting = Meeting::factory()->create(['created_by' => $user->id, 'scheduled_at' => now()->subDays(2)]);
+
+    Attendance::create(['meeting_id' => $presentMeeting->id, 'user_id' => $user->id, 'status' => 'present', 'checked_in_at' => now()->subDay()]);
+    Attendance::create(['meeting_id' => $absentMeeting->id, 'user_id' => $user->id, 'status' => 'absent', 'is_auto_absent' => true]);
+
+    EventRegistration::factory()->for($user)->attended()->create();
+
+    Livewire::actingAs($user)
+        ->test(AttendanceCalendar::class)
+        ->assertViewHas('stats', function (array $stats) {
+            return $stats['total'] === 3
+                && $stats['present'] === 2
+                && $stats['late'] === 0
+                && $stats['absent'] === 1
+                && $stats['rate'] === 66.67;
+        });
+});
+
+it('excludes absences from the calendar attendance rate', function () {
+    $user = User::factory()->create(['approved_at' => now()]);
+
+    $presentMeeting = Meeting::factory()->create(['created_by' => $user->id, 'scheduled_at' => now()->subDay()]);
+    $absentMeeting = Meeting::factory()->create(['created_by' => $user->id, 'scheduled_at' => now()->subDays(2)]);
+
+    Attendance::create(['meeting_id' => $presentMeeting->id, 'user_id' => $user->id, 'status' => 'present', 'checked_in_at' => now()->subDay()]);
+    Attendance::create(['meeting_id' => $absentMeeting->id, 'user_id' => $user->id, 'status' => 'absent', 'is_auto_absent' => true]);
+
+    Livewire::actingAs($user)
+        ->test(AttendanceCalendar::class)
+        ->assertViewHas('stats', fn (array $stats) => $stats['rate'] === 50.0);
 });

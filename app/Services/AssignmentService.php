@@ -298,7 +298,8 @@ class AssignmentService
         };
         $score += $rankBonus;
 
-        $score += $candidate->events_attended > 10 ? 0.1 : ($candidate->events_attended > 5 ? 0.05 : 0);
+        $eventsAttended = $candidate->eventsAttendedCount();
+        $score += $eventsAttended > 10 ? 0.1 : ($eventsAttended > 5 ? 0.05 : 0);
 
         return min($score, 1.0);
     }

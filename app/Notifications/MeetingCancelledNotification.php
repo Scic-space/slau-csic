@@ -28,7 +28,7 @@ class MeetingCancelledNotification extends Notification
             ->line("We regret to inform you that **{$this->meeting->title}** has been cancelled.")
             ->when($this->reason, fn ($message) => $message->line("Reason: {$this->reason}"))
             ->line('Please check the schedule for other upcoming meetings.')
-            ->action('View Schedule', url('/admin/meetings'));
+            ->action('View Meeting Details', $this->meeting->memberViewUrl());
     }
 
     public function toArray(object $notifiable): array
@@ -37,6 +37,7 @@ class MeetingCancelledNotification extends Notification
             'meeting_id' => $this->meeting->id,
             'meeting_title' => $this->meeting->title,
             'reason' => $this->reason,
+            'action_url' => $this->meeting->memberViewUrl(),
             'message' => "Meeting '{$this->meeting->title}' has been cancelled."
                 .($this->reason ? " Reason: {$this->reason}" : ''),
         ];

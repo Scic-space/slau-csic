@@ -34,7 +34,9 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Date & Time</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Training</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Attendees</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Attendees</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Interested</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Rating</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
                             </tr>
                         </thead>
@@ -42,7 +44,7 @@
                             @foreach ($sessions as $session)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-card-hover/50 transition">
                                     <td class="px-6 py-4">
-                                        <a href="{{ route('portal.class', $session->id) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                        <a href="{{ route('classes.show', $session) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
                                             {{ $session->title }}
                                         </a>
                                     </td>
@@ -51,16 +53,26 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($session->training)
-                                            <a href="{{ route('trainings.show', $session->training->id) }}" wire:navigate class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                            <a href="{{ route('trainings.show', $session->training) }}" wire:navigate class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
                                                 {{ $session->training->title }}
                                             </a>
                                         @else
                                             <span class="text-sm text-gray-400 dark:text-gray-500">&mdash;</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $session->attendance_count }}
-                                    </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            {{ $session->attendance_count }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            {{ $session->interests_count }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            @if ($session->feedback_count > 0)
+                                                <span class="inline-flex items-center gap-1"><span class="text-sm text-yellow-400">★</span>{{ round($session->average_rating, 1) }} ({{ $session->feedback_count }})</span>
+                                            @else
+                                                &mdash;
+                                            @endif
+                                        </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
                                             $statusClasses = match($session->status) {

@@ -99,6 +99,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'bonus_points',
         'score',
         'rank',
+        'force_password_change',
+        'password_reset_by',
+        'password_reset_at',
     ];
 
     /**
@@ -136,6 +139,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'suspended_until' => 'datetime',
             'rank_changed_at' => 'datetime',
             'intake_year' => 'integer',
+            'force_password_change' => 'boolean',
+            'password_reset_at' => 'datetime',
         ];
     }
 
@@ -479,17 +484,64 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function getAttendanceRate(): float
     {
-        $totalMeetings = Meeting::where('scheduled_at', '<=', now())
-            ->where('created_at', '>=', Carbon::parse($this->joined_at))
+        $joinedAt = $this->joined_at ? Carbon::parse($this->joined_at) : null;
+
+        $totalMeetings = Meeting::query()
+            ->whereNull('cancelled_at')
+            ->where('scheduled_at', '<=', now())
+            ->when($joinedAt, fn ($query) => $query->where('scheduled_at', '>=', $joinedAt))
             ->count();
 
         if ($totalMeetings === 0) {
             return 0;
         }
 
-        $attendedMeetings = $this->attendance()->count();
+        $attendedMeetings = $this->attendance()
+            ->whereIn('status', ['present', 'late'])
+            ->whereHas('meeting', function ($query) use ($joinedAt) {
+                $query->whereNull('cancelled_at')
+                    ->where('scheduled_at', '<=', now())
+                    ->when($joinedAt, fn ($meetingQuery) => $meetingQuery->where('scheduled_at', '>=', $joinedAt));
+            })
+            ->distinct('meeting_id')
+            ->count('meeting_id');
 
-        return round(($attendedMeetings / $totalMeetings) * 100, 2);
+        return round(min(100, ($attendedMeetings / $totalMeetings) * 100), 2);
+    }
+
+    public function attendedMeetingsCount(): int
+    {
+        return $this->attendance()
+            ->whereIn('status', ['present', 'late'])
+            ->count();
+    }
+
+    /**
+     * Attendance rate across both meetings and events.
+     *
+     * Events only have a single positive signal (`attended_at`), so they count
+     * as present sessions. This mirrors the Attendance Calendar so the member
+     * dashboard and calendar never disagree.
+     */
+    public function getOverallAttendanceRate(): float
+    {
+        $presentMeetings = $this->attendance()
+            ->whereIn('status', ['present', 'late'])
+            ->whereHas('meeting')
+            ->count();
+
+        $totalMeetings = $this->attendance()
+            ->whereHas('meeting')
+            ->count();
+
+        $attendedEvents = $this->eventsAttendedCount();
+        $total = $totalMeetings + $attendedEvents;
+
+        if ($total === 0) {
+            return 0;
+        }
+
+        return round(min(100, (($presentMeetings + $attendedEvents) / $total) * 100), 2);
     }
 
     public function hasAttendedMeeting(Meeting $meeting): bool
@@ -541,10 +593,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     // ATTENDANCE METHODS
     // ============================================
 
-    public function updateAttendanceCount()
+    public function updateAttendanceCount(): void
     {
         $this->update([
-            'attendance_count' => $this->attendance()->count(),
+            'attendance_count' => $this->attendedMeetingsCount(),
         ]);
     }
 
@@ -703,15 +755,58 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             ]);
 
             $this->assignRole('member');
-
-            $this->notify(new \App\Notifications\MemberApprovalNotification($approver, $notes));
-
-            MemberApproved::dispatch($this, $this->membership, $approver ?? $this);
-
-            return true;
         } catch (\Exception $e) {
+            report($e);
+
             return false;
         }
+
+        try {
+            if ($approver) {
+                $this->notify(new \App\Notifications\MemberApprovalNotification($approver, $notes));
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        try {
+            MemberApproved::dispatch($this, $this->membership, $approver ?? $this);
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return true;
+    }
+
+    /**
+     * Reset the member's password to a temporary one the member must
+     * change on next login. Returns the plaintext temporary password
+     * (shown once to the admin relaying it).
+     */
+    public function resetPasswordByAdmin(?User $admin = null): string
+    {
+        $temporary = static::generateTemporaryPassword();
+
+        $this->update([
+            'password' => Hash::make($temporary),
+            'force_password_change' => true,
+            'password_reset_by' => $admin?->id,
+            'password_reset_at' => now(),
+        ]);
+
+        activity()
+            ->performedOn($this)
+            ->causedBy($admin ?? $this)
+            ->log("Password reset by admin for {$this->name}");
+
+        return $temporary;
+    }
+
+    protected static function generateTemporaryPassword(): string
+    {
+        $words = ['mango', 'cactus', 'river', 'eagle', 'zebra', 'pixel', 'comet', 'harbor', 'meadow', 'falcon', 'maple', 'coral'];
+
+        return $words[array_rand($words)].'-'.random_int(1000, 9999).'-'.$words[array_rand($words)];
     }
 
     public function reject(?User $rejecter = null, ?string $notes = null): bool
@@ -729,15 +824,27 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'approved_at' => now(),
                 'approval_notes' => $notes,
             ]);
-
-            $this->notify(new \App\Notifications\MemberRejectionNotification($rejecter, $notes));
-
-            MemberRejected::dispatch($this, $this->membership, $rejecter ?? $this);
-
-            return true;
         } catch (\Exception $e) {
+            report($e);
+
             return false;
         }
+
+        try {
+            if ($rejecter) {
+                $this->notify(new \App\Notifications\MemberRejectionNotification($rejecter, $notes));
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        try {
+            MemberRejected::dispatch($this, $this->membership, $rejecter ?? $this);
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return true;
     }
 
     public function suspend(string $reason, ?User $suspender = null, ?\DateTime $until = null): bool
@@ -756,15 +863,25 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
                 'suspended_until' => $until,
                 'suspended_by' => $suspender?->id,
             ]);
-
-            $this->notify(new MemberSuspendedNotification($reason, $until));
-
-            MemberSuspended::dispatch($this, $this->membership, $suspender ?? $this);
-
-            return true;
         } catch (\Exception $e) {
+            report($e);
+
             return false;
         }
+
+        try {
+            $this->notify(new MemberSuspendedNotification($reason, $until));
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        try {
+            MemberSuspended::dispatch($this, $this->membership, $suspender ?? $this);
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return true;
     }
 
     // Auto-alumni detection
@@ -901,15 +1018,28 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     }
 
     // Member Statistics Methods
+
+    /**
+     * Count the events this user has actually attended.
+     *
+     * `attended_at` is the canonical marker for attendance (set by every
+     * check-in path), so we count on it rather than the `status` column
+     * which is not always kept in sync.
+     */
+    public function eventsAttendedCount(): int
+    {
+        return $this->eventRegistrations()->whereNotNull('attended_at')->count();
+    }
+
     public function getMemberStats(): array
     {
         $competitionParticipations = $this->competitionParticipations()->count();
         $portalProgress = $this->clubResourceProgress()->get();
 
         return [
-            'total_attendance' => $this->attendance()->count(),
-            'attendance_rate' => $this->getAttendanceRate(),
-            'events_attended' => $this->eventRegistrations()->where('status', 'attended')->count(),
+            'total_attendance' => $this->attendedMeetingsCount(),
+            'attendance_rate' => $this->getOverallAttendanceRate(),
+            'events_attended' => $this->eventsAttendedCount(),
             'projects_led' => $this->projects()->count(),
             'projects_participated' => $this->projectMemberships()->count(),
             'competition_entries' => $competitionParticipations,

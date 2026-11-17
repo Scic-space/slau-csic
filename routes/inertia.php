@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Auth\InertiaAuthController;
 use App\Http\Controllers\CertificateVerificationController;
+use App\Http\Controllers\EventDescriptionDownloadController;
+use App\Http\Controllers\EventDescriptionViewController;
+use App\Http\Controllers\EventResourceDownloadController;
+use App\Http\Controllers\EventResourceViewController;
 use App\Http\Controllers\EventShowController;
 use App\Http\Controllers\ExamCertificateDownloadController;
 use App\Http\Controllers\ExamTakeController;
@@ -31,6 +35,8 @@ use App\Livewire\InstructorSessions;
 use App\Livewire\InstructorTrainings;
 use App\Livewire\MemberDashboard;
 use App\Livewire\MemberDirectory;
+use App\Livewire\MemberMeetings;
+use App\Livewire\MemberMeetingShow;
 use App\Livewire\MemberNotifications;
 use App\Livewire\MemberProfile;
 use App\Livewire\MyEvents;
@@ -64,6 +70,8 @@ Route::get('/events/calendar', EventCalendar::class)->name('events.calendar')->m
 Route::get('/events/browse', EventListing::class)->name('events.browse')->middleware(['auth', 'approved']);
 Route::get('/events/{event:slug}/details', EventDetails::class)->name('events.member-show')->middleware(['auth', 'approved']);
 Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware(['auth', 'approved']);
+Route::get('/meetings', MemberMeetings::class)->name('meetings.index')->middleware(['auth', 'approved']);
+Route::get('/meetings/{meeting}', MemberMeetingShow::class)->name('meetings.show')->middleware(['auth', 'approved']);
 Route::get('/members', MemberDirectory::class)->name('members.index')->middleware(['auth', 'approved']);
 Route::get('/events', PublicEventController::class)->name('events.index');
 
@@ -76,8 +84,24 @@ Route::post('/events/checkin', App\Http\Controllers\EventCheckInController::clas
 
 Route::get('/events/create', EventCreate::class)->name('events.create')->middleware(['auth', 'approved']);
 Route::get('/events/{event:slug}', [EventShowController::class, 'show'])->name('events.show');
+Route::get('/events/{event:slug}/description/download', EventDescriptionDownloadController::class)
+    ->name('events.description.download');
+Route::get('/events/{event:slug}/description/view', EventDescriptionViewController::class)
+    ->name('events.description.show');
+Route::get('/events/{event:slug}/resources/{resource}/view', EventResourceViewController::class)
+    ->name('events.resources.show')
+    ->scopeBindings();
+Route::get('/events/{event:slug}/resources/{resource}/download', EventResourceDownloadController::class)
+    ->name('events.resources.download')
+    ->scopeBindings();
+Route::get('/events/{event:slug}/resources/{resource}/file', App\Http\Controllers\EventResourceFileController::class)
+    ->name('events.resources.file')
+    ->scopeBindings();
 Route::get('/events/{event:slug}/certificate/{registration}', App\Http\Controllers\EventCertificateController::class)
     ->name('events.certificate')
+    ->middleware(['auth', 'verified']);
+Route::get('/classes/{meeting}/certificate/{attendance}', App\Http\Controllers\MeetingCertificateController::class)
+    ->name('meetings.certificate')
     ->middleware(['auth', 'verified']);
 Route::post('/events/{event:slug}/rsvp', [EventShowController::class, 'rsvp'])->name('events.rsvp')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
 Route::post('/events/{event:slug}/cancel-rsvp', [EventShowController::class, 'cancelRsvp'])->name('events.cancel-rsvp')->middleware(['auth', 'approved', 'verified', 'throttle:10,1']);
@@ -177,10 +201,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/polls/{slug}', \App\Livewire\PollShow::class)->name('polls.show')->middleware('approved');
 
     // Instructor routes
-    Route::get('/instructor', InstructorDashboard::class)->name('instructor.dashboard')->middleware('can:content.view');
-    Route::get('/instructor/trainings', InstructorTrainings::class)->name('instructor.trainings')->middleware('can:content.view');
-    Route::get('/instructor/sessions', InstructorSessions::class)->name('instructor.sessions')->middleware('can:content.view');
-    Route::get('/instructor/materials', InstructorMaterials::class)->name('instructor.materials')->middleware('can:content.view');
+    Route::get('/instructor', InstructorDashboard::class)->name('instructor.dashboard')->middleware('can:teacher.dashboard.view');
+    Route::get('/instructor/trainings', InstructorTrainings::class)->name('instructor.trainings')->middleware('can:teacher.dashboard.view');
+    Route::get('/instructor/sessions', InstructorSessions::class)->name('instructor.sessions')->middleware('can:teacher.dashboard.view');
+    Route::get('/instructor/materials', InstructorMaterials::class)->name('instructor.materials')->middleware('can:teacher.dashboard.view');
     Route::get('/teacher/portfolios', TeacherPortfolios::class)->name('teacher.portfolios')->middleware('can:portfolio.view');
     Route::get('/portfolios/{slug}', \App\Livewire\PortfolioShow::class)->name('portfolios.show');
 });

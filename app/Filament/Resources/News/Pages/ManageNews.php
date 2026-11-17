@@ -5,6 +5,7 @@ namespace App\Filament\Resources\News\Pages;
 use App\Filament\Resources\News\NewsResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Support\Enums\Width;
 
 class ManageNews extends ManageRecords
 {
@@ -13,7 +14,7 @@ class ManageNews extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->modalWidth(Width::FiveExtraLarge),
         ];
     }
 }

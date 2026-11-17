@@ -186,6 +186,7 @@ class MyProfile extends Page
             }
 
             $user->password = Hash::make($data['new_password']);
+            $user->force_password_change = false;
         }
 
         $user->save();

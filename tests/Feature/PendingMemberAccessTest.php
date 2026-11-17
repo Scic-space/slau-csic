@@ -5,6 +5,7 @@ use App\Livewire\EventDetails;
 use App\Livewire\MyGrades;
 use App\Models\Competition;
 use App\Models\Event;
+use App\Models\Meeting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -37,6 +38,7 @@ it('redirects a pending member to the dashboard when accessing club activities',
         ->assertRedirect(route('dashboard'));
 })->with([
     'events calendar' => 'events.calendar',
+    'meetings' => 'meetings.index',
     'attendance calendar' => 'attendance.calendar',
     'members directory' => 'members.index',
     'my events' => 'my-events',
@@ -54,6 +56,17 @@ it('redirects a pending member to the dashboard when accessing club activities',
     'ctf arena' => 'ctf.index',
     'club classes' => 'portal.classes',
 ]);
+
+it('redirects a pending member away from meeting details', function () {
+    $meeting = Meeting::factory()->upcoming()->create([
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+
+    $this->actingAs(User::factory()->pending()->create())
+        ->get(route('meetings.show', $meeting))
+        ->assertRedirect(route('dashboard'));
+});
 
 it('returns an inertia location to the dashboard for pending members', function () {
     $event = Event::factory()->create(['status' => 'published']);
@@ -106,6 +119,7 @@ it('redirects a pending member away from gated livewire components', function (s
     'exams' => \App\Livewire\ExamListing::class,
     'trainings' => \App\Livewire\TrainingListing::class,
     'my events' => \App\Livewire\MyEvents::class,
+    'meetings' => \App\Livewire\MemberMeetings::class,
     'my transactions' => \App\Livewire\MyTransactions::class,
     'polls' => \App\Livewire\PollListing::class,
     'attendance calendar' => \App\Livewire\AttendanceCalendar::class,

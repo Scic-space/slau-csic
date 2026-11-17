@@ -1,9 +1,19 @@
 <?php
 
+use App\Events\EventAttended;
+use App\Models\Badge;
+use App\Models\BadgeCriteriaType;
+use App\Models\ClubResource;
+use App\Models\ClubResourceProgress;
+use App\Models\CompetitionParticipants;
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Models\ExamAttempt;
 use App\Models\User;
+use App\Services\EventService;
+use App\Services\GamificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event as EventFacade;
 use Spatie\Permission\Models\Permission;
 
 uses(RefreshDatabase::class);
@@ -128,4 +138,117 @@ it('denies check-in without the manage_attendance permission', function () {
 
     actingAs($user)->get(route('events.checkin'))
         ->assertStatus(403);
+});
+
+// ─── Attendance via the service ──────────────────────────────────────
+
+it('marks a member attended and dispatches EventAttended through the service', function () {
+    EventFacade::fake([EventAttended::class]);
+
+    $member = User::factory()->create(['membership_status' => 'active', 'approved_at' => now()]);
+    $event = Event::factory()->create(['status' => 'published']);
+    $registration = EventRegistration::factory()->create([
+        'event_id' => $event->id,
+        'user_id' => $member->id,
+        'status' => 'registered',
+    ]);
+
+    app(EventService::class)->markAttendance($event, $member->id, 'present');
+
+    $registration->refresh();
+
+    expect($registration->status)->toBe('attended')
+        ->and($registration->attended_at)->not->toBeNull();
+
+    $this->assertDatabaseHas('event_attendance', [
+        'event_id' => $event->id,
+        'member_id' => $member->id,
+        'status' => 'present',
+    ]);
+
+    EventFacade::assertDispatched(EventAttended::class);
+});
+
+it('awards attendance points only once when marked present repeatedly', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'approved_at' => now()]);
+    $event = Event::factory()->create(['status' => 'published']);
+    EventRegistration::factory()->create([
+        'event_id' => $event->id,
+        'user_id' => $member->id,
+        'status' => 'registered',
+    ]);
+
+    $service = app(EventService::class);
+    $service->markAttendance($event, $member->id, 'present');
+    $service->markAttendance($event, $member->id, 'present');
+
+    $this->assertDatabaseHas('point_transactions', [
+        'user_id' => $member->id,
+        'points' => 50,
+        'reference_type' => Event::class,
+        'reference_id' => $event->id,
+    ]);
+
+    expect($member->pointTransactions()->where('reference_id', $event->id)->where('points', 50)->count())->toBe(1);
+});
+
+it('unlocks an events-attended badge from real attendance records', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'approved_at' => now()]);
+    $badge = Badge::factory()->create([
+        'criteria_type' => BadgeCriteriaType::EventsAttended,
+        'criteria_value' => 1,
+        'points_bonus' => 0,
+    ]);
+
+    $event = Event::factory()->create(['status' => 'published']);
+    EventRegistration::factory()->create([
+        'event_id' => $event->id,
+        'user_id' => $member->id,
+        'status' => 'registered',
+        'attended_at' => now(),
+    ]);
+
+    app(GamificationService::class)->checkBadges($member);
+
+    $this->assertDatabaseHas('user_badges', [
+        'user_id' => $member->id,
+        'badge_id' => $badge->id,
+    ]);
+});
+
+it('unlocks learning-track, exam, and competition badges from real records', function () {
+    $member = User::factory()->create(['membership_status' => 'active', 'approved_at' => now()]);
+    $resource = ClubResource::factory()->create(['slug' => 'track-badge-resource']);
+    ClubResourceProgress::factory()->create([
+        'club_resource_id' => $resource->id,
+        'user_id' => $member->id,
+        'status' => 'completed',
+    ]);
+    ExamAttempt::factory()->passed()->create(['user_id' => $member->id]);
+    CompetitionParticipants::factory()->create(['user_id' => $member->id]);
+
+    $trackBadge = Badge::factory()->create([
+        'criteria_type' => BadgeCriteriaType::ClubTracks,
+        'criteria_value' => 1,
+        'points_bonus' => 0,
+    ]);
+    $examBadge = Badge::factory()->create([
+        'criteria_type' => BadgeCriteriaType::ExamPassed,
+        'criteria_value' => 1,
+        'points_bonus' => 0,
+    ]);
+    $competitionBadge = Badge::factory()->create([
+        'criteria_type' => BadgeCriteriaType::Competition,
+        'criteria_value' => 1,
+        'points_bonus' => 0,
+    ]);
+
+    app(GamificationService::class)->checkBadges($member);
+
+    foreach ([$trackBadge, $examBadge, $competitionBadge] as $badge) {
+        $this->assertDatabaseHas('user_badges', [
+            'user_id' => $member->id,
+            'badge_id' => $badge->id,
+        ]);
+    }
 });

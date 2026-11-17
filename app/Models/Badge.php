@@ -70,6 +70,9 @@ class Badge extends Model
             BadgeCriteriaType::TeachingSessions => $this->checkTeachingSessions($user),
             BadgeCriteriaType::StreakDays => $this->checkStreakDays($user),
             BadgeCriteriaType::CtfScore => $this->checkCtfScore($user),
+            BadgeCriteriaType::ClubTracks => $this->checkClubTracks($user),
+            BadgeCriteriaType::ExamPassed => $this->checkExamPassed($user),
+            BadgeCriteriaType::Competition => $this->checkCompetition($user),
             BadgeCriteriaType::Custom => false,
             default => false,
         };
@@ -90,6 +93,19 @@ class Badge extends Model
     }
 
     /**
+     * Tailwind color classes for the badge icon, based on rarity.
+     */
+    public function iconColorClass(): string
+    {
+        return match ($this->rarity) {
+            BadgeRarity::Rare => 'text-blue-500 dark:text-blue-400',
+            BadgeRarity::Epic => 'text-purple-500 dark:text-purple-400',
+            BadgeRarity::Legendary => 'text-amber-500 dark:text-amber-400',
+            default => 'text-gray-500 dark:text-gray-400',
+        };
+    }
+
+    /**
      * Get all available criteria types.
      *
      * @return array<string, string>
@@ -105,11 +121,7 @@ class Badge extends Model
 
     private function checkEventsAttended(User $user): bool
     {
-        $count = $user->eventRegistrations()
-            ->where('status', 'attended')
-            ->count();
-
-        return $count >= $this->criteria_value;
+        return $user->eventsAttendedCount() >= $this->criteria_value;
     }
 
     private function checkCtfCompleted(User $user): bool
@@ -144,5 +156,25 @@ class Badge extends Model
             ->sum('points_awarded');
 
         return $totalScore >= $this->criteria_value;
+    }
+
+    private function checkClubTracks(User $user): bool
+    {
+        return $user->clubResourceProgress()
+            ->where('status', 'completed')
+            ->count() >= $this->criteria_value;
+    }
+
+    private function checkExamPassed(User $user): bool
+    {
+        return ExamAttempt::query()
+            ->where('user_id', $user->id)
+            ->where('passed', true)
+            ->count() >= $this->criteria_value;
+    }
+
+    private function checkCompetition(User $user): bool
+    {
+        return $user->competitionParticipations()->count() >= $this->criteria_value;
     }
 }

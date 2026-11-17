@@ -291,7 +291,7 @@ export default function Leaderboard({ leaders, currentUserRank, totalMembers, ra
                                                     {entry.badges.length > 0 && (
                                                         <div className="mt-2 flex items-center justify-center gap-0.5">
                                                             {entry.badges.map((badge, bi) => (
-                                                                <span key={bi} className="text-base" title={badge.name}>
+                                                                <span key={bi} className="material-symbols-outlined text-base text-amber-400" title={badge.name} aria-hidden="true">
                                                                     {badge.icon}
                                                                 </span>
                                                             ))}
@@ -363,7 +363,7 @@ export default function Leaderboard({ leaders, currentUserRank, totalMembers, ra
                                                             {member.badges.length > 0 ? (
                                                                 <div className="inline-flex items-center gap-0.5">
                                                                     {member.badges.map((badge, bi) => (
-                                                                        <span key={bi} className="text-sm" title={badge.name}>
+                                                                        <span key={bi} className="material-symbols-outlined text-sm text-amber-400" title={badge.name} aria-hidden="true">
                                                                             {badge.icon}
                                                                         </span>
                                                                     ))}

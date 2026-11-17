@@ -14,6 +14,11 @@ class InstructorSessions extends Component
 
     public string $filter = 'upcoming';
 
+    public function mount(): void
+    {
+        abort_unless(auth()->user()?->can('teacher.dashboard.view'), 403);
+    }
+
     public function updatedFilter(): void
     {
         $this->resetPage();
@@ -22,9 +27,17 @@ class InstructorSessions extends Component
     public function render()
     {
         $query = Meeting::teachingSessions()
-            ->where('created_by', auth()->id())
-            ->with(['training', 'creator'])
-            ->withCount('attendance');
+            ->where(function ($query) {
+                $query->where('created_by', auth()->id())
+                    ->orWhere('instructor_id', auth()->id());
+            })
+            ->with(['training', 'creator', 'instructor'])
+            ->withCount([
+                'attendance as attendance_count' => fn ($query) => $query->whereIn('status', ['present', 'late']),
+                'interests',
+                'feedback',
+            ])
+            ->withAvg('feedback as average_rating', 'rating');
 
         if ($this->filter === 'upcoming') {
             $query->where('scheduled_at', '>=', now());

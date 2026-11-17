@@ -4,6 +4,12 @@
     $message = $data['message'] ?? $data['subject'] ?? 'Notification';
     $actionUrl = $data['action_url'] ?? null;
     $eventSlug = $data['event_slug'] ?? null;
+
+    if (! $actionUrl && $eventSlug) {
+        $event = \App\Models\Event::findMemberViewableBySlug($eventSlug);
+        $actionUrl = $event ? route('events.member-show', $event) : null;
+    }
+
     $fullMessage = $data['message'] ?? $data['subject'] ?? '';
     $isUnread = is_null($notification->read_at);
 @endphp

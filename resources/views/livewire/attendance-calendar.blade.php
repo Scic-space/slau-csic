@@ -14,7 +14,7 @@
 
         <div class="mb-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
             @foreach ([
-                [$stats['total'], 'Total Meetings', 'calendar_month', 'text-gray-900 dark:text-white', 'text-gray-400'],
+                [$stats['total'], 'Total Sessions', 'calendar_month', 'text-gray-900 dark:text-white', 'text-gray-400'],
                 [$stats['present'], 'Present', 'check_circle', 'text-green-700 dark:text-green-400', 'text-green-500'],
                 [$stats['late'], 'Late', 'schedule', 'text-amber-700 dark:text-amber-400', 'text-amber-500'],
                 [$stats['absent'], 'Absent', 'cancel', 'text-red-700 dark:text-red-400', 'text-red-500'],

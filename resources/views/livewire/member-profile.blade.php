@@ -16,6 +16,18 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Manage your personal information and preferences</p>
         </div>
 
+        @if ($user->force_password_change)
+            <div class="mb-4 flex items-start gap-3 rounded-sm border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+                <span class="material-symbols-outlined mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true">lock_reset</span>
+                <div>
+                    <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">Set a new password to continue</p>
+                    <p class="mt-0.5 text-sm text-amber-700 dark:text-amber-300">
+                        An administrator reset your password. Please choose a new password below. You will not be able to use the rest of the site until you do.
+                    </p>
+                </div>
+            </div>
+        @endif
+
         {{-- Photo + Identity card --}}
         <div class="dashboard-card mb-3 rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card sm:p-5">
             <div class="flex flex-col items-center gap-4 sm:flex-row">
@@ -459,7 +471,7 @@
                             <div class="group relative flex flex-col items-center rounded-lg p-3 text-center transition {{ $item['earned'] ? 'bg-gray-50 dark:bg-gray-700/50' : 'opacity-40' }}">
                                 <div class="mb-1.5 flex h-10 w-10 items-center justify-center rounded-full {{ $item['earned'] ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-800' }}">
                                     @if ($item['badge']->icon)
-                                        <img src="{{ $item['badge']->icon }}" alt="{{ $item['badge']->name }}" class="h-6 w-6">
+                                        <span class="material-symbols-outlined text-xl {{ $item['badge']->iconColorClass() }}" aria-hidden="true">{{ $item['badge']->icon }}</span>
                                     @else
                                         <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                                     @endif

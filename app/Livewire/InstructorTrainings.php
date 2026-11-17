@@ -18,6 +18,11 @@ class InstructorTrainings extends Component
 
     public string $status = '';
 
+    public function mount(): void
+    {
+        abort_unless(auth()->user()?->can('teacher.dashboard.view'), 403);
+    }
+
     public function updatedSearch(): void
     {
         $this->resetPage();

@@ -12,9 +12,12 @@ use Inertia\Inertia;
 require __DIR__.'/inertia.php';
 
 Route::middleware(['auth', 'approved'])->group(function () {
+    Route::get('/club', [ClubPortalController::class, 'index'])->name('portal.index');
     Route::get('/club/competitions', [ClubPortalController::class, 'competitions'])->name('portal.competitions');
     Route::get('/club/ctf-arena', [ClubPortalController::class, 'ctfArena'])->name('portal.ctf');
     Route::get('/club/classes', [ClubPortalController::class, 'classes'])->name('portal.classes');
+    Route::get('/club/voting', [ClubPortalController::class, 'voting'])->name('portal.voting');
+    Route::post('/club/voting/{election}', [ClubPortalController::class, 'castVote'])->name('portal.voting.cast');
     Route::get('/club/resources/{clubResource:slug}', [ClubPortalController::class, 'showResource'])->name('portal.resources.show');
     Route::post('/club/resources/{clubResource}/progress', [ClubPortalController::class, 'updateProgress'])->name('portal.progress.update');
 

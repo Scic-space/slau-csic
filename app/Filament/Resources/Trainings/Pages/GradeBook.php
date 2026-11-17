@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Trainings\Pages;
 
-use App\Models\Training;
 use App\Models\TrainingEnrollment;
 use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 
 class GradeBook extends Page implements HasTable
 {
+    use InteractsWithRecord;
     use InteractsWithTable;
 
     protected static string $resource = \App\Filament\Resources\Trainings\TrainingResource::class;
@@ -29,9 +30,11 @@ class GradeBook extends Page implements HasTable
 
     protected static ?int $navigationSort = 3;
 
-    public function getRecord(): Training
+    public function mount(int|string $record): void
     {
-        return Training::findOrFail($this->record);
+        $this->record = $this->resolveRecord($record);
+
+        abort_unless(static::getResource()::canView($this->getRecord()), 403);
     }
 
     public function table(Table $table): Table
@@ -71,8 +74,7 @@ class GradeBook extends Page implements HasTable
                 TextColumn::make('completed_at')
                     ->label('Completed')
                     ->dateTime()
-                    ->sortable()
-                    ->nullable(),
+                    ->sortable(),
             ])
             ->defaultSort('enrolled_at', 'desc')
             ->recordActions([

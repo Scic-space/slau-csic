@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Events\RelationManagers;
 
 use App\Models\EventRegistration;
+use App\Services\EventService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -87,11 +88,8 @@ class RegistrationsRelationManager extends RelationManager
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn (EventRegistration $record): bool => is_null($record->attended_at) && $record->status !== 'cancelled')
-                    ->action(function (EventRegistration $record) {
-                        $record->update([
-                            'attended_at' => now(),
-                            'status' => 'attended',
-                        ]);
+                    ->action(function (EventRegistration $record, EventService $eventService) {
+                        $eventService->markAttendance($record->event, $record->user_id, 'present');
                     }),
                 Action::make('cancel')
                     ->label('Cancel Registration')

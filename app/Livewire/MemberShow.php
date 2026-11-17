@@ -29,7 +29,7 @@ class MemberShow extends Component
         $privacy = fn (string $field) => $user->canShowField($field);
 
         $eventsAttended = $user->eventRegistrations()
-            ->where('status', 'attended')
+            ->whereNotNull('attended_at')
             ->with('event:id,title,start_date,slug,type')
             ->latest('created_at')
             ->limit(5)
@@ -63,7 +63,7 @@ class MemberShow extends Component
             'total_sessions_attended' => $user->gamificationStats?->total_sessions_attended,
             'current_streak' => $user->gamificationStats?->current_streak,
             'events_attended' => $eventsAttended,
-            'events_attended_count' => $user->eventRegistrations()->where('status', 'attended')->count(),
+            'events_attended_count' => $user->eventsAttendedCount(),
             'badges' => $user->earnedBadges->map(fn ($b) => [
                 'name' => $b->name,
                 'description' => $b->description,

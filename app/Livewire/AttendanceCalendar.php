@@ -90,7 +90,7 @@ class AttendanceCalendar extends Component
 
     public function render(): View
     {
-        $user = auth()->user()->load('attendance.meeting');
+        $user = auth()->user()->load(['attendance.meeting', 'eventAttendance.event']);
 
         $records = $user->attendance()
             ->whereHas('meeting')
@@ -118,19 +118,51 @@ class AttendanceCalendar extends Component
             'notes' => $a->notes,
         ]);
 
+        $eventAttendanceEvents = $user->eventRegistrations()
+            ->whereNotNull('attended_at')
+            ->whereHas('event')
+            ->with('event')
+            ->get()
+            ->map(fn ($registration) => [
+                'id' => 'event-'.$registration->id,
+                'record_id' => $registration->id,
+                'type' => 'attendance',
+                'title' => $registration->event->title.' (present)',
+                'start' => $registration->event->start_date?->toIso8601String() ?? $registration->attended_at->toIso8601String(),
+                'end' => $registration->event->end_date?->toIso8601String() ?? $registration->event->start_date?->toIso8601String() ?? $registration->attended_at->toIso8601String(),
+                'color' => '#22c55e',
+                'textColor' => '#ffffff',
+                'status' => 'present',
+                'meeting_title' => $registration->event->title,
+                'check_in_time' => $registration->attended_at?->format('M d, Y g:i A'),
+                'location' => $registration->event->location,
+                'notes' => null,
+            ]);
+
         $reminderEvents = $user->calendarReminders()
             ->orderBy('starts_on')
             ->get()
             ->map(fn (CalendarReminder $reminder) => $this->reminderEvent($reminder));
 
-        $calendarEvents = $attendanceEvents->concat($reminderEvents)->values();
+        $calendarEvents = $attendanceEvents
+            ->concat($eventAttendanceEvents)
+            ->concat($reminderEvents)
+            ->values();
+
+        $presentMeetings = $records->where('status', 'present')->count();
+        $lateMeetings = $records->where('status', 'late')->count();
+        $absentMeetings = $records->where('status', 'absent')->count();
+        $attendedEvents = $eventAttendanceEvents->count();
+
+        $totalSessions = $presentMeetings + $lateMeetings + $absentMeetings + $attendedEvents;
+        $presentSessions = $presentMeetings + $attendedEvents;
 
         $stats = [
-            'total' => $records->count(),
-            'present' => $records->where('status', 'present')->count(),
-            'late' => $records->where('status', 'late')->count(),
-            'absent' => $records->where('status', 'absent')->count(),
-            'rate' => $user->getAttendanceRate(),
+            'total' => $totalSessions,
+            'present' => $presentSessions,
+            'late' => $lateMeetings,
+            'absent' => $absentMeetings,
+            'rate' => $user->getOverallAttendanceRate(),
             'streak' => $user->current_streak,
         ];
 

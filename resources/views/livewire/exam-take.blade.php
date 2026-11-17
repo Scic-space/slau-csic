@@ -151,7 +151,7 @@
                             <textarea @input.debounce.500ms="setAnswer(currentQuestion.id, { text: $event.target.value })"
                                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm dark:border-border dark:bg-gray-700"
                                       rows="4" placeholder="Type your answer..."
-                                      x-model="answers[currentQuestion.id]?.text ?? ''"></textarea>
+                                      :value="answers[currentQuestion.id]?.text ?? ''"></textarea>
                         </template>
 
                         <template x-if="currentQuestion.question.type === 'code_snippet'">

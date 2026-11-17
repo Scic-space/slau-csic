@@ -4,10 +4,13 @@ namespace App\Filament\Resources\ExamAttempts;
 
 use App\Filament\Resources\ExamAttempts\Pages\EditExamAttempt;
 use App\Filament\Resources\ExamAttempts\Pages\ListExamAttempts;
+use App\Filament\Resources\ExamAttempts\RelationManagers\AnswersRelationManager;
+use App\Filament\Resources\ExamAttempts\Schemas\ExamAttemptForm;
 use App\Filament\Resources\ExamAttempts\Tables\ExamAttemptsTable;
 use App\Models\ExamAttempt;
 use BackedEnum;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
@@ -26,6 +29,11 @@ class ExamAttemptResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function form(Schema $schema): Schema
+    {
+        return ExamAttemptForm::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return ExamAttemptsTable::configure($table);
@@ -33,7 +41,9 @@ class ExamAttemptResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            AnswersRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

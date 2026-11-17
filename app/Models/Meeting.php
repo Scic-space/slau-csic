@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -32,6 +33,7 @@ class Meeting extends Model
         'expected_attendees',
         'missed_fine_amount',
         'created_by',
+        'instructor_id',
         'agenda',
         'minutes',
         'late_threshold_minutes',
@@ -41,6 +43,7 @@ class Meeting extends Model
         'cancellation_reason',
         'minutes_status',
         'training_id',
+        'audience',
     ];
 
     protected function casts(): array
@@ -80,6 +83,11 @@ class Meeting extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function instructor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'instructor_id');
+    }
+
     public function training(): BelongsTo
     {
         return $this->belongsTo(Training::class);
@@ -88,6 +96,16 @@ class Meeting extends Model
     public function attendance(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function interests(): HasMany
+    {
+        return $this->hasMany(MeetingInterest::class);
+    }
+
+    public function isInterested(User $user): bool
+    {
+        return $this->interests()->where('user_id', $user->id)->exists();
     }
 
     public function attendees(): BelongsToMany
@@ -139,6 +157,23 @@ class Meeting extends Model
         }
 
         return $this->allowedAttendees()->where('user_id', $user->id)->exists();
+    }
+
+    public function isVisibleTo(User $user): bool
+    {
+        if (! $this->canUserAttend($user)) {
+            return false;
+        }
+
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            return true;
+        }
+
+        $memberYear = $user->memberProfile?->year_of_study;
+
+        return $this->audience === 'year_1'
+            ? $memberYear === 1
+            : is_int($memberYear) && $memberYear > 1;
     }
 
     public function scopeUpcoming($query)
@@ -214,6 +249,64 @@ class Meeting extends Model
         return route('attendance.verify', ['code' => $this->meeting_code]);
     }
 
+    public function memberViewUrl(): string
+    {
+        return $this->isTeachingSession()
+            ? route('classes.show', $this)
+            : route('meetings.show', $this);
+    }
+
+    /**
+     * Duplicate the class for another day, carrying content but no history.
+     *
+     * Copies details, agenda, attachments, and audience (rebuilding the
+     * restricted check-in list). Starts fresh: new code, closed
+     * attendance, no attendance rows, feedback, fines, minutes, or
+     * recurrence.
+     */
+    public function replicateForDate(\Carbon\Carbon $newDate, ?User $by = null): Meeting
+    {
+        return DB::transaction(function () use ($newDate, $by) {
+            $clone = $this->replicate([
+                'meeting_code',
+                'attendance_open',
+                'started_at',
+                'ended_at',
+                'cancelled_at',
+                'cancellation_reason',
+                'minutes',
+                'minutes_status',
+                'parent_meeting_id',
+                'is_recurring',
+                'created_by',
+                'deleted_at',
+            ]);
+
+            $clone->scheduled_at = $newDate;
+            $clone->created_by = $by?->id ?? $this->created_by;
+            $clone->attendance_open = false;
+            $clone->is_recurring = false;
+            $clone->minutes_status = 'draft';
+            $clone->save();
+
+            foreach ($this->agendaItems as $item) {
+                $itemClone = $item->replicate();
+                $itemClone->meeting_id = $clone->id;
+                $itemClone->save();
+            }
+
+            foreach ($this->attachments as $attachment) {
+                $fileClone = $attachment->replicate();
+                $fileClone->meeting_id = $clone->id;
+                $fileClone->save();
+            }
+
+            $clone->syncAudienceAllowList();
+
+            return $clone->fresh();
+        });
+    }
+
     public function openAttendance(): void
     {
         $this->update([
@@ -264,9 +357,63 @@ class Meeting extends Model
         return $this->attendance()->count();
     }
 
+    public function getAttendedCount(): int
+    {
+        return $this->attendance()->whereIn('status', ['present', 'late'])->count();
+    }
+
+    public function getAudienceLabelAttribute(): ?string
+    {
+        return match ($this->audience) {
+            'year_1' => 'Year 1 only',
+            'year_2_plus' => 'Year 2 and above',
+            default => null,
+        };
+    }
+
+    /**
+     * Active member IDs in the meeting's target audience.
+     * Empty when the meeting is open to everyone.
+     *
+     * @return list<int>
+     */
+    public function audienceMemberIds(): array
+    {
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            return [];
+        }
+
+        return User::activeMembers()
+            ->when(
+                $this->audience === 'year_1',
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', 1)),
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', '>', 1)),
+            )
+            ->pluck('users.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    /**
+     * Rebuild the restricted check-in list from the target audience.
+     * Meetings open to everyone carry no restriction.
+     */
+    public function syncAudienceAllowList(): void
+    {
+        $ids = $this->audienceMemberIds();
+
+        if ($ids === []) {
+            $this->allowedAttendees()->detach();
+
+            return;
+        }
+
+        $this->allowedAttendees()->sync($ids);
+    }
+
     public function getAttendanceRate(): float
     {
-        if ($this->expected_attendees === 0) {
+        if (! $this->expected_attendees) {
             return 0;
         }
 

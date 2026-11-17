@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ExamAttempts\Tables;
 
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -42,6 +43,9 @@ class ExamAttemptsTable
                 SelectFilter::make('exam_id')
                     ->label('Exam')
                     ->options(fn (): array => Exam::orderBy('title')->pluck('title', 'id')->toArray()),
+            ])
+            ->recordActions([
+                EditAction::make()->label('Review / Grade'),
             ]);
     }
 }

@@ -1,7 +1,12 @@
 <?php
 
+use App\Models\Attendance;
+use App\Models\Event;
+use App\Models\EventRegistration;
+use App\Models\Meeting;
 use App\Models\PointTransaction;
 use App\Models\User;
+use App\Services\GamificationRebuildService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -182,4 +187,80 @@ it('shows user rank as position among all users', function () {
         ->assertInertia(fn ($page) => $page
             ->where('currentUserRank.rank', 1)
             ->where('totalMembers', 4));
+});
+
+function rebuildableMember(): User
+{
+    $user = createUser();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->subDay(),
+        'started_at' => now()->subDay(),
+        'ended_at' => now()->subDay()->addHour(),
+        'attendance_open' => false,
+        'late_threshold_minutes' => 15,
+    ]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subDay()->addMinutes(5),
+    ]);
+
+    $event = Event::factory()->create(['status' => 'completed']);
+    EventRegistration::factory()->create([
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+        'status' => 'registered',
+        'attended_at' => now()->subDay(),
+    ]);
+
+    PointTransaction::create([
+        'user_id' => $user->id,
+        'points' => 10,
+        'reason' => 'Registered for event: Old rules',
+        'reference_type' => Event::class,
+        'reference_id' => $event->id,
+    ]);
+
+    return $user;
+}
+
+it('previews a rebuild without writing in dry-run mode', function () {
+    $user = rebuildableMember();
+
+    $report = app(GamificationRebuildService::class)->rebuild($user, true);
+
+    expect($report['before'])->toBe(10)
+        ->and($report['removed_points'])->toBe(10)
+        ->and($report['added_points'])->toBe(70)
+        ->and($report['after'])->toBe(70)
+        ->and($user->fresh()->total_points)->toBe(10)
+        ->and(PointTransaction::where('user_id', $user->id)->count())->toBe(1);
+});
+
+it('rebuilds a ledger from records and syncs counters and streaks', function () {
+    $user = rebuildableMember();
+
+    $report = app(GamificationRebuildService::class)->rebuild($user);
+
+    expect($report['after'])->toBe(70);
+
+    $user->refresh();
+
+    expect($user->total_points)->toBe(70)
+        ->and($user->attendance_count)->toBe(1)
+        ->and($user->total_sessions_attended)->toBe(1)
+        ->and($user->current_streak)->toBe(1)
+        ->and($user->longest_streak)->toBe(1)
+        ->and($user->rank)->toBe('bronze');
+
+    expect(PointTransaction::where('user_id', $user->id)->where('reason', 'like', 'Registered for event:%')->count())->toBe(0);
+});
+
+it('runs the rebuild command in dry-run mode', function () {
+    rebuildableMember();
+
+    $this->artisan('gamification:rebuild', ['--dry-run' => true])->assertSuccessful();
+
+    expect(PointTransaction::sum('points'))->toBe(10);
 });

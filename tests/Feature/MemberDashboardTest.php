@@ -1,6 +1,11 @@
 <?php
 
 use App\Livewire\MemberDashboard;
+use App\Models\Attendance;
+use App\Models\Event;
+use App\Models\EventRegistration;
+use App\Models\Meeting;
+use App\Models\MeetingInterest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -60,6 +65,23 @@ it('renders meaningful Material Symbols for dashboard cards', function () {
         ]);
 });
 
+it('does not count profile fields that live on the users table columns only', function () {
+    $user = User::factory()->create([
+        'registration_number' => 'BACS/26D/U/A0000',
+        'profile_photo' => 'profile-photos/avatar.jpg',
+    ]);
+
+    $user->update([
+        'phone' => '0700000001',
+        'program' => 'Bachelor of Science in Computer Science (BSCS)',
+        'bio' => 'A keen security enthusiast.',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertSee('Your profile is 31% complete.');
+});
+
 it('counts profile fields stored on member_profiles and social_links', function () {
     $user = User::factory()->create([
         'registration_number' => 'BACS/26D/U/A0000',
@@ -86,19 +108,185 @@ it('counts profile fields stored on member_profiles and social_links', function 
         ->assertDontSee('Complete Your Profile');
 });
 
-it('does not count profile fields that live on the users table columns only', function () {
-    $user = User::factory()->create([
-        'registration_number' => 'BACS/26D/U/A0000',
-        'profile_photo' => 'profile-photos/avatar.jpg',
+it('counts events attended from the attended_at marker, not meetings or status', function () {
+    $user = User::factory()->create();
+
+    $attended = Event::factory()->create(['status' => 'completed']);
+    $mislabeled = Event::factory()->create(['status' => 'completed']);
+
+    EventRegistration::factory()->create([
+        'event_id' => $attended->id,
+        'user_id' => $user->id,
+        'status' => 'registered',
+        'attended_at' => now(),
     ]);
 
-    $user->update([
-        'phone' => '0700000001',
-        'program' => 'Bachelor of Science in Computer Science (BSCS)',
-        'bio' => 'A keen security enthusiast.',
+    EventRegistration::factory()->create([
+        'event_id' => $mislabeled->id,
+        'user_id' => $user->id,
+        'status' => 'attended',
+        'attended_at' => null,
+    ]);
+
+    expect($user->eventsAttendedCount())->toBe(1);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertViewHas('stats', fn (array $stats) => $stats['events_attended'] === 1);
+});
+
+it('reports an attendance rate that combines meetings and events like the calendar', function () {
+    $user = User::factory()->create();
+
+    $meeting = Meeting::factory()->create(['created_by' => $user->id]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subDay(),
+    ]);
+
+    $absentMeeting = Meeting::factory()->create(['created_by' => $user->id]);
+    Attendance::create([
+        'meeting_id' => $absentMeeting->id,
+        'user_id' => $user->id,
+        'status' => 'absent',
+        'is_auto_absent' => true,
+    ]);
+
+    $event = Event::factory()->create(['status' => 'completed']);
+    EventRegistration::factory()->create([
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+        'status' => 'registered',
+        'attended_at' => now(),
+    ]);
+
+    expect($user->getOverallAttendanceRate())->toBe(66.67);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertViewHas('stats', fn (array $stats) => $stats['attendance_rate'] === 66.67);
+});
+
+it('returns a zero attendance rate when there are no sessions', function () {
+    $user = User::factory()->create();
+
+    expect($user->getOverallAttendanceRate())->toBe(0.0);
+});
+
+it('lists recently attended internal classes on the dashboard', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'title' => 'Past Linux Class',
+        'scheduled_at' => now()->subWeek(),
+    ]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
     ]);
 
     Livewire::actingAs($user)
         ->test(MemberDashboard::class)
-        ->assertSee('Your profile is 31% complete.');
+        ->assertViewHas('myAttendedMeetings', fn ($attendances) => $attendances->contains(fn ($a) => $a->meeting_id === $meeting->id))
+        ->assertSee('My Classes')
+        ->assertSee('Past Linux Class');
+});
+
+it('shows upcoming classes only to their targeted audience', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    Meeting::factory()->teachingSession()->create([
+        'title' => 'Year One Only Class',
+        'scheduled_at' => now()->addWeek(),
+        'audience' => 'year_1',
+    ]);
+    Meeting::factory()->teachingSession()->create([
+        'title' => 'Open To All Class',
+        'scheduled_at' => now()->addWeek(),
+        'audience' => 'all',
+    ]);
+
+    Livewire::actingAs($yearOne)
+        ->test(MemberDashboard::class)
+        ->assertSee('Year One Only Class')
+        ->assertSee('Open To All Class');
+
+    Livewire::actingAs($yearThree)
+        ->test(MemberDashboard::class)
+        ->assertSee('Open To All Class')
+        ->assertDontSee('Year One Only Class');
+});
+
+it('toggles class interest on and off', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->addWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->call('toggleInterest', $meeting->id);
+
+    expect(MeetingInterest::where('meeting_id', $meeting->id)->where('user_id', $user->id)->exists())->toBeTrue();
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->call('toggleInterest', $meeting->id);
+
+    expect(MeetingInterest::where('meeting_id', $meeting->id)->where('user_id', $user->id)->exists())->toBeFalse();
+});
+
+it('blocks interest flags from members outside the class audience', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'scheduled_at' => now()->addWeek(),
+        'audience' => 'year_1',
+    ]);
+    $meeting->syncAudienceAllowList();
+
+    Livewire::actingAs($yearThree)
+        ->test(MemberDashboard::class)
+        ->call('toggleInterest', $meeting->id)
+        ->assertForbidden();
+
+    expect(MeetingInterest::where('meeting_id', $meeting->id)->exists())->toBeFalse();
+});
+
+it('prompts members for missing class feedback', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->teachingSession()->create([
+        'title' => 'Unreviewed Bash Class',
+        'scheduled_at' => now()->subWeek(),
+        'ended_at' => now()->subWeek(),
+    ]);
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertViewHas('pendingFeedbackMeetings', fn ($meetings) => $meetings->contains(fn ($m) => $m->id === $meeting->id))
+        ->assertSee('Unreviewed Bash Class');
+});
+
+it('renders the my events section with attendance and feedback prompts', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertSee('My Events')
+        ->assertSee('Recently Attended')
+        ->assertSee('Awaiting Feedback');
 });

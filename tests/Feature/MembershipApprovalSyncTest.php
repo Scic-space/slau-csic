@@ -237,3 +237,17 @@ it('shows an active member card once approved', function () {
         ->assertSee('Active Member')
         ->assertDontSee('Pending Approval');
 });
+
+it('accepts every membership status and type the app writes', function () {
+    Notification::fake();
+
+    $admin = User::factory()->create(['membership_status' => 'active']);
+
+    $rejected = User::factory()->create(['membership_status' => 'pending']);
+    expect($rejected->reject($admin, 'Incomplete application.'))->toBeTrue()
+        ->and($rejected->fresh()->membership_status)->toBe('inactive');
+
+    $alumni = User::factory()->create(['membership_status' => 'active']);
+    expect($alumni->convertToAlumni())->toBeTrue()
+        ->and($alumni->fresh()->membership_type)->toBe('alumni');
+});

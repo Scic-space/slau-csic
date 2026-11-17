@@ -17,26 +17,31 @@ class PromoteFromWaitlist implements ShouldQueue
 
     public function handle(): void
     {
-        $event = $this->event->fresh();
+        $registration = $this->event->getConnection()->transaction(function (): ?EventRegistration {
+            $event = Event::query()->lockForUpdate()->find($this->event->id);
 
-        if (! $event->is_full) {
-            $nextReg = EventRegistration::where('event_id', $event->id)
+            if (! $event || $event->hasEnded() || ! in_array($event->status, ['published', 'scheduled', 'ongoing'], true) || $event->is_full) {
+                return null;
+            }
+
+            $registration = $event->registrations()
                 ->where('status', 'waitlist')
                 ->orderBy('waitlisted_at')
                 ->first();
 
-            if ($nextReg) {
-                $nextReg->update([
+            if ($registration) {
+                $registration->update([
                     'status' => 'registered',
                     'registered_at' => now(),
                     'waitlisted_at' => null,
                 ]);
-
-                Notification::send(
-                    $nextReg->user,
-                    new PromotedFromWaitlist($event)
-                );
             }
+
+            return $registration;
+        });
+
+        if ($registration) {
+            Notification::send($registration->user, new PromotedFromWaitlist($registration->event));
         }
     }
 }

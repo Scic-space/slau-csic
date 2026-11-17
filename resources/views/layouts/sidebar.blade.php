@@ -45,7 +45,7 @@
             else if (currentPath.startsWith('club/classes') || currentPath.startsWith('exams') || currentPath.startsWith('grades') || currentPath.startsWith('resources')) this.openSubmenus['learning'] = true;
             else if (currentPath.startsWith('club/competitions') || currentPath.startsWith('ctf')) this.openSubmenus['activities'] = true;
             else if (currentPath.startsWith('fines') || currentPath.startsWith('my-transactions')) this.openSubmenus['finance'] = true;
-            else if (currentPath.startsWith('events') || currentPath.startsWith('my-events') || currentPath.startsWith('attendance')) this.openSubmenus['events'] = true;
+            else if (currentPath.startsWith('events') || currentPath.startsWith('my-events') || currentPath.startsWith('meetings') || currentPath.startsWith('attendance')) this.openSubmenus['events'] = true;
             else if (currentPath === 'dashboard' || currentPath.startsWith('user-profile') || currentPath.startsWith('membership-card') || currentPath.startsWith('members')) this.openSubmenus['member'] = true;
 
             if (currentPath.startsWith('admin/users')) {
@@ -260,6 +260,24 @@
                             </a>
                         </li>
 
+                        <!-- Meetings -->
+                        <li>
+                            <a href="{{ route('meetings.index') }}" wire:navigate class="menu-item group"
+                                :class="[
+                                    isActive('/meetings') ? 'menu-item-active' : 'menu-item-inactive',
+                                    (!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
+                                    'xl:justify-center' : 'justify-start'
+                                ]">
+                                <span :class="isActive('/meetings') ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                    class="menu-item-text flex items-center gap-2">
+                                    Meetings
+                                </span>
+                            </a>
+                        </li>
+
                         <!-- Event Calendar -->
                         <li>
                             <a href="{{ route('events.calendar') }}" wire:navigate class="menu-item group"
@@ -432,6 +450,7 @@
                                 <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                     class="menu-item-text flex items-center gap-2">
                                     Exams
+                                    <x-sidebar.badge for="examsToTake" />
                                 </span>
                             </a>
                         </li>
@@ -619,7 +638,7 @@
                 </div>
 
                 <!-- Teacher Menu Items -->
-                @can('content.view')
+                @can('teacher.dashboard.view')
                     <div>
                         <button type="button" class="sidebar-section-button" :class="{ 'sidebar-section-button-active': isSubmenuOpen('teaching') }" @click="toggleSubmenu('teaching')" :aria-expanded="isSubmenuOpen('teaching').toString()">
                             <span class="material-symbols-outlined sidebar-section-icon" aria-hidden="true">co_present</span>

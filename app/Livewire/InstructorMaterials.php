@@ -36,6 +36,11 @@ class InstructorMaterials extends Component
 
     public $formFile = null;
 
+    public function mount(): void
+    {
+        $this->ensureCanTeach();
+    }
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -69,6 +74,8 @@ class InstructorMaterials extends Component
 
     public function save(): void
     {
+        $this->ensureCanTeach();
+
         $this->validate([
             'formTitle' => ['required', 'string', 'max:255'],
             'formDescription' => ['nullable', 'string', 'max:1000'],
@@ -112,6 +119,8 @@ class InstructorMaterials extends Component
 
     public function delete(int $id): void
     {
+        $this->ensureCanTeach();
+
         $material = TeachingMaterial::where('uploaded_by', Auth::id())->findOrFail($id);
 
         if ($material->file_path && Storage::disk('public')->exists($material->file_path)) {
@@ -119,6 +128,11 @@ class InstructorMaterials extends Component
         }
 
         $material->delete();
+    }
+
+    private function ensureCanTeach(): void
+    {
+        abort_unless(auth()->user()?->can('teacher.dashboard.view'), 403);
     }
 
     private function resetForm(): void

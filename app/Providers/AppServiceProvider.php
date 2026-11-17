@@ -13,6 +13,7 @@ use App\Models\CtfChallenge;
 use App\Models\CtfCompetition;
 use App\Models\CtfWriteup;
 use App\Models\Election;
+use App\Models\Event as EventModel;
 use App\Models\Exam;
 use App\Models\Fine;
 use App\Models\FineAppeal;
@@ -56,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        EventModel::observe(\App\Observers\EventObserver::class);
+
         if ($this->app->isProduction()) {
             URL::forceScheme('https');
         }

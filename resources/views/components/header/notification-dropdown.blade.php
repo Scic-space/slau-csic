@@ -74,7 +74,12 @@
                         $config = \App\Notifications\NotificationTypeConfig::for($notification->type);
                         $data = $notification->data;
                         $message = $data['message'] ?? $data['subject'] ?? 'Notification';
-                        $actionUrl = $data['action_url'] ?? $data['event_slug'] ?? null;
+                        $actionUrl = $data['action_url'] ?? null;
+
+                        if (! $actionUrl && ! empty($data['event_slug'])) {
+                            $event = \App\Models\Event::findMemberViewableBySlug($data['event_slug']);
+                            $actionUrl = $event ? route('events.member-show', $event) : null;
+                        }
                     @endphp
                     <li>
                         <a wire:navigate class="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.02]"

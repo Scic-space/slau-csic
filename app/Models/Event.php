@@ -15,6 +15,10 @@ class Event extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'description' => '',
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -29,6 +33,7 @@ class Event extends Model
     protected $fillable = [
         'title',
         'description',
+        'description_file_path',
         'type',
         'start_date',
         'end_date',
@@ -56,6 +61,7 @@ class Event extends Model
         'parent_event_id',
         'cancelled_at',
         'rsvp_deadline',
+        'audience',
     ];
 
     protected function casts(): array
@@ -83,9 +89,21 @@ class Event extends Model
             ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed']);
     }
 
+    public static function findMemberViewableBySlug(?string $slug): ?self
+    {
+        if (blank($slug)) {
+            return null;
+        }
+
+        return static::query()
+            ->where('slug', $slug)
+            ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed'])
+            ->first();
+    }
+
     public function publicStatus(): string
     {
-        if ($this->status === 'completed') {
+        if ($this->hasEnded()) {
             return 'completed';
         }
 
@@ -97,11 +115,7 @@ class Event extends Model
             return 'upcoming';
         }
 
-        if ($this->end_date?->isFuture()) {
-            return 'ongoing';
-        }
-
-        return 'completed';
+        return 'ongoing';
     }
 
     public function organizer(): BelongsTo
@@ -239,6 +253,55 @@ class Event extends Model
     public function allowedMembers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'event_allowed_members');
+    }
+
+    public function getAudienceLabelAttribute(): ?string
+    {
+        return match ($this->audience) {
+            'year_1' => 'Year 1 only',
+            'year_2_plus' => 'Year 2 and above',
+            default => null,
+        };
+    }
+
+    /**
+     * Active member IDs in the event's target audience.
+     * Empty when the event is open to everyone.
+     *
+     * @return list<int>
+     */
+    public function audienceMemberIds(): array
+    {
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            return [];
+        }
+
+        return User::activeMembers()
+            ->when(
+                $this->audience === 'year_1',
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', 1)),
+                fn ($query) => $query->whereHas('memberProfile', fn ($profile) => $profile->where('year_of_study', '>', 1)),
+            )
+            ->pluck('users.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    public function isEligible(User $member): bool
+    {
+        if ($this->allowedMembers()->exists()) {
+            return $this->allowedMembers()->where('user_id', $member->id)->exists();
+        }
+
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            return true;
+        }
+
+        $year = $member->memberProfile?->year_of_study;
+
+        return $this->audience === 'year_1'
+            ? $year === 1
+            : is_int($year) && $year > 1;
     }
 
     public function resources(): HasMany
@@ -379,7 +442,26 @@ class Event extends Model
 
     public function getRegisteredCountAttribute(): int
     {
-        return $this->registrations()->where('status', 'registered')->count();
+        return $this->registrations()->occupyingSpot()->count();
+    }
+
+    public function hasEnded(): bool
+    {
+        return $this->status !== 'cancelled'
+            && ($this->status === 'completed' || ($this->end_date !== null && $this->end_date->lessThanOrEqualTo(now())));
+    }
+
+    public function acceptsRegistrations(): bool
+    {
+        return in_array($this->status, ['published', 'scheduled', 'ongoing'], true)
+            && ! $this->hasEnded()
+            && ($this->registration_deadline === null || $this->registration_deadline->isFuture());
+    }
+
+    public function acceptsRsvps(): bool
+    {
+        return $this->acceptsRegistrations()
+            && ($this->rsvp_deadline === null || $this->rsvp_deadline->isFuture());
     }
 
     public function getWaitlistedCountAttribute(): int

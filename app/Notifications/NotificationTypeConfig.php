@@ -14,7 +14,7 @@ class NotificationTypeConfig
         $shortName = class_basename($notificationClass);
 
         return match (true) {
-            str_contains($shortName, 'EventReminder') || str_contains($shortName, 'EventCancelled') || str_contains($shortName, 'MeetingReminder') || str_contains($shortName, 'MeetingCancelled') || str_contains($shortName, 'MeetingRescheduled') => [
+            str_contains($shortName, 'EventReminder') || str_contains($shortName, 'EventCancelled') || str_contains($shortName, 'MeetingScheduled') || str_contains($shortName, 'MeetingReminder') || str_contains($shortName, 'MeetingCancelled') || str_contains($shortName, 'MeetingRescheduled') => [
                 'category' => 'events',
                 'icon' => 'calendar',
                 'bgColor' => 'bg-blue-100 dark:bg-blue-900/40',
@@ -94,7 +94,7 @@ class NotificationTypeConfig
     public static function classesInCategory(string $category): array
     {
         $all = [
-            'events' => ['EventReminder', 'EventCancelled', 'MeetingReminder', 'MeetingCancelled', 'MeetingRescheduled', 'CompetitionReminder'],
+            'events' => ['EventReminder', 'EventCancelled', 'MeetingScheduled', 'MeetingReminder', 'MeetingCancelled', 'MeetingRescheduled', 'CompetitionReminder'],
             'elections' => ['ElectionOpened', 'ElectionClosed', 'ElectionReminder', 'ElectionResults', 'NominationStatus', 'VoteConfirmation', 'VoteReceipt'],
             'fines' => ['FineIssued', 'FineOverdue', 'FineAppeal', 'PaymentReceived', 'TransactionApproval', 'TransactionApproved', 'BudgetAlert'],
             'membership' => ['MemberApproval', 'MemberRejection', 'MemberSuspended', 'MemberRequires', 'MembershipExpiring', 'RegistrationApproved', 'RegistrationRejected', 'WelcomeMember', 'PromotedFromWaitlist'],

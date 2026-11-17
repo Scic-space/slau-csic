@@ -32,7 +32,7 @@ class MeetingReminderNotification extends Notification
             ->line("Date: {$date}")
             ->line("Location: {$this->meeting->location}")
             ->when($this->meeting->hasMeetingLink(), fn ($message) => $message->line("Join online: {$this->meeting->meeting_link}"))
-            ->action('View Meeting Details', url("/admin/meetings/{$this->meeting->id}/edit"))
+            ->action('View Meeting Details', $this->meeting->memberViewUrl())
             ->line('Please make sure to attend on time.');
     }
 
@@ -45,6 +45,7 @@ class MeetingReminderNotification extends Notification
             'meeting_id' => $this->meeting->id,
             'meeting_title' => $this->meeting->title,
             'type' => $this->type,
+            'action_url' => $this->meeting->memberViewUrl(),
             'message' => "Reminder: {$this->meeting->title} {$when} at {$time}",
         ];
     }

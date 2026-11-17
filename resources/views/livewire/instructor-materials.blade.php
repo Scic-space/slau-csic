@@ -155,7 +155,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                         @if ($material->training)
-                                            <a href="{{ route('training.show', $material->training) }}" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+                                            <a href="{{ route('trainings.show', $material->training) }}" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
                                                 {{ Str::limit($material->training->title, 30) }}
                                             </a>
                                         @else

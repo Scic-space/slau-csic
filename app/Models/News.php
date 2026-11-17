@@ -39,11 +39,23 @@ class News extends Model
             if (empty($news->slug)) {
                 $news->slug = Str::slug($news->title);
             }
+
+            if ($news->is_published && empty($news->published_at)) {
+                $news->published_at = now();
+            }
+
+            if (empty($news->created_by)) {
+                $news->created_by = auth()->id();
+            }
         });
 
         static::updating(function (News $news) {
             if ($news->isDirty('title') && empty($news->slug)) {
                 $news->slug = Str::slug($news->title);
+            }
+
+            if ($news->is_published && empty($news->published_at)) {
+                $news->published_at = now();
             }
         });
     }

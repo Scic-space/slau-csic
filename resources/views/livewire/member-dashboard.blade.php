@@ -133,6 +133,9 @@
                     <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">stars</span>
                 </div>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['score'] }}</p>
+                @if (!empty($stats['rank']))
+                    <p class="text-[11px] capitalize text-gray-400 dark:text-gray-500">{{ $stats['rank'] }} tier</p>
+                @endif
             </div>
             <div class="dashboard-stat rounded-sm border border-gray-200 bg-white p-4 shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between">
@@ -264,6 +267,49 @@
                 </div>
             </div>
 
+            {{-- Meetings card --}}
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">groups</span>
+                        Upcoming Meetings
+                    </h3>
+                </div>
+                <div class="px-5 py-4">
+                    @if ($upcomingMeetings->isEmpty())
+                        <div class="flex flex-col items-center py-6 text-center">
+                            <svg class="mb-2 h-8 w-8 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <p class="text-sm text-gray-400 dark:text-gray-500">No meetings scheduled</p>
+                            <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">Scheduled club meetings will appear here</p>
+                        </div>
+                    @else
+                        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">{{ $upcomingMeetings->count() }} meeting{{ $upcomingMeetings->count() !== 1 ? 's' : '' }} ahead</p>
+                        <ul class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                            @foreach ($upcomingMeetings as $meeting)
+                                <li class="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <a href="{{ $meeting->memberViewUrl() }}" wire:navigate class="text-sm font-medium text-gray-900 transition hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $meeting->title }}</a>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $meeting->scheduled_at->format('D, M j · g:i A') }}
+                                            @if ($meeting->location)
+                                                · {{ $meeting->location }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                    @if ($meeting->hasMeetingLink() && $meeting->isJoinable())
+                                        <a href="{{ $meeting->meeting_link }}" target="_blank" rel="noopener noreferrer"
+                                           class="shrink-0 rounded bg-gray-900 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">Join</a>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+
             {{-- Training card --}}
             <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
@@ -359,7 +405,7 @@
                         <div class="flex flex-wrap gap-2">
                             @foreach ($user->earnedBadges as $badge)
                                 <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-background px-3 py-1.5 dark:border-border" title="{{ $badge->description }}">
-                                    <span class="text-lg">{{ $badge->icon }}</span>
+                                    <span class="material-symbols-outlined text-lg {{ $badge->iconColorClass() }}" aria-hidden="true">{{ $badge->icon }}</span>
                                     <div>
                                         <p class="text-xs font-medium text-gray-900 dark:text-white">{{ $badge->name }}</p>
                                         <p class="text-[10px] text-gray-500 dark:text-gray-400">{{ $badge->rarity->name }}</p>
@@ -372,6 +418,177 @@
                         @endif
                     @endif
                 </div>
+            </div>
+        </div>
+
+        {{-- My Events --}}
+        <div class="dashboard-card mb-4 rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4 dark:border-border">
+                <div>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">event</span>
+                        My Events
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Your registrations, attendance and feedback</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <span><span class="font-semibold text-gray-900 dark:text-white">{{ $stats['events_attended'] }}</span> attended</span>
+                    <span><span class="font-semibold text-gray-900 dark:text-white">{{ $myUpcomingEvents->count() }}</span> upcoming</span>
+                    @if ($favoriteEventsCount > 0)
+                        <span><span class="font-semibold text-gray-900 dark:text-white">{{ $favoriteEventsCount }}</span> favorite{{ $favoriteEventsCount !== 1 ? 's' : '' }}</span>
+                    @endif
+                </div>
+            </div>
+            <div class="grid grid-cols-1 divide-y divide-gray-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-border">
+                {{-- Registered upcoming --}}
+                <div class="px-5 py-4">
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Upcoming</p>
+                    @if ($myUpcomingEvents->isEmpty())
+                        <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No registrations yet.</p>
+                        <a href="{{ route('events.browse') }}" wire:navigate class="text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400">Browse events</a>
+                    @else
+                        <ul class="space-y-3">
+                            @foreach ($myUpcomingEvents as $event)
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined mt-0.5 text-base text-gray-300 dark:text-gray-600" aria-hidden="true">event_upcoming</span>
+                                    <div class="min-w-0 flex-1">
+                                        <a href="{{ route('events.member-show', $event) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $event->title }}</a>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $event->start_date->format('D, M j · g:i A') }}</p>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+                {{-- Recently attended --}}
+                <div class="px-5 py-4">
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Recently Attended</p>
+                    @if ($myAttendedEvents->isEmpty())
+                        <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No events attended yet.</p>
+                    @else
+                        <ul class="space-y-3">
+                            @foreach ($myAttendedEvents as $registration)
+                                @php $attendedEvent = $registration->event; @endphp
+                                @if ($attendedEvent)
+                                    <li class="flex items-start gap-2">
+                                        <span class="material-symbols-outlined mt-0.5 text-base text-green-500" aria-hidden="true">check_circle</span>
+                                        <div class="min-w-0 flex-1">
+                                            <a href="{{ route('events.member-show', $attendedEvent) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedEvent->title }}</a>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Attended {{ $registration->attended_at?->format('M j, Y') }}</p>
+                                        </div>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+                {{-- Pending feedback --}}
+                <div class="px-5 py-4">
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Awaiting Feedback</p>
+                    @if ($pendingFeedbackEvents->isEmpty())
+                        <p class="py-2 text-xs text-gray-400 dark:text-gray-500">All caught up.</p>
+                    @else
+                        <ul class="space-y-3">
+                            @foreach ($pendingFeedbackEvents as $event)
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined mt-0.5 text-base text-amber-500" aria-hidden="true">rate_review</span>
+                                    <div class="min-w-0 flex-1">
+                                        <a href="{{ route('events.member-show', $event) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $event->title }}</a>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Share your feedback</p>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Upcoming Classes --}}
+        <div class="dashboard-card mb-4 rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4 dark:border-border">
+                <div>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">event_upcoming</span>
+                        Upcoming Classes
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Scheduled internal classes for you</p>
+                </div>
+            </div>
+            <div class="px-5 py-4">
+                @if ($upcomingClasses->isEmpty())
+                    <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No upcoming classes scheduled.</p>
+                @else
+                    <ul class="space-y-3">
+                        @foreach ($upcomingClasses as $upcomingClass)
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined mt-0.5 text-base text-indigo-400" aria-hidden="true">school</span>
+                                <div class="min-w-0 flex-1">
+                                    <a href="{{ route('classes.show', $upcomingClass) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $upcomingClass->title }}</a>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $upcomingClass->scheduled_at?->format('D, M j · g:i A') }}</p>
+                                    <button type="button" wire:click="toggleInterest({{ $upcomingClass->id }})" class="mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition {{ in_array($upcomingClass->id, $interestedMeetingIds) ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-border dark:text-gray-400' }}">
+                                        <span class="material-symbols-outlined text-[13px]" aria-hidden="true">{{ in_array($upcomingClass->id, $interestedMeetingIds) ? 'bookmark_added' : 'bookmark_add' }}</span>
+                                        {{ in_array($upcomingClass->id, $interestedMeetingIds) ? 'Interested' : 'I\'m interested' }}{{ $upcomingClass->interests_count > 0 ? ' ('.$upcomingClass->interests_count.')' : '' }}
+                                    </button>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        </div>
+
+        {{-- My Classes --}}
+        <div class="dashboard-card mb-4 rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4 dark:border-border">
+                <div>
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">school</span>
+                        My Classes
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Internal classes you attended</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <span><span class="font-semibold text-gray-900 dark:text-white">{{ $myAttendedMeetings->count() }}</span> shown</span>
+                </div>
+            </div>
+            <div class="px-5 py-4">
+                @if ($myAttendedMeetings->isEmpty())
+                    <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No classes attended yet. Classes you attend will appear here.</p>
+                @else
+                    <ul class="space-y-3">
+                        @foreach ($myAttendedMeetings as $attendance)
+                            @php $attendedMeeting = $attendance->meeting; @endphp
+                            @if ($attendedMeeting)
+                                <li class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined mt-0.5 text-base {{ $attendance->status === 'late' ? 'text-amber-500' : 'text-green-500' }}" aria-hidden="true">{{ $attendance->status === 'late' ? 'schedule' : 'check_circle' }}</span>
+                                    <div class="min-w-0 flex-1">
+                                        <a href="{{ route('classes.show', $attendedMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedMeeting->title }}</a>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $attendedMeeting->scheduled_at?->format('D, M j · g:i A') }} · {{ ucfirst($attendance->status) }}</p>
+                                    </div>
+                                </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                @endif
+                @if ($pendingFeedbackMeetings->isNotEmpty())
+                    <p class="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Awaiting Feedback</p>
+                    <ul class="space-y-3">
+                        @foreach ($pendingFeedbackMeetings as $feedbackMeeting)
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined mt-0.5 text-base text-amber-500" aria-hidden="true">rate_review</span>
+                                        <div class="min-w-0 flex-1">
+                                            @if ($feedbackMeeting->isTeachingSession())
+                                                <a href="{{ route('classes.show', $feedbackMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $feedbackMeeting->title }}</a>
+                                            @else
+                                                <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $feedbackMeeting->title }}</p>
+                                            @endif
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Share your feedback</p>
+                                        </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </div>
         </div>
 

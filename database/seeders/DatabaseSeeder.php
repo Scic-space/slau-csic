@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(ClubPortalSeeder::class);
         // $this->call(EventCategorySeeder::class);
         // $this->call(ElectionSeeder::class);
-        // $this->call(BadgeSeeder::class);
+        $this->call(BadgeSeeder::class);
         // $this->call(CtfChallengeSeeder::class);
         // $this->call(FineTypeSeeder::class);
         // $this->call(CompetitionSeeder::class);

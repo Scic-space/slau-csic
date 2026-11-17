@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -60,6 +61,11 @@ class EventRegistration extends Model
     public function hasAttended(): bool
     {
         return ! is_null($this->attended_at);
+    }
+
+    public function scopeOccupyingSpot(Builder $query): Builder
+    {
+        return $query->whereIn('status', ['registered', 'attended', 'no_show']);
     }
 
     public function isWaitlisted(): bool
