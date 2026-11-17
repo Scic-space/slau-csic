@@ -267,6 +267,49 @@
                 </div>
             </div>
 
+            {{-- Meetings card --}}
+            <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
+                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        <span class="material-symbols-outlined text-lg text-gray-400 dark:text-gray-500" aria-hidden="true">groups</span>
+                        Upcoming Meetings
+                    </h3>
+                </div>
+                <div class="px-5 py-4">
+                    @if ($upcomingMeetings->isEmpty())
+                        <div class="flex flex-col items-center py-6 text-center">
+                            <svg class="mb-2 h-8 w-8 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <p class="text-sm text-gray-400 dark:text-gray-500">No meetings scheduled</p>
+                            <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">Scheduled club meetings will appear here</p>
+                        </div>
+                    @else
+                        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">{{ $upcomingMeetings->count() }} meeting{{ $upcomingMeetings->count() !== 1 ? 's' : '' }} ahead</p>
+                        <ul class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                            @foreach ($upcomingMeetings as $meeting)
+                                <li class="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $meeting->title }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $meeting->scheduled_at->format('D, M j · g:i A') }}
+                                            @if ($meeting->location)
+                                                · {{ $meeting->location }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                    @if ($meeting->hasMeetingLink() && $meeting->isJoinable())
+                                        <a href="{{ $meeting->meeting_link }}" target="_blank" rel="noopener noreferrer"
+                                           class="shrink-0 rounded bg-gray-900 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">Join</a>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+
             {{-- Training card --}}
             <div class="dashboard-card rounded-sm border border-gray-200 bg-white shadow-sm dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-border">
