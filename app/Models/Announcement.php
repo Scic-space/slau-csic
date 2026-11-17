@@ -175,8 +175,8 @@ class Announcement extends Model
             return;
         }
 
-        $subject = $this->title;
-        $body = Str::limit(html_entity_decode(strip_tags($this->content ?? '')), 500);
+        $subject = 'New Announcement: '.$this->title;
+        $body = $this->emailBody();
 
         $this->targetUsers()->chunk(100, function ($users) use ($subject, $body, $channels): void {
             foreach ($users as $user) {
@@ -184,9 +184,23 @@ class Announcement extends Model
                     subject: $subject,
                     body: $body,
                     channels: $channels,
+                    announcement: $this,
                 ));
             }
         });
+    }
+
+    private function emailBody(): string
+    {
+        $html = preg_replace('/<br\s*\/?>/i', "\n", $this->content ?? '') ?? '';
+        $html = preg_replace('/\s*<\/\s*(?:p|div|li|h[1-6]|blockquote|ul|ol|tr|table|section)\s*>\s*/i', "\n\n", $html) ?? $html;
+        $html = preg_replace('/\s*<\s*li[^>]*>/i', '• ', $html) ?? $html;
+
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES, 'UTF-8');
+        $text = preg_replace('/[ \t]+/', ' ', $text) ?? $text;
+        $text = preg_replace('/\n{3,}/', "\n\n", $text) ?? $text;
+
+        return trim(Str::words(trim($text), 180, '…'));
     }
 
     public function getViewCountAttribute(): int

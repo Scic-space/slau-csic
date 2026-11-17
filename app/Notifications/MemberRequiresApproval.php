@@ -24,8 +24,8 @@ class MemberRequiresApproval extends Notification
     {
         return (new MailMessage)
             ->subject('New Member Requires Approval')
-            ->greeting("Hello {$notifiable->name},")
-            ->line("A new member has registered: {$this->pendingUser->name} ({$this->pendingUser->email})")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('A new member has registered: **'.$this->pendingUser->name.'** ('.$this->pendingUser->email.')')
             ->action('Review Pending Members', route('filament.admin.resources.users.index', ['tableFilters' => ['membership_status' => ['value' => 'pending']]]))
             ->line('Please review and approve or reject this application.')
             ->salutation('Best regards,');

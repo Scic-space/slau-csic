@@ -27,11 +27,11 @@ class FineAppealSubmittedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Fine Appeal Submitted')
-            ->greeting("Hello {$notifiable->name},")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
             ->line('A fine appeal has been submitted and requires review.')
-            ->line("Appeal Reason: {$this->appeal->formatted_appeal_reason}")
-            ->line("Explanation: {$this->appeal->explanation}")
-            ->line('Fine Amount: UGX '.number_format($this->appeal->fine->amount, 0))
+            ->line('**'.$this->appeal->formatted_appeal_reason.'**')
+            ->line('Explanation: '.$this->appeal->explanation)
+            ->line('Fine Amount: **UGX '.number_format($this->appeal->fine->amount, 0).'**')
             ->action('Review Appeal', url('/admin/fines'));
     }
 

@@ -27,12 +27,11 @@ class FineOverdueNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Overdue Fine Reminder: '.($this->fine->fineType?->name ?? 'Club Fine'))
-            ->greeting("Hello {$notifiable->name},")
-            ->line('This is a reminder that you have an overdue fine.')
-            ->line("Reason: {$this->fine->reason}")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('You have an overdue fine of **UGX '.number_format($this->fine->balance, 0).'**.')
+            ->line('Reason: **'.$this->fine->reason.'**')
             ->line('Amount: UGX '.number_format($this->fine->amount, 0))
-            ->line('Balance: UGX '.number_format($this->fine->balance, 0))
-            ->line("Due Date was: {$this->fine->due_date->format('M j, Y')}")
+            ->line('Due Date was: '.$this->fine->due_date->format('M j, Y'))
             ->action('Pay Your Fine', url('/fines'))
             ->line('Please pay at your earliest convenience to avoid further action.');
     }

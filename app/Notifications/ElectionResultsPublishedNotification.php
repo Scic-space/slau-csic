@@ -22,8 +22,8 @@ class ElectionResultsPublishedNotification extends Notification
     {
         return (new MailMessage)
             ->subject("Results Published: {$this->election->title}")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("Results for {$this->election->title} ({$this->election->position}) have been published.")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line("Results for **{$this->election->title}** ({$this->election->position}) have been published.")
             ->action('View Results', route('voting.results'))
             ->line('Thank you for participating in the election process.');
     }

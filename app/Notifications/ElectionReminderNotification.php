@@ -22,8 +22,8 @@ class ElectionReminderNotification extends Notification
     {
         return (new MailMessage)
             ->subject("Reminder: {$this->election->title} closes soon")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("This is a reminder that voting for {$this->election->title} ({$this->election->position}) closes soon.")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line("This is a reminder that voting for **{$this->election->title}** ({$this->election->position}) closes soon.")
             ->line("Deadline: {$this->election->ends_at->format('F j, Y g:i A')}")
             ->action('Cast Your Vote', url('/voting'))
             ->line("Don't miss your chance to vote!");

@@ -25,14 +25,11 @@ class ExamGradedNotification extends Notification
 
         return (new MailMessage)
             ->subject("Exam Graded: {$examTitle} - {$status}")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("Your exam \"{$examTitle}\" has been graded.")
-            ->line("Score: {$this->attempt->total_score}%")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('Your exam **'.$examTitle.'** has been graded.')
+            ->line('Score: **'.$this->attempt->total_score.'%**')
             ->line('Status: '.($this->attempt->passed ? 'Passed' : 'Failed'))
-            ->when($this->attempt->passed, fn ($m) => $m
-                ->line('Congratulations! You passed the exam.')
-                ->action('View Certificate', url('/exams/certificates'))
-            )
+            ->when($this->attempt->passed, fn ($m) => $m->line('Congratulations! You passed the exam.'))
             ->action('View Results', url("/exams/attempts/{$this->attempt->id}/result"));
     }
 

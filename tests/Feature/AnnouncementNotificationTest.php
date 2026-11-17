@@ -107,6 +107,40 @@ it('sends an email when email delivery is enabled', function () {
     Notification::assertSentTo($member, BroadcastMessage::class);
 });
 
+it('formats announcement emails with readable content and a detail link', function () {
+    Notification::fake();
+
+    $member = User::factory()->create(['membership_status' => 'active']);
+
+    $announcement = Announcement::factory()->create([
+        'title' => 'Formatting check',
+        'type' => 'event',
+        'content' => '<p>First paragraph.</p><p>Second <strong>important</strong> paragraph.</p><ul><li>Bring a laptop</li></ul>',
+        'audience' => 'all',
+        'is_published' => true,
+        'send_push' => false,
+        'send_email' => true,
+    ]);
+
+    Notification::assertSentTo($member, BroadcastMessage::class, function (BroadcastMessage $notification) use ($member, $announcement): bool {
+        $mail = $notification->toMail($member);
+        $introLines = implode("\n", $mail->introLines);
+
+        expect($mail->subject)->toBe('New Announcement: Formatting check')
+            ->and($introLines)->toContain('A new announcement has been published.')
+            ->and($introLines)->toContain('**Formatting check**')
+            ->and($introLines)->toContain('Type: Event')
+            ->and($introLines)->toContain('First paragraph.')
+            ->and($introLines)->toContain('Second important paragraph.')
+            ->and($introLines)->toContain('• Bring a laptop')
+            ->and($introLines)->not->toContain('<p>')
+            ->and($mail->actionText)->toBe('View Announcement')
+            ->and($mail->actionUrl)->toBe(route('announcements.show', $announcement->slug));
+
+        return true;
+    });
+});
+
 it('creates no notifications when both delivery toggles are off', function () {
     $member = User::factory()->create(['membership_status' => 'active']);
 

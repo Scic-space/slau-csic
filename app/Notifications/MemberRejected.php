@@ -24,10 +24,10 @@ class MemberRejected extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Update on Your Club Membership Application')
-            ->greeting("Hello {$notifiable->name},")
-            ->line('After reviewing your application, we regret to inform you that your membership request has not been approved at this time.')
-            ->when($this->notes, fn ($mail) => $mail->line("Reason: {$this->notes}"))
+            ->subject('Membership Decision: Application Not Approved')
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('After reviewing your application, we regret to inform you that your **membership request** has not been approved at this time.')
+            ->when($this->notes, fn ($mail) => $mail->line('Reason: **'.$this->notes.'**'))
             ->line('You are welcome to reapply in the future.')
             ->action('Visit Our Website', url('/'));
     }

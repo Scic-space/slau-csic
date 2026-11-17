@@ -22,8 +22,8 @@ class TransactionApprovedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Transaction Approved: UGX '.number_format($this->transaction->amount, 0))
-            ->greeting("Hello {$notifiable->name},")
-            ->line('Your transaction has been approved.')
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('Your transaction of **UGX '.number_format($this->transaction->amount, 0).'** has been approved.')
             ->line('Type: '.ucfirst($this->transaction->type))
             ->line("Category: {$this->transaction->category}")
             ->line('Amount: UGX '.number_format($this->transaction->amount, 0))

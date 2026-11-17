@@ -22,9 +22,8 @@ class PaymentReceivedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Payment Received: UGX '.number_format($this->payment->amount, 0))
-            ->greeting("Hello {$notifiable->name},")
-            ->line('A payment has been received toward your fine.')
-            ->line('Amount: UGX '.number_format($this->payment->amount, 0))
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('A payment of **UGX '.number_format($this->payment->amount, 0).'** has been received toward your fine.')
             ->line('Payment Method: '.ucfirst($this->payment->payment_method))
             ->when($this->payment->receipt_number, fn ($mail) => $mail->line("Receipt: {$this->payment->receipt_number}"))
             ->line('Remaining Balance: UGX '.number_format($this->payment->fine->balance, 0))

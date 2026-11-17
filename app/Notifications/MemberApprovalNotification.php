@@ -27,11 +27,11 @@ class MemberApprovalNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Welcome to Cybersecurity & Innovations Club!')
-            ->greeting('Congratulations, '.$notifiable->name.'!')
-            ->line('Your membership application has been approved by '.$this->approvedBy->name.'.')
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('Your membership application has been approved by **'.$this->approvedBy->name.'**.')
             ->line('You now have full access to all club features and benefits.')
             ->when($this->notes, function ($message) {
-                $message->line('**Additional Notes:** '.$this->notes);
+                $message->line('Additional Notes: **'.$this->notes.'**');
             })
             ->action('View Your Profile', route('user-profile'))
             ->line('Welcome to our community! We look forward to your active participation.')

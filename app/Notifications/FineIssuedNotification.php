@@ -27,11 +27,10 @@ class FineIssuedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Fine Issued: '.($this->fine->fineType?->name ?? 'Club Fine'))
-            ->greeting("Hello {$notifiable->name},")
-            ->line('A fine has been issued against you.')
-            ->line("Reason: {$this->fine->reason}")
-            ->line('Amount: UGX '.number_format($this->fine->amount, 0))
-            ->line("Due Date: {$this->fine->due_date->format('M j, Y')}")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('A fine of **UGX '.number_format($this->fine->amount, 0).'** has been issued against you.')
+            ->line('Reason: **'.$this->fine->reason.'**')
+            ->line('Due Date: '.$this->fine->due_date->format('M j, Y'))
             ->action('View Your Fines', url('/fines'))
             ->line('You may appeal this fine within 7 days of issuance.');
     }

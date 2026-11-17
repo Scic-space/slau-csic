@@ -22,8 +22,8 @@ class ElectionClosedNotification extends Notification
     {
         return (new MailMessage)
             ->subject("Voting Closed: {$this->election->title}")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("Voting has closed for {$this->election->title} ({$this->election->position}).")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line("Voting has closed for **{$this->election->title}** ({$this->election->position}).")
             ->line('Results will be available once published by the administration.')
             ->action('View Results', route('voting.results'))
             ->line('Thank you for participating!');

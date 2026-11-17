@@ -22,8 +22,9 @@ class ExamPublishedNotification extends Notification
     {
         return (new MailMessage)
             ->subject("New Exam Available: {$this->exam->title}")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("A new exam has been published: {$this->exam->title}")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('A new exam has been published.')
+            ->line('**'.$this->exam->title.'**')
             ->line("Duration: {$this->exam->duration_minutes} minutes")
             ->line("Passing Score: {$this->exam->passing_score}%")
             ->when($this->exam->description, fn ($m) => $m->line($this->exam->description))

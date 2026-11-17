@@ -28,8 +28,8 @@ class MembershipExpiring extends Notification
     {
         return (new MailMessage)
             ->subject('Your Membership Is Expiring Soon')
-            ->greeting('Hello '.$notifiable->name.',')
-            ->line('Your membership is set to expire on '.$this->expiresAt.'.')
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('Your membership is set to expire on **'.$this->expiresAt.'**.')
             ->line('Please log in to renew your membership to continue enjoying club benefits.')
             ->action('Renew Membership', url('/membership'))
             ->line('Thank you for being part of our community!');

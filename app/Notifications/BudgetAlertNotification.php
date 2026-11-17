@@ -28,10 +28,10 @@ class BudgetAlertNotification extends Notification
     {
         $categoryType = ucfirst($this->category->type);
         $message = match ($this->alertLevel) {
-            'over_budget' => "The {$categoryType} category '{$this->category->name}' has exceeded its budget of UGX ".number_format($this->allocated, 0).' by UGX '.number_format($this->spent - $this->allocated, 0).'.',
-            'critical' => "The {$categoryType} category '{$this->category->name}' has used {$this->percentage}% of its budget. Only 10% remaining.",
-            'warning' => "The {$categoryType} category '{$this->category->name}' has used {$this->percentage}% of its budget.",
-            default => "Budget alert for {$categoryType} category '{$this->category->name}': {$this->percentage}% used.",
+            'over_budget' => "The {$categoryType} category **{$this->category->name}** has exceeded its budget of UGX ".number_format($this->allocated, 0).' by UGX '.number_format($this->spent - $this->allocated, 0).'.',
+            'critical' => "The {$categoryType} category **{$this->category->name}** has used {$this->percentage}% of its budget. Only 10% remaining.",
+            'warning' => "The {$categoryType} category **{$this->category->name}** has used {$this->percentage}% of its budget.",
+            default => "Budget alert for {$categoryType} category **{$this->category->name}**: {$this->percentage}% used.",
         };
 
         return (new MailMessage)
@@ -40,7 +40,7 @@ class BudgetAlertNotification extends Notification
                 'critical' => 'Critical Budget Alert: '.$this->category->name,
                 default => 'Budget Warning: '.$this->category->name,
             })
-            ->greeting("Hello {$notifiable->name},")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
             ->line($message)
             ->line('Spent: UGX '.number_format($this->spent, 0))
             ->line('Allocated: UGX '.number_format($this->allocated, 0))

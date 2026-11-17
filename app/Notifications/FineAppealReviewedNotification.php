@@ -29,9 +29,9 @@ class FineAppealReviewedNotification extends Notification
 
         return (new MailMessage)
             ->subject("Appeal {$outcome}: Fine #{$this->appeal->fine_id}")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("Your fine appeal has been {$this->appeal->status}.")
-            ->when($this->appeal->decision_notes, fn ($mail) => $mail->line("Reviewer notes: {$this->appeal->decision_notes}"))
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('Your appeal for **Fine #'.$this->appeal->fine_id.'** has been '.$this->appeal->status.'.')
+            ->when($this->appeal->decision_notes, fn ($mail) => $mail->line('Reviewer notes: **'.$this->appeal->decision_notes.'**'))
             ->when($this->appeal->status === 'approved', fn ($mail) => $mail->line('Your fine has been waived.'))
             ->when($this->appeal->status === 'rejected', fn ($mail) => $mail->line('Your fine remains due.'))
             ->action('View Your Fines', url('/fines'));

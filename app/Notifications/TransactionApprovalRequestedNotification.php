@@ -22,8 +22,8 @@ class TransactionApprovalRequestedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Transaction Approval Required: UGX '.number_format($this->transaction->amount, 0))
-            ->greeting("Hello {$notifiable->name},")
-            ->line('A transaction requires your approval.')
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('A transaction of **UGX '.number_format($this->transaction->amount, 0).'** requires your approval.')
             ->line('Type: '.ucfirst($this->transaction->type))
             ->line("Category: {$this->transaction->category}")
             ->line('Amount: UGX '.number_format($this->transaction->amount, 0))

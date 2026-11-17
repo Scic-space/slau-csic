@@ -22,8 +22,8 @@ class ElectionOpenedNotification extends Notification
     {
         return (new MailMessage)
             ->subject("Voting Open: {$this->election->title}")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("Voting is now open for {$this->election->title} ({$this->election->position}).")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line("Voting is now open for **{$this->election->title}** ({$this->election->position}).")
             ->line('Review the candidates and cast your ballot before voting closes.')
             ->action('Cast Your Vote', route('voting.index'))
             ->line('Every vote counts!');

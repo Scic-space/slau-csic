@@ -26,12 +26,12 @@ class MemberSuspendedNotification extends Notification
     {
         $message = (new MailMessage)
             ->subject('Your Club Membership Has Been Suspended')
-            ->greeting('Dear '.$notifiable->name.',')
-            ->line('Your membership in the Cybersecurity & Innovations Club has been suspended.')
-            ->line('**Reason:** '.$this->reason);
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('Your membership in the **Cybersecurity & Innovations Club** has been suspended.')
+            ->line('Reason: **'.$this->reason.'**');
 
         if ($this->until) {
-            $message->line('**Suspended until:** '.$this->until->format('F j, Y'));
+            $message->line('Suspended until: **'.$this->until->format('F j, Y').'**');
             $message->line('Your membership will be automatically reinstated after that date.');
         } else {
             $message->line('This suspension is indefinite. Please contact the club administration for more information.');
@@ -39,6 +39,7 @@ class MemberSuspendedNotification extends Notification
 
         return $message
             ->line('If you have any questions, please reach out to the club administration.')
+            ->action('Contact the Club', route('contact'))
             ->salutation('Best regards, The Cybersecurity & Innovations Club Team');
     }
 

@@ -25,9 +25,9 @@ class MemberApproved extends Notification
     {
         return (new MailMessage)
             ->subject('Welcome to the Club!')
-            ->greeting("Hello {$notifiable->name}!")
-            ->line('Your membership application has been approved!')
-            ->when($this->notes, fn ($mail) => $mail->line("Notes: {$this->notes}"))
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
+            ->line('Your membership application has been approved by **'.$this->approver->name.'**.')
+            ->when($this->notes, fn ($mail) => $mail->line('Notes: **'.$this->notes.'**'))
             ->line('You now have full access to the club portal, events, CTF challenges, and more.')
             ->action('Go to Dashboard', url('/dashboard'))
             ->line('Welcome to SLAU-CSIC!');

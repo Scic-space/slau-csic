@@ -34,7 +34,8 @@ class AttendanceCorrectionReviewedNotification extends Notification
 
         return $message
             ->line("After review, your attendance correction request for **{$this->request->meeting->title}** was not approved.")
-            ->line('If you believe this is a mistake, please speak to the class instructor.');
+            ->line('If you believe this is a mistake, please speak to the class instructor.')
+            ->action('View Class', route('classes.show', $this->request->meeting));
     }
 
     public function toArray(object $notifiable): array

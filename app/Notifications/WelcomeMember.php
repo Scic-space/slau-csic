@@ -24,9 +24,9 @@ class WelcomeMember extends Notification
     {
         return (new MailMessage)
             ->subject('Welcome to SLAU-CSIC!')
-            ->greeting("Hello {$notifiable->name}!")
+            ->greeting('Hello '.($notifiable->name ?? 'there').'!')
             ->line('Thank you for registering with the St. Lawrence University Cybersecurity & Innovations Club.')
-            ->line('Your application is now pending review by an administrator.')
+            ->line('Your **membership application** is now pending review by an administrator.')
             ->line('You will receive a notification once your membership has been approved.')
             ->action('Visit the Club Portal', url('/'))
             ->line('Welcome aboard!');
