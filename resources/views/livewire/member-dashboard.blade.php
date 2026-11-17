@@ -473,12 +473,8 @@
                                     <li class="flex items-start gap-2">
                                         <span class="material-symbols-outlined mt-0.5 text-base text-green-500" aria-hidden="true">check_circle</span>
                                         <div class="min-w-0 flex-1">
-                                            @if ($attendedMeeting->isTeachingSession())
-                                                <a href="{{ route('classes.show', $attendedMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedMeeting->title }}</a>
-                                            @else
-                                                <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $attendedMeeting->title }}</p>
-                                            @endif
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">Attended {{ $attendance->checked_in_at?->format('M j, Y') }}</p>
+                                            <a href="{{ route('events.member-show', $attendedEvent) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedEvent->title }}</a>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Attended {{ $registration->attended_at?->format('M j, Y') }}</p>
                                         </div>
                                     </li>
                                 @endif
@@ -520,23 +516,19 @@
                 </div>
             </div>
             <div class="px-5 py-4">
-                @if ($upcomingMeetings->isEmpty())
+                @if ($upcomingClasses->isEmpty())
                     <p class="py-2 text-xs text-gray-400 dark:text-gray-500">No upcoming classes scheduled.</p>
                 @else
                     <ul class="space-y-3">
-                        @foreach ($upcomingMeetings as $upcomingMeeting)
+                        @foreach ($upcomingClasses as $upcomingClass)
                             <li class="flex items-start gap-2">
                                 <span class="material-symbols-outlined mt-0.5 text-base text-indigo-400" aria-hidden="true">school</span>
                                 <div class="min-w-0 flex-1">
-                                    @if ($upcomingMeeting->isTeachingSession())
-                                        <a href="{{ route('classes.show', $upcomingMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $upcomingMeeting->title }}</a>
-                                    @else
-                                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $upcomingMeeting->title }}</p>
-                                    @endif
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $upcomingMeeting->scheduled_at?->format('D, M j · g:i A') }}</p>
-                                    <button type="button" wire:click="toggleInterest({{ $upcomingMeeting->id }})" class="mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition {{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-border dark:text-gray-400' }}">
-                                        <span class="material-symbols-outlined text-[13px]" aria-hidden="true">{{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'bookmark_added' : 'bookmark_add' }}</span>
-                                        {{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'Interested' : 'I\'m interested' }}{{ $upcomingMeeting->interests_count > 0 ? ' ('.$upcomingMeeting->interests_count.')' : '' }}
+                                    <a href="{{ route('classes.show', $upcomingClass) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $upcomingClass->title }}</a>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $upcomingClass->scheduled_at?->format('D, M j · g:i A') }}</p>
+                                    <button type="button" wire:click="toggleInterest({{ $upcomingClass->id }})" class="mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition {{ in_array($upcomingClass->id, $interestedMeetingIds) ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-border dark:text-gray-400' }}">
+                                        <span class="material-symbols-outlined text-[13px]" aria-hidden="true">{{ in_array($upcomingClass->id, $interestedMeetingIds) ? 'bookmark_added' : 'bookmark_add' }}</span>
+                                        {{ in_array($upcomingClass->id, $interestedMeetingIds) ? 'Interested' : 'I\'m interested' }}{{ $upcomingClass->interests_count > 0 ? ' ('.$upcomingClass->interests_count.')' : '' }}
                                     </button>
                                 </div>
                             </li>

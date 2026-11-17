@@ -130,6 +130,25 @@ class MemberDashboard extends Component
             ->withCount('interests')
             ->get();
 
+        $upcomingClasses = Meeting::query()
+            ->teachingSessions()
+            ->notCancelled()
+            ->whereNull('ended_at')
+            ->where('scheduled_at', '>=', now())
+            ->where(function ($query) use ($memberYear) {
+                $query->whereNull('audience')->orWhere('audience', 'all');
+
+                if ($memberYear === 1) {
+                    $query->orWhere('audience', 'year_1');
+                } elseif (is_int($memberYear) && $memberYear > 1) {
+                    $query->orWhere('audience', 'year_2_plus');
+                }
+            })
+            ->orderBy('scheduled_at')
+            ->limit(5)
+            ->withCount('interests')
+            ->get();
+
         $interestedMeetingIds = MeetingInterest::where('user_id', $user->id)->pluck('meeting_id')->all();
 
         $myAttendedMeetings = Attendance::query()
@@ -142,6 +161,7 @@ class MemberDashboard extends Component
             ->get();
 
         $pendingFeedbackMeetings = Meeting::query()
+            ->teachingSessions()
             ->whereHas('attendance', fn ($q) => $q->where('user_id', $user->id)->whereIn('status', ['present', 'late']))
             ->whereNotNull('ended_at')
             ->whereDoesntHave('feedback', fn ($q) => $q->where('user_id', $user->id))
@@ -202,6 +222,7 @@ class MemberDashboard extends Component
             'myAttendedMeetings' => $myAttendedMeetings,
             'pendingFeedbackMeetings' => $pendingFeedbackMeetings,
             'upcomingMeetings' => $upcomingMeetings,
+            'upcomingClasses' => $upcomingClasses,
             'interestedMeetingIds' => $interestedMeetingIds,
             'pendingFeedbackEvents' => $pendingFeedbackEvents,
             'favoriteEventsCount' => $favoriteEventsCount,

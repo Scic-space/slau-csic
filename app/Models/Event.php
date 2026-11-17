@@ -89,6 +89,18 @@ class Event extends Model
             ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed']);
     }
 
+    public static function findMemberViewableBySlug(?string $slug): ?self
+    {
+        if (blank($slug)) {
+            return null;
+        }
+
+        return static::query()
+            ->where('slug', $slug)
+            ->whereIn('status', ['published', 'scheduled', 'ongoing', 'completed'])
+            ->first();
+    }
+
     public function publicStatus(): string
     {
         if ($this->hasEnded()) {
