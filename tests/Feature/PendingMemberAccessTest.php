@@ -37,6 +37,7 @@ it('redirects a pending member to the dashboard when accessing club activities',
         ->assertRedirect(route('dashboard'));
 })->with([
     'events calendar' => 'events.calendar',
+    'meetings' => 'meetings.index',
     'attendance calendar' => 'attendance.calendar',
     'members directory' => 'members.index',
     'my events' => 'my-events',
@@ -106,6 +107,7 @@ it('redirects a pending member away from gated livewire components', function (s
     'exams' => \App\Livewire\ExamListing::class,
     'trainings' => \App\Livewire\TrainingListing::class,
     'my events' => \App\Livewire\MyEvents::class,
+    'meetings' => \App\Livewire\MemberMeetings::class,
     'my transactions' => \App\Livewire\MyTransactions::class,
     'polls' => \App\Livewire\PollListing::class,
     'attendance calendar' => \App\Livewire\AttendanceCalendar::class,
