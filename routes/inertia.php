@@ -36,6 +36,7 @@ use App\Livewire\InstructorTrainings;
 use App\Livewire\MemberDashboard;
 use App\Livewire\MemberDirectory;
 use App\Livewire\MemberMeetings;
+use App\Livewire\MemberMeetingShow;
 use App\Livewire\MemberNotifications;
 use App\Livewire\MemberProfile;
 use App\Livewire\MyEvents;
@@ -70,6 +71,7 @@ Route::get('/events/browse', EventListing::class)->name('events.browse')->middle
 Route::get('/events/{event:slug}/details', EventDetails::class)->name('events.member-show')->middleware(['auth', 'approved']);
 Route::get('/attendance/calendar', AttendanceCalendar::class)->name('attendance.calendar')->middleware(['auth', 'approved']);
 Route::get('/meetings', MemberMeetings::class)->name('meetings.index')->middleware(['auth', 'approved']);
+Route::get('/meetings/{meeting}', MemberMeetingShow::class)->name('meetings.show')->middleware(['auth', 'approved']);
 Route::get('/members', MemberDirectory::class)->name('members.index')->middleware(['auth', 'approved']);
 Route::get('/events', PublicEventController::class)->name('events.index');
 

@@ -28,7 +28,7 @@ class MeetingRescheduledNotification extends Notification
             ->line("Old date: {$this->oldDate}")
             ->line("New date: {$this->newDate}")
             ->line("Location: {$this->meeting->location}")
-            ->action('View Meeting Details', url("/admin/meetings/{$this->meeting->id}/edit"))
+            ->action('View Meeting Details', $this->meeting->memberViewUrl())
             ->line('Please update your calendar accordingly.');
     }
 
@@ -39,6 +39,7 @@ class MeetingRescheduledNotification extends Notification
             'meeting_title' => $this->meeting->title,
             'old_date' => $this->oldDate,
             'new_date' => $this->newDate,
+            'action_url' => $this->meeting->memberViewUrl(),
             'message' => "Meeting '{$this->meeting->title}' rescheduled from {$this->oldDate} to {$this->newDate}",
         ];
     }

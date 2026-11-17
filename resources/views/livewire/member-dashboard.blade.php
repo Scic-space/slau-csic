@@ -291,7 +291,7 @@
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $meeting->title }}</p>
+                                        <a href="{{ $meeting->memberViewUrl() }}" wire:navigate class="text-sm font-medium text-gray-900 transition hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $meeting->title }}</a>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
                                             {{ $meeting->scheduled_at->format('D, M j · g:i A') }}
                                             @if ($meeting->location)

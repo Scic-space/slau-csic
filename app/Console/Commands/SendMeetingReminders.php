@@ -33,14 +33,9 @@ class SendMeetingReminders extends Command
 
         $sent = 0;
         $failed = 0;
+        $users = User::activeMembers()->get();
 
         foreach ($meetings as $meeting) {
-            $audienceIds = $meeting->audienceMemberIds();
-
-            $users = $audienceIds === []
-                ? User::activeMembers()->get()
-                : User::whereIn('id', $audienceIds)->get();
-
             foreach ($users as $user) {
                 $hasAttended = Attendance::where('meeting_id', $meeting->id)
                     ->where('user_id', $user->id)

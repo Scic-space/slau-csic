@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\MemberMeetings;
+use App\Livewire\MemberMeetingShow;
 use App\Models\Attendance;
 use App\Models\Meeting;
 use App\Models\MeetingInterest;
@@ -181,4 +182,115 @@ it('shows attendance status for past meetings', function () {
         ->set('filter', 'past')
         ->assertSee('Attendance Review Meeting')
         ->assertSee('Late');
+});
+
+it('requires authentication to view meeting details', function () {
+    $meeting = Meeting::factory()->upcoming()->create([
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+
+    $this->get(route('meetings.show', $meeting))->assertRedirect('/auth/login');
+});
+
+it('renders meeting details for the target audience', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->upcoming()->create([
+        'title' => 'Annual Budget Review',
+        'description' => '<p>Discuss the annual budget and approve the plan.</p>',
+        'type' => 'general',
+        'audience' => 'all',
+        'minutes' => '<p>Minutes: budget approved.</p>',
+        'minutes_status' => 'published',
+    ]);
+    $meeting->agendaItems()->create([
+        'title' => 'Budget overview',
+        'description' => 'Review the proposed budget.',
+        'sort_order' => 1,
+    ]);
+    $meeting->attachments()->create([
+        'name' => 'Budget Draft.pdf',
+        'file_path' => 'meetings/budget-draft.pdf',
+        'type' => 'document',
+        'uploaded_by' => $user->id,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('meetings.show', $meeting))
+        ->assertSuccessful()
+        ->assertSee('Annual Budget Review')
+        ->assertSee('Discuss the annual budget and approve the plan.')
+        ->assertSee('Budget overview')
+        ->assertSee('Budget Draft.pdf')
+        ->assertSee('Minutes: budget approved.');
+});
+
+it('allows other year groups to view details but not register interest', function () {
+    $yearOne = User::factory()->create();
+    $yearOne->memberProfile()->create(['year_of_study' => 1]);
+    $yearThree = User::factory()->create();
+    $yearThree->memberProfile()->create(['year_of_study' => 3]);
+
+    $meeting = Meeting::factory()->upcoming()->create([
+        'title' => 'First Year Orientation Details',
+        'type' => 'general',
+        'audience' => 'year_1',
+    ]);
+
+    $this->actingAs($yearThree)
+        ->get(route('meetings.show', $meeting))
+        ->assertSuccessful()
+        ->assertSee('First Year Orientation Details');
+
+    Livewire::actingAs($yearThree)
+        ->test(MemberMeetingShow::class, ['meeting' => $meeting])
+        ->call('toggleInterest')
+        ->assertForbidden();
+
+    $this->actingAs($yearOne)
+        ->get(route('meetings.show', $meeting))
+        ->assertSuccessful();
+});
+
+it('shows cancelled meeting details and the cancellation reason', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->upcoming()->cancelled()->create([
+        'title' => 'Cancelled Planning Meeting',
+        'type' => 'general',
+        'audience' => 'all',
+        'cancellation_reason' => 'Venue unavailable',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('meetings.show', $meeting))
+        ->assertSuccessful()
+        ->assertSee('Cancelled Planning Meeting')
+        ->assertSee('Venue unavailable')
+        ->assertSee('This meeting has been cancelled.');
+});
+
+it('redirects teaching session detail links to the class page', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->upcoming()->teachingSession()->create([
+        'type' => 'teaching_session',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('meetings.show', $meeting))
+        ->assertRedirect(route('classes.show', $meeting));
+});
+
+it('toggles interest from the meeting details page', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->upcoming()->create([
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberMeetingShow::class, ['meeting' => $meeting])
+        ->call('toggleInterest')
+        ->assertSee('Interested');
+
+    expect(MeetingInterest::where('meeting_id', $meeting->id)->where('user_id', $user->id)->exists())->toBeTrue();
 });

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Meetings\Pages;
 
 use App\Filament\Resources\Meetings\MeetingResource;
 use App\Filament\Resources\Meetings\Schemas\MeetingForm;
+use App\Models\User;
 use App\Notifications\MeetingCancelledNotification;
 use App\Notifications\MeetingRescheduledNotification;
 use App\Services\AttendanceService;
@@ -73,6 +74,17 @@ class EditMeeting extends EditRecord
     protected function backfillMemberOptions(): array
     {
         return MeetingForm::memberOptions($this->record);
+    }
+
+    protected function notifyActiveMembers(\Illuminate\Notifications\Notification $notification): void
+    {
+        User::activeMembers()->get()->each(function (User $member) use ($notification): void {
+            try {
+                $member->notify($notification);
+            } catch (\Exception $exception) {
+                report($exception);
+            }
+        });
     }
 
     protected function getHeaderActions(): array
@@ -212,12 +224,9 @@ class EditMeeting extends EditRecord
                     ->action(function (array $data) {
                         $this->record->cancel($data['cancellation_reason']);
 
-                        $this->record->attendance()
-                            ->with('user')
-                            ->get()
-                            ->each(fn ($attendance) => $attendance->user->notify(
-                                new MeetingCancelledNotification($this->record, $data['cancellation_reason'])
-                            ));
+                        $this->notifyActiveMembers(
+                            new MeetingCancelledNotification($this->record, $data['cancellation_reason'])
+                        );
 
                         Notification::make()->title('Meeting cancelled')->success()->send();
                     }),
@@ -239,16 +248,13 @@ class EditMeeting extends EditRecord
 
                         $this->record->reschedule($newDateTime);
 
-                        $this->record->attendance()
-                            ->with('user')
-                            ->get()
-                            ->each(fn ($attendance) => $attendance->user->notify(
-                                new MeetingRescheduledNotification(
-                                    $this->record,
-                                    $oldDate,
-                                    $newDateTime->format('M d, Y g:i A')
-                                )
-                            ));
+                        $this->notifyActiveMembers(
+                            new MeetingRescheduledNotification(
+                                $this->record,
+                                $oldDate,
+                                $newDateTime->format('M d, Y g:i A')
+                            )
+                        );
 
                         Notification::make()->title('Meeting rescheduled')->success()->send();
                     }),

@@ -102,7 +102,9 @@
                             @endif
                         </div>
 
-                        <h2 class="mt-3 text-base font-semibold text-gray-900 dark:text-white">{{ $meeting->title }}</h2>
+                        <h2 class="mt-3 text-base font-semibold text-gray-900 dark:text-white">
+                            <a href="{{ route('meetings.show', $meeting) }}" wire:navigate class="transition hover:text-indigo-600 dark:hover:text-indigo-400">{{ $meeting->title }}</a>
+                        </h2>
 
                         @if ($meeting->description)
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ Str::limit(strip_tags($meeting->description), 150) }}</p>
@@ -132,6 +134,12 @@
                         @endif
 
                         <div class="mt-4 flex flex-wrap items-center gap-2">
+                            <a href="{{ route('meetings.show', $meeting) }}" wire:navigate
+                               class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-50 dark:border-border dark:text-gray-400 dark:hover:bg-card-hover">
+                                <span class="material-symbols-outlined text-[15px]" aria-hidden="true">open_in_new</span>
+                                Details
+                            </a>
+
                             @if (in_array($status, ['scheduled', 'ongoing'], true))
                                 <button type="button" wire:click="toggleInterest({{ $meeting->id }})" wire:loading.attr="disabled" wire:target="toggleInterest({{ $meeting->id }})"
                                         class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition disabled:opacity-60 {{ $isInterested ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-border dark:text-gray-400 dark:hover:bg-card-hover' }}">

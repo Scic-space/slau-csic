@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Notifications\MeetingCancelledNotification;
 use App\Notifications\MeetingReminderNotification;
 use App\Notifications\MeetingRescheduledNotification;
+use App\Notifications\MeetingScheduledNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -75,13 +76,14 @@ it('sends reminder notification', function () {
     );
 });
 
-it('sends reminders only to the targeted audience', function () {
+it('sends reminders to all active members regardless of audience', function () {
     Notification::fake();
 
     $yearOne = User::factory()->create();
     $yearOne->memberProfile()->create(['year_of_study' => 1]);
     $yearThree = User::factory()->create();
     $yearThree->memberProfile()->create(['year_of_study' => 3]);
+    $pending = User::factory()->pending()->create();
 
     $meeting = Meeting::factory()->teachingSession()->create([
         'created_by' => $this->admin->id,
@@ -92,7 +94,8 @@ it('sends reminders only to the targeted audience', function () {
     $this->artisan('meetings:send-reminders', ['--type' => '24h'])->assertSuccessful();
 
     Notification::assertSentTo($yearOne, MeetingReminderNotification::class);
-    Notification::assertNotSentTo($yearThree, MeetingReminderNotification::class);
+    Notification::assertSentTo($yearThree, MeetingReminderNotification::class);
+    Notification::assertNotSentTo($pending, MeetingReminderNotification::class);
 });
 
 it('completes reminders when a recipient mail fails', function () {
@@ -118,6 +121,34 @@ it('completes reminders when a recipient mail fails', function () {
     ]);
 
     $this->artisan('meetings:send-reminders', ['--type' => '24h'])->assertSuccessful();
+});
+
+it('links meeting notifications to the member-facing detail page', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->upcoming()->create([
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+
+    $notifications = [
+        new MeetingScheduledNotification($meeting),
+        new MeetingReminderNotification($meeting, '24h'),
+        new MeetingCancelledNotification($meeting, 'Venue unavailable'),
+        new MeetingRescheduledNotification($meeting, 'Nov 1, 2026 10:00 AM', 'Nov 2, 2026 10:00 AM'),
+    ];
+
+    foreach ($notifications as $notification) {
+        expect($notification->toArray($user)['action_url'])->toBe(route('meetings.show', $meeting))
+            ->and($notification->toMail($user)->actionUrl)->toBe(route('meetings.show', $meeting));
+    }
+});
+
+it('links class notifications to the class detail page', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->upcoming()->teachingSession()->create();
+
+    expect((new MeetingReminderNotification($meeting, '24h'))->toArray($user)['action_url'])
+        ->toBe(route('classes.show', $meeting));
 });
 
 it('creates database notification on reminder', function () {

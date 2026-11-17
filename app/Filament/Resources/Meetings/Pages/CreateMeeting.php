@@ -65,7 +65,7 @@ class CreateMeeting extends CreateRecord
             );
         }
 
-        if ($this->record->isTeachingSession() && ! $this->record->isCancelled()) {
+        if (! $this->record->isCancelled()) {
             $audienceIds = $this->record->audienceMemberIds();
 
             $recipients = $audienceIds === []

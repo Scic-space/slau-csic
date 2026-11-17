@@ -21,6 +21,8 @@ use App\Models\QuestionBankQuestion;
 use App\Models\Training;
 use App\Models\TrainingEnrollment;
 use App\Models\User;
+use App\Notifications\MeetingCancelledNotification;
+use App\Notifications\MeetingRescheduledNotification;
 use App\Notifications\MeetingScheduledNotification;
 use App\Services\CertificateService;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -440,6 +442,68 @@ it('notifies only the targeted audience when a class is scheduled', function () 
 
     Notification::assertSentTo($yearOne, MeetingScheduledNotification::class);
     Notification::assertNotSentTo($yearThree, MeetingScheduledNotification::class);
+});
+
+it('notifies active members when a general meeting is scheduled', function () {
+    Notification::fake();
+
+    $member = User::factory()->create();
+
+    Livewire::test(CreateMeeting::class)
+        ->fillForm([
+            'title' => 'Quarterly General Meeting',
+            'type' => 'general',
+            'scheduled_at' => now()->addWeek()->format('Y-m-d H:i:s'),
+            'created_by' => $this->admin->id,
+            'is_recurring' => false,
+            'audience' => 'all',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    Notification::assertSentTo(
+        $member,
+        MeetingScheduledNotification::class,
+        fn (MeetingScheduledNotification $notification) => $notification->meeting->title === 'Quarterly General Meeting'
+    );
+});
+
+it('notifies all active members when a meeting is cancelled', function () {
+    Notification::fake();
+
+    $meeting = Meeting::factory()->upcoming()->create([
+        'created_by' => $this->admin->id,
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+    $member = User::factory()->create();
+    $pending = User::factory()->pending()->create();
+
+    Livewire::test(EditMeeting::class, ['record' => $meeting->getRouteKey()])
+        ->callAction('cancel', data: ['cancellation_reason' => 'Venue unavailable'])
+        ->assertHasNoActionErrors();
+
+    Notification::assertSentTo($member, MeetingCancelledNotification::class);
+    Notification::assertNotSentTo($pending, MeetingCancelledNotification::class);
+});
+
+it('notifies all active members when a meeting is rescheduled', function () {
+    Notification::fake();
+
+    $meeting = Meeting::factory()->upcoming()->create([
+        'created_by' => $this->admin->id,
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+    $member = User::factory()->create();
+    $pending = User::factory()->pending()->create();
+
+    Livewire::test(EditMeeting::class, ['record' => $meeting->getRouteKey()])
+        ->callAction('reschedule', data: ['new_date' => now()->addWeek()->format('Y-m-d H:i:s')])
+        ->assertHasNoActionErrors();
+
+    Notification::assertSentTo($member, MeetingRescheduledNotification::class);
+    Notification::assertNotSentTo($pending, MeetingRescheduledNotification::class);
 });
 
 it('assigns an instructor when creating a class', function () {

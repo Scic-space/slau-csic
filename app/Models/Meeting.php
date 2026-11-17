@@ -159,6 +159,23 @@ class Meeting extends Model
         return $this->allowedAttendees()->where('user_id', $user->id)->exists();
     }
 
+    public function isVisibleTo(User $user): bool
+    {
+        if (! $this->canUserAttend($user)) {
+            return false;
+        }
+
+        if (! in_array($this->audience, ['year_1', 'year_2_plus'], true)) {
+            return true;
+        }
+
+        $memberYear = $user->memberProfile?->year_of_study;
+
+        return $this->audience === 'year_1'
+            ? $memberYear === 1
+            : is_int($memberYear) && $memberYear > 1;
+    }
+
     public function scopeUpcoming($query)
     {
         return $query->whereNull('cancelled_at')->where('scheduled_at', '>', now())
@@ -230,6 +247,13 @@ class Meeting extends Model
     public function getQrCodeUrl(): string
     {
         return route('attendance.verify', ['code' => $this->meeting_code]);
+    }
+
+    public function memberViewUrl(): string
+    {
+        return $this->isTeachingSession()
+            ? route('classes.show', $this)
+            : route('meetings.show', $this);
     }
 
     /**
