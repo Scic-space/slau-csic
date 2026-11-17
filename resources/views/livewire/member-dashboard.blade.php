@@ -473,8 +473,12 @@
                                     <li class="flex items-start gap-2">
                                         <span class="material-symbols-outlined mt-0.5 text-base text-green-500" aria-hidden="true">check_circle</span>
                                         <div class="min-w-0 flex-1">
-                                            <a href="{{ route('events.member-show', $attendedEvent) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedEvent->title }}</a>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $registration->attended_at->format('M j, Y') }}</p>
+                                            @if ($attendedMeeting->isTeachingSession())
+                                                <a href="{{ route('classes.show', $attendedMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $attendedMeeting->title }}</a>
+                                            @else
+                                                <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $attendedMeeting->title }}</p>
+                                            @endif
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Attended {{ $attendance->checked_in_at?->format('M j, Y') }}</p>
                                         </div>
                                     </li>
                                 @endif
@@ -524,7 +528,11 @@
                             <li class="flex items-start gap-2">
                                 <span class="material-symbols-outlined mt-0.5 text-base text-indigo-400" aria-hidden="true">school</span>
                                 <div class="min-w-0 flex-1">
-                                    <a href="{{ route('classes.show', $upcomingMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $upcomingMeeting->title }}</a>
+                                    @if ($upcomingMeeting->isTeachingSession())
+                                        <a href="{{ route('classes.show', $upcomingMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $upcomingMeeting->title }}</a>
+                                    @else
+                                        <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $upcomingMeeting->title }}</p>
+                                    @endif
                                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ $upcomingMeeting->scheduled_at?->format('D, M j · g:i A') }}</p>
                                     <button type="button" wire:click="toggleInterest({{ $upcomingMeeting->id }})" class="mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition {{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-border dark:text-gray-400' }}">
                                         <span class="material-symbols-outlined text-[13px]" aria-hidden="true">{{ in_array($upcomingMeeting->id, $interestedMeetingIds) ? 'bookmark_added' : 'bookmark_add' }}</span>
@@ -577,10 +585,14 @@
                         @foreach ($pendingFeedbackMeetings as $feedbackMeeting)
                             <li class="flex items-start gap-2">
                                 <span class="material-symbols-outlined mt-0.5 text-base text-amber-500" aria-hidden="true">rate_review</span>
-                                <div class="min-w-0 flex-1">
-                                    <a href="{{ route('classes.show', $feedbackMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $feedbackMeeting->title }}</a>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Share your feedback</p>
-                                </div>
+                                        <div class="min-w-0 flex-1">
+                                            @if ($feedbackMeeting->isTeachingSession())
+                                                <a href="{{ route('classes.show', $feedbackMeeting) }}" wire:navigate class="block truncate text-sm font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">{{ $feedbackMeeting->title }}</a>
+                                            @else
+                                                <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $feedbackMeeting->title }}</p>
+                                            @endif
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Share your feedback</p>
+                                        </div>
                             </li>
                         @endforeach
                     </ul>
