@@ -2,6 +2,7 @@
 
 use App\Models\Announcement;
 use App\Models\Competition;
+use App\Models\News;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -70,6 +71,56 @@ it('renders the announcements page', function () {
     $response = $this->get(route('announcements.index'));
 
     $response->assertSuccessful();
+});
+
+it('tracks unique news readers and shows the count on public news pages', function () {
+    $news = News::factory()->create([
+        'title' => 'Public News Views',
+        'excerpt' => 'A public news update.',
+        'content' => '<p>A public news update.</p>',
+        'is_published' => true,
+        'published_at' => now(),
+    ]);
+
+    $this->withSession(['news_viewer_key' => 'reader-one'])
+        ->get(route('news.show', $news))
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page
+            ->component('public/NewsShow')
+            ->where('article.view_count', 1)
+            ->where('article.last_viewed_at', fn ($value) => is_string($value)));
+
+    $this->withSession(['news_viewer_key' => 'reader-two'])
+        ->get(route('news.show', $news))
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page->component('public/NewsShow')->where('article.view_count', 2));
+
+    $this->withSession(['news_viewer_key' => 'reader-two'])
+        ->get(route('news.show', $news))
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page->component('public/NewsShow')->where('article.view_count', 2));
+
+    $this->get(route('news.index'))
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page
+            ->component('public/News')
+            ->where('articles.0.view_count', 2)
+            ->where('articles.0.last_viewed_at', fn ($value) => is_string($value)));
+});
+
+it('shows zero readers for a public news article that has not been viewed', function () {
+    News::factory()->create([
+        'title' => 'Unread Public News',
+        'is_published' => true,
+        'published_at' => now(),
+    ]);
+
+    $this->get(route('news.index'))
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page
+            ->component('public/News')
+            ->where('articles.0.view_count', 0)
+            ->where('articles.0.last_viewed_at', null));
 });
 
 it('renders the leaderboard page', function () {

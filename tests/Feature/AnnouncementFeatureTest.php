@@ -295,6 +295,39 @@ it('shows view count on listing after announcement is viewed', function () {
         ->assertSee('1 view');
 });
 
+it('shows view count on announcement detail page', function () {
+    $announcement = Announcement::factory()->create([
+        'title' => 'Viewed Detail Announcement',
+        'is_published' => true,
+        'published_at' => now(),
+    ]);
+
+    $secondReader = User::factory()->create([
+        'membership_status' => 'active',
+        'membership_type' => 'active',
+    ]);
+
+    $announcement->markAsViewedBy($this->user);
+    $announcement->markAsViewedBy($secondReader);
+
+    Livewire::actingAs($this->user)
+        ->test(AnnouncementShow::class, ['slug' => $announcement->slug])
+        ->assertSee('2 views')
+        ->assertSee('Last read');
+});
+
+it('shows zero views on listing for unread announcements', function () {
+    Announcement::factory()->create([
+        'title' => 'Unread Announcement',
+        'is_published' => true,
+        'published_at' => now(),
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(AnnouncementListing::class)
+        ->assertSee('0 views');
+});
+
 it('does not show expired announcement as active', function () {
     $announcement = Announcement::factory()->create([
         'is_published' => true,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -10,34 +11,23 @@ class PublicNewsController extends Controller
 {
     public function index(): Response
     {
-        $featured = News::published()
-            ->featured()
+        $newsQuery = News::published()
             ->with('author')
+            ->withCount('views')
+            ->withMax('views as last_viewed_at', 'viewed_at');
+
+        $featured = (clone $newsQuery)
+            ->featured()
             ->latest('published_at')
             ->first();
 
-        $articles = News::published()
-            ->with('author')
+        $articles = (clone $newsQuery)
             ->latest('published_at')
             ->get();
 
         return Inertia::render('public/News', [
-            'featured' => $featured ? array_merge($featured->only([
-                'id', 'title', 'slug', 'excerpt', 'category', 'content_type',
-                'source_name', 'source_url', 'published_at',
-            ]), [
-                'embed_url' => $featured->embed_url,
-                'video_url' => $featured->public_video_url,
-                'thumbnail_url' => $featured->public_thumbnail_url,
-            ]) : null,
-            'articles' => $articles->map(fn (News $news) => array_merge($news->only([
-                'id', 'title', 'slug', 'excerpt', 'category', 'content_type',
-                'source_name', 'source_url', 'published_at',
-            ]), [
-                'embed_url' => $news->embed_url,
-                'video_url' => $news->public_video_url,
-                'thumbnail_url' => $news->public_thumbnail_url,
-            ])),
+            'featured' => $featured ? $this->newsPayload($featured) : null,
+            'articles' => $articles->map(fn (News $news) => $this->newsPayload($news)),
         ]);
     }
 
@@ -47,6 +37,9 @@ class PublicNewsController extends Controller
             ->where('slug', $slug)
             ->with('author')
             ->firstOrFail();
+
+        $news->markAsViewedBySession();
+        $news->loadCount('views')->loadMax('views as last_viewed_at', 'viewed_at');
 
         $related = News::published()
             ->where('id', '!=', $news->id)
@@ -60,16 +53,33 @@ class PublicNewsController extends Controller
             ]));
 
         return Inertia::render('public/NewsShow', [
-            'article' => array_merge($news->only([
-                'title', 'slug', 'excerpt', 'content', 'category', 'content_type',
-                'source_name', 'source_url', 'published_at',
-            ]), [
+            'article' => array_merge($this->newsPayload($news, true), [
                 'author' => $news->author?->name ?? 'CSIC Admin',
-                'embed_url' => $news->embed_url,
-                'video_url' => $news->public_video_url,
-                'thumbnail_url' => $news->public_thumbnail_url,
             ]),
             'related' => $related,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function newsPayload(News $news, bool $withContent = false): array
+    {
+        $fields = [
+            'id', 'title', 'slug', 'excerpt', 'category', 'content_type',
+            'source_name', 'source_url', 'published_at',
+        ];
+
+        if ($withContent) {
+            $fields[] = 'content';
+        }
+
+        return array_merge($news->only($fields), [
+            'view_count' => $news->views_count,
+            'last_viewed_at' => $news->last_viewed_at ? Carbon::parse($news->last_viewed_at)->toIso8601String() : null,
+            'embed_url' => $news->embed_url,
+            'video_url' => $news->public_video_url,
+            'thumbnail_url' => $news->public_thumbnail_url,
         ]);
     }
 }

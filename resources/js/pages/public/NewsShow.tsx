@@ -1,4 +1,5 @@
 import PublicLayout from '@/components/PublicLayout';
+import { formatRelativeTime } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
@@ -14,6 +15,7 @@ import {
     ExternalLink,
     Clock,
     User,
+    Eye,
 } from 'lucide-react';
 
 interface Article {
@@ -30,6 +32,8 @@ interface Article {
     published_at: string;
     author: string;
     embed_url: string | null;
+    view_count: number;
+    last_viewed_at: string | null;
 }
 
 interface RelatedArticle {
@@ -205,6 +209,13 @@ export default function NewsShow({ article, related }: NewsShowProps) {
                                     <Clock className="h-4 w-4" />
                                     {formatDate(article.published_at)}
                                 </span>
+                                <span className="text-gray-300 dark:text-gray-700">&middot;</span>
+                                <span className="inline-flex items-center gap-1.5">
+                                    <Eye className="h-4 w-4" />
+                                    {article.view_count} {article.view_count === 1 ? 'reader' : 'readers'}
+                                </span>
+                                <span className="text-gray-300 dark:text-gray-700">&middot;</span>
+                                <span>Last read {formatRelativeTime(article.last_viewed_at)}</span>
                                 {article.source_name && (
                                     <>
                                         <span className="text-gray-300 dark:text-gray-700">&middot;</span>

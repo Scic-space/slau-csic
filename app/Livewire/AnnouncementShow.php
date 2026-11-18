@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Announcement;
+use Carbon\Carbon;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -29,6 +30,8 @@ class AnnouncementShow extends Component
 
         $this->dispatch('sidebar-badges-refresh');
 
+        $lastViewedAt = $announcement->views()->max('announcement_views.viewed_at');
+
         $this->announcement = [
             'id' => $announcement->id,
             'title' => $announcement->title,
@@ -38,6 +41,8 @@ class AnnouncementShow extends Component
             'is_expired' => $announcement->isExpired(),
             'published_at' => $announcement->published_at?->toIso8601String(),
             'expires_at' => $announcement->expires_at?->toIso8601String(),
+            'view_count' => $announcement->views()->count(),
+            'last_viewed_at' => $lastViewedAt ? Carbon::parse($lastViewedAt)->toIso8601String() : null,
             'author' => $announcement->author?->name ?? 'Administration',
         ];
     }

@@ -1,4 +1,5 @@
 import PublicLayout from '@/components/PublicLayout';
+import { formatRelativeTime } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Link } from '@inertiajs/react';
 import { useState } from 'react';
@@ -13,6 +14,7 @@ import {
     ExternalLink,
     ArrowRight,
     Sparkles,
+    Eye,
 } from 'lucide-react';
 
 interface NewsArticle {
@@ -28,6 +30,8 @@ interface NewsArticle {
     video_url: string | null;
     published_at: string;
     embed_url: string | null;
+    view_count: number;
+    last_viewed_at: string | null;
 }
 
 interface NewsProps {
@@ -131,6 +135,19 @@ function VideoPlayer({ videoUrl, title }: { videoUrl: string; title: string }) {
     );
 }
 
+function ReaderCount({ count }: { count: number }) {
+    return (
+        <span className="inline-flex items-center gap-1">
+            <Eye className="h-3 w-3" />
+            {count} {count === 1 ? 'reader' : 'readers'}
+        </span>
+    );
+}
+
+function LastRead({ value }: { value: string | null }) {
+    return <span>Last read {formatRelativeTime(value)}</span>;
+}
+
 function VideoCard({ article }: { article: NewsArticle }) {
     const [playing, setPlaying] = useState(false);
     const cat = categoryConfig[article.category];
@@ -204,6 +221,8 @@ function VideoCard({ article }: { article: NewsArticle }) {
 
             <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{timeAgo(article.published_at)}</span>
+                <span className="text-muted-foreground">&middot;</span>
+                <ReaderCount count={article.view_count} />
                 {article.source_name && (
                     <>
                         <span className="text-muted-foreground">&middot;</span>
@@ -319,6 +338,10 @@ export default function News({ featured, articles }: NewsProps) {
 
                                         <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
                                             <span>{timeAgo(featured.published_at)}</span>
+                                            <span className="text-muted-foreground">&middot;</span>
+                                            <ReaderCount count={featured.view_count} />
+                                            <span className="text-muted-foreground">&middot;</span>
+                                            <LastRead value={featured.last_viewed_at} />
                                             {featured.source_name && (
                                                 <>
                                                     <span className="text-muted-foreground">&middot;</span>
@@ -360,6 +383,10 @@ export default function News({ featured, articles }: NewsProps) {
 
                                             <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
                                                 <span>{timeAgo(featured.published_at)}</span>
+                                                <span className="text-muted-foreground">&middot;</span>
+                                                <ReaderCount count={featured.view_count} />
+                                                <span className="text-muted-foreground">&middot;</span>
+                                                <LastRead value={featured.last_viewed_at} />
                                                 {featured.source_name && (
                                                     <>
                                                         <span className="text-muted-foreground">&middot;</span>
@@ -458,6 +485,8 @@ export default function News({ featured, articles }: NewsProps) {
 
                                                 <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
                                                     <span>{timeAgo(article.published_at)}</span>
+                                                    <span className="text-muted-foreground">&middot;</span>
+                                                    <ReaderCount count={article.view_count} />
                                                     {article.source_name && (
                                                         <>
                                                             <span className="text-muted-foreground">&middot;</span>

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -73,6 +74,26 @@ class News extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function views(): HasMany
+    {
+        return $this->hasMany(NewsView::class);
+    }
+
+    public function markAsViewedBySession(): void
+    {
+        $viewerKey = session()->remember('news_viewer_key', fn (): string => Str::random(40));
+
+        $this->views()->firstOrCreate(
+            ['viewer_key' => hash('sha256', $viewerKey)],
+            ['viewed_at' => now()],
+        );
+    }
+
+    public function getViewCountAttribute(): int
+    {
+        return $this->views()->count();
     }
 
     public function scopePublished($query)

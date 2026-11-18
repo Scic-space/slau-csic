@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import PublicLayout from '@/components/PublicLayout';
+import { formatRelativeTime } from '@/lib/utils';
 
 interface EventItem {
     title: string; slug: string; description: string; type: string;
@@ -40,22 +41,6 @@ const learning = [
 
 function Icon({ children, className = '' }: { children: string; className?: string }) {
     return <span className={`material-symbols-outlined ${className}`} aria-hidden="true">{children}</span>;
-}
-
-function formatLastRead(value: string): string {
-    const date = new Date(value);
-    const minutes = Math.floor((Date.now() - date.getTime()) / 60000);
-
-    if (minutes < 1) return 'just now';
-    if (minutes < 60) return `${minutes}m ago`;
-
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
-
-    return date.toLocaleDateString();
 }
 
 function Heading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
@@ -107,7 +92,7 @@ export default function Home({ upcomingEvents, announcements, stats }: HomeProps
 
             <section id="community" className="border-b border-border bg-card py-20 sm:py-24"><div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8"><Heading eyebrow="Community" title="Your ideas go further with the right people around you." description="Meet students who want to lead, build, compete, and make technology matter. SCIC Cyber is a place to contribute at every skill level." /><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{[['hub', 'Networking'], ['handshake', 'Collaboration'], ['lightbulb', 'Innovation'], ['leaderboard', 'Leadership'], ['emoji_events', 'Competitions'], ['code', 'Tech Projects']].map(([icon, label]) => <div key={label} className="flex min-h-28 flex-col items-center justify-center rounded-sm bg-background/75 p-4 text-center shadow-theme-xs dark:bg-background/55"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">{icon}</Icon><span className="mt-3 text-sm font-semibold text-foreground">{label}</span></div>)}</div></div></section>
 
-            {announcements.length > 0 && <section className="border-b border-border bg-background py-16"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><p className="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">Latest from the club</p><div className="grid gap-4 md:grid-cols-2">{announcements.map((item) => <article key={item.id} className="rounded-sm bg-card/80 p-5 shadow-theme-xs dark:bg-card/70"><div className="flex gap-3"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">campaign</Icon><div><h3 className="font-semibold text-foreground">{item.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{item.content}</p><div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1"><Icon className="text-[16px]">visibility</Icon>{item.view_count} {item.view_count === 1 ? 'reader' : 'readers'}</span>{item.last_viewed_at ? <span className="inline-flex items-center gap-1"><Icon className="text-[16px]">schedule</Icon>Last read {formatLastRead(item.last_viewed_at)}</span> : <span className="inline-flex items-center gap-1"><Icon className="text-[16px]">schedule</Icon>Not read yet</span>}</div></div></div></article>)}</div></div></section>}
+            {announcements.length > 0 && <section className="border-b border-border bg-background py-16"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><p className="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">Latest from the club</p><div className="grid gap-4 md:grid-cols-2">{announcements.map((item) => <article key={item.id} className="rounded-sm bg-card/80 p-5 shadow-theme-xs dark:bg-card/70"><div className="flex gap-3"><Icon className="text-[24px] text-brand-600 dark:text-brand-300">campaign</Icon><div><h3 className="font-semibold text-foreground">{item.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{item.content}</p><div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1"><Icon className="text-[16px]">visibility</Icon>{item.view_count} {item.view_count === 1 ? 'reader' : 'readers'}</span>{item.last_viewed_at ? <span className="inline-flex items-center gap-1"><Icon className="text-[16px]">schedule</Icon>Last read {formatRelativeTime(item.last_viewed_at)}</span> : <span className="inline-flex items-center gap-1"><Icon className="text-[16px]">schedule</Icon>Not read yet</span>}</div></div></div></article>)}</div></div></section>}
 
             <section className="bg-background py-20 sm:py-24"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div className="relative overflow-hidden rounded-sm bg-brand-600 px-6 py-14 text-center text-white shadow-theme-xl sm:px-10"><div className="pointer-events-none absolute -right-16 -top-28 h-72 w-72 rounded-full border-[48px] border-white/10" /><p className="relative text-sm font-semibold uppercase tracking-[0.2em] text-brand-100">Start your journey</p><h2 className="relative mt-3 text-3xl font-bold tracking-tight sm:text-5xl">Build. Learn. Secure. Innovate.</h2><p className="relative mx-auto mt-5 max-w-2xl text-brand-100">Join a community turning curiosity into practical cybersecurity skills and bold technology projects.</p><div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/auth/register" className="inline-flex min-h-12 items-center justify-center rounded-sm bg-white px-6 py-3 text-sm font-semibold text-brand-700 transition hover:bg-brand-50">Join SCIC Cyber</Link><Link href="/auth/login" className="inline-flex min-h-12 items-center justify-center rounded-sm border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Explore the Platform</Link></div></div></div></section>
         </PublicLayout>
