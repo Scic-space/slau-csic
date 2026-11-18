@@ -14,6 +14,30 @@ it('renders the public home page', function () {
     $response->assertSuccessful();
 });
 
+it('shows announcement reader counts and latest read time on the public home page', function () {
+    $firstReader = User::factory()->create(['membership_status' => 'active']);
+    $secondReader = User::factory()->create(['membership_status' => 'active']);
+
+    $announcement = Announcement::factory()->create([
+        'title' => 'Public Home News',
+        'content' => '<p>Important club update.</p>',
+        'audience' => 'all',
+        'is_published' => true,
+        'published_at' => now(),
+    ]);
+
+    $announcement->markAsViewedBy($firstReader);
+    $announcement->markAsViewedBy($secondReader);
+
+    $this->get(route('home'))
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page
+            ->component('public/Home')
+            ->where('announcements.0.view_count', 2)
+            ->where('announcements.0.last_viewed_at', fn ($value) => is_string($value))
+            ->where('announcements.0.content', 'Important club update.'));
+});
+
 it('renders the projects page', function () {
     Project::factory()->create(['name' => 'Test Project']);
 

@@ -6,7 +6,10 @@ use App\Models\Announcement;
 use App\Models\Event;
 use App\Models\Project;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,14 +48,18 @@ class PublicHomeController extends Controller
         $announcements = Announcement::published()
             ->active()
             ->where('audience', 'all')
+            ->withCount('views')
+            ->withMax('views as last_viewed_at', new Expression('announcement_views.viewed_at'))
             ->orderBy('published_at', 'desc')
             ->take(2)
             ->get()
             ->map(fn ($a) => [
                 'id' => $a->id,
                 'title' => $a->title,
-                'content' => $a->content,
+                'content' => Str::limit(html_entity_decode(strip_tags($a->content ?? '')), 160),
                 'type' => $a->type,
+                'view_count' => $a->views_count,
+                'last_viewed_at' => $a->last_viewed_at ? Carbon::parse($a->last_viewed_at)->toIso8601String() : null,
                 'published_at' => $a->published_at?->toIso8601String(),
             ]);
 
