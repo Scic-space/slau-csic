@@ -32,6 +32,7 @@
                 <select id="meeting-filter" wire:model.live="filter"
                         class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-border dark:bg-card dark:text-white dark:focus:border-white dark:focus:ring-white">
                     <option value="upcoming">Upcoming</option>
+                    <option value="attended">Attended</option>
                     <option value="past">Past</option>
                     <option value="all">All</option>
                 </select>

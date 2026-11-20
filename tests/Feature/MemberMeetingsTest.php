@@ -63,6 +63,42 @@ it('shows upcoming meetings by default and past meetings when filtered', functio
         ->assertDontSee('Upcoming General Meeting');
 });
 
+it('shows only meetings the member attended under the attended filter', function () {
+    $user = User::factory()->create();
+
+    $attended = Meeting::factory()->past()->create([
+        'title' => 'Completed Attended Meeting',
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+    Meeting::factory()->past()->create([
+        'title' => 'Completed Missed Meeting',
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+    Meeting::factory()->upcoming()->create([
+        'title' => 'Still Upcoming Meeting',
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+
+    Attendance::create([
+        'meeting_id' => $attended->id,
+        'user_id' => $user->id,
+        'status' => 'present',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberMeetings::class)
+        ->assertDontSee('Completed Attended Meeting')
+        ->set('filter', 'attended')
+        ->assertSee('Completed Attended Meeting')
+        ->assertDontSee('Completed Missed Meeting')
+        ->assertDontSee('Still Upcoming Meeting')
+        ->assertSee('Present');
+});
+
 it('filters meetings by type and search term', function () {
     $user = User::factory()->create();
 

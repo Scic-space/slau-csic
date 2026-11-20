@@ -154,7 +154,13 @@ class MemberDashboard extends Component
         $myAttendedMeetings = Attendance::query()
             ->where('user_id', $user->id)
             ->whereIn('status', ['present', 'late'])
-            ->whereHas('meeting', fn ($q) => $q->teachingSessions()->notCancelled())
+            ->whereHas('meeting', function ($query) {
+                $query->notCancelled()
+                    ->where(function ($query) {
+                        $query->whereNotNull('ended_at')
+                            ->orWhere('scheduled_at', '<', now());
+                    });
+            })
             ->with('meeting:id,title,scheduled_at,type,location')
             ->latest('checked_in_at')
             ->limit(5)

@@ -130,7 +130,12 @@ class MemberMeetings extends Component
             $query->where('type', $this->type);
         }
 
-        if ($this->filter === 'past') {
+        if ($this->filter === 'attended') {
+            $query->whereHas('attendance', fn ($query) => $query
+                ->where('user_id', $user->id)
+                ->whereIn('status', ['present', 'late']))
+                ->orderByDesc('scheduled_at');
+        } elseif ($this->filter === 'past') {
             $query->where(function ($query) {
                 $query->whereNotNull('ended_at')
                     ->orWhere(function ($query) {

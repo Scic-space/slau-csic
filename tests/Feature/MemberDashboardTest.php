@@ -191,8 +191,32 @@ it('lists recently attended internal classes on the dashboard', function () {
     Livewire::actingAs($user)
         ->test(MemberDashboard::class)
         ->assertViewHas('myAttendedMeetings', fn ($attendances) => $attendances->contains(fn ($a) => $a->meeting_id === $meeting->id))
-        ->assertSee('My Classes')
+        ->assertSee('My Meetings')
         ->assertSee('Past Linux Class');
+});
+
+it('lists recently attended general meetings on the dashboard', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->past()->create([
+        'title' => 'Completed General Meeting',
+        'type' => 'general',
+        'audience' => 'all',
+    ]);
+
+    Attendance::create([
+        'meeting_id' => $meeting->id,
+        'user_id' => $user->id,
+        'status' => 'late',
+        'checked_in_at' => now()->subWeek(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(MemberDashboard::class)
+        ->assertViewHas('myAttendedMeetings', fn ($attendances) => $attendances->contains(fn ($a) => $a->meeting_id === $meeting->id))
+        ->assertSee('My Meetings')
+        ->assertSee('Completed General Meeting')
+        ->assertSee(route('meetings.show', $meeting))
+        ->assertSee(route('meetings.index', ['filter' => 'attended']));
 });
 
 it('shows upcoming classes only to their targeted audience', function () {
